@@ -11,11 +11,13 @@
 /* Forward declarations of business module descriptors. */
 extern const mod_desc_t mod_template;
 extern const mod_desc_t mod_power;
+extern const mod_desc_t mod_meter;
 
 const mod_desc_t * const g_modules[] = {
     /* Order is significant for log readability but not for correctness. */
     &mod_template,
     &mod_power,
+    &mod_meter,
     /* &mod_can, &mod_diag, ... append here */
 };
 
