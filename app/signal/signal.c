@@ -42,3 +42,10 @@ void Signal_Invalidate(signal_id_t id)
     }
     s_signals[id].valid = false;
 }
+
+void Signal_InvalidateAll(void)
+{
+    for (int i = 0; i < SIG_MAX; i++) {
+        s_signals[i].valid = false;
+    }
+}
