@@ -9,6 +9,7 @@
 
 #include "bsp_init.h"
 #include "drv_init.h"
+#include "power.h"
 #include "rti.h"
 #include "scheduler.h"
 
@@ -35,7 +36,12 @@ int main(void)
     RTI_Init();
 
     Scheduler_Init();
-    Scheduler_OnIgnOn();
+
+    /* If the IGN line is already high at boot (e.g. key-on before MCU ready),
+     * fire the IGN ON lifecycle so all modules initialize their post-IGN state. */
+    if (Power_IsIgnOn()) {
+        Scheduler_OnIgnOn();
+    }
     LOG_I("=== C02-B2 boot OK ===");
 
     /* Super loop: 调度器遍历所有已注册模块的 tick() */

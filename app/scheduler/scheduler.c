@@ -10,11 +10,13 @@
 
 /* Forward declarations of business module descriptors. */
 extern const mod_desc_t mod_template;
+extern const mod_desc_t mod_power;
 
 const mod_desc_t * const g_modules[] = {
     /* Order is significant for log readability but not for correctness. */
     &mod_template,
-    /* &mod_power, &mod_can, ... append here */
+    &mod_power,
+    /* &mod_can, &mod_diag, ... append here */
 };
 
 static const uint32_t g_module_cnt = sizeof(g_modules) / sizeof(g_modules[0]);
