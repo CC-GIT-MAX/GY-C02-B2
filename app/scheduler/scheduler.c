@@ -12,12 +12,16 @@
 extern const mod_desc_t mod_template;
 extern const mod_desc_t mod_power;
 extern const mod_desc_t mod_meter;
+extern const mod_desc_t mod_can_rx;
+extern const mod_desc_t mod_can_tx;
 
 const mod_desc_t * const g_modules[] = {
     /* Order is significant for log readability but not for correctness. */
     &mod_template,
     &mod_power,
     &mod_meter,
+    &mod_can_rx,    /* pull from ring first */
+    &mod_can_tx,    /* push to bus */
     /* &mod_can, &mod_diag, ... append here */
 };
 
