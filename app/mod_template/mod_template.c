@@ -9,6 +9,7 @@
  *   - Log_* for leveled diagnostics
  *   - lbx_result_t for error reporting
  */
+#include "types.h"
 #include "mod_template.h"
 #include "rti.h"
 #include "signal.h"
