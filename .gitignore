@@ -29,6 +29,20 @@ build.ninja
 *.hex
 *.out
 *.elf
+*.s19
+*.mot
+*.axf
+*.axf.bin
+*.sym
+*.ex_
+*.ienv
+*.ienv_bak
+*.cpu
+*.dbgdt
+*.dnx
+*.crun
+*.pbi.lst
+*.pbi.xcl
 
 # IAR EWARM：保留工程定义，忽略构建缓存与本地设置
 EWARM/settings/
@@ -37,18 +51,26 @@ EWARM/Backup*/
 EWARM/*.log
 EWARM/*~
 EWARM/*_Data/
+EWARM/Flash1/
+EWARM/Flash2/
+EWARM/Release/
+EWARM/Debug/
 
 # VSCode：保留配置
 .vscode/*
 !.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
 
 # 静态扫描产物
 cstat.db
+*.cstat
 
 # 操作系统
 .DS_Store
 Thumbs.db
 desktop.ini
+$RECYCLE.BIN/
 
 # 用户/编辑器
 *~
@@ -56,7 +78,12 @@ desktop.ini
 *.swo
 *.orig
 *.rej
+*.saving
+*.crdownload
 
 # 本地草稿
 tmp_*
 scratch/
+*.local
+.env
+.env.*
