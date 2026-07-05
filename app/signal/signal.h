@@ -90,10 +90,63 @@ typedef enum {
     SIG_MAX
 } signal_id_t;
 
+/**
+ * @brief   Publish a value on the signal bus
+ * @brief   在信号总线上发布一个值
+ *
+ * @details Stamps the value and marks the slot as valid. The
+ *          owner of the signal is responsible for the rate.
+ *          Returns LBX_ERR_PARAM for SIG_INVALID / out-of-range ids.
+ *
+ * @param[in]  id     Signal id (see signal_id_t)
+ * @param[in]  value  32-bit payload; interpretation depends on signal
+ *
+ * @return  lbx_result_t
+ * @retval  LBX_OK            Value stored
+ * @retval  LBX_ERR_PARAM     id invalid
+ */
 lbx_result_t Signal_Set(signal_id_t id, int32_t value);
+
+/**
+ * @brief   Read the current value of a signal
+ * @brief   读取信号的当前值
+ *
+ * @details Returns 0 for unknown / out-of-range ids. Callers
+ *          that care about freshness should use Signal_IsValid().
+ *
+ * @param[in]  id  Signal id
+ *
+ * @return  int32_t  Last value set, or 0 if never set / invalid id
+ */
 int32_t      Signal_Get(signal_id_t id);
+
+/**
+ * @brief   Check whether the signal slot is currently valid
+ * @brief   检查信号槽位当前是否有效
+ *
+ * @param[in]  id  Signal id
+ *
+ * @return  bool
+ * @retval  true   Signal has been set and not invalidated
+ * @retval  false  Never set, explicitly invalidated, or invalid id
+ */
 bool         Signal_IsValid(signal_id_t id);
+
+/**
+ * @brief   Mark a single signal as invalid (next Get returns 0)
+ * @brief   将单个信号标记为无效（下次 Get 返回 0）
+ *
+ * @param[in]  id  Signal id
+ */
 void         Signal_Invalidate(signal_id_t id);
+
+/**
+ * @brief   Mark every signal as invalid
+ * @brief   将所有信号标记为无效
+ *
+ * @details Used on power-mode transitions / factory reset to force
+ *          all consumers to republish.
+ */
 void         Signal_InvalidateAll(void);
 
 #endif /* LBX_SIGNAL_H */

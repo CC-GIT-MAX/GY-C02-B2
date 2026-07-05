@@ -47,8 +47,33 @@
 #define PWR_IGN_DEBOUNCE_TICK  3u
 
 /* Hardware access (filled by board layer). */
+
+/**
+ * @brief   Read a raw 12-bit ADC sample from the chosen channel
+ * @brief   从指定通道读取 12-bit 原始 ADC 采样
+ *
+ * @param[in]  channel  ADC channel index
+ *
+ * @return  u16  Raw ADC value (0..4095)
+ */
 u16  Board_ADC_ReadRaw(u8 channel);
+
+/**
+ * @brief   Convert a raw ADC count to mV using the voltage divider ratio
+ * @brief   通过分压比将原始 ADC 计数转换为 mV
+ *
+ * @param[in]  raw_adc  Raw ADC value
+ *
+ * @return  u16  Voltage in mV
+ */
 u16  Board_VoltageDivider_mV(u16 raw_adc);
+
+/**
+ * @brief   Register the IGN edge ISR with the board's IRQ controller
+ * @brief   将 IGN 边沿 ISR 注册到板级中断控制器
+ *
+ * @param[in]  isr  Callback to invoke on either edge
+ */
 void Board_RegisterIgnIrq(void (*isr)(void));
 
 #endif /* LBX_BOARD_POWER_H */

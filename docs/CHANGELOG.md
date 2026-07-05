@@ -8,6 +8,7 @@
 | 3 | 信号中心扩展 + 单元测试桩 + SIGNAL_GUIDE.md | ✅ | `feat(signal)+docs(batch3): expand signal bus, add unit test stub, signal guide` |
 | 4 | CAN / 诊断 / 存储中间件骨架 | ✅ | `feat(can/diag/storage): middleware skeletons (batch4)` |
 | 5 | CI / 静态扫描 / 提交规范 | ✅ | `ci+docs+tools(batch5): CI pipeline, pre-commit check, commit convention` |
+| 6 | Doxygen 注释规范 + 自动化检查 + SDD 模板 + 架构图 | ✅ | docs(tooling): doxygen style + check_doxygen + SDD template + arch diagram |
 
 ## 当前架构状态
 

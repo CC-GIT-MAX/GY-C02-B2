@@ -79,6 +79,11 @@ $RECYCLE.BIN/
 *.orig
 *.rej
 *.saving
+
+# Python (tools/ 下可能有脚本)
+__pycache__/
+*.pyc
+*.pyo
 *.crdownload
 
 # 本地草稿

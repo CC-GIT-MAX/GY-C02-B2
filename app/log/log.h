@@ -17,6 +17,10 @@
 #include <stdint.h>
 #include "result.h"
 
+/**
+ * @brief   Log severity levels
+ * @brief   日志严重等级
+ */
 typedef enum {
     LOG_LVL_ERROR = 0,
     LOG_LVL_WARN  = 1,
@@ -37,6 +41,22 @@ typedef enum {
   #define LOG_PRINTF(...)  printf(__VA_ARGS__)
 #endif
 
+/**
+ * @brief   Print a leveled log line
+ * @brief   输出一条带等级与模块名的日志
+ *
+ * @details Wraps the user format in `[LEVEL][MOD] ...` and writes
+ *          through LOG_PRINTF. The level filter is also applied
+ *          at compile time inside LOG_* macros, so calls with
+ *          level > LOG_LEVEL become no-ops.
+ *
+ * @param[in]  lvl  Severity (LOG_LVL_*)
+ * @param[in]  mod  Short module tag (e.g. "PWR", "CAN")
+ * @param[in]  fmt  printf-style format string
+ *
+ * @note    Variable arguments follow `fmt` (printf semantics).
+ *          The output ends with a CRLF.
+ */
 void Log_Print(log_level_t lvl, const char *mod, const char *fmt, ...);
 
 #define LOG_E(...)  do { if (LOG_LEVEL >= LOG_LVL_ERROR) Log_Print(LOG_LVL_ERROR, MOD_NAME, __VA_ARGS__); } while(0)

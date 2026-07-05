@@ -15,6 +15,15 @@ extern const mod_desc_t mod_meter;
 extern const mod_desc_t mod_can_rx;
 extern const mod_desc_t mod_can_tx;
 
+/**
+ * @brief   Module registry (registration order = tick / init order)
+ * @brief   模块注册表（注册顺序 = tick / init 顺序）
+ *
+ * @details The order is significant for two things:
+ *   - Log readability (init order printed top-to-bottom)
+ *   - Tick data flow: can_rx runs BEFORE can_tx so the RX
+ *     dispatcher publishes fresh signals that can_tx can read.
+ */
 const mod_desc_t * const g_modules[] = {
     /* Order is significant for log readability but not for correctness. */
     &mod_template,
@@ -25,18 +34,32 @@ const mod_desc_t * const g_modules[] = {
     /* &mod_can, &mod_diag, ... append here */
 };
 
+/* Compile-time count via sizeof trick. */
 static const uint32_t g_module_cnt = sizeof(g_modules) / sizeof(g_modules[0]);
 
+/**
+ * @brief   Initialize the scheduler and call init() on every module
+ * @brief   初始化调度器并依次调用所有模块的 init()
+ *
+ * @details Logs the registered module list, then calls each
+ *          module's init hook with cold_boot=1.
+ */
 void Scheduler_Init(void)
 {
     LOG_I("init: %u modules", (unsigned)g_module_cnt);
+    /* Walk the registry in order; log each name before init. */
     for (uint32_t i = 0; i < g_module_cnt; i++) {
         const mod_desc_t *m = g_modules[i];
         LOG_I("  [%02u] %s", (unsigned)i, m->name);
+        /* NULL hook is allowed (module opts out of that phase). */
         if (m->init) m->init(1u);
     }
 }
 
+/**
+ * @brief   Broadcast IGN ON event to every module
+ * @brief   向所有模块广播 IGN ON 事件
+ */
 void Scheduler_OnIgnOn(void)
 {
     for (uint32_t i = 0; i < g_module_cnt; i++) {
@@ -45,6 +68,10 @@ void Scheduler_OnIgnOn(void)
     }
 }
 
+/**
+ * @brief   Run one super-loop tick over all modules
+ * @brief   在所有模块上执行一次主循环 tick
+ */
 void Scheduler_Run(void)
 {
     for (uint32_t i = 0; i < g_module_cnt; i++) {
@@ -53,6 +80,10 @@ void Scheduler_Run(void)
     }
 }
 
+/**
+ * @brief   Broadcast standby event before entering low-power mode
+ * @brief   进入低功耗模式前向所有模块广播 standby 事件
+ */
 void Scheduler_Standby(void)
 {
     for (uint32_t i = 0; i < g_module_cnt; i++) {

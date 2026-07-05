@@ -4,6 +4,10 @@
  *
  * 10 placeholder frames covering typical cluster inputs.
  * AUTOGEN marker retained for a future .dbc -> .c tool.
+ *
+ * Each `cb_xxx` decodes a known CAN frame's payload and writes one
+ * or more signals on the bus. Each `pack_xxx` is the inverse: it
+ * reads signals and builds a frame's payload.
  */
 #include "can_db.h"
 #include "signal.h"
@@ -14,6 +18,14 @@
 
 /* ----- RX callbacks (static; called from can_rx.c tick context) ----- */
 
+/**
+ * @brief   Decode IGN status bit and publish to the signal bus.
+ * @brief   解码 IGN 状态位并发布到信号总线
+ *
+ * @details Layout: byte0 bit0 = IGN state (1=on, 0=off).
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_ign_status(const can_msg_t *m)
 {
     /* byte0 bit0 = IGN state */
@@ -21,6 +33,16 @@ static void cb_ign_status(const can_msg_t *m)
     Signal_Set(SIG_IGN_ON, ign ? 1 : 0);
 }
 
+/**
+ * @brief   Decode vehicle speed (0.1 kph, little-endian) and keep-alive.
+ * @brief   解码车速（0.1 kph，小端）并通知电源保持唤醒
+ *
+ * @details Layout: byte0 = LSB, byte1 = MSB, unit = 0.1 kph.
+ *          Touching the power module on every frame extends the
+ *          stay-awake window past the IGN-off debounce.
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_veh_speed(const can_msg_t *m)
 {
     /* byte0..1 little-endian, 0.1 kph */
@@ -29,6 +51,14 @@ static void cb_veh_speed(const can_msg_t *m)
     Power_OnCanBusActivity();
 }
 
+/**
+ * @brief   Decode engine RPM (little-endian) and keep-alive.
+ * @brief   解码发动机转速（小端）并通知电源保持唤醒
+ *
+ * @details Layout: byte0 = LSB, byte1 = MSB, unit = rpm.
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_eng_rpm(const can_msg_t *m)
 {
     /* byte0..1 little-endian, rpm */
@@ -37,15 +67,34 @@ static void cb_eng_rpm(const can_msg_t *m)
     Power_OnCanBusActivity();
 }
 
+/**
+ * @brief   Decode fuel level percentage and fuel-low telltale.
+ * @brief   解码油量百分比并联动 fuel-low 指示灯
+ *
+ * @details Layout: byte0 = 0..100 (%).
+ *          Below 10% the fuel-low telltale is asserted.
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_fuel_level(const can_msg_t *m)
 {
     /* byte0: 0..100 percent */
     u8 p = m->data[0];
+    /* Clamp to valid range; some ECUs send 0xFF for "invalid". */
     if (p > 100u) p = 100u;
     Signal_Set(SIG_FUEL_LEVEL_PCT, (int32_t)p);
     Signal_Set(SIG_TT_FUEL_LOW, (p < 10u) ? 1 : 0);
 }
 
+/**
+ * @brief   Decode coolant temperature (offset -40 degC).
+ * @brief   解码冷却液温度（偏移量 -40 ℃）
+ *
+ * @details Layout: byte0 raw value, temperature = raw - 40 (degC).
+ *          The -40 offset is the standard J1939 convention.
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_coolant_temp(const can_msg_t *m)
 {
     /* byte0: offset -40, degC */
@@ -54,16 +103,36 @@ static void cb_coolant_temp(const can_msg_t *m)
     Signal_Set(SIG_COOLANT_TEMP_C, t);
 }
 
+/**
+ * @brief   Decode EPS / brake / handbrake status bits.
+ * @brief   解码 EPS / 制动 / 手刹状态位
+ *
+ * @details Layout: byte0 bit0 = handbrake, bit1 = brake pedal.
+ *          Only the handbrake is wired to a telltale today;
+ *          brake pedal info is reserved for a future signal.
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_eps_status(const can_msg_t *m)
 {
     /* byte0 bit0: handbrake, byte0 bit1: brake pedal */
     bool hb  = (m->data[0] & 0x01u) != 0u;
     bool brk = (m->data[0] & 0x02u) != 0u;
     Signal_Set(SIG_TT_BRAKE_FAULT, hb ? 1 : 0);
-    /* SIG_BRAKE_PEDAL not in table yet; can be added later */
+    /* SIG_BRAKE_PEDAL not in table yet; can be added later. */
     (void)brk;
 }
 
+/**
+ * @brief   Decode door / left-right turn status (placeholders).
+ * @brief   解码车门 / 左右转向状态（占位）
+ *
+ * @details Layout: byte0 bit0..3 = FL/FR/RL/RR doors.
+ *          Currently FL/FR bits are reused for turn signal placeholders;
+ *          real door mapping is pending customer-supplied spec.
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_door_status(const can_msg_t *m)
 {
     /* byte0 bit0..3 = FL/FR/RL/RR doors */
@@ -72,6 +141,15 @@ static void cb_door_status(const can_msg_t *m)
     (void)m;
 }
 
+/**
+ * @brief   Decode light status (low/high/fog/position beams).
+ * @brief   解码车灯状态（近/远/雾/位灯）
+ *
+ * @details Layout: byte0 bit0=low, bit1=high, bit2=front_fog,
+ *                 bit3=rear_fog, bit4=position lamp.
+ *
+ * @param[in]  m  Received CAN frame
+ */
 static void cb_light_status(const can_msg_t *m)
 {
     /* byte0: bit0=low, bit1=high, bit2=front_fog, bit3=rear_fog, bit4=pos */
@@ -84,12 +162,21 @@ static void cb_light_status(const can_msg_t *m)
 
 /* ----- TX packers (static; fill 8-byte payload) ----- */
 
+/**
+ * @brief   Pack a 1-Hz heartbeat frame with rolling counter.
+ * @brief   打包 1Hz 心跳帧（带滚动计数）
+ *
+ * @details Layout: byte0 = 0xA5 magic, byte1 = counter, byte2 = 0x01 (alive).
+ *          Counter is process-local so it wraps every 256 frames.
+ *
+ * @param[out]  data  8-byte payload buffer
+ */
 static void pack_heartbeat(u8 *data)
 {
     static u8 cnt = 0;
-    data[0] = 0xA5;          /* magic */
-    data[1] = cnt++;
-    data[2] = 0x01;          /* app alive */
+    data[0] = 0xA5;          /* magic: receiver sanity check */
+    data[1] = cnt++;         /* rolling counter for liveness */
+    data[2] = 0x01;          /* app alive flag */
     data[3] = 0;
     data[4] = 0;
     data[5] = 0;
@@ -97,14 +184,23 @@ static void pack_heartbeat(u8 *data)
     data[7] = 0;
 }
 
+/**
+ * @brief   Pack voltage / power-mode status frame from signal bus.
+ * @brief   打包电压 / 电源模式状态帧（从信号总线读）
+ *
+ * @details Layout: byte0..1 = KL30 voltage in 0.1V (LE u16),
+ *                   byte2 = pwr_mode_t.
+ *
+ * @param[out]  data  8-byte payload buffer
+ */
 static void pack_voltage_status(u8 *data)
 {
-    /* SIG_KL30_VOLTAGE_MV in 0.1V units, low byte first */
+    /* SIG_KL30_VOLTAGE_MV in 0.1V units, low byte first. */
     int32_t mv = Signal_Get(SIG_KL30_VOLTAGE_MV);
     if (mv < 0) mv = 0;
     u16 deci_volt = (u16)(mv / 100u);
-    data[0] = (u8)(deci_volt & 0xFFu);
-    data[1] = (u8)(deci_volt >> 8);
+    data[0] = (u8)(deci_volt & 0xFFu);   /* LSB */
+    data[1] = (u8)(deci_volt >> 8);      /* MSB */
     data[2] = (u8)Signal_Get(SIG_PWR_MODE);
     data[3] = 0; data[4] = 0; data[5] = 0; data[6] = 0; data[7] = 0;
 }
@@ -144,10 +240,17 @@ const can_tx_desc_t g_can_tx_db[] = {
 const u16 g_can_tx_count = (u16)(sizeof(g_can_tx_db) / sizeof(g_can_tx_db[0]));
 
 /* One-time table sanity log on first use */
+
+/** @brief  Internal helper that logs the RX/TX table sizes. */
 static void prv_log_table(void)
 {
     LOG_I("can_db: rx=%u tx=%u", (unsigned)g_can_rx_count, (unsigned)g_can_tx_count);
 }
 
-/* Exposed for can_rx to call after registration */
+/**
+ * @brief   Log a one-shot summary of the RX/TX tables
+ * @brief   一次性打印 RX/TX 表的概要信息
+ *
+ * @details Invoked from CanIf_Init() after both controllers are up.
+ */
 void CanDb_LogOnInit(void) { prv_log_table(); }
