@@ -371,7 +371,16 @@
           <state>$PROJ_DIR$/../CMSIS/Core/Include</state>
           <state>$PROJ_DIR$/../rtos/osif</state>
           <state>$PROJ_DIR$/../middleware/utility_print/printf</state>
-        </option>
+
+          <state>$PROJ_DIR$/../app</state>
+          <state>$PROJ_DIR$/../app/can</state>
+          <state>$PROJ_DIR$/../app/init</state>
+          <state>$PROJ_DIR$/../app/log</state>
+          <state>$PROJ_DIR$/../app/rti</state>
+          <state>$PROJ_DIR$/../app/scheduler</state>
+          <state>$PROJ_DIR$/../app/signal</state>
+          <state>$PROJ_DIR$/../app/storage</state>
+          <state>$PROJ_DIR$/../app/mod_template</state></option>
         <option>
           <name>CCStdIncCheck</name>
           <state>0</state>
@@ -1138,6 +1147,124 @@
     <file>
       <name>$PROJ_DIR$/../app/main.c</name>
     </file>
+    <group>
+      <name>can</name>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_db.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_db.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_db_codec.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_db_codec.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_db_ipk_gen.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_db_ipk_gen.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_if.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_if.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_rx.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_rx.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_tx.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/can/can_tx.h</name>
+      </file>
+    </group>
+    <group>
+      <name>init</name>
+      <file>
+        <name>$PROJ_DIR$/../app/init/bsp_init.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/init/bsp_init.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/init/drv_init.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/init/drv_init.h</name>
+      </file>
+    </group>
+    <group>
+      <name>log</name>
+      <file>
+        <name>$PROJ_DIR$/../app/log/log.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/log/log.h</name>
+      </file>
+    </group>
+    <group>
+      <name>rti</name>
+      <file>
+        <name>$PROJ_DIR$/../app/rti/rti.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/rti/rti.h</name>
+      </file>
+    </group>
+    <group>
+      <name>scheduler</name>
+      <file>
+        <name>$PROJ_DIR$/../app/scheduler/scheduler.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/scheduler/scheduler.h</name>
+      </file>
+    </group>
+    <group>
+      <name>signal</name>
+      <file>
+        <name>$PROJ_DIR$/../app/signal/signal.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/signal/signal.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/signal/signal_test.c</name>
+      </file>
+    </group>
+    <group>
+      <name>storage</name>
+      <file>
+        <name>$PROJ_DIR$/../app/storage/kv.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/storage/kv.h</name>
+      </file>
+    </group>
+    <group>
+      <name>mod_template</name>
+      <file>
+        <name>$PROJ_DIR$/../app/mod_template/mod_template.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/mod_template/mod_template.h</name>
+      </file>
+    </group>
+    <file>
+      <name>$PROJ_DIR$/../app/result.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$/../app/types.h</name>
+    </file>
+
   </group>
   <group>
     <name>board</name>

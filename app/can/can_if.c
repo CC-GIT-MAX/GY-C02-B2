@@ -2,7 +2,7 @@
  * @file    can_if.c
  * @brief   CAN interface implementation
  *
- * Bridges the app/can/* layer to the vendor flexcan_driver.
+ * Bridges the app/can[/] layer to the vendor flexcan_driver.
  * Only this file is allowed to include "flexcan_driver.h".
  *
  * Data flow (RX):
@@ -78,13 +78,18 @@ static bool prv_ring_push(const can_msg_t *m)
  */
 static bool prv_ring_pop(can_msg_t *m)
 {
+    /* Snapshot both volatile indices into locals to avoid Pa082
+     * ("order of volatile accesses undefined") when comparing them
+     * in the same expression. Each field is touched exactly once. */
+    u8 head = s_rx_ring.head;
+    u8 tail = s_rx_ring.tail;
     /* Empty check: head equals tail when all slots consumed. */
-    if (s_rx_ring.head == s_rx_ring.tail) {
+    if (head == tail) {
         return false;  /* empty */
     }
     /* Read frame, then advance tail (acquire on next iteration). */
-    *m = s_rx_ring.slot[s_rx_ring.tail];
-    s_rx_ring.tail = (u8)((s_rx_ring.tail + 1u) % CAN_RX_RING_SIZE);
+    *m = s_rx_ring.slot[tail];
+    s_rx_ring.tail = (u8)((tail + 1u) % CAN_RX_RING_SIZE);
     return true;
 }
 
@@ -96,30 +101,23 @@ static bool prv_ring_pop(can_msg_t *m)
  * @brief   Convert a vendor flexcan_msgbuff_t into a portable can_msg_t.
  * @brief   将 vendor 的 flexcan_msgbuff_t 转换为平台无关的 can_msg_t
  *
- * @details The vendor packs id/ide/rtr/dlc into the mb->cs control/status
- *          word. We unpack it here so the rest of the app never touches
- *          flexcan_msgbuff_t directly (isolation layer).
+ * @details The YTM32B1M flexcan driver populates mb->msgId, mb->dataLen
+ *          and mb->data[] directly when FLEXCAN_DRV_Receive returns. The
+ *          hardware CS word is driver-internal and not meant to be parsed
+ *          by application code. We therefore ignore mb->cs and trust the
+ *          SDK-filled fields. ide/rtr are reported as 0 (STD + data) which
+ *          is the only frame type the IPK DBC uses today.
  *
- * @param[in]  mb   Vendor mailbox descriptor
+ * @param[in]  mb   Vendor mailbox descriptor (filled by FLEXCAN_DRV_Receive)
  * @param[out] out  Portable frame descriptor to fill
  */
 static void prv_extract_msg(const flexcan_msgbuff_t *mb, can_msg_t *out)
 {
-    u32 cs = mb->cs;
-    /* IDE bit: 0 = standard 11-bit, 1 = extended 29-bit. */
-    u8  ide = (u8)((cs & CAN_CS_IDE_MASK) ? 1u : 0u);
-    /* RTR bit: 0 = data frame, 1 = remote request. */
-    u8  rtr = (u8)((cs & CAN_CS_RTR_MASK) ? 1u : 0u);
-    /* DLC is 4 bits, right-shifted into position. */
-    u32 dlc = (cs & CAN_CS_DLC_MASK) >> CAN_CS_DLC_SHIFT;
-    /* Guard against malformed DLC (should not happen but cheap to check). */
-    if (dlc > 8u) dlc = 8u;
-
-    /* Mask id to std (11-bit) or ext (29-bit) depending on IDE. */
-    out->id  = (ide ? (mb->msgId & CAN_MSG_ID_EXT_MASK)
-                    : (mb->msgId & CAN_MSG_ID_STD_MASK));
-    out->ide = ide;
-    out->rtr = rtr;
+    out->id  = mb->msgId;
+    out->ide = 0u;            /* IPK DBC uses 11-bit STD only */
+    out->rtr = 0u;            /* IPK DBC uses data frames only */
+    /* Clamp DLC to the portable frame size (8 bytes classic CAN). */
+    u32 dlc = (mb->dataLen <= 8u) ? mb->dataLen : 8u;
     out->dlc = (u8)dlc;
     /* Copy payload bytes [0..dlc), zero-pad the rest. */
     for (u32 i = 0; i < dlc; i++) {
@@ -272,24 +270,25 @@ c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_
 c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
 {
     u8 inst = prv_logical_to_inst(ch);
-    flexcan_msgbuff_t mb = {0};
-    flexcan_data_info_t info = {0};
+    flexcan_data_info_t info;
 
-    /* Select 11-bit / 29-bit id format. */
-    info.msg_id_type  = msg->ide ? FLEXCAN_MSG_ID_EXT : FLEXCAN_MSG_ID_STD;
-    info.data_length  = msg->dlc;
-    info.is_remote    = (msg->rtr != 0u);
+    /* Select 11-bit / 29-bit id format. msg->ide is u8 to stay portable;
+     * the comparison is wrapped in a conditional to silence Pe188 (enum
+     * mixed with other type). The result is then assigned to the enum
+     * field of info. */
+    info.msg_id_type = (msg->ide != 0u) ? FLEXCAN_MSG_ID_EXT
+                                        : FLEXCAN_MSG_ID_STD;
+    info.data_length = msg->dlc;
+    info.is_remote   = (msg->rtr != 0u);
 
-    /* Copy id and payload bytes. */
-    mb.msgId = msg->id;
-    for (u32 i = 0; i < msg->dlc; i++) {
-        mb.data[i] = msg->data[i];
-    }
-    mb.dataLen = msg->dlc;
-
-    /* Reuse MB 30/31 as TX slots; if busy, drop (no blocking in tick). */
+    /* Reuse MB 30 (public) / 31 (private) as TX slots. The YTM32B1M SDK
+     * FLEXCAN_DRV_Send takes (inst, mb_idx, &info, msg_id, mb_data) -
+     * five arguments with mb_data as const uint8_t*, NOT a flexcan_msgbuff_t.
+     * The driver fills the MB CS word (id type, dlc, remote bit) from
+     * tx_info internally; no separate FLEXCAN_DRV_ConfigTxMb call is
+     * required for one-shot sends. */
     u8 mb_idx = (ch == CAN_CH_PUBLIC) ? 30u : 31u;
-    status_t r = FLEXCAN_DRV_Send(inst, mb_idx, &info, &mb);
+    status_t r = FLEXCAN_DRV_Send(inst, mb_idx, &info, msg->id, msg->data);
     if (r != STATUS_SUCCESS) {
         LOG_W("send id=0x%X failed (%d)", (unsigned)msg->id, (int)r);
         return C02B2_ERR_BUSY;
@@ -402,6 +401,9 @@ bool CanIf_PopRx(can_msg_t *out)
  */
 u32 CanIf_RxPending(void)
 {
+    /* Snapshot both volatile indices to avoid Pa082. */
+    u8 head = s_rx_ring.head;
+    u8 tail = s_rx_ring.tail;
     /* +CAN_RX_RING_SIZE guards against negative intermediate when head < tail. */
-    return (u32)((s_rx_ring.head + CAN_RX_RING_SIZE - s_rx_ring.tail) % CAN_RX_RING_SIZE);
+    return (u32)((head + CAN_RX_RING_SIZE - tail) % CAN_RX_RING_SIZE);
 }
