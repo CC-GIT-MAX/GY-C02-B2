@@ -20,10 +20,12 @@ app/                业务层
   rti/              1ms 时间片源
   signal/           跨模块信号总线
   log/              四级日志
-  can/              CAN 抽象与报文数据库
-  diag/             诊断接口（UDS 入口）
+  can/              CAN 抽象与报文数据库（can_if / can_rx / can_tx / can_db / can_db_codec / can_db_ipk_gen）
   storage/          KV 存储（EEPROM/Flash 抽象）
-  <feature>/        每个业务模块独占一个子目录
+  mod_template/     业务模块脚手架（复制此目录创建新业务模块）
+  <feature>/        每个真实业务模块独占一个子目录
+  result.h          错误码定义（c02b2_result_t）
+  types.h           平台类型别名（u8/u16/u32/bool/...）
 board/              板级配置（厂商 SDK config）
 middleware/         第三方库（printf / osif）
 platform/           厂商 SDK（devices / drivers）

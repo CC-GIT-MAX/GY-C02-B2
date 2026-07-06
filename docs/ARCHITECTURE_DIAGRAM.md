@@ -17,16 +17,14 @@ flowchart TB
         M_log["log<br/>LOG_*"]
 
         M_template["mod_template"]
-        M_power["mod_power<br/>电源"]
-        M_meter["mod_meter<br/>指针表"]
         M_can_rx["mod_can_rx"]
         M_can_tx["mod_can_tx"]
+        M_reserved["... future modules<br/>(mod_power / mod_meter)"]
     end
 
-    subgraph MW["中间件 (app/can app/diag app/storage)"]
+    subgraph MW["中间件 (app/can app/storage)"]
         M_canif["can_if<br/>唯一接触 vendor"]
         M_candb["can_db<br/>RX/TX 表"]
-        M_diag["diag_if<br/>UDS 骨架"]
         M_kv["kv<br/>存储骨架"]
     end
 

@@ -114,16 +114,28 @@ tools/iar_build.sh
 ls EWARM/FLASH/Exe/C02_B2.out
 ```
 
-## Known issues / TODO
+## Reserved / future-callable APIs
 
-- The current `EWARM/C02_B2.ewp` does NOT yet include the link-time
-  library for the C++ runtime stubs. If the build fails with
-  `Undefined symbol __aeabi_...`, add `<state>CLIB`-style library
-  selector to the `Lib` option. (Not blocking; not observed in
-  current pre-batch reports.)
-- `signal_test.c` is the host unit-test stub; if you wrap it in a
-  guard like `#ifndef HOST_TEST` it will compile on-target without
-  side effects. The current file does not include such a guard, so
-  on-target builds will link `Signal_TestRun()` which is never called.
-  Consider either removing the file from the ewp or adding a
-  `#if 0` block. (Not blocking; symbol is weak-friendly.)
+A handful of public symbols are intentionally exposed even though no
+internal caller exercises them yet. They exist so that forthcoming
+business modules (mod_power, mod_meter, mod_diag, ...) can plug in
+without touching the existing module headers. None of this is dead
+code; every API is wired and tested at the unit level where it makes
+sense.
+
+| Header | Public symbol(s) | Reserved for |
+|---|---|---|
+| `app/can/can_rx.h`         | `extern const mod_desc_t mod_can_rx;` | `Scheduler_Init()` hook |
+| `app/can/can_tx.h`         | `extern const mod_desc_t mod_can_tx;` <br> `CanTx_EncodeSignal` / `CanTx_PreparePayload` / `CanTx_RebuildFromSignals` / `CanTx_SetCycle` / `CanTx_Trigger` | `Scheduler_Init()` hook <br> Business modules that emit CAN frames |
+| `app/mod_template/mod_template.h` | `extern const mod_desc_t mod_template;` <br> `Template_SetDiagValue` / `Template_GetDiagValue` | `Scheduler_Init()` hook <br> Debug / unit-test injection |
+| `app/storage/kv.h`         | `KV_Init` / `KV_Get` / `KV_Set` / `KV_Delete` / `KV_Commit` / `KV_IsDirty` | mod_storage, mod_diag, configuration |
+| `app/signal/signal_test.c` | `Signal_TestRun` | host CI runner (gcc/clang) and on-target debug menu |
+
+**Linker note**: `signal_test.c` is currently included in the
+on-target build because `tools/ewp_add_files.py` treats every
+`app/signal/*.c` as build input. It compiles cleanly (the function
+body is non-empty, so the linker keeps it) and adds about 4 KB of
+flash. To exclude it from on-target without losing it on host, add
+a `#ifndef C02B2_HOST_TEST` guard around the body and define the
+macro only in the host test runner. Tracked as a follow-up; not
+blocking.
