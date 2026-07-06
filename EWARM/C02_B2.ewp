@@ -1218,6 +1218,12 @@
       <file>
         <name>$PROJ_DIR$/../app/rti/rti.h</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$/../app/rti/rti_defer.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/rti/rti_defer.h</name>
+      </file>
     </group>
     <group>
       <name>scheduler</name>
@@ -1226,6 +1232,13 @@
       </file>
       <file>
         <name>$PROJ_DIR$/../app/scheduler/scheduler.h</name>
+      </file>
+    
+      <file>
+        <name>$PROJ_DIR$/../app/rti/rti_defer.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/rti/rti_defer.h</name>
       </file>
     </group>
     <group>

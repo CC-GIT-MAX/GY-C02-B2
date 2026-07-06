@@ -4,6 +4,7 @@
  */
 #include "scheduler.h"
 #include "rti.h"
+#include "rti_defer.h"
 
 #define LOG_NAME  "SCH"
 #include "log.h"
@@ -70,6 +71,10 @@ void Scheduler_OnIgnOn(void)
  */
 void Scheduler_Run(void)
 {
+    /* Fire any RTI_Defer callbacks whose deadline has passed BEFORE
+     * walking the module registry, so a callback can re-enter the
+     * scheduler-visible state in the same tick. */
+    RTI_DeferTick();
     for (uint32_t i = 0; i < g_module_cnt; i++) {
         const mod_desc_t *m = g_modules[i];
         if (m->tick) m->tick();

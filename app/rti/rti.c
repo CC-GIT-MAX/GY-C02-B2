@@ -8,6 +8,7 @@
  *   3. WDG feed is handled inside the ISR or by scheduler.
  */
 #include "rti.h"
+#include "rti_defer.h"
 
 /* Monotonic 1 ms counter. `volatile` because the ISR writes it. */
 static volatile uint32_t s_tick_ms = 0;
@@ -20,6 +21,8 @@ void RTI_Init(void)
 {
     s_tick_ms = 0;
     /* LPTMR_Init is performed by board/board_init.c. */
+    /* Clear the one-shot deferred-callback pool too. */
+    RTI_DeferInit();
 }
 
 /**

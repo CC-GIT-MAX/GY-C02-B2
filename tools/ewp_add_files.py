@@ -10,7 +10,7 @@ APP_SUBGROUPS = [
     ("can", ["can_db","can_db_codec","can_db_ipk_gen","can_if","can_rx","can_tx"]),
     ("init", ["bsp_init","drv_init"]),
     ("log", ["log"]),
-    ("rti", ["rti"]),
+    ("rti", ["rti", "rti_defer"]),
     ("scheduler", ["scheduler"]),
     ("signal", ["signal","signal_test"]),
     ("storage", ["kv"]),
@@ -46,6 +46,12 @@ def collect_includes():
     for sub, _ in APP_SUBGROUPS:
         out.append("$PROJ_DIR$/../app/" + sub)
     return out
+# NOTE: --apply is one-shot. RE_APP_GROUP only matches the FIRST run
+# (when the </group> right after main.c is the outer app group). On
+# subsequent runs the </group> is the FIRST inner subgroup (can/),
+# so this script will appear to no-op. To add a new app/<sub>/*.c
+# after the first run, edit the ewp XML directly (or run the script
+# on a fresh ewp from git).
 RE_APP_GROUP = re.compile(
     r"(<group>\s*<name>app</name>\s*<file>\s*<name>\$PROJ_DIR\$/\.\./app/main\.c</name>\s*</file>)(\s*</group>)",
     re.DOTALL)
