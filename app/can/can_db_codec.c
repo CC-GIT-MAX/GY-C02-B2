@@ -119,14 +119,14 @@ can_raw_t CanDb_BitExtract(const u8 *data, u16 start_bit, u8 length, u8 byte_ord
  * @param[in]  length      Bit width (1..32)
  * @param[in]  byte_order  0 = Intel, 1 = Motorola
  *
- * @return  can_raw_signed_t  Sign-extended raw value
+ * @return  can_raw_s_t  Sign-extended raw value
  */
-can_raw_signed_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 byte_order)
+can_raw_s_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 byte_order)
 {
     const can_raw_t raw = CanDb_BitExtract(data, start_bit, length, byte_order);
     if (length == 0u || length >= 32u) {
         /* Sign bit is bit (length-1); for length==32 it already fits in s32. */
-        return (can_raw_signed_t)raw;
+        return (can_raw_s_t)raw;
     }
     const can_raw_t sign_mask = (can_raw_t)1u << (length - 1u);
     if ((raw & sign_mask) != 0u) {
@@ -134,9 +134,9 @@ can_raw_signed_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length
         const can_raw_t extend = ~(sign_mask) + 1u;  /* arithmetic -1 << length not portable */
         const can_raw_t fill   = ~((can_raw_t)1u << length) + 1u;
         (void)extend;
-        return (can_raw_signed_t)(raw | fill);
+        return (can_raw_s_t)(raw | fill);
     }
-    return (can_raw_signed_t)raw;
+    return (can_raw_s_t)raw;
 }
 
 /**

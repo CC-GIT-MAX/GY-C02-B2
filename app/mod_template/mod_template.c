@@ -7,7 +7,7 @@
  *   - sub-period control via RTI_IsElapsed()
  *   - Signal_* for inter-module communication
  *   - Log_* for leveled diagnostics
- *   - lbx_result_t for error reporting
+ *   - c02b2_result_t for error reporting
  */
 #include "types.h"
 #include "mod_template.h"
@@ -33,14 +33,14 @@ static struct {
  * @details Pure C DEBUG noise to demonstrate the 10 ms sub-period
  *          pattern. Replace with real work in actual modules.
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-static lbx_result_t prv_do_10ms_job(void)
+static c02b2_result_t prv_do_10ms_job(void)
 {
     s_ctx.tick_count++;
     /* LOG_D is compiled out when LOG_LEVEL < LOG_LVL_DEBUG. */
     LOG_D("10ms tick #%u", (unsigned)s_ctx.tick_count);
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -50,14 +50,14 @@ static lbx_result_t prv_do_10ms_job(void)
  * @details Demonstrates the Signal_Get() pattern and using multiple
  *          log args. Replace with real work in actual modules.
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-static lbx_result_t prv_do_100ms_job(void)
+static c02b2_result_t prv_do_100ms_job(void)
 {
     /* Example: read a signal, compute, publish back. */
     int32_t ign = Signal_Get(SIG_IGN_ON);
     LOG_D("ign=%d, diag=%u", (int)ign, (unsigned)s_ctx.diag_value);
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /* mod_desc_t hooks ----------------------------------------------------- */
@@ -134,23 +134,23 @@ const mod_desc_t mod_template = {
  * @brief   Set a diag value (for unit-test / manual injection)
  * @brief   设置一个诊断值（用于单元测试 / 手动注入）
  *
- * @details Rejects calls before init() by returning LBX_ERR_NOT_READY;
+ * @details Rejects calls before init() by returning C02B2_ERR_NOT_READY;
  *          the unit test (`tests/test_mod_template.c`) covers this path.
  *
  * @param[in]  v  Value to store
  *
- * @return  lbx_result_t
- * @retval  LBX_OK            Stored
- * @retval  LBX_ERR_NOT_READY Module not yet initialized
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Stored
+ * @retval  C02B2_ERR_NOT_READY Module not yet initialized
  */
-lbx_result_t Template_SetDiagValue(uint32_t v)
+c02b2_result_t Template_SetDiagValue(uint32_t v)
 {
     if (!s_ctx.init_done) {
         /* Guard: refuse to store before init. */
-        return LBX_ERR_NOT_READY;
+        return C02B2_ERR_NOT_READY;
     }
     s_ctx.diag_value = v;
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**

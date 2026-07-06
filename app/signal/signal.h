@@ -8,8 +8,8 @@
  *
  * Signals are statically enumerated; no dynamic registration.
  */
-#ifndef LBX_SIGNAL_H
-#define LBX_SIGNAL_H
+#ifndef C02B2_SIGNAL_H
+#define C02B2_SIGNAL_H
 
 #include "types.h"
 #include "result.h"
@@ -285,16 +285,16 @@ typedef enum {
  *
  * @details Stamps the value and marks the slot as valid. The
  *          owner of the signal is responsible for the rate.
- *          Returns LBX_ERR_PARAM for SIG_INVALID / out-of-range ids.
+ *          Returns C02B2_ERR_PARAM for SIG_INVALID / out-of-range ids.
  *
  * @param[in]  id     Signal id (see signal_id_t)
  * @param[in]  value  32-bit payload; interpretation depends on signal
  *
- * @return  lbx_result_t
- * @retval  LBX_OK            Value stored
- * @retval  LBX_ERR_PARAM     id invalid
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Value stored
+ * @retval  C02B2_ERR_PARAM     id invalid
  */
-lbx_result_t Signal_Set(signal_id_t id, int32_t value);
+c02b2_result_t Signal_Set(signal_id_t id, int32_t value);
 
 /**
  * @brief   Read the current value of a signal
@@ -338,4 +338,4 @@ void         Signal_Invalidate(signal_id_t id);
  */
 void         Signal_InvalidateAll(void);
 
-#endif /* LBX_SIGNAL_H */
+#endif /* C02B2_SIGNAL_H */

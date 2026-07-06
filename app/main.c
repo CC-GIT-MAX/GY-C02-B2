@@ -7,7 +7,6 @@
 #include "bsp_init.h"
 #include "drv_init.h"
 #include "can_if.h"
-#include "power.h"
 #include "rti.h"
 #include "scheduler.h"
 
@@ -107,10 +106,10 @@ int main(void)
 
     /* Initialize the scheduler: calls every module's init() hook. */
     Scheduler_Init();
-    /* On cold boot with KL15 already on, broadcast IGN ON. */
-    if (Power_IsIgnOn()) {
-        Scheduler_OnIgnOn();
-    }
+    /* Cold-boot broadcast: assume IGN ON so every module's
+     * on_ign_on() runs at startup.  Real KL15 detection will be
+     * wired in via mod_can once DBC signals are populated. */
+    Scheduler_OnIgnOn();
     LOG_I("=== C02-B2 boot OK ===");
 
     /* Super-loop: dispatch every module's tick, then sleep until ISR. */

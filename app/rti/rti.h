@@ -7,8 +7,8 @@
  * RTI_IsElapsed(period) each call. State is owned by the module
  * (no global flag variables exposed).
  */
-#ifndef LBX_RTI_H
-#define LBX_RTI_H
+#ifndef C02B2_RTI_H
+#define C02B2_RTI_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -91,4 +91,4 @@ bool     RTI_IsElapsed(rti_period_t period);
  */
 bool     RTI_IsFirstCall(void);
 
-#endif /* LBX_RTI_H */
+#endif /* C02B2_RTI_H */

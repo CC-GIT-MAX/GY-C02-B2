@@ -17,9 +17,9 @@
  *          The order is loosely "no dependencies" - any inter-driver
  *          ordering constraints should be added here.
  *
- * @return  lbx_result_t  Always LBX_OK (errors are vendor-internal and logged)
+ * @return  c02b2_result_t  Always C02B2_OK (errors are vendor-internal and logged)
  */
-lbx_result_t DRV_Init(void)
+c02b2_result_t DRV_Init(void)
 {
     /* Print utility: needed for LOG_* macros to work. */
     UTILITY_PRINT_Init();
@@ -42,5 +42,5 @@ lbx_result_t DRV_Init(void)
     /* Flash driver: needed by app/storage/kv. */
     FLASH_DRV_Init(0, &flash_config0, &flash_config0_State);
     LOG_I("DRV init OK");
-    return LBX_OK;
+    return C02B2_OK;
 }

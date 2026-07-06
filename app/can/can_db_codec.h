@@ -23,9 +23,30 @@
  *   raw_value = (int32 - offset) / factor.
  *
  * @ingroup can
+ *
+ * Type conventions
+ * ----------------
+ * This module follows the C02-B2 rule "unsigned by default, signed
+ * only when the value can be negative":
+ *
+ *   - `can_raw_t`                : `u32` (default raw container)
+ *   - `can_raw_s_t`         : `s32` -- ONLY for the return value
+ *                                  of CanDb_BitExtractSigned(); never
+ *                                  use it to hold a raw bit field.
+ *   - `CanDb_BitExtract / Encode`: take / return `can_raw_t` (u32)
+ *   - `CanDb_DecodeSignal`        : returns `s32` -- the decoded
+ *                                  physical value may be negative
+ *                                  (signed DBC signal)
+ *   - `CanDb_EncodeSignalValue`  : takes `s32` (physical input may
+ *                                  be negative); returns `can_raw_t`
+ *                                  for packing into the payload.
+ *
+ * All bit-level payloads and registers are `u8`-arrays; every signal
+ * accessor uses unsigned types except when the physical value is
+ * explicitly signed.
  */
-#ifndef LBX_CAN_DB_CODEC_H
-#define LBX_CAN_DB_CODEC_H
+#ifndef C02B2_CAN_DB_CODEC_H
+#define C02B2_CAN_DB_CODEC_H
 
 #include "types.h"
 
@@ -48,7 +69,7 @@ typedef u32 can_raw_t;
  * @brief   Signed counterpart of `can_raw_t` for sign-extended reads.
  * @brief   `can_raw_t` 对应的有符号类型, 用于读出时的符号扩展
  */
-typedef s32 can_raw_signed_t;
+typedef s32 can_raw_s_t;
 
 /**
  * @brief   Symbolic raw-type tag for self-documenting descriptors
@@ -151,9 +172,9 @@ can_raw_t CanDb_BitExtract(const u8 *data, u16 start_bit, u8 length, u8 byte_ord
  * @param[in]  length      Bit width (1..32)
  * @param[in]  byte_order  0 = Intel, 1 = Motorola
  *
- * @return  can_raw_signed_t  Sign-extended raw value (two's complement)
+ * @return  can_raw_s_t  Sign-extended raw value (two's complement)
  */
-can_raw_signed_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 byte_order);
+can_raw_s_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 byte_order);
 
 /**
  * @brief   Encode an unsigned raw value into a CAN payload
@@ -230,4 +251,4 @@ void CanDb_EncodeAndPack(u8 *data, const can_sig_desc_t *sig, s32 value);
 }
 #endif
 
-#endif /* LBX_CAN_DB_CODEC_H */
+#endif /* C02B2_CAN_DB_CODEC_H */

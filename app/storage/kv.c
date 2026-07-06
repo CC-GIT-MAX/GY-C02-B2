@@ -19,12 +19,12 @@
  *   2. Select the newer of the two partitions.
  *   3. Build the in-RAM index from the active partition.
  *
- * @return  lbx_result_t  Always LBX_OK (skeleton)
+ * @return  c02b2_result_t  Always C02B2_OK (skeleton)
  */
-lbx_result_t KV_Init(void)
+c02b2_result_t KV_Init(void)
 {
     LOG_I("KV_Init (skeleton)");
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -35,13 +35,13 @@ lbx_result_t KV_Init(void)
  * @param[out]     buf      Caller-provided buffer (unused)
  * @param[in,out]  inout_len [in] capacity, [out] actual bytes (unused)
  *
- * @return  lbx_result_t  Always LBX_ERR_NOT_FOUND (skeleton)
+ * @return  c02b2_result_t  Always C02B2_ERR_NOT_FOUND (skeleton)
  */
-lbx_result_t KV_Get(u16 key, void *buf, u8 *inout_len)
+c02b2_result_t KV_Get(u16 key, void *buf, u8 *inout_len)
 {
     (void)key; (void)buf; (void)inout_len;
     /* TODO(后续批次): 查表 + CRC 校验. */
-    return LBX_ERR_NOT_FOUND;
+    return C02B2_ERR_NOT_FOUND;
 }
 
 /**
@@ -56,19 +56,19 @@ lbx_result_t KV_Get(u16 key, void *buf, u8 *inout_len)
  * @param[in]  buf   Payload
  * @param[in]  len   Payload length
  *
- * @return  lbx_result_t
- * @retval  LBX_OK            Value accepted
- * @retval  LBX_ERR_OVERFLOW  len > KV_MAX_VALUE_LEN
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Value accepted
+ * @retval  C02B2_ERR_OVERFLOW  len > KV_MAX_VALUE_LEN
  */
-lbx_result_t KV_Set(u16 key, const void *buf, u8 len)
+c02b2_result_t KV_Set(u16 key, const void *buf, u8 len)
 {
     /* Length validation happens before the empty body. */
     if (len > KV_MAX_VALUE_LEN) {
-        return LBX_ERR_OVERFLOW;
+        return C02B2_ERR_OVERFLOW;
     }
     (void)key; (void)buf;
     /* TODO: 写入 RAM cache，KV_Commit() 时落盘. */
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -77,23 +77,23 @@ lbx_result_t KV_Set(u16 key, const void *buf, u8 len)
  *
  * @param[in]  key  16-bit key ID (unused)
  *
- * @return  lbx_result_t  Always LBX_OK (skeleton)
+ * @return  c02b2_result_t  Always C02B2_OK (skeleton)
  */
-lbx_result_t KV_Delete(u16 key)
+c02b2_result_t KV_Delete(u16 key)
 {
     (void)key;
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
  * @brief   Flush pending writes to NVM
  * @brief   将挂起的写操作落盘
  *
- * @return  lbx_result_t  Always LBX_OK (skeleton)
+ * @return  c02b2_result_t  Always C02B2_OK (skeleton)
  */
-lbx_result_t KV_Commit(void)
+c02b2_result_t KV_Commit(void)
 {
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**

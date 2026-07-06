@@ -14,8 +14,8 @@
  * g_can_rx_db[] / g_can_tx_db[] tables were removed once the DBC
  * pipeline became authoritative.
  */
-#ifndef LBX_CAN_DB_H
-#define LBX_CAN_DB_H
+#ifndef C02B2_CAN_DB_H
+#define C02B2_CAN_DB_H
 
 #include "can_db_codec.h"
 #include "can_db_ipk_gen.h"   /* CAN_DB_IPK_*_COUNT macros + signal/message enums */
@@ -107,4 +107,4 @@ signal_id_t CanDb_DbcSigToBus(u16 db_sig_id);
 }
 #endif
 
-#endif /* LBX_CAN_DB_H */
+#endif /* C02B2_CAN_DB_H */

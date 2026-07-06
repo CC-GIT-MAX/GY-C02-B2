@@ -114,7 +114,7 @@ static void prv_send(u16 slot)
         m.data[i] = s_tx.payloads[slot].data[i];
     }
 
-    if (CanIf_Send(CAN_CH_PUBLIC, &m) == LBX_OK) {
+    if (CanIf_Send(CAN_CH_PUBLIC, &m) == C02B2_OK) {
         s_tx.track[slot].last_send_tick_ms = RTI_GetTick1ms();
         s_tx.track[slot].pending = 0u;
     }
@@ -213,13 +213,13 @@ const mod_desc_t mod_can_tx = {
  * @param[in]  data    Source buffer (at least `dlc` bytes)
  * @param[in]  dlc     Data length (0..8)
  *
- * @return  lbx_result_t
- * @retval  LBX_OK         Payload queued
- * @retval  LBX_ERR_PARAM  can_id not an IPK TX message, or data NULL
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK         Payload queued
+ * @retval  C02B2_ERR_PARAM  can_id not an IPK TX message, or data NULL
  */
-lbx_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc)
+c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc)
 {
-    if (data == NULL) { return LBX_ERR_PARAM; }
+    if (data == NULL) { return C02B2_ERR_PARAM; }
     if (dlc > 8u) { dlc = 8u; }
     for (u16 slot = 0; slot < s_tx.tx_count; slot++) {
         const u16 msg_idx = s_tx.tx_msg_idx[slot];
@@ -228,9 +228,9 @@ lbx_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc)
             s_tx.payloads[slot].data[i] = data[i];
         }
         s_tx.payloads[slot].dlc = dlc;
-        return LBX_OK;
+        return C02B2_OK;
     }
-    return LBX_ERR_PARAM;
+    return C02B2_ERR_PARAM;
 }
 
 /**
@@ -240,19 +240,19 @@ lbx_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc)
  * @param[in]  can_id     IPK TX message can_id
  * @param[in]  cycle_ms   Period in ms (0 = event-driven only)
  *
- * @return  lbx_result_t
- * @retval  LBX_OK        Period set
- * @retval  LBX_ERR_PARAM can_id not an IPK TX message
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK        Period set
+ * @retval  C02B2_ERR_PARAM can_id not an IPK TX message
  */
-lbx_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms)
+c02b2_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms)
 {
     for (u16 slot = 0; slot < s_tx.tx_count; slot++) {
         const u16 msg_idx = s_tx.tx_msg_idx[slot];
         if (can_msg_descs_ipk[msg_idx].can_id != can_id) continue;
         s_tx.payloads[slot].cycle_ms = cycle_ms;
-        return LBX_OK;
+        return C02B2_OK;
     }
-    return LBX_ERR_PARAM;
+    return C02B2_ERR_PARAM;
 }
 
 /**
@@ -265,11 +265,11 @@ lbx_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms)
  *
  * @param[in]  can_id  11-bit CAN identifier (must match a TX db entry)
  *
- * @return  lbx_result_t
- * @retval  LBX_OK         Marked as pending
- * @retval  LBX_ERR_PARAM  No matching TX entry
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK         Marked as pending
+ * @retval  C02B2_ERR_PARAM  No matching TX entry
  */
-lbx_result_t CanTx_Trigger(u32 can_id)
+c02b2_result_t CanTx_Trigger(u32 can_id)
 {
     for (u16 slot = 0; slot < s_tx.tx_count; slot++) {
         const u16 msg_idx = s_tx.tx_msg_idx[slot];
@@ -277,9 +277,9 @@ lbx_result_t CanTx_Trigger(u32 can_id)
             continue;
         }
         s_tx.track[slot].pending = 1u;
-        return LBX_OK;
+        return C02B2_OK;
     }
-    return LBX_ERR_PARAM;
+    return C02B2_ERR_PARAM;
 }
 
 /* ---------------------------------------------------------------- *
@@ -314,20 +314,20 @@ static const can_sig_desc_t *prv_find_sig_in_msg(const can_msg_desc_t *msg, u16 
  * @param[in]  sig_id  CAN_DB_SIG_* signal id belonging to that message
  * @param[in]  value   Physical value (will be quantised per factor/offset)
  *
- * @return  lbx_result_t
- * @retval  LBX_OK         Signal packed into the slot's payload
- * @retval  LBX_ERR_PARAM  can_id not a TX message, sig_id not in it
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK         Signal packed into the slot's payload
+ * @retval  C02B2_ERR_PARAM  can_id not a TX message, sig_id not in it
  */
-lbx_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, s32 value)
+c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, s32 value)
 {
     const u16 slot = prv_find_slot(can_id);
-    if (slot == 0xFFFFu) { return LBX_ERR_PARAM; }
+    if (slot == 0xFFFFu) { return C02B2_ERR_PARAM; }
     const u16 msg_idx = s_tx.tx_msg_idx[slot];
     const can_msg_desc_t *msg = &can_msg_descs_ipk[msg_idx];
     const can_sig_desc_t *sig = prv_find_sig_in_msg(msg, sig_id);
-    if (sig == NULL) { return LBX_ERR_PARAM; }
+    if (sig == NULL) { return C02B2_ERR_PARAM; }
     CanDb_EncodeAndPack(s_tx.payloads[slot].data, sig, value);
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -346,14 +346,14 @@ lbx_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, s32 value)
  *
  * @param[in]  can_id  IPK TX message can_id
  *
- * @return  lbx_result_t
- * @retval  LBX_OK         Payload fully rebuilt
- * @retval  LBX_ERR_PARAM  can_id not a TX message
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK         Payload fully rebuilt
+ * @retval  C02B2_ERR_PARAM  can_id not a TX message
  */
-lbx_result_t CanTx_RebuildFromSignals(u32 can_id)
+c02b2_result_t CanTx_RebuildFromSignals(u32 can_id)
 {
     const u16 slot = prv_find_slot(can_id);
-    if (slot == 0xFFFFu) { return LBX_ERR_PARAM; }
+    if (slot == 0xFFFFu) { return C02B2_ERR_PARAM; }
     const u16 msg_idx = s_tx.tx_msg_idx[slot];
     const can_msg_desc_t *msg = &can_msg_descs_ipk[msg_idx];
 
@@ -369,5 +369,5 @@ lbx_result_t CanTx_RebuildFromSignals(u32 can_id)
         const s32 value           = Signal_Get(bus_id);
         CanDb_EncodeAndPack(s_tx.payloads[slot].data, sig, value);
     }
-    return LBX_OK;
+    return C02B2_OK;
 }

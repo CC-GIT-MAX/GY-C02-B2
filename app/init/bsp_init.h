@@ -4,8 +4,8 @@
  *
  * Pulled out of main.c. main.c just calls BSP_Init() then DRV_Init().
  */
-#ifndef LBX_BSP_INIT_H
-#define LBX_BSP_INIT_H
+#ifndef C02B2_BSP_INIT_H
+#define C02B2_BSP_INIT_H
 
 #include "result.h"
 
@@ -21,10 +21,10 @@
  *          - WDG_DRV_Init
  *          - INT_SYS_ConfigInit
  *
- * @return  lbx_result_t
- * @retval  LBX_OK  Initialization succeeded
- * @retval  LBX_ERR Vendor driver returned an error (propagated)
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK  Initialization succeeded
+ * @retval  C02B2_ERR Vendor driver returned an error (propagated)
  */
-lbx_result_t BSP_Init(void);
+c02b2_result_t BSP_Init(void);
 
-#endif /* LBX_BSP_INIT_H */
+#endif /* C02B2_BSP_INIT_H */

@@ -22,10 +22,10 @@
  *   6. WDG - enable the watchdog last so other inits cannot be interrupted
  *   7. INT_SYS - install ISRs once hardware is ready
  *
- * @return  lbx_result_t
- * @retval  LBX_OK  Initialization succeeded (always; vendor errors are logged only)
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK  Initialization succeeded (always; vendor errors are logged only)
  */
-lbx_result_t BSP_Init(void)
+c02b2_result_t BSP_Init(void)
 {
     /* System clock tree: must run before any peripheral driver. */
     CLOCK_SYS_Init(g_clockManConfigsArr,
@@ -55,5 +55,5 @@ lbx_result_t BSP_Init(void)
     INT_SYS_ConfigInit();
 
     LOG_I("BSP init OK");
-    return LBX_OK;
+    return C02B2_OK;
 }

@@ -45,7 +45,7 @@ static void test_basic_set_get(void)
     EXPECT(Signal_IsValid(SIG_VEH_SPEED_KPH_X10) == false);
 
     /* Set then read-back: value matches, valid is true. */
-    EXPECT(Signal_Set(SIG_VEH_SPEED_KPH_X10, 650) == LBX_OK);  /* 65.0 kph */
+    EXPECT(Signal_Set(SIG_VEH_SPEED_KPH_X10, 650) == C02B2_OK);  /* 65.0 kph */
     EXPECT(Signal_Get(SIG_VEH_SPEED_KPH_X10) == 650);
     EXPECT(Signal_IsValid(SIG_VEH_SPEED_KPH_X10) == true);
 }
@@ -53,7 +53,7 @@ static void test_basic_set_get(void)
 /** @brief  Test Signal_Invalidate clears the valid bit only. */
 static void test_invalidate(void)
 {
-    EXPECT(Signal_Set(SIG_IGN_ON, 1) == LBX_OK);
+    EXPECT(Signal_Set(SIG_IGN_ON, 1) == C02B2_OK);
     EXPECT(Signal_IsValid(SIG_IGN_ON) == true);
     /* After invalidate, valid is false (value is implementation-defined). */
     Signal_Invalidate(SIG_IGN_ON);
@@ -64,8 +64,8 @@ static void test_invalidate(void)
 static void test_invalid_id(void)
 {
     /* Set on invalid ids returns PARAM error. */
-    EXPECT(Signal_Set(SIG_INVALID, 0) == LBX_ERR_PARAM);
-    EXPECT(Signal_Set((signal_id_t)9999, 0) == LBX_ERR_PARAM);
+    EXPECT(Signal_Set(SIG_INVALID, 0) == C02B2_ERR_PARAM);
+    EXPECT(Signal_Set((signal_id_t)9999, 0) == C02B2_ERR_PARAM);
     /* Get on invalid id returns 0 (safe default). */
     EXPECT(Signal_Get(SIG_INVALID) == 0);
     EXPECT(Signal_IsValid(SIG_INVALID) == false);
@@ -77,8 +77,8 @@ static void test_invalid_id(void)
 /** @brief  Test Signal_InvalidateAll clears every slot. */
 static void test_invalidate_all(void)
 {
-    EXPECT(Signal_Set(SIG_IGN_ON, 1) == LBX_OK);
-    EXPECT(Signal_Set(SIG_FUEL_LEVEL_PCT, 50) == LBX_OK);
+    EXPECT(Signal_Set(SIG_IGN_ON, 1) == C02B2_OK);
+    EXPECT(Signal_Set(SIG_FUEL_LEVEL_PCT, 50) == C02B2_OK);
     /* Bulk invalidate wipes valid bits across the whole bus. */
     Signal_InvalidateAll();
     EXPECT(Signal_IsValid(SIG_IGN_ON) == false);

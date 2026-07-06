@@ -9,8 +9,8 @@
  * Two partitions (active + backup) provide fault tolerance.
  * Wear leveling is the storage layer's responsibility.
  */
-#ifndef LBX_KV_H
-#define LBX_KV_H
+#ifndef C02B2_KV_H
+#define C02B2_KV_H
 
 #include "types.h"
 #include "result.h"
@@ -22,10 +22,10 @@
  * @brief   Initialize the KV storage layer
  * @brief   初始化 KV 存储层
  *
- * @return  lbx_result_t
- * @retval  LBX_OK  Init succeeded (skeleton returns OK)
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK  Init succeeded (skeleton returns OK)
  */
-lbx_result_t KV_Init(void);
+c02b2_result_t KV_Init(void);
 
 /**
  * @brief   Read a key from NVM
@@ -35,11 +35,11 @@ lbx_result_t KV_Init(void);
  * @param[out]     buf      Caller-provided buffer
  * @param[in,out]  inout_len [in] buffer size, [out] actual bytes read
  *
- * @return  lbx_result_t
- * @retval  LBX_OK            Read OK
- * @retval  LBX_ERR_NOT_FOUND Skeleton returns this always
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Read OK
+ * @retval  C02B2_ERR_NOT_FOUND Skeleton returns this always
  */
-lbx_result_t KV_Get(u16 key, void *buf, u8 *inout_len);
+c02b2_result_t KV_Get(u16 key, void *buf, u8 *inout_len);
 
 /**
  * @brief   Write a key to the RAM cache (pending Commit)
@@ -49,11 +49,11 @@ lbx_result_t KV_Get(u16 key, void *buf, u8 *inout_len);
  * @param[in]  buf   Payload
  * @param[in]  len   Payload length (must be <= KV_MAX_VALUE_LEN)
  *
- * @return  lbx_result_t
- * @retval  LBX_OK            Value accepted
- * @retval  LBX_ERR_OVERFLOW  len > KV_MAX_VALUE_LEN
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Value accepted
+ * @retval  C02B2_ERR_OVERFLOW  len > KV_MAX_VALUE_LEN
  */
-lbx_result_t KV_Set(u16 key, const void *buf, u8 len);
+c02b2_result_t KV_Set(u16 key, const void *buf, u8 len);
 
 /**
  * @brief   Mark a key for deletion on next commit
@@ -61,17 +61,17 @@ lbx_result_t KV_Set(u16 key, const void *buf, u8 len);
  *
  * @param[in]  key  16-bit key ID
  *
- * @return  lbx_result_t  Always LBX_OK (skeleton)
+ * @return  c02b2_result_t  Always C02B2_OK (skeleton)
  */
-lbx_result_t KV_Delete(u16 key);
+c02b2_result_t KV_Delete(u16 key);
 
 /**
  * @brief   Flush pending writes to NVM
  * @brief   将挂起的写操作落盘
  *
- * @return  lbx_result_t  Always LBX_OK (skeleton)
+ * @return  c02b2_result_t  Always C02B2_OK (skeleton)
  */
-lbx_result_t KV_Commit(void);
+c02b2_result_t KV_Commit(void);
 
 /**
  * @brief   Check whether any pending writes are unflushed
@@ -83,4 +83,4 @@ lbx_result_t KV_Commit(void);
  */
 bool        KV_IsDirty(void);
 
-#endif /* LBX_KV_H */
+#endif /* C02B2_KV_H */

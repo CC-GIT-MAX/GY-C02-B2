@@ -19,8 +19,8 @@
  *
  * No changes to main.c or scheduler.c body required.
  */
-#ifndef LBX_SCHEDULER_H
-#define LBX_SCHEDULER_H
+#ifndef C02B2_SCHEDULER_H
+#define C02B2_SCHEDULER_H
 
 #include <stdint.h>
 
@@ -31,7 +31,7 @@ struct mod_desc_s;
  * @brief   模块生命周期描述符
  *
  * @details Each business module provides one of these as a `const`
- *          global symbol (e.g. `mod_power`). The scheduler walks
+ *          global symbol (e.g. `mod_can_rx`). The scheduler walks
  *          g_modules[] and invokes the four hooks in registration
  *          order on every super-loop iteration.
  *
@@ -65,7 +65,7 @@ void Scheduler_Init(void);
  *
  * @details Calls on_ign_on() on every module. Invoked from main.c
  *          on cold boot if KL15 is already on, and from the IGN
- *          edge handler in mod_power on every rising edge.
+ *          edge handler in mod_<name> on every rising edge.
  */
 void Scheduler_OnIgnOn(void);
 
@@ -90,4 +90,4 @@ void Scheduler_Run(void);
  */
 void Scheduler_Standby(void);
 
-#endif /* LBX_SCHEDULER_H */
+#endif /* C02B2_SCHEDULER_H */

@@ -13,7 +13,6 @@
  *   can_tx tick  -> fill payload via pack() -> CanIf_Send()
  */
 #include "can_if.h"
-#include "power.h"
 
 #include "sdk_project_config.h"
 #include "flexcan_driver.h"
@@ -201,14 +200,14 @@ static void prv_flexcan_cb(u8 instance,
  * @details Initializes the ring buffer to empty, then calls
  *          FLEXCAN_DRV_Init + InstallEventCallback for each
  *          channel. On any failure the function returns early
- *          with LBX_ERR and the partially-initialized channel
+ *          with C02B2_ERR and the partially-initialized channel
  *          is left in an undefined state.
  *
- * @return  lbx_result_t
- * @retval  LBX_OK  Both channels up
- * @retval  LBX_ERR At least one FLEXCAN_DRV_Init failed
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK  Both channels up
+ * @retval  C02B2_ERR At least one FLEXCAN_DRV_Init failed
  */
-lbx_result_t CanIf_Init(void)
+c02b2_result_t CanIf_Init(void)
 {
     /* Reset ring buffer (empty state: head == tail == 0). */
     s_rx_ring.head = 0u;
@@ -223,13 +222,13 @@ lbx_result_t CanIf_Init(void)
         /* Init hardware; if any channel fails we abort immediately. */
         if (FLEXCAN_DRV_Init(inst, st, cfg) != STATUS_SUCCESS) {
             LOG_E("init inst=%u failed", (unsigned)inst);
-            return LBX_ERR;
+            return C02B2_ERR;
         }
         /* Register our ISR callback for RX events. */
         FLEXCAN_DRV_InstallEventCallback(inst, prv_flexcan_cb, NULL);
     }
     LOG_I("init OK");
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -244,13 +243,13 @@ lbx_result_t CanIf_Init(void)
  * @param[in]  ide    0=STD, 1=EXT (unused)
  * @param[in]  cb     Callback (unused)
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t cb)
+c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t cb)
 {
     /* Static table handles registration. Route through can_db instead. */
     (void)ch; (void)can_id; (void)ide; (void)cb;
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -266,11 +265,11 @@ lbx_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t 
  * @param[in]  ch   Logical channel
  * @param[in]  msg  Frame to transmit (id/ide/rtr/dlc/data)
  *
- * @return  lbx_result_t
- * @retval  LBX_OK        Accepted by the driver
- * @retval  LBX_ERR_BUSY  Mailbox busy (frame dropped)
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK        Accepted by the driver
+ * @retval  C02B2_ERR_BUSY  Mailbox busy (frame dropped)
  */
-lbx_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
+c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
 {
     u8 inst = prv_logical_to_inst(ch);
     flexcan_msgbuff_t mb = {0};
@@ -293,9 +292,9 @@ lbx_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
     status_t r = FLEXCAN_DRV_Send(inst, mb_idx, &info, &mb);
     if (r != STATUS_SUCCESS) {
         LOG_W("send id=0x%X failed (%d)", (unsigned)msg->id, (int)r);
-        return LBX_ERR_BUSY;
+        return C02B2_ERR_BUSY;
     }
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -305,13 +304,13 @@ lbx_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
  * @param[in]  ch  Channel
  * @param[in]  en  true = enable, false = disable
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en)
+c02b2_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en)
 {
     (void)ch; (void)en;
     /* For now TX is always enabled. Hook to CAN silence / NM later. */
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -320,13 +319,13 @@ lbx_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en)
  *
  * @param[in]  ch  Channel
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_GoToSleep(can_channel_t ch)
+c02b2_result_t CanIf_GoToSleep(can_channel_t ch)
 {
     (void)ch;
     /* TODO: enter freeze mode + transceiver STBY pin. */
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**
@@ -335,13 +334,13 @@ lbx_result_t CanIf_GoToSleep(can_channel_t ch)
  *
  * @param[in]  ch  Channel
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_WakeUp(can_channel_t ch)
+c02b2_result_t CanIf_WakeUp(can_channel_t ch)
 {
     (void)ch;
     /* TODO: exit freeze, mark wakeup event. */
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**

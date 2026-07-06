@@ -24,19 +24,19 @@ static struct {
  * @param[in]  id     Signal id (see signal_id_t)
  * @param[in]  value  32-bit payload; interpretation depends on signal
  *
- * @return  lbx_result_t
- * @retval  LBX_OK            Value stored and slot marked valid
- * @retval  LBX_ERR_PARAM     id invalid (SIG_INVALID or out of range)
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Value stored and slot marked valid
+ * @retval  C02B2_ERR_PARAM     id invalid (SIG_INVALID or out of range)
  */
-lbx_result_t Signal_Set(signal_id_t id, int32_t value)
+c02b2_result_t Signal_Set(signal_id_t id, int32_t value)
 {
     if (id <= SIG_INVALID || id >= SIG_MAX) {
-        return LBX_ERR_PARAM;
+        return C02B2_ERR_PARAM;
     }
     s_signals[id].value = value;
     /* Mark valid so consumers can distinguish fresh data from "never set". */
     s_signals[id].valid = true;
-    return LBX_OK;
+    return C02B2_OK;
 }
 
 /**

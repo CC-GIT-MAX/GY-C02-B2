@@ -4,8 +4,8 @@
  *
  * Only this header + can_if.c touch flexcan_driver.h.
  */
-#ifndef LBX_CAN_IF_H
-#define LBX_CAN_IF_H
+#ifndef C02B2_CAN_IF_H
+#define C02B2_CAN_IF_H
 
 #include "types.h"
 #include "result.h"
@@ -39,11 +39,11 @@ typedef void (*can_rx_cb_t)(const can_msg_t *msg);
  * @brief   Initialize both CAN channels and the RX ring buffer
  * @brief   初始化两条 CAN 通道及接收环形缓冲
  *
- * @return  lbx_result_t
- * @retval  LBX_OK  Both channels up
- * @retval  LBX_ERR At least one FLEXCAN_DRV_Init failed
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK  Both channels up
+ * @retval  C02B2_ERR At least one FLEXCAN_DRV_Init failed
  */
-lbx_result_t CanIf_Init(void);
+c02b2_result_t CanIf_Init(void);
 
 /**
  * @brief   Send a single CAN frame on the chosen channel
@@ -52,11 +52,11 @@ lbx_result_t CanIf_Init(void);
  * @param[in]  ch   Logical channel
  * @param[in]  msg  Frame to transmit (id/ide/rtr/dlc/data)
  *
- * @return  lbx_result_t
- * @retval  LBX_OK        Accepted by the driver
- * @retval  LBX_ERR_BUSY  Mailbox busy (frame dropped)
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK        Accepted by the driver
+ * @retval  C02B2_ERR_BUSY  Mailbox busy (frame dropped)
  */
-lbx_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg);
+c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg);
 
 /**
  * @brief   Register an RX callback (legacy stub)
@@ -67,9 +67,9 @@ lbx_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg);
  * @param[in]  ide    0=STD, 1=EXT (unused)
  * @param[in]  cb     Callback (unused)
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t cb);
+c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t cb);
 
 /**
  * @brief   Globally enable/disable TX on a channel (stub)
@@ -78,9 +78,9 @@ lbx_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t 
  * @param[in]  ch  Channel
  * @param[in]  en  true = enable, false = disable
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en);
+c02b2_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en);
 
 /**
  * @brief   Request the channel to enter sleep mode (stub)
@@ -88,9 +88,9 @@ lbx_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en);
  *
  * @param[in]  ch  Channel
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_GoToSleep(can_channel_t ch);
+c02b2_result_t CanIf_GoToSleep(can_channel_t ch);
 
 /**
  * @brief   Wake the channel from sleep (stub)
@@ -98,9 +98,9 @@ lbx_result_t CanIf_GoToSleep(can_channel_t ch);
  *
  * @param[in]  ch  Channel
  *
- * @return  lbx_result_t  Always LBX_OK
+ * @return  c02b2_result_t  Always C02B2_OK
  */
-lbx_result_t CanIf_WakeUp(can_channel_t ch);
+c02b2_result_t CanIf_WakeUp(can_channel_t ch);
 
 /**
  * @brief   Test whether the channel is in bus-off state (stub)
@@ -144,4 +144,4 @@ bool CanIf_PopRx(can_msg_t *out);
  */
 u32 CanIf_RxPending(void);
 
-#endif /* LBX_CAN_IF_H */
+#endif /* C02B2_CAN_IF_H */

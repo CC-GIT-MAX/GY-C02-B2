@@ -8,11 +8,11 @@
  * Conventions enforced:
  *   - All module state is `static` (no extern globals).
  *   - Cross-module data flows through Signal_* (see signal.h).
- *   - Return lbx_result_t from every public API.
+ *   - Return c02b2_result_t from every public API.
  *   - Own period control via RTI_IsElapsed(); no global flag variables.
  */
-#ifndef LBX_MOD_TEMPLATE_H
-#define LBX_MOD_TEMPLATE_H
+#ifndef C02B2_MOD_TEMPLATE_H
+#define C02B2_MOD_TEMPLATE_H
 
 #include "scheduler.h"
 #include "result.h"
@@ -28,11 +28,11 @@ extern "C" {
  *
  * @param[in]  v  Value to store
  *
- * @return  lbx_result_t
- * @retval  LBX_OK            Stored
- * @retval  LBX_ERR_NOT_READY Module not yet initialized
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Stored
+ * @retval  C02B2_ERR_NOT_READY Module not yet initialized
  */
-lbx_result_t Template_SetDiagValue(uint32_t v);
+c02b2_result_t Template_SetDiagValue(uint32_t v);
 
 /**
  * @brief   Get the previously-set diag value
@@ -53,4 +53,4 @@ extern const mod_desc_t mod_template;
 }
 #endif
 
-#endif /* LBX_MOD_TEMPLATE_H */
+#endif /* C02B2_MOD_TEMPLATE_H */

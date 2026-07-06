@@ -11,8 +11,8 @@
  * The output is dispatched via Log_Print() which by default writes to
  * the project printf. Override by defining LOG_PRINTF to your own sink.
  */
-#ifndef LBX_LOG_H
-#define LBX_LOG_H
+#ifndef C02B2_LOG_H
+#define C02B2_LOG_H
 
 #include <stdint.h>
 #include "result.h"
@@ -64,4 +64,4 @@ void Log_Print(log_level_t lvl, const char *mod, const char *fmt, ...);
 #define LOG_I(...)  do { if (LOG_LEVEL >= LOG_LVL_INFO)  Log_Print(LOG_LVL_INFO,  MOD_NAME, __VA_ARGS__); } while(0)
 #define LOG_D(...)  do { if (LOG_LEVEL >= LOG_LVL_DEBUG) Log_Print(LOG_LVL_DEBUG, MOD_NAME, __VA_ARGS__); } while(0)
 
-#endif /* LBX_LOG_H */
+#endif /* C02B2_LOG_H */
