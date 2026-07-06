@@ -13,7 +13,6 @@
  *   can_tx tick  -> fill payload via pack() -> CanIf_Send()
  */
 #include "can_if.h"
-#include "can_db.h"
 #include "power.h"
 
 #include "sdk_project_config.h"
@@ -229,7 +228,6 @@ lbx_result_t CanIf_Init(void)
         /* Register our ISR callback for RX events. */
         FLEXCAN_DRV_InstallEventCallback(inst, prv_flexcan_cb, NULL);
     }
-    CanDb_LogOnInit();
     LOG_I("init OK");
     return LBX_OK;
 }
