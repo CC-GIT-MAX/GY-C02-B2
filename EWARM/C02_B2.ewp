@@ -380,7 +380,16 @@
           <state>$PROJ_DIR$/../app/scheduler</state>
           <state>$PROJ_DIR$/../app/signal</state>
           <state>$PROJ_DIR$/../app/storage</state>
-          <state>$PROJ_DIR$/../app/mod_template</state></option>
+          <state>$PROJ_DIR$/../app/mod_template</state>
+          <state>$PROJ_DIR$/../app/mod_can_demo</state>
+          <state>$PROJ_DIR$/../app/drv_api/can</state>
+          <state>$PROJ_DIR$/../app/drv_api/lptmr</state>
+          <state>$PROJ_DIR$/../app/drv_api/adc</state>
+          <state>$PROJ_DIR$/../app/drv_api/etmr</state>
+          <state>$PROJ_DIR$/../app/drv_api/i2c</state>
+          <state>$PROJ_DIR$/../app/drv_api/uart</state>
+          <state>$PROJ_DIR$/../app/drv_api/flash</state>
+          <state>$PROJ_DIR$/../app/drv_api</state></option>
         <option>
           <name>CCStdIncCheck</name>
           <state>0</state>
@@ -1150,30 +1159,6 @@
     <group>
       <name>can</name>
       <file>
-        <name>$PROJ_DIR$/../app/can/can_db.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/can/can_db.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/can/can_db_codec.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/can/can_db_codec.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/can/can_db_ipk_gen.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/can/can_db_ipk_gen.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/can/can_if.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/can/can_if.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$/../app/can/can_rx.c</name>
       </file>
       <file>
@@ -1184,6 +1169,72 @@
       </file>
       <file>
         <name>$PROJ_DIR$/../app/can/can_tx.h</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/can</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_init.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_if.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_if.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_db.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_db.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_db_codec.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_db_codec.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_db_ipk_gen.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/can/can_db_ipk_gen.h</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/lptmr</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/lptmr/lptmr_init.c</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/adc</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/adc/adc_init.c</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/etmr</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/etmr/etmr_init.c</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/i2c</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/i2c/i2c_init.c</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/uart</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/uart/uart_init.c</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/flash</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/flash/flash_init.c</name>
       </file>
     </group>
     <group>
@@ -1251,6 +1302,15 @@
       </file>
       <file>
         <name>$PROJ_DIR$/../app/signal/signal_test.c</name>
+      </file>
+    </group>
+    <group>
+      <name>mod_can_demo</name>
+      <file>
+        <name>$PROJ_DIR$/../app/mod_can_demo/mod_can_demo.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/mod_can_demo/mod_can_demo.h</name>
       </file>
     </group>
     <group>

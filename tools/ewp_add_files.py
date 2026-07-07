@@ -7,14 +7,28 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EWP_PATH  = REPO_ROOT / "EWARM" / "C02_B2.ewp"
 APP_SUBGROUPS = [
-    ("can", ["can_db","can_db_codec","can_db_ipk_gen","can_if","can_rx","can_tx"]),
+    # app/can keeps only the business-side mod_desc files; the driver glue
+    # (can_if + can_db_*) moved to app/drv_api/can/.
+    ("can", ["can_rx","can_tx"]),
+    # app/init keeps only the top-level BSP and DRV dispatchers.
+    # Per-peripheral inits live under app/drv_api/<periph>/.
     ("init", ["bsp_init","drv_init"]),
+    # drv_api: per-peripheral driver init helpers (and, for CAN, the
+    # FlexCAN glue + DBC tables that were formerly under app/can/).
+    ("drv_api/can",   ["can_init","can_if","can_db","can_db_codec","can_db_ipk_gen"]),
+    ("drv_api/lptmr", ["lptmr_init"]),
+    ("drv_api/adc",   ["adc_init"]),
+    ("drv_api/etmr",  ["etmr_init"]),
+    ("drv_api/i2c",   ["i2c_init"]),
+    ("drv_api/uart",  ["uart_init"]),
+    ("drv_api/flash", ["flash_init"]),
     ("log", ["log"]),
     ("rti", ["rti", "rti_defer"]),
     ("scheduler", ["scheduler"]),
     ("signal", ["signal","signal_test"]),
     ("storage", ["kv"]),
     ("mod_template", ["mod_template"]),
+    ("mod_can_demo", ["mod_can_demo"]),
 ]
 APP_TOP_HEADERS = ["result.h","types.h"]
 def render_subgroup(sub, stubs):
