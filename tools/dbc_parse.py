@@ -195,11 +195,17 @@ def emit_source(node, msgs, enum_names):
     L.append("")
     L.append("/* === Per-signal descriptors === */")
     L.append(f"const can_sig_desc_t can_sig_descs_{node.lower()}[] = {{")
+    # Emit, grouped by message, with a direction banner per msg.
+    # Every signal is also tagged (RX) or (TX) on its opening comment
+    # so a grep tells a consumer at a glance which direction is which.
     for m in msgs:
+        is_tx_msg = (m.transmitter == node)
+        dir_tag = "TX" if is_tx_msg else "RX"
+        L.append(f"    /* --- {dir_tag}: {m.name} (0x{m.can_id:04X}, dlc={m.dlc}) --- */")
         for s in m.signals:
             raw_t = "CAN_RAW_" + _raw_type_for_length(s)
             L.append(
-                f"    {{ /* {s.name} in {m.name} */\n"
+                f"    {{ /* {s.name} in {m.name} ({dir_tag}) */\n"
                 f"        .start_bit    = {s.start_bit},\n"
                 f"        .length       = {s.length},\n"
                 f"        .byte_order   = {s.byte_order},\n"
@@ -207,7 +213,7 @@ def emit_source(node, msgs, enum_names):
                 f"        .factor       = {_format_float_c(s.factor)}f,\n"
                 f"        .offset       = {_format_float_c(s.offset)}f,\n"
                 f"        .raw_type     = {raw_t},\n"
-                f"    }},"
+                f"    }},\n"
             )
     L.append("};")
     L.append("")
@@ -216,8 +222,10 @@ def emit_source(node, msgs, enum_names):
     sig_index = 0
     for m in msgs:
         n = len(m.signals)
+        is_tx_msg = (m.transmitter == node)
+        dir_tag = "TX" if is_tx_msg else "RX"
         L.append(
-            f"    {{ /* {m.name} */\n"
+            f"    {{ /* {m.name} ({dir_tag}) */\n"
             f"        .can_id     = 0x{m.can_id:04X}u,\n"
             f"        .dlc        = {m.dlc}u,\n"
             f"        .name       = \"{m.name}\",\n"
@@ -225,7 +233,7 @@ def emit_source(node, msgs, enum_names):
             f"        .sig_count  = {n}u,\n"
             f"        .tx_node    = \"{m.transmitter}\",\n"
             f"        .is_tx      = {(1 if m.transmitter == node else 0)},\n"
-            f"    }},"
+            f"    }},\n"
         )
         sig_index += n
     L.append("};")
@@ -310,10 +318,19 @@ def emit_signal_block(selected):
 
 
 def emit_map_body(selected):
-    """Emit the s_dbc_to_bus[] designated-init body for can_db.c."""
+    """Emit the s_dbc_to_bus[] designated-init body for can_db.c.
+
+    Entries are grouped by source message.  Each group starts
+    with a `/* --- RX|TX: <name> (0x<id>, dlc=<n>) --- */` banner
+    so a reader can find signals by message without scrolling.
+    The runtime layout (designated-init `[k - 1u] = ...`) is unchanged.
+    """
     out = ["static const signal_id_t s_dbc_to_bus[CAN_DB_IPK_SIG_COUNT] = {",
            "    [0] = SIG_INVALID, /* CAN_DB_SIG_INVALID */"]
+    node = _get_self_node()
     for m in selected:
+        dir_tag = "TX" if m.transmitter == node else "RX"
+        out.append(f"    /* --- {dir_tag}: {m.name} (0x{m.can_id:04X}, dlc={m.dlc}) --- */")
         for s in m.signals:
             out.append(f"    [CAN_DB_SIG_{s.name} - 1u] = SIG_CAN_{s.name},")
     out.append("};")

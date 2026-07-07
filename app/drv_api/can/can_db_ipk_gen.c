@@ -3,7 +3,8 @@
 
 /* === Per-signal descriptors === */
 const can_sig_desc_t can_sig_descs_ipk[] = {
-    { /* MMI_Second in MMI_DateTime_Msg */
+    /* --- RX: MMI_DateTime_Msg (0x02AF, dlc=8) --- */
+    { /* MMI_Second in MMI_DateTime_Msg (RX) */
         .start_bit    = 5,
         .length       = 6,
         .byte_order   = 0,
@@ -12,7 +13,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Minute in MMI_DateTime_Msg */
+
+    { /* MMI_Minute in MMI_DateTime_Msg (RX) */
         .start_bit    = 13,
         .length       = 6,
         .byte_order   = 0,
@@ -21,7 +23,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Hour in MMI_DateTime_Msg */
+
+    { /* MMI_Hour in MMI_DateTime_Msg (RX) */
         .start_bit    = 20,
         .length       = 5,
         .byte_order   = 0,
@@ -30,7 +33,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Day in MMI_DateTime_Msg */
+
+    { /* MMI_Day in MMI_DateTime_Msg (RX) */
         .start_bit    = 28,
         .length       = 5,
         .byte_order   = 0,
@@ -39,7 +43,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Month in MMI_DateTime_Msg */
+
+    { /* MMI_Month in MMI_DateTime_Msg (RX) */
         .start_bit    = 35,
         .length       = 4,
         .byte_order   = 0,
@@ -48,7 +53,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Year in MMI_DateTime_Msg */
+
+    { /* MMI_Year in MMI_DateTime_Msg (RX) */
         .start_bit    = 45,
         .length       = 6,
         .byte_order   = 0,
@@ -57,7 +63,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* GPS_elevation_Info in MMI_GPS_Info5 */
+
+    /* --- RX: MMI_GPS_Info5 (0x03E0, dlc=8) --- */
+    { /* GPS_elevation_Info in MMI_GPS_Info5 (RX) */
         .start_bit    = 7,
         .length       = 18,
         .byte_order   = 0,
@@ -66,7 +74,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -10000.0f,
         .raw_type     = CAN_RAW_U32,
     },
-    { /* MMI_GPS_Info5_AliveCounter in MMI_GPS_Info5 */
+
+    { /* MMI_GPS_Info5_AliveCounter in MMI_GPS_Info5 (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -75,7 +84,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_GPS_Info5_CheckSum in MMI_GPS_Info5 */
+
+    { /* MMI_GPS_Info5_CheckSum in MMI_GPS_Info5 (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -84,7 +94,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_RightSwStatus in MMI_Status_Info */
+
+    /* --- RX: MMI_Status_Info (0x02A4, dlc=8) --- */
+    { /* MMI_RightSwStatus in MMI_Status_Info (RX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -93,7 +105,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_LeftSwStatus in MMI_Status_Info */
+
+    { /* MMI_LeftSwStatus in MMI_Status_Info (RX) */
         .start_bit    = 3,
         .length       = 2,
         .byte_order   = 0,
@@ -102,7 +115,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_UpSwStatus in MMI_Status_Info */
+
+    { /* MMI_UpSwStatus in MMI_Status_Info (RX) */
         .start_bit    = 5,
         .length       = 2,
         .byte_order   = 0,
@@ -111,7 +125,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_DownSwStatus in MMI_Status_Info */
+
+    { /* MMI_DownSwStatus in MMI_Status_Info (RX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -120,7 +135,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_ConfirmSwStatus in MMI_Status_Info */
+
+    { /* MMI_ConfirmSwStatus in MMI_Status_Info (RX) */
         .start_bit    = 9,
         .length       = 2,
         .byte_order   = 0,
@@ -129,7 +145,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_ReturnSwStatus in MMI_Status_Info */
+
+    { /* MMI_ReturnSwStatus in MMI_Status_Info (RX) */
         .start_bit    = 11,
         .length       = 2,
         .byte_order   = 0,
@@ -138,7 +155,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_WorkMode in MMI_Status_Info */
+
+    { /* MMI_WorkMode in MMI_Status_Info (RX) */
         .start_bit    = 13,
         .length       = 2,
         .byte_order   = 0,
@@ -147,7 +165,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SkinMode in MMI_Status_Info */
+
+    { /* MMI_SkinMode in MMI_Status_Info (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -156,7 +175,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_HUDAciveRequest in MMI_Status_Info */
+
+    { /* MMI_HUDAciveRequest in MMI_Status_Info (RX) */
         .start_bit    = 17,
         .length       = 2,
         .byte_order   = 0,
@@ -165,7 +185,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_AVH_Request in MMI_Status_Info */
+
+    { /* MMI_AVH_Request in MMI_Status_Info (RX) */
         .start_bit    = 19,
         .length       = 2,
         .byte_order   = 0,
@@ -174,7 +195,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_OdometerClearReq in MMI_Status_Info */
+
+    { /* MMI_OdometerClearReq in MMI_Status_Info (RX) */
         .start_bit    = 20,
         .length       = 1,
         .byte_order   = 0,
@@ -183,7 +205,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SkinModeCorrelativeSts in MMI_Status_Info */
+
+    { /* MMI_SkinModeCorrelativeSts in MMI_Status_Info (RX) */
         .start_bit    = 21,
         .length       = 1,
         .byte_order   = 0,
@@ -192,7 +215,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SVA_AudibleWarningOption in MMI_Status_Info */
+
+    { /* MMI_SVA_AudibleWarningOption in MMI_Status_Info (RX) */
         .start_bit    = 23,
         .length       = 2,
         .byte_order   = 0,
@@ -201,7 +225,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_LCA_AudioWarning in MMI_Status_Info */
+
+    { /* MMI_LCA_AudioWarning in MMI_Status_Info (RX) */
         .start_bit    = 25,
         .length       = 2,
         .byte_order   = 0,
@@ -210,7 +235,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_ePTRegencyLevRequest in MMI_Status_Info */
+
+    { /* MMI_ePTRegencyLevRequest in MMI_Status_Info (RX) */
         .start_bit    = 27,
         .length       = 2,
         .byte_order   = 0,
@@ -219,7 +245,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_DM_SwitchModeSts in MMI_Status_Info */
+
+    { /* MMI_DM_SwitchModeSts in MMI_Status_Info (RX) */
         .start_bit    = 30,
         .length       = 3,
         .byte_order   = 0,
@@ -228,7 +255,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_RoadCameraWarning in MMI_Status_Info */
+
+    { /* MMI_RoadCameraWarning in MMI_Status_Info (RX) */
         .start_bit    = 34,
         .length       = 3,
         .byte_order   = 0,
@@ -237,7 +265,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_BCM_DchaChargehint in MMI_Status_Info */
+
+    { /* MMI_BCM_DchaChargehint in MMI_Status_Info (RX) */
         .start_bit    = 36,
         .length       = 2,
         .byte_order   = 0,
@@ -246,7 +275,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_RDiffLockReq in MMI_Status_Info */
+
+    { /* MMI_RDiffLockReq in MMI_Status_Info (RX) */
         .start_bit    = 38,
         .length       = 2,
         .byte_order   = 0,
@@ -255,7 +285,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_NationalDrivingRank in MMI_Status_Info */
+
+    { /* MMI_NationalDrivingRank in MMI_Status_Info (RX) */
         .start_bit    = 41,
         .length       = 7,
         .byte_order   = 0,
@@ -264,7 +295,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_EnergySavingModeReq in MMI_Status_Info */
+
+    { /* MMI_EnergySavingModeReq in MMI_Status_Info (RX) */
         .start_bit    = 43,
         .length       = 2,
         .byte_order   = 0,
@@ -273,7 +305,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_CampModeReq in MMI_Status_Info */
+
+    { /* MMI_CampModeReq in MMI_Status_Info (RX) */
         .start_bit    = 45,
         .length       = 2,
         .byte_order   = 0,
@@ -282,7 +315,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_EpedalSettingInfo in MMI_Status_Info */
+
+    { /* MMI_EpedalSettingInfo in MMI_Status_Info (RX) */
         .start_bit    = 46,
         .length       = 1,
         .byte_order   = 0,
@@ -291,7 +325,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_ESCoffInfo in MMI_Status_Info */
+
+    { /* MMI_ESCoffInfo in MMI_Status_Info (RX) */
         .start_bit    = 48,
         .length       = 1,
         .byte_order   = 0,
@@ -300,7 +335,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_HDC_Request in MMI_Status_Info */
+
+    { /* MMI_HDC_Request in MMI_Status_Info (RX) */
         .start_bit    = 50,
         .length       = 2,
         .byte_order   = 0,
@@ -309,7 +345,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_IntellTurnAidReq in MMI_Status_Info */
+
+    { /* MMI_IntellTurnAidReq in MMI_Status_Info (RX) */
         .start_bit    = 57,
         .length       = 2,
         .byte_order   = 0,
@@ -318,7 +355,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_IntellTurnAidTerrSeln in MMI_Status_Info */
+
+    { /* MMI_IntellTurnAidTerrSeln in MMI_Status_Info (RX) */
         .start_bit    = 60,
         .length       = 3,
         .byte_order   = 0,
@@ -327,7 +365,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_OnboardScaleReq in MMI_Status_Info */
+
+    { /* MMI_OnboardScaleReq in MMI_Status_Info (RX) */
         .start_bit    = 62,
         .length       = 2,
         .byte_order   = 0,
@@ -336,7 +375,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_iTPMS_reset_Request in MMI_Status_Info */
+
+    { /* MMI_iTPMS_reset_Request in MMI_Status_Info (RX) */
         .start_bit    = 63,
         .length       = 1,
         .byte_order   = 0,
@@ -345,7 +385,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Nav_SpeedLimit in MMI_Safety_Info */
+
+    /* --- RX: MMI_Safety_Info (0x02A8, dlc=8) --- */
+    { /* MMI_Nav_SpeedLimit in MMI_Safety_Info (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -354,7 +396,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Nav_RampSts in MMI_Safety_Info */
+
+    { /* MMI_Nav_RampSts in MMI_Safety_Info (RX) */
         .start_bit    = 10,
         .length       = 3,
         .byte_order   = 0,
@@ -363,7 +406,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Nav_CurrRoadType in MMI_Safety_Info */
+
+    { /* MMI_Nav_CurrRoadType in MMI_Safety_Info (RX) */
         .start_bit    = 13,
         .length       = 3,
         .byte_order   = 0,
@@ -372,7 +416,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Nav_status in MMI_Safety_Info */
+
+    { /* MMI_Nav_status in MMI_Safety_Info (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -381,7 +426,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Nav_CountryID in MMI_Safety_Info */
+
+    { /* MMI_Nav_CountryID in MMI_Safety_Info (RX) */
         .start_bit    = 19,
         .length       = 4,
         .byte_order   = 0,
@@ -390,7 +436,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_TollGateIndication in MMI_Safety_Info */
+
+    { /* MMI_TollGateIndication in MMI_Safety_Info (RX) */
         .start_bit    = 20,
         .length       = 1,
         .byte_order   = 0,
@@ -399,7 +446,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SVC_status in MMI_Safety_Info */
+
+    { /* MMI_SVC_status in MMI_Safety_Info (RX) */
         .start_bit    = 22,
         .length       = 2,
         .byte_order   = 0,
@@ -408,7 +456,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_APA_Function_Select in MMI_Safety_Info */
+
+    { /* MMI_APA_Function_Select in MMI_Safety_Info (RX) */
         .start_bit    = 25,
         .length       = 2,
         .byte_order   = 0,
@@ -417,7 +466,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SVA_Request in MMI_Safety_Info */
+
+    { /* MMI_SVA_Request in MMI_Safety_Info (RX) */
         .start_bit    = 27,
         .length       = 1,
         .byte_order   = 0,
@@ -426,7 +476,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_APA_ConfirmButton in MMI_Safety_Info */
+
+    { /* MMI_APA_ConfirmButton in MMI_Safety_Info (RX) */
         .start_bit    = 29,
         .length       = 2,
         .byte_order   = 0,
@@ -435,7 +486,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_PSC_Function_Select in MMI_Safety_Info */
+
+    { /* MMI_PSC_Function_Select in MMI_Safety_Info (RX) */
         .start_bit    = 31,
         .length       = 2,
         .byte_order   = 0,
@@ -444,7 +496,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_NavTunnelIndication in MMI_Safety_Info */
+
+    { /* MMI_NavTunnelIndication in MMI_Safety_Info (RX) */
         .start_bit    = 32,
         .length       = 1,
         .byte_order   = 0,
@@ -453,7 +506,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_NavDestinationIndication in MMI_Safety_Info */
+
+    { /* MMI_NavDestinationIndication in MMI_Safety_Info (RX) */
         .start_bit    = 33,
         .length       = 1,
         .byte_order   = 0,
@@ -462,7 +516,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_DayNightMode in MMI_Safety_Info */
+
+    { /* MMI_DayNightMode in MMI_Safety_Info (RX) */
         .start_bit    = 39,
         .length       = 2,
         .byte_order   = 0,
@@ -471,7 +526,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_IBBrakeModeSet in MMI_Safety_Info */
+
+    { /* MMI_IBBrakeModeSet in MMI_Safety_Info (RX) */
         .start_bit    = 43,
         .length       = 2,
         .byte_order   = 0,
@@ -480,7 +536,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SailingSwitch in MMI_Safety_Info */
+
+    { /* MMI_SailingSwitch in MMI_Safety_Info (RX) */
         .start_bit    = 44,
         .length       = 1,
         .byte_order   = 0,
@@ -489,7 +546,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Start_Stop_switch in MMI_Safety_Info */
+
+    { /* MMI_Start_Stop_switch in MMI_Safety_Info (RX) */
         .start_bit    = 49,
         .length       = 1,
         .byte_order   = 0,
@@ -498,7 +556,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_NavSyncDisplay in MMI_Safety_Info */
+
+    { /* MMI_NavSyncDisplay in MMI_Safety_Info (RX) */
         .start_bit    = 51,
         .length       = 2,
         .byte_order   = 0,
@@ -507,7 +566,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Safety_Info_AliveCounter in MMI_Safety_Info */
+
+    { /* MMI_Safety_Info_AliveCounter in MMI_Safety_Info (RX) */
         .start_bit    = 55,
         .length       = 4,
         .byte_order   = 0,
@@ -516,7 +576,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_Safety_Info_CheckSum in MMI_Safety_Info */
+
+    { /* MMI_Safety_Info_CheckSum in MMI_Safety_Info (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -525,7 +586,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_DchaChargeControlCmd in MMI_SOCSet */
+
+    /* --- RX: MMI_SOCSet (0x02A6, dlc=8) --- */
+    { /* MMI_DchaChargeControlCmd in MMI_SOCSet (RX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -534,7 +597,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SocWarValue in MMI_SOCSet */
+
+    { /* MMI_SocWarValue in MMI_SOCSet (RX) */
         .start_bit    = 3,
         .length       = 2,
         .byte_order   = 0,
@@ -543,7 +607,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_EVDTEodometer_ModeSet in MMI_SOCSet */
+
+    { /* MMI_EVDTEodometer_ModeSet in MMI_SOCSet (RX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -552,7 +617,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_FridgeCoolReq in MMI_SOCSet */
+
+    { /* MMI_FridgeCoolReq in MMI_SOCSet (RX) */
         .start_bit    = 6,
         .length       = 2,
         .byte_order   = 0,
@@ -561,7 +627,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SaveModeReq in MMI_SOCSet */
+
+    { /* MMI_SaveModeReq in MMI_SOCSet (RX) */
         .start_bit    = 9,
         .length       = 2,
         .byte_order   = 0,
@@ -570,7 +637,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_ACDisChrgCmd in MMI_SOCSet */
+
+    { /* MMI_ACDisChrgCmd in MMI_SOCSet (RX) */
         .start_bit    = 25,
         .length       = 2,
         .byte_order   = 0,
@@ -579,7 +647,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_RearPanelDisChrgCmd in MMI_SOCSet */
+
+    { /* MMI_RearPanelDisChrgCmd in MMI_SOCSet (RX) */
         .start_bit    = 27,
         .length       = 2,
         .byte_order   = 0,
@@ -588,7 +657,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_DCDisChrgCmd in MMI_SOCSet */
+
+    { /* MMI_DCDisChrgCmd in MMI_SOCSet (RX) */
         .start_bit    = 29,
         .length       = 2,
         .byte_order   = 0,
@@ -597,7 +667,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_FrontPanelDisChrgCmd in MMI_SOCSet */
+
+    { /* MMI_FrontPanelDisChrgCmd in MMI_SOCSet (RX) */
         .start_bit    = 31,
         .length       = 2,
         .byte_order   = 0,
@@ -606,7 +677,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_OTA_Status in MMI_SOCSet */
+
+    { /* MMI_OTA_Status in MMI_SOCSet (RX) */
         .start_bit    = 34,
         .length       = 3,
         .byte_order   = 0,
@@ -615,7 +687,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_MidPanelDisChrgCmd in MMI_SOCSet */
+
+    { /* MMI_MidPanelDisChrgCmd in MMI_SOCSet (RX) */
         .start_bit    = 36,
         .length       = 2,
         .byte_order   = 0,
@@ -624,7 +697,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_RefuUnlckReq in MMI_SOCSet */
+
+    { /* MMI_RefuUnlckReq in MMI_SOCSet (RX) */
         .start_bit    = 38,
         .length       = 2,
         .byte_order   = 0,
@@ -633,7 +707,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* MMI_SOCPointSet in MMI_SOCSet */
+
+    { /* MMI_SOCPointSet in MMI_SOCSet (RX) */
         .start_bit    = 62,
         .length       = 7,
         .byte_order   = 0,
@@ -642,7 +717,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_ControlSetSpeed in EMS_EngRelateTrqSts */
+
+    /* --- RX: EMS_EngRelateTrqSts (0x0084, dlc=8) --- */
+    { /* EMS_ControlSetSpeed in EMS_EngRelateTrqSts (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -651,7 +728,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_CruiseSwitchSts in EMS_EngRelateTrqSts */
+
+    { /* EMS_CruiseSwitchSts in EMS_EngRelateTrqSts (RX) */
         .start_bit    = 10,
         .length       = 1,
         .byte_order   = 0,
@@ -660,7 +738,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_CruiseControlSts in EMS_EngRelateTrqSts */
+
+    { /* EMS_CruiseControlSts in EMS_EngRelateTrqSts (RX) */
         .start_bit    = 13,
         .length       = 3,
         .byte_order   = 0,
@@ -669,7 +748,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_Real_PedalPositionInvalid in EMS_EngRelateTrqSts */
+
+    { /* EMS_Real_PedalPositionInvalid in EMS_EngRelateTrqSts (RX) */
         .start_bit    = 14,
         .length       = 1,
         .byte_order   = 0,
@@ -678,7 +758,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_Real_PedalPosition in EMS_EngRelateTrqSts */
+
+    { /* EMS_Real_PedalPosition in EMS_EngRelateTrqSts (RX) */
         .start_bit    = 23,
         .length       = 8,
         .byte_order   = 0,
@@ -687,7 +768,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_FuelPulsesRollingCounter in EMS_EngineRPM */
+
+    /* --- RX: EMS_EngineRPM (0x0085, dlc=8) --- */
+    { /* EMS_FuelPulsesRollingCounter in EMS_EngineRPM (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -696,7 +779,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_EngineSpeedRPM in EMS_EngineRPM */
+
+    { /* EMS_EngineSpeedRPM in EMS_EngineRPM (RX) */
         .start_bit    = 23,
         .length       = 16,
         .byte_order   = 0,
@@ -705,7 +789,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* EMS_EngineSpeedRPMInvalid in EMS_EngineRPM */
+
+    { /* EMS_EngineSpeedRPMInvalid in EMS_EngineRPM (RX) */
         .start_bit    = 44,
         .length       = 1,
         .byte_order   = 0,
@@ -714,7 +799,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_EngStatus in EMS_EngineRPM */
+
+    { /* EMS_EngStatus in EMS_EngineRPM (RX) */
         .start_bit    = 47,
         .length       = 3,
         .byte_order   = 0,
@@ -723,7 +809,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_AccelPedalPosition in EMS_EngineRPM */
+
+    { /* EMS_AccelPedalPosition in EMS_EngineRPM (RX) */
         .start_bit    = 55,
         .length       = 8,
         .byte_order   = 0,
@@ -732,7 +819,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_AccelPedalPositionInvalid in EMS_EngineRPM */
+
+    { /* EMS_AccelPedalPositionInvalid in EMS_EngineRPM (RX) */
         .start_bit    = 59,
         .length       = 1,
         .byte_order   = 0,
@@ -741,7 +829,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_EngineCoolantTemperature in EMS_EngineDriverInfo */
+
+    /* --- RX: EMS_EngineDriverInfo (0x0288, dlc=8) --- */
+    { /* EMS_EngineCoolantTemperature in EMS_EngineDriverInfo (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -750,7 +840,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -36.8f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_EngineCoolantTemperatureInva in EMS_EngineDriverInfo */
+
+    { /* EMS_EngineCoolantTemperatureInva in EMS_EngineDriverInfo (RX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -759,7 +850,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_EngineSVSTelltale in EMS_EngineDriverInfo */
+
+    { /* EMS_EngineSVSTelltale in EMS_EngineDriverInfo (RX) */
         .start_bit    = 9,
         .length       = 1,
         .byte_order   = 0,
@@ -768,7 +860,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_EngineMILTelltale in EMS_EngineDriverInfo */
+
+    { /* EMS_EngineMILTelltale in EMS_EngineDriverInfo (RX) */
         .start_bit    = 10,
         .length       = 1,
         .byte_order   = 0,
@@ -777,7 +870,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_OilPressureWarning in EMS_EngineDriverInfo */
+
+    { /* EMS_OilPressureWarning in EMS_EngineDriverInfo (RX) */
         .start_bit    = 13,
         .length       = 1,
         .byte_order   = 0,
@@ -786,7 +880,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_Odometerbackup in EMS_EngineDriverInfo */
+
+    { /* EMS_Odometerbackup in EMS_EngineDriverInfo (RX) */
         .start_bit    = 53,
         .length       = 14,
         .byte_order   = 0,
@@ -795,7 +890,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* EMS_LIMSetSpeed in EMS_EnginePatsBatteryStat */
+
+    /* --- RX: EMS_EnginePatsBatteryStat (0x028A, dlc=8) --- */
+    { /* EMS_LIMSetSpeed in EMS_EnginePatsBatteryStat (RX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -804,7 +901,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_EAV_ModSetStatus in EMS_EnginePatsBatteryStat */
+
+    { /* EMS_EAV_ModSetStatus in EMS_EnginePatsBatteryStat (RX) */
         .start_bit    = 19,
         .length       = 1,
         .byte_order   = 0,
@@ -813,7 +911,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_LIMControlSts in EMS_EnginePatsBatteryStat */
+
+    { /* EMS_LIMControlSts in EMS_EnginePatsBatteryStat (RX) */
         .start_bit    = 21,
         .length       = 2,
         .byte_order   = 0,
@@ -822,7 +921,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_LIMmemorySts_Reserved in EMS_EnginePatsBatteryStat */
+
+    { /* EMS_LIMmemorySts_Reserved in EMS_EnginePatsBatteryStat (RX) */
         .start_bit    = 22,
         .length       = 1,
         .byte_order   = 0,
@@ -831,7 +931,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_LIMSwitchSts in EMS_EnginePatsBatteryStat */
+
+    { /* EMS_LIMSwitchSts in EMS_EnginePatsBatteryStat (RX) */
         .start_bit    = 23,
         .length       = 1,
         .byte_order   = 0,
@@ -840,7 +941,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_LIMOverSpdWarningSts in EMS_EnginePatsBatteryStat */
+
+    { /* EMS_LIMOverSpdWarningSts in EMS_EnginePatsBatteryStat (RX) */
         .start_bit    = 55,
         .length       = 1,
         .byte_order   = 0,
@@ -849,7 +951,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_GPF_Warning in EMS_OBD_Info */
+
+    /* --- RX: EMS_OBD_Info (0x028C, dlc=8) --- */
+    { /* EMS_GPF_Warning in EMS_OBD_Info (RX) */
         .start_bit    = 22,
         .length       = 2,
         .byte_order   = 0,
@@ -858,7 +962,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_BrakeOverrideSts in EMS_OBD_Info */
+
+    { /* EMS_BrakeOverrideSts in EMS_OBD_Info (RX) */
         .start_bit    = 27,
         .length       = 1,
         .byte_order   = 0,
@@ -867,7 +972,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_TankLeakDiagSts in EMS_OBD_Info */
+
+    { /* EMS_TankLeakDiagSts in EMS_OBD_Info (RX) */
         .start_bit    = 29,
         .length       = 2,
         .byte_order   = 0,
@@ -876,7 +982,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_AdaptiveTargetMode in EMS_OBD_Info */
+
+    { /* EMS_AdaptiveTargetMode in EMS_OBD_Info (RX) */
         .start_bit    = 31,
         .length       = 2,
         .byte_order   = 0,
@@ -885,7 +992,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EMS_DM_ModeProgBar in EMS_OBD_Info */
+
+    { /* EMS_DM_ModeProgBar in EMS_OBD_Info (RX) */
         .start_bit    = 39,
         .length       = 7,
         .byte_order   = 0,
@@ -894,7 +1002,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EGSM_ParkReq in EGSM_Status */
+
+    /* --- RX: EGSM_Status (0x0145, dlc=8) --- */
+    { /* EGSM_ParkReq in EGSM_Status (RX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -903,7 +1013,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EGSM_DriveMod in EGSM_Status */
+
+    { /* EGSM_DriveMod in EGSM_Status (RX) */
         .start_bit    = 7,
         .length       = 3,
         .byte_order   = 0,
@@ -912,7 +1023,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EGSM_LeverPosition in EGSM_Status */
+
+    { /* EGSM_LeverPosition in EGSM_Status (RX) */
         .start_bit    = 10,
         .length       = 3,
         .byte_order   = 0,
@@ -921,7 +1033,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EGSM_Paddleinputs in EGSM_Status */
+
+    { /* EGSM_Paddleinputs in EGSM_Status (RX) */
         .start_bit    = 13,
         .length       = 3,
         .byte_order   = 0,
@@ -930,7 +1043,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EGSM_ReleaseReq in EGSM_Status */
+
+    { /* EGSM_ReleaseReq in EGSM_Status (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -939,7 +1053,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EGSM_Status_AliveCounter in EGSM_Status */
+
+    { /* EGSM_Status_AliveCounter in EGSM_Status (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -948,7 +1063,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EGSM_Status_Checksum in EGSM_Status */
+
+    { /* EGSM_Status_Checksum in EGSM_Status (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -957,7 +1073,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_ChrgrSt in OBC_Sts */
+
+    /* --- RX: OBC_Sts (0x0220, dlc=8) --- */
+    { /* ODP_OBC_ChrgrSt in OBC_Sts (RX) */
         .start_bit    = 3,
         .length       = 4,
         .byte_order   = 0,
@@ -966,7 +1084,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* OBC_OnBdFailSt in OBC_Sts */
+
+    { /* OBC_OnBdFailSt in OBC_Sts (RX) */
         .start_bit    = 5,
         .length       = 2,
         .byte_order   = 0,
@@ -975,7 +1094,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* OBC_OnBdDisChrgrCCline_PHEV in OBC_Sts */
+
+    { /* OBC_OnBdDisChrgrCCline_PHEV in OBC_Sts (RX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -984,7 +1104,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_OnBdCCline in OBC_Sts */
+
+    { /* ODP_OBC_OnBdCCline in OBC_Sts (RX) */
         .start_bit    = 47,
         .length       = 2,
         .byte_order   = 0,
@@ -993,7 +1114,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_OnBdCPline in OBC_Sts */
+
+    { /* ODP_OBC_OnBdCPline in OBC_Sts (RX) */
         .start_bit    = 54,
         .length       = 3,
         .byte_order   = 0,
@@ -1002,7 +1124,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_OnBdDisChrgrCCline_EV in OBC_Curr */
+
+    /* --- RX: OBC_Curr (0x0221, dlc=8) --- */
+    { /* ODP_OBC_OnBdDisChrgrCCline_EV in OBC_Curr (RX) */
         .start_bit    = 19,
         .length       = 2,
         .byte_order   = 0,
@@ -1011,7 +1135,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_iInAct in OBC_Curr */
+
+    { /* ODP_OBC_iInAct in OBC_Curr (RX) */
         .start_bit    = 39,
         .length       = 10,
         .byte_order   = 0,
@@ -1020,7 +1145,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* OBC_uInAct in OBC_Curr */
+
+    { /* OBC_uInAct in OBC_Curr (RX) */
         .start_bit    = 43,
         .length       = 12,
         .byte_order   = 0,
@@ -1029,7 +1155,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* ODP_OBC_POuptAct in OBC_Curr */
+
+    { /* ODP_OBC_POuptAct in OBC_Curr (RX) */
         .start_bit    = 62,
         .length       = 7,
         .byte_order   = 0,
@@ -1038,7 +1165,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_Failmode_ACVI_overtemp in OBC_Failmode */
+
+    /* --- RX: OBC_Failmode (0x0222, dlc=8) --- */
+    { /* ODP_OBC_Failmode_ACVI_overtemp in OBC_Failmode (RX) */
         .start_bit    = 7,
         .length       = 1,
         .byte_order   = 0,
@@ -1047,7 +1176,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_Failmode_Hndl_Error in OBC_Failmode */
+
+    { /* ODP_OBC_Failmode_Hndl_Error in OBC_Failmode (RX) */
         .start_bit    = 11,
         .length       = 1,
         .byte_order   = 0,
@@ -1056,7 +1186,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ODP_OBC_Failmode_ACVI_Invalid in OBC_Failmode */
+
+    { /* ODP_OBC_Failmode_ACVI_Invalid in OBC_Failmode (RX) */
         .start_bit    = 12,
         .length       = 1,
         .byte_order   = 0,
@@ -1065,7 +1196,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_BattSOH in BMSH_sts */
+
+    /* --- RX: BMSH_sts (0x0354, dlc=8) --- */
+    { /* BMSH_BattSOH in BMSH_sts (RX) */
         .start_bit    = 7,
         .length       = 10,
         .byte_order   = 0,
@@ -1074,7 +1207,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* BMSH_ChgTimeRemain in BMSH_sts */
+
+    { /* BMSH_ChgTimeRemain in BMSH_sts (RX) */
         .start_bit    = 23,
         .length       = 11,
         .byte_order   = 0,
@@ -1083,7 +1217,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* BMSH_BattRemainEnergy in BMSH_sts */
+
+    { /* BMSH_BattRemainEnergy in BMSH_sts (RX) */
         .start_bit    = 39,
         .length       = 14,
         .byte_order   = 0,
@@ -1092,7 +1227,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* BMSH_Discharge_Over_Current in BMSH_sts */
+
+    { /* BMSH_Discharge_Over_Current in BMSH_sts (RX) */
         .start_bit    = 61,
         .length       = 2,
         .byte_order   = 0,
@@ -1101,7 +1237,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_ThermalOutofControl in BMSH_Battery_chgstate */
+
+    /* --- RX: BMSH_Battery_chgstate (0x017B, dlc=8) --- */
+    { /* BMSH_ThermalOutofControl in BMSH_Battery_chgstate (RX) */
         .start_bit    = 40,
         .length       = 1,
         .byte_order   = 0,
@@ -1110,7 +1248,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_BattTempAvg in BMSH_CellTempLimitValue */
+
+    /* --- RX: BMSH_CellTempLimitValue (0x0210, dlc=8) --- */
+    { /* BMSH_BattTempAvg in BMSH_CellTempLimitValue (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -1119,7 +1259,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_TempSensor_MinTemp in BMSH_CellTempLimitValue */
+
+    { /* BMSH_TempSensor_MinTemp in BMSH_CellTempLimitValue (RX) */
         .start_bit    = 47,
         .length       = 8,
         .byte_order   = 0,
@@ -1128,7 +1269,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTModeSelect in VCU_Ctrl */
+
+    /* --- RX: VCU_Ctrl (0x0162, dlc=8) --- */
+    { /* VCU_ePTModeSelect in VCU_Ctrl (RX) */
         .start_bit    = 17,
         .length       = 2,
         .byte_order   = 0,
@@ -1137,7 +1280,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTModeActual in VCU_Ctrl */
+
+    { /* VCU_ePTModeActual in VCU_Ctrl (RX) */
         .start_bit    = 23,
         .length       = 3,
         .byte_order   = 0,
@@ -1146,7 +1290,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_Warning_IMMO_Fail in VCU_Ctrl */
+
+    { /* VCU_Warning_IMMO_Fail in VCU_Ctrl (RX) */
         .start_bit    = 28,
         .length       = 2,
         .byte_order   = 0,
@@ -1155,7 +1300,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ChargerFault in VCU_Ctrl */
+
+    { /* VCU_ChargerFault in VCU_Ctrl (RX) */
         .start_bit    = 29,
         .length       = 1,
         .byte_order   = 0,
@@ -1164,7 +1310,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTReady in VCU_Ctrl */
+
+    { /* VCU_ePTReady in VCU_Ctrl (RX) */
         .start_bit    = 31,
         .length       = 1,
         .byte_order   = 0,
@@ -1173,7 +1320,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTDivPowerPcent in VCU_Ctrl */
+
+    { /* VCU_ePTDivPowerPcent in VCU_Ctrl (RX) */
         .start_bit    = 39,
         .length       = 8,
         .byte_order   = 0,
@@ -1182,7 +1330,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -100.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTReleaseSig in VCU_Ctrl */
+
+    { /* VCU_ePTReleaseSig in VCU_Ctrl (RX) */
         .start_bit    = 41,
         .length       = 2,
         .byte_order   = 0,
@@ -1191,7 +1340,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTRegencyLevInd in VCU_Ctrl */
+
+    { /* VCU_ePTRegencyLevInd in VCU_Ctrl (RX) */
         .start_bit    = 44,
         .length       = 3,
         .byte_order   = 0,
@@ -1200,7 +1350,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTModReqRejt in VCU_Ctrl */
+
+    { /* VCU_ePTModReqRejt in VCU_Ctrl (RX) */
         .start_bit    = 47,
         .length       = 3,
         .byte_order   = 0,
@@ -1209,7 +1360,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_LimpHomeSts_HB in VCU_Ctrl */
+
+    { /* VCU_LimpHomeSts_HB in VCU_Ctrl (RX) */
         .start_bit    = 53,
         .length       = 1,
         .byte_order   = 0,
@@ -1218,7 +1370,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_TurtleLampOn in VCU_Ctrl */
+
+    { /* VCU_TurtleLampOn in VCU_Ctrl (RX) */
         .start_bit    = 54,
         .length       = 1,
         .byte_order   = 0,
@@ -1227,7 +1380,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ePTFault in VCU_Ctrl */
+
+    { /* VCU_ePTFault in VCU_Ctrl (RX) */
         .start_bit    = 55,
         .length       = 1,
         .byte_order   = 0,
@@ -1236,7 +1390,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_EVDTEodometer in VCU_InforCAN */
+
+    /* --- RX: VCU_InforCAN (0x0214, dlc=8) --- */
+    { /* VCU_EVDTEodometer in VCU_InforCAN (RX) */
         .start_bit    = 7,
         .length       = 12,
         .byte_order   = 0,
@@ -1245,7 +1401,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* HmiEngHybSts in VCU_InforCAN */
+
+    { /* HmiEngHybSts in VCU_InforCAN (RX) */
         .start_bit    = 11,
         .length       = 1,
         .byte_order   = 0,
@@ -1254,7 +1411,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_PtModAct in VCU_InforCAN */
+
+    { /* VCU_PtModAct in VCU_InforCAN (RX) */
         .start_bit    = 41,
         .length       = 2,
         .byte_order   = 0,
@@ -1263,7 +1421,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_PtModBlkd in VCU_InforCAN */
+
+    { /* VCU_PtModBlkd in VCU_InforCAN (RX) */
         .start_bit    = 42,
         .length       = 1,
         .byte_order   = 0,
@@ -1272,7 +1431,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_PwrLoIndcn in VCU_InforCAN */
+
+    { /* VCU_PwrLoIndcn in VCU_InforCAN (RX) */
         .start_bit    = 43,
         .length       = 1,
         .byte_order   = 0,
@@ -1281,7 +1441,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_EngFltIndcn in VCU_InforCAN */
+
+    { /* VCU_EngFltIndcn in VCU_InforCAN (RX) */
         .start_bit    = 47,
         .length       = 4,
         .byte_order   = 0,
@@ -1290,7 +1451,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_VehPullOverWarn in VCU_InforCAN */
+
+    { /* VCU_VehPullOverWarn in VCU_InforCAN (RX) */
         .start_bit    = 50,
         .length       = 1,
         .byte_order   = 0,
@@ -1299,7 +1461,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_EpedalActive in VCU_InforCAN */
+
+    { /* VCU_EpedalActive in VCU_InforCAN (RX) */
         .start_bit    = 53,
         .length       = 2,
         .byte_order   = 0,
@@ -1308,7 +1471,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_MainDrivingDoorOpenHV in VCU_InforCAN */
+
+    { /* VCU_MainDrivingDoorOpenHV in VCU_InforCAN (RX) */
         .start_bit    = 63,
         .length       = 1,
         .byte_order   = 0,
@@ -1317,7 +1481,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* DispWhlMotSysPrpsnMod in VCU_DCDC_Ctrl */
+
+    /* --- RX: VCU_DCDC_Ctrl (0x0161, dlc=8) --- */
+    { /* DispWhlMotSysPrpsnMod in VCU_DCDC_Ctrl (RX) */
         .start_bit    = 9,
         .length       = 2,
         .byte_order   = 0,
@@ -1326,7 +1492,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_DriverRemind in VCU_DCDC_Ctrl */
+
+    { /* VCU_DriverRemind in VCU_DCDC_Ctrl (RX) */
         .start_bit    = 35,
         .length       = 1,
         .byte_order   = 0,
@@ -1335,7 +1502,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_DiscrgPanellSw in VCU_DCDC_Ctrl */
+
+    { /* VCU_DiscrgPanellSw in VCU_DCDC_Ctrl (RX) */
         .start_bit    = 39,
         .length       = 1,
         .byte_order   = 0,
@@ -1344,7 +1512,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_DischgFailSt in VCU_DCDC_Ctrl */
+
+    { /* VCU_DischgFailSt in VCU_DCDC_Ctrl (RX) */
         .start_bit    = 42,
         .length       = 3,
         .byte_order   = 0,
@@ -1353,7 +1522,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_MileageReward in VCU_DCDC_Ctrl */
+
+    { /* VCU_MileageReward in VCU_DCDC_Ctrl (RX) */
         .start_bit    = 55,
         .length       = 11,
         .byte_order   = 0,
@@ -1362,7 +1532,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* DispOfPrpsnMod in VCU_DCDC_Ctrl */
+
+    { /* DispOfPrpsnMod in VCU_DCDC_Ctrl (RX) */
         .start_bit    = 59,
         .length       = 4,
         .byte_order   = 0,
@@ -1371,7 +1542,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_StartActive in VCU_CSControl1 */
+
+    /* --- RX: VCU_CSControl1 (0x01A5, dlc=8) --- */
+    { /* VCU_StartActive in VCU_CSControl1 (RX) */
         .start_bit    = 32,
         .length       = 1,
         .byte_order   = 0,
@@ -1380,7 +1553,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_CruiseControlSts in VCU_CSControl1 */
+
+    { /* VCU_CruiseControlSts in VCU_CSControl1 (RX) */
         .start_bit    = 38,
         .length       = 3,
         .byte_order   = 0,
@@ -1389,7 +1563,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_CruiseSwitchSts in VCU_CSControl1 */
+
+    { /* VCU_CruiseSwitchSts in VCU_CSControl1 (RX) */
         .start_bit    = 39,
         .length       = 1,
         .byte_order   = 0,
@@ -1398,7 +1573,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ControlSetSpeed in VCU_CSControl1 */
+
+    { /* VCU_ControlSetSpeed in VCU_CSControl1 (RX) */
         .start_bit    = 47,
         .length       = 8,
         .byte_order   = 0,
@@ -1407,7 +1583,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_DM_FailureReasonAndSysFaultF in VCU_CSControl1 */
+
+    { /* VCU_DM_FailureReasonAndSysFaultF in VCU_CSControl1 (RX) */
         .start_bit    = 55,
         .length       = 4,
         .byte_order   = 0,
@@ -1416,7 +1593,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_Real_PedalPosition in VCU_ModeControl */
+
+    /* --- RX: VCU_ModeControl (0x0165, dlc=8) --- */
+    { /* VCU_Real_PedalPosition in VCU_ModeControl (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -1425,7 +1604,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ModeGearDisplaySts in VCU_ModeControl */
+
+    { /* VCU_ModeGearDisplaySts in VCU_ModeControl (RX) */
         .start_bit    = 12,
         .length       = 5,
         .byte_order   = 0,
@@ -1434,7 +1614,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_LIMOverSpdWarningSts in VCU_ModeControl */
+
+    { /* VCU_LIMOverSpdWarningSts in VCU_ModeControl (RX) */
         .start_bit    = 13,
         .length       = 1,
         .byte_order   = 0,
@@ -1443,7 +1624,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_EVSpeedlimitedInf in VCU_ModeControl */
+
+    { /* VCU_EVSpeedlimitedInf in VCU_ModeControl (RX) */
         .start_bit    = 25,
         .length       = 2,
         .byte_order   = 0,
@@ -1452,7 +1634,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_ChargeHV_Status in VCU_ModeControl */
+
+    { /* VCU_ChargeHV_Status in VCU_ModeControl (RX) */
         .start_bit    = 27,
         .length       = 2,
         .byte_order   = 0,
@@ -1461,7 +1644,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_WhlDrvSt_CS in VCU_ModeControl */
+
+    { /* VCU_WhlDrvSt_CS in VCU_ModeControl (RX) */
         .start_bit    = 39,
         .length       = 2,
         .byte_order   = 0,
@@ -1470,7 +1654,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_LIMSetSpeed in VCU_ModeControl */
+
+    { /* VCU_LIMSetSpeed in VCU_ModeControl (RX) */
         .start_bit    = 47,
         .length       = 8,
         .byte_order   = 0,
@@ -1479,7 +1664,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_LIMSwitchSts in VCU_ModeControl */
+
+    { /* VCU_LIMSwitchSts in VCU_ModeControl (RX) */
         .start_bit    = 52,
         .length       = 1,
         .byte_order   = 0,
@@ -1488,7 +1674,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_LIMControlSts in VCU_ModeControl */
+
+    { /* VCU_LIMControlSts in VCU_ModeControl (RX) */
         .start_bit    = 54,
         .length       = 2,
         .byte_order   = 0,
@@ -1497,7 +1684,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_IsgTqActIsgTqAct in IPU_TrqSpd */
+
+    /* --- RX: IPU_TrqSpd (0x00A8, dlc=8) --- */
+    { /* IPU_IsgTqActIsgTqAct in IPU_TrqSpd (RX) */
         .start_bit    = 15,
         .length       = 16,
         .byte_order   = 0,
@@ -1506,7 +1695,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -1200.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPU_IsgSpdActSgn in IPU_TrqSpd */
+
+    { /* IPU_IsgSpdActSgn in IPU_TrqSpd (RX) */
         .start_bit    = 31,
         .length       = 16,
         .byte_order   = 0,
@@ -1515,7 +1705,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -20000.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPU_TrqSpd_AliveCounter in IPU_TrqSpd */
+
+    { /* IPU_TrqSpd_AliveCounter in IPU_TrqSpd (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -1524,7 +1715,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_TrqSpd_Checksum in IPU_TrqSpd */
+
+    { /* IPU_TrqSpd_Checksum in IPU_TrqSpd (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -1533,7 +1725,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_TqAvlIsgMax in IPU_Sts */
+
+    /* --- RX: IPU_Sts (0x0171, dlc=8) --- */
+    { /* IPU_TqAvlIsgMax in IPU_Sts (RX) */
         .start_bit    = 23,
         .length       = 11,
         .byte_order   = 0,
@@ -1542,7 +1736,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -1024.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPU_TqAvlIsgMin in IPU_Sts */
+
+    { /* IPU_TqAvlIsgMin in IPU_Sts (RX) */
         .start_bit    = 28,
         .length       = 11,
         .byte_order   = 0,
@@ -1551,7 +1746,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -1024.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPU_Sts_AliveCounter in IPU_Sts */
+
+    { /* IPU_Sts_AliveCounter in IPU_Sts (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -1560,7 +1756,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_Sts_Checksum in IPU_Sts */
+
+    { /* IPU_Sts_Checksum in IPU_Sts (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -1569,7 +1766,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AVAS_AVASDisabledSts in AVAS_DisabledSts */
+
+    /* --- RX: AVAS_DisabledSts (0x02B2, dlc=8) --- */
+    { /* AVAS_AVASDisabledSts in AVAS_DisabledSts (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -1578,7 +1777,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AVAS_AVASBackwardDisabledSts in AVAS_DisabledSts */
+
+    { /* AVAS_AVASBackwardDisabledSts in AVAS_DisabledSts (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -1587,7 +1787,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AVAS_AVASforwardDisabledSts in AVAS_DisabledSts */
+
+    { /* AVAS_AVASforwardDisabledSts in AVAS_DisabledSts (RX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -1596,7 +1797,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AVAS_AVASForwardWarningSts in AVAS_DisabledSts */
+
+    { /* AVAS_AVASForwardWarningSts in AVAS_DisabledSts (RX) */
         .start_bit    = 11,
         .length       = 4,
         .byte_order   = 0,
@@ -1605,7 +1807,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AVAS_AVASVolumeSts in AVAS_DisabledSts */
+
+    { /* AVAS_AVASVolumeSts in AVAS_DisabledSts (RX) */
         .start_bit    = 13,
         .length       = 2,
         .byte_order   = 0,
@@ -1614,7 +1817,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AVAS_AVASBackwardWarningSts in AVAS_DisabledSts */
+
+    { /* AVAS_AVASBackwardWarningSts in AVAS_DisabledSts (RX) */
         .start_bit    = 19,
         .length       = 4,
         .byte_order   = 0,
@@ -1623,7 +1827,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_DrvSeatbeltBucklestatus in ACU_ChimeTelltaleReq */
+
+    /* --- RX: ACU_ChimeTelltaleReq (0x0380, dlc=8) --- */
+    { /* ACU_DrvSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -1632,7 +1838,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_PassSeatbeWarning in ACU_ChimeTelltaleReq */
+
+    { /* ACU_PassSeatbeWarning in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 1,
         .length       = 1,
         .byte_order   = 0,
@@ -1641,7 +1848,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_PassSeatOccupantSensorStat in ACU_ChimeTelltaleReq */
+
+    { /* ACU_PassSeatOccupantSensorStat in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 2,
         .length       = 1,
         .byte_order   = 0,
@@ -1650,7 +1858,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_2nd_RSeatbeltBucklestatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_2nd_RSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -1659,7 +1868,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_PassengerAirbagStatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_PassengerAirbagStatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -1668,7 +1878,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_AirbagWarningStatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_AirbagWarningStatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 6,
         .length       = 2,
         .byte_order   = 0,
@@ -1677,7 +1888,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_DrvSeatbeltBuckleInvalid in ACU_ChimeTelltaleReq */
+
+    { /* ACU_DrvSeatbeltBuckleInvalid in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -1686,7 +1898,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_PassSeatbeltBuckleInvalid in ACU_ChimeTelltaleReq */
+
+    { /* ACU_PassSeatbeltBuckleInvalid in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 9,
         .length       = 1,
         .byte_order   = 0,
@@ -1695,7 +1908,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_2nd_LSeatbeltBucklestatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_2nd_LSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 10,
         .length       = 1,
         .byte_order   = 0,
@@ -1704,7 +1918,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_2nd_MSeatbeltBucklestatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_2nd_MSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 11,
         .length       = 1,
         .byte_order   = 0,
@@ -1713,7 +1928,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_3rd_LSeatbeltBucklestatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_3rd_LSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 32,
         .length       = 1,
         .byte_order   = 0,
@@ -1722,7 +1938,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_3rd_RSeatbeltBucklestatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_3rd_RSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 33,
         .length       = 1,
         .byte_order   = 0,
@@ -1731,7 +1948,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ACU_3rd_MSeatbeltBucklestatus in ACU_ChimeTelltaleReq */
+
+    { /* ACU_3rd_MSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
         .start_bit    = 34,
         .length       = 1,
         .byte_order   = 0,
@@ -1740,7 +1958,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EPS_EpasFailed in EPS_InformSts */
+
+    /* --- RX: EPS_InformSts (0x0150, dlc=8) --- */
+    { /* EPS_EpasFailed in EPS_InformSts (RX) */
         .start_bit    = 16,
         .length       = 1,
         .byte_order   = 0,
@@ -1749,7 +1969,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EPS_ModSetInhibit in EPS_InformSts */
+
+    { /* EPS_ModSetInhibit in EPS_InformSts (RX) */
         .start_bit    = 17,
         .length       = 1,
         .byte_order   = 0,
@@ -1758,7 +1979,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EPS_ModSts in EPS_InformSts */
+
+    { /* EPS_ModSts in EPS_InformSts (RX) */
         .start_bit    = 19,
         .length       = 2,
         .byte_order   = 0,
@@ -1767,7 +1989,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_BrakePedalSwitchStatus in ESC_Status */
+
+    /* --- RX: ESC_Status (0x0125, dlc=8) --- */
+    { /* ESC_BrakePedalSwitchStatus in ESC_Status (RX) */
         .start_bit    = 1,
         .length       = 1,
         .byte_order   = 0,
@@ -1776,7 +2000,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_EBDFailed in ESC_Status */
+
+    { /* ESC_EBDFailed in ESC_Status (RX) */
         .start_bit    = 2,
         .length       = 1,
         .byte_order   = 0,
@@ -1785,7 +2010,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_ABSFailed in ESC_Status */
+
+    { /* ESC_ABSFailed in ESC_Status (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -1794,7 +2020,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_TCSFailed in ESC_Status */
+
+    { /* ESC_TCSFailed in ESC_Status (RX) */
         .start_bit    = 6,
         .length       = 1,
         .byte_order   = 0,
@@ -1803,7 +2030,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_ESPFailed in ESC_Status */
+
+    { /* ESC_ESPFailed in ESC_Status (RX) */
         .start_bit    = 7,
         .length       = 1,
         .byte_order   = 0,
@@ -1812,7 +2040,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_VehicleSpeed in ESC_Status */
+
+    { /* ESC_VehicleSpeed in ESC_Status (RX) */
         .start_bit    = 15,
         .length       = 13,
         .byte_order   = 0,
@@ -1821,7 +2050,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* ESC_PATAResponse in ESC_Status */
+
+    { /* ESC_PATAResponse in ESC_Status (RX) */
         .start_bit    = 16,
         .length       = 1,
         .byte_order   = 0,
@@ -1830,7 +2060,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_LampInfo in ESC_Status */
+
+    { /* ESC_LampInfo in ESC_Status (RX) */
         .start_bit    = 17,
         .length       = 1,
         .byte_order   = 0,
@@ -1839,7 +2070,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_VehicleSpeedInvalid in ESC_Status */
+
+    { /* ESC_VehicleSpeedInvalid in ESC_Status (RX) */
         .start_bit    = 18,
         .length       = 1,
         .byte_order   = 0,
@@ -1848,7 +2080,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_AVHStatus in ESC_Status */
+
+    { /* ESC_AVHStatus in ESC_Status (RX) */
         .start_bit    = 26,
         .length       = 2,
         .byte_order   = 0,
@@ -1857,7 +2090,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_EPBStatus in ESC_Status */
+
+    { /* ESC_EPBStatus in ESC_Status (RX) */
         .start_bit    = 28,
         .length       = 2,
         .byte_order   = 0,
@@ -1866,7 +2100,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_EPBErrorStatus in ESC_Status */
+
+    { /* ESC_EPBErrorStatus in ESC_Status (RX) */
         .start_bit    = 29,
         .length       = 1,
         .byte_order   = 0,
@@ -1875,7 +2110,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_BrakePedalSwitchInvalid in ESC_Status */
+
+    { /* ESC_BrakePedalSwitchInvalid in ESC_Status (RX) */
         .start_bit    = 30,
         .length       = 1,
         .byte_order   = 0,
@@ -1884,7 +2120,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_HHC_ErrorStatus in ESC_Status */
+
+    { /* ESC_HHC_ErrorStatus in ESC_Status (RX) */
         .start_bit    = 41,
         .length       = 1,
         .byte_order   = 0,
@@ -1893,7 +2130,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_HDC_ErrorStatus in ESC_Status */
+
+    { /* ESC_HDC_ErrorStatus in ESC_Status (RX) */
         .start_bit    = 42,
         .length       = 1,
         .byte_order   = 0,
@@ -1902,7 +2140,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_HDC_Active in ESC_Status */
+
+    { /* ESC_HDC_Active in ESC_Status (RX) */
         .start_bit    = 44,
         .length       = 2,
         .byte_order   = 0,
@@ -1911,7 +2150,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_AVH_Disp_WithoutSeatbelt in ESC_DriverRemind */
+
+    /* --- RX: ESC_DriverRemind (0x012F, dlc=8) --- */
+    { /* ESC_AVH_Disp_WithoutSeatbelt in ESC_DriverRemind (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -1920,7 +2161,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_ParkingBrakeFail in ESC_DriverRemind */
+
+    { /* ESC_ParkingBrakeFail in ESC_DriverRemind (RX) */
         .start_bit    = 1,
         .length       = 1,
         .byte_order   = 0,
@@ -1929,7 +2171,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_EPB_Disp_WithoutSeatbelt in ESC_DriverRemind */
+
+    { /* ESC_EPB_Disp_WithoutSeatbelt in ESC_DriverRemind (RX) */
         .start_bit    = 2,
         .length       = 1,
         .byte_order   = 0,
@@ -1938,7 +2181,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_EPB_Disp_WithoutBrake in ESC_DriverRemind */
+
+    { /* ESC_EPB_Disp_WithoutBrake in ESC_DriverRemind (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -1947,7 +2191,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_EPB_SlopeOverThresholdRemind in ESC_DriverRemind */
+
+    { /* ESC_EPB_SlopeOverThresholdRemind in ESC_DriverRemind (RX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -1956,7 +2201,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_EPB_ReleaseInNonP in ESC_DriverRemind */
+
+    { /* ESC_EPB_ReleaseInNonP in ESC_DriverRemind (RX) */
         .start_bit    = 5,
         .length       = 1,
         .byte_order   = 0,
@@ -1965,7 +2211,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_HDC_Disp_DiscTempHigh in ESC_DriverRemind */
+
+    { /* ESC_HDC_Disp_DiscTempHigh in ESC_DriverRemind (RX) */
         .start_bit    = 6,
         .length       = 1,
         .byte_order   = 0,
@@ -1974,7 +2221,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_HDC_TargetSpeed in ESC_DriverRemind */
+
+    { /* ESC_HDC_TargetSpeed in ESC_DriverRemind (RX) */
         .start_bit    = 13,
         .length       = 6,
         .byte_order   = 0,
@@ -1983,7 +2231,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_SystemWarning in ESC_DriverRemind */
+
+    { /* ESC_SystemWarning in ESC_DriverRemind (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -1992,7 +2241,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMS_FLTyreWarn in ESC_DriverRemind */
+
+    { /* ESC_iTPMS_FLTyreWarn in ESC_DriverRemind (RX) */
         .start_bit    = 17,
         .length       = 2,
         .byte_order   = 0,
@@ -2001,7 +2251,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMS_FRTyreWarn in ESC_DriverRemind */
+
+    { /* ESC_iTPMS_FRTyreWarn in ESC_DriverRemind (RX) */
         .start_bit    = 19,
         .length       = 2,
         .byte_order   = 0,
@@ -2010,7 +2261,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMS_RLTyreWarn in ESC_DriverRemind */
+
+    { /* ESC_iTPMS_RLTyreWarn in ESC_DriverRemind (RX) */
         .start_bit    = 21,
         .length       = 2,
         .byte_order   = 0,
@@ -2019,7 +2271,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMS_RRTyreWarn in ESC_DriverRemind */
+
+    { /* ESC_iTPMS_RRTyreWarn in ESC_DriverRemind (RX) */
         .start_bit    = 23,
         .length       = 2,
         .byte_order   = 0,
@@ -2028,7 +2281,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMS_comTyreWarn in ESC_DriverRemind */
+
+    { /* ESC_iTPMS_comTyreWarn in ESC_DriverRemind (RX) */
         .start_bit    = 25,
         .length       = 2,
         .byte_order   = 0,
@@ -2037,7 +2291,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMS_SystemSt in ESC_DriverRemind */
+
+    { /* ESC_iTPMS_SystemSt in ESC_DriverRemind (RX) */
         .start_bit    = 27,
         .length       = 2,
         .byte_order   = 0,
@@ -2046,7 +2301,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMSCalPsbl in ESC_DriverRemind */
+
+    { /* ESC_iTPMSCalPsbl in ESC_DriverRemind (RX) */
         .start_bit    = 28,
         .length       = 1,
         .byte_order   = 0,
@@ -2055,7 +2311,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_iTPMSCalsts in ESC_DriverRemind */
+
+    { /* ESC_iTPMSCalsts in ESC_DriverRemind (RX) */
         .start_bit    = 31,
         .length       = 3,
         .byte_order   = 0,
@@ -2064,7 +2321,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_BrakeFluidLevelLow in ESC_Regen */
+
+    /* --- RX: ESC_Regen (0x0128, dlc=8) --- */
+    { /* ESC_BrakeFluidLevelLow in ESC_Regen (RX) */
         .start_bit    = 39,
         .length       = 1,
         .byte_order   = 0,
@@ -2073,7 +2332,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* ESC_MbRegenTargetWheelSts in ESC_Regen */
+
+    { /* ESC_MbRegenTargetWheelSts in ESC_Regen (RX) */
         .start_bit    = 55,
         .length       = 2,
         .byte_order   = 0,
@@ -2082,7 +2342,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_SystemStatus in RSRSR_InformStatus */
+
+    /* --- RX: RSRSR_InformStatus (0x02E4, dlc=8) --- */
+    { /* RSRSR_SystemStatus in RSRSR_InformStatus (RX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -2091,7 +2353,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_LCA_Status in RSRSR_InformStatus */
+
+    { /* RSRSR_LCA_Status in RSRSR_InformStatus (RX) */
         .start_bit    = 3,
         .length       = 2,
         .byte_order   = 0,
@@ -2100,7 +2363,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_RCTA_Status in RSRSR_InformStatus */
+
+    { /* RSRSR_RCTA_Status in RSRSR_InformStatus (RX) */
         .start_bit    = 5,
         .length       = 2,
         .byte_order   = 0,
@@ -2109,7 +2373,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_RCW_Status in RSRSR_InformStatus */
+
+    { /* RSRSR_RCW_Status in RSRSR_InformStatus (RX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -2118,7 +2383,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_LCA_WarningLeft in RSRSR_InformStatus */
+
+    { /* RSRSR_LCA_WarningLeft in RSRSR_InformStatus (RX) */
         .start_bit    = 9,
         .length       = 2,
         .byte_order   = 0,
@@ -2127,7 +2393,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_LCA_WarningRight in RSRSR_InformStatus */
+
+    { /* RSRSR_LCA_WarningRight in RSRSR_InformStatus (RX) */
         .start_bit    = 11,
         .length       = 2,
         .byte_order   = 0,
@@ -2136,7 +2403,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_RCTA_WarningLeft in RSRSR_InformStatus */
+
+    { /* RSRSR_RCTA_WarningLeft in RSRSR_InformStatus (RX) */
         .start_bit    = 13,
         .length       = 2,
         .byte_order   = 0,
@@ -2145,7 +2413,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_RCW_Warning in RSRSR_InformStatus */
+
+    { /* RSRSR_RCW_Warning in RSRSR_InformStatus (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -2154,7 +2423,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_DOW_Status in RSRSR_InformStatus */
+
+    { /* RSRSR_DOW_Status in RSRSR_InformStatus (RX) */
         .start_bit    = 17,
         .length       = 2,
         .byte_order   = 0,
@@ -2163,7 +2433,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_DOW_WarningLeft in RSRSR_InformStatus */
+
+    { /* RSRSR_DOW_WarningLeft in RSRSR_InformStatus (RX) */
         .start_bit    = 19,
         .length       = 2,
         .byte_order   = 0,
@@ -2172,7 +2443,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_DOW_WarningRight in RSRSR_InformStatus */
+
+    { /* RSRSR_DOW_WarningRight in RSRSR_InformStatus (RX) */
         .start_bit    = 21,
         .length       = 2,
         .byte_order   = 0,
@@ -2181,7 +2453,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_LCA_AudioSwitch in RSRSR_InformStatus */
+
+    { /* RSRSR_LCA_AudioSwitch in RSRSR_InformStatus (RX) */
         .start_bit    = 22,
         .length       = 1,
         .byte_order   = 0,
@@ -2190,7 +2463,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_RCTA_WarningRight in RSRSR_InformStatus */
+
+    { /* RSRSR_RCTA_WarningRight in RSRSR_InformStatus (RX) */
         .start_bit    = 26,
         .length       = 2,
         .byte_order   = 0,
@@ -2199,7 +2473,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_RCTA_Brake in RSRSR_InformStatus */
+
+    { /* RSRSR_RCTA_Brake in RSRSR_InformStatus (RX) */
         .start_bit    = 27,
         .length       = 1,
         .byte_order   = 0,
@@ -2208,7 +2483,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RSRSR_RCW_Brake in RSRSR_InformStatus */
+
+    { /* RSRSR_RCW_Brake in RSRSR_InformStatus (RX) */
         .start_bit    = 28,
         .length       = 1,
         .byte_order   = 0,
@@ -2217,7 +2493,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALAD_SwitchStatus in FCS_ALAD_Status */
+
+    /* --- RX: FCS_ALAD_Status (0x01B0, dlc=8) --- */
+    { /* FCS_ALAD_SwitchStatus in FCS_ALAD_Status (RX) */
         .start_bit    = 13,
         .length       = 1,
         .byte_order   = 0,
@@ -2226,7 +2504,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALAD_Type in FCS_ALAD_Status */
+
+    { /* FCS_ALAD_Type in FCS_ALAD_Status (RX) */
         .start_bit    = 21,
         .length       = 3,
         .byte_order   = 0,
@@ -2235,7 +2514,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALAD_WarningType in FCS_ALAD_Status */
+
+    { /* FCS_ALAD_WarningType in FCS_ALAD_Status (RX) */
         .start_bit    = 23,
         .length       = 2,
         .byte_order   = 0,
@@ -2244,7 +2524,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALAD_Status in FCS_ALAD_Status */
+
+    { /* FCS_ALAD_Status in FCS_ALAD_Status (RX) */
         .start_bit    = 27,
         .length       = 4,
         .byte_order   = 0,
@@ -2253,7 +2534,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_FCS_Status in FCS_ALAD_Status */
+
+    { /* FCS_FCS_Status in FCS_ALAD_Status (RX) */
         .start_bit    = 33,
         .length       = 2,
         .byte_order   = 0,
@@ -2262,7 +2544,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALAD_Warning in FCS_ALAD_Status */
+
+    { /* FCS_ALAD_Warning in FCS_ALAD_Status (RX) */
         .start_bit    = 36,
         .length       = 3,
         .byte_order   = 0,
@@ -2271,7 +2554,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_IHBC_Status in FCS_SLIF_IHBC_Status */
+
+    /* --- RX: FCS_SLIF_IHBC_Status (0x02E0, dlc=8) --- */
+    { /* FCS_IHBC_Status in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 2,
         .length       = 3,
         .byte_order   = 0,
@@ -2280,7 +2565,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_IHBC_LightDistribReq in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_IHBC_LightDistribReq in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -2289,7 +2575,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_IHBC_Switch in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_IHBC_Switch in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 5,
         .length       = 2,
         .byte_order   = 0,
@@ -2298,7 +2585,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_SLIF_Switch in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_Switch in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -2307,7 +2595,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_Sign_Speedlimit in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_Sign_Speedlimit in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -2316,7 +2605,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_Sign_SpeedLimitCancelled in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_Sign_SpeedLimitCancelled in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 16,
         .length       = 1,
         .byte_order   = 0,
@@ -2325,7 +2615,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_DrvOff_Switch in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_DrvOff_Switch in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 18,
         .length       = 2,
         .byte_order   = 0,
@@ -2334,7 +2625,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_SLIF_Status in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_Status in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 23,
         .length       = 3,
         .byte_order   = 0,
@@ -2343,7 +2635,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_SLIF_Warning in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_Warning in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 26,
         .length       = 1,
         .byte_order   = 0,
@@ -2352,7 +2645,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_SLIF_WarningSwitch in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_WarningSwitch in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 28,
         .length       = 2,
         .byte_order   = 0,
@@ -2361,7 +2655,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_Sign_Misc in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_Sign_Misc in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 39,
         .length       = 6,
         .byte_order   = 0,
@@ -2370,7 +2665,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_SLIF_IHBC_Status_AliveCounte in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_IHBC_Status_AliveCounte in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -2379,7 +2675,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_SLIF_MiscSts in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_MiscSts in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 55,
         .length       = 1,
         .byte_order   = 0,
@@ -2388,7 +2685,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_SLIF_IHBC_Status_CheckSum in FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_IHBC_Status_CheckSum in FCS_SLIF_IHBC_Status (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -2397,7 +2695,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineLeft_D in FCS_Road_Status */
+
+    /* --- RX: FCS_Road_Status (0x01B2, dlc=8) --- */
+    { /* FCS_LineLeft_D in FCS_Road_Status (RX) */
         .start_bit    = 5,
         .length       = 6,
         .byte_order   = 0,
@@ -2406,7 +2706,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineLeft_Type in FCS_Road_Status */
+
+    { /* FCS_LineLeft_Type in FCS_Road_Status (RX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -2415,7 +2716,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineLeft_Warning in FCS_Road_Status */
+
+    { /* FCS_LineLeft_Warning in FCS_Road_Status (RX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -2424,7 +2726,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineLeft_Color in FCS_Road_Status */
+
+    { /* FCS_LineLeft_Color in FCS_Road_Status (RX) */
         .start_bit    = 10,
         .length       = 2,
         .byte_order   = 0,
@@ -2433,7 +2736,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineRight_Color in FCS_Road_Status */
+
+    { /* FCS_LineRight_Color in FCS_Road_Status (RX) */
         .start_bit    = 14,
         .length       = 2,
         .byte_order   = 0,
@@ -2442,7 +2746,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineRight_Warning in FCS_Road_Status */
+
+    { /* FCS_LineRight_Warning in FCS_Road_Status (RX) */
         .start_bit    = 15,
         .length       = 1,
         .byte_order   = 0,
@@ -2451,7 +2756,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineRight_D in FCS_Road_Status */
+
+    { /* FCS_LineRight_D in FCS_Road_Status (RX) */
         .start_bit    = 21,
         .length       = 6,
         .byte_order   = 0,
@@ -2460,7 +2766,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -6.2f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LineRight_Type in FCS_Road_Status */
+
+    { /* FCS_LineRight_Type in FCS_Road_Status (RX) */
         .start_bit    = 23,
         .length       = 2,
         .byte_order   = 0,
@@ -2469,7 +2776,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_Lane_Radius in FCS_Road_Status */
+
+    { /* FCS_Lane_Radius in FCS_Road_Status (RX) */
         .start_bit    = 30,
         .length       = 7,
         .byte_order   = 0,
@@ -2478,7 +2786,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -3150.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_DriveOnLine in FCS_Road_Status */
+
+    { /* FCS_DriveOnLine in FCS_Road_Status (RX) */
         .start_bit    = 31,
         .length       = 1,
         .byte_order   = 0,
@@ -2487,7 +2796,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LaneChange_Det in FCS_Road_Status */
+
+    { /* FCS_LaneChange_Det in FCS_Road_Status (RX) */
         .start_bit    = 34,
         .length       = 3,
         .byte_order   = 0,
@@ -2496,7 +2806,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_LaneCenter_Color in FCS_Road_Status */
+
+    { /* FCS_LaneCenter_Color in FCS_Road_Status (RX) */
         .start_bit    = 39,
         .length       = 3,
         .byte_order   = 0,
@@ -2505,7 +2816,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ELK_SwitchStatus in FCS_ELK_Status */
+
+    /* --- RX: FCS_ELK_Status (0x0114, dlc=8) --- */
+    { /* FCS_ELK_SwitchStatus in FCS_ELK_Status (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -2514,7 +2827,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ELK_Status in FCS_ELK_Status */
+
+    { /* FCS_ELK_Status in FCS_ELK_Status (RX) */
         .start_bit    = 4,
         .length       = 3,
         .byte_order   = 0,
@@ -2523,7 +2837,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ELK_LeftMode in FCS_ELK_Status */
+
+    { /* FCS_ELK_LeftMode in FCS_ELK_Status (RX) */
         .start_bit    = 7,
         .length       = 3,
         .byte_order   = 0,
@@ -2532,7 +2847,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ELK_RightMode in FCS_ELK_Status */
+
+    { /* FCS_ELK_RightMode in FCS_ELK_Status (RX) */
         .start_bit    = 10,
         .length       = 3,
         .byte_order   = 0,
@@ -2541,7 +2857,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_AEB_DecCtrlACT in FCS_AEB */
+
+    /* --- RX: FCS_AEB (0x01A2, dlc=8) --- */
+    { /* FCS_AEB_DecCtrlACT in FCS_AEB (RX) */
         .start_bit    = 19,
         .length       = 1,
         .byte_order   = 0,
@@ -2550,7 +2868,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_AEB_WarningType in FCS_AEB */
+
+    { /* FCS_AEB_WarningType in FCS_AEB (RX) */
         .start_bit    = 31,
         .length       = 2,
         .byte_order   = 0,
@@ -2559,7 +2878,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_AEB_Switch in FCS_AEB */
+
+    { /* FCS_AEB_Switch in FCS_AEB (RX) */
         .start_bit    = 41,
         .length       = 2,
         .byte_order   = 0,
@@ -2568,7 +2888,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_AEB_Status in FCS_AEB */
+
+    { /* FCS_AEB_Status in FCS_AEB (RX) */
         .start_bit    = 44,
         .length       = 3,
         .byte_order   = 0,
@@ -2577,7 +2898,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_AEB_Warning in FCS_AEB */
+
+    { /* FCS_AEB_Warning in FCS_AEB (RX) */
         .start_bit    = 47,
         .length       = 3,
         .byte_order   = 0,
@@ -2586,7 +2908,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_AEB_FCWSenlevel in FCS_AEB */
+
+    { /* FCS_AEB_FCWSenlevel in FCS_AEB (RX) */
         .start_bit    = 49,
         .length       = 2,
         .byte_order   = 0,
@@ -2595,7 +2918,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALOD_SpeedSetDisp in FCS_Display */
+
+    /* --- RX: FCS_Display (0x01A3, dlc=8) --- */
+    { /* FCS_ALOD_SpeedSetDisp in FCS_Display (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -2604,7 +2929,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALOD_TimeGap in FCS_Display */
+
+    { /* FCS_ALOD_TimeGap in FCS_Display (RX) */
         .start_bit    = 13,
         .length       = 3,
         .byte_order   = 0,
@@ -2613,7 +2939,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALOD_TimeGapDisp in FCS_Display */
+
+    { /* FCS_ALOD_TimeGapDisp in FCS_Display (RX) */
         .start_bit    = 14,
         .length       = 1,
         .byte_order   = 0,
@@ -2622,7 +2949,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALOD_Status in FCS_Display */
+
+    { /* FCS_ALOD_Status in FCS_Display (RX) */
         .start_bit    = 19,
         .length       = 4,
         .byte_order   = 0,
@@ -2631,7 +2959,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALOD_ControlType in FCS_Display */
+
+    { /* FCS_ALOD_ControlType in FCS_Display (RX) */
         .start_bit    = 22,
         .length       = 3,
         .byte_order   = 0,
@@ -2640,7 +2969,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALOD_Warning in FCS_Display */
+
+    { /* FCS_ALOD_Warning in FCS_Display (RX) */
         .start_bit    = 26,
         .length       = 3,
         .byte_order   = 0,
@@ -2649,7 +2979,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_FRS_Status in FCS_Display */
+
+    { /* FCS_FRS_Status in FCS_Display (RX) */
         .start_bit    = 28,
         .length       = 2,
         .byte_order   = 0,
@@ -2658,7 +2989,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ALOD_Info in FCS_Display */
+
+    { /* FCS_ALOD_Info in FCS_Display (RX) */
         .start_bit    = 36,
         .length       = 5,
         .byte_order   = 0,
@@ -2667,7 +2999,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_Display_AliveCounter in FCS_Display */
+
+    { /* FCS_Display_AliveCounter in FCS_Display (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -2676,7 +3009,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_Display_CheckSum in FCS_Display */
+
+    { /* FCS_Display_CheckSum in FCS_Display (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -2685,7 +3019,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront1_Dx in FCS_FrontObject */
+
+    /* --- RX: FCS_FrontObject (0x01A6, dlc=8) --- */
+    { /* FCS_ObjFront1_Dx in FCS_FrontObject (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -2694,7 +3030,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront1_Dy in FCS_FrontObject */
+
+    { /* FCS_ObjFront1_Dy in FCS_FrontObject (RX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -2703,7 +3040,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront1_Type in FCS_FrontObject */
+
+    { /* FCS_ObjFront1_Type in FCS_FrontObject (RX) */
         .start_bit    = 18,
         .length       = 3,
         .byte_order   = 0,
@@ -2712,7 +3050,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront1_Color in FCS_FrontObject */
+
+    { /* FCS_ObjFront1_Color in FCS_FrontObject (RX) */
         .start_bit    = 21,
         .length       = 3,
         .byte_order   = 0,
@@ -2721,7 +3060,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront1_Warning in FCS_FrontObject */
+
+    { /* FCS_ObjFront1_Warning in FCS_FrontObject (RX) */
         .start_bit    = 23,
         .length       = 1,
         .byte_order   = 0,
@@ -2730,7 +3070,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront2_Dx in FCS_FrontObject */
+
+    { /* FCS_ObjFront2_Dx in FCS_FrontObject (RX) */
         .start_bit    = 31,
         .length       = 8,
         .byte_order   = 0,
@@ -2739,7 +3080,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront2_Dy in FCS_FrontObject */
+
+    { /* FCS_ObjFront2_Dy in FCS_FrontObject (RX) */
         .start_bit    = 39,
         .length       = 8,
         .byte_order   = 0,
@@ -2748,7 +3090,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront2_Type in FCS_FrontObject */
+
+    { /* FCS_ObjFront2_Type in FCS_FrontObject (RX) */
         .start_bit    = 42,
         .length       = 3,
         .byte_order   = 0,
@@ -2757,7 +3100,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront2_Color in FCS_FrontObject */
+
+    { /* FCS_ObjFront2_Color in FCS_FrontObject (RX) */
         .start_bit    = 45,
         .length       = 3,
         .byte_order   = 0,
@@ -2766,7 +3110,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront1_Heading in FCS_FrontObject */
+
+    { /* FCS_ObjFront1_Heading in FCS_FrontObject (RX) */
         .start_bit    = 49,
         .length       = 2,
         .byte_order   = 0,
@@ -2775,7 +3120,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFront2_Heading in FCS_FrontObject */
+
+    { /* FCS_ObjFront2_Heading in FCS_FrontObject (RX) */
         .start_bit    = 51,
         .length       = 2,
         .byte_order   = 0,
@@ -2784,7 +3130,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontLeft_Dx in FCS_FrontSideObject */
+
+    /* --- RX: FCS_FrontSideObject (0x01A7, dlc=8) --- */
+    { /* FCS_ObjFrontLeft_Dx in FCS_FrontSideObject (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -2793,7 +3141,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontLeft_Dy in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontLeft_Dy in FCS_FrontSideObject (RX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -2802,7 +3151,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontLeft_Type in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontLeft_Type in FCS_FrontSideObject (RX) */
         .start_bit    = 18,
         .length       = 3,
         .byte_order   = 0,
@@ -2811,7 +3161,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontLeft_Color in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontLeft_Color in FCS_FrontSideObject (RX) */
         .start_bit    = 21,
         .length       = 3,
         .byte_order   = 0,
@@ -2820,7 +3171,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontRight_Dx in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontRight_Dx in FCS_FrontSideObject (RX) */
         .start_bit    = 31,
         .length       = 8,
         .byte_order   = 0,
@@ -2829,7 +3181,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontRight_Dy in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontRight_Dy in FCS_FrontSideObject (RX) */
         .start_bit    = 39,
         .length       = 8,
         .byte_order   = 0,
@@ -2838,7 +3191,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontRight_Type in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontRight_Type in FCS_FrontSideObject (RX) */
         .start_bit    = 42,
         .length       = 3,
         .byte_order   = 0,
@@ -2847,7 +3201,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontRight_Color in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontRight_Color in FCS_FrontSideObject (RX) */
         .start_bit    = 45,
         .length       = 3,
         .byte_order   = 0,
@@ -2856,7 +3211,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontLeft_Heading in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontLeft_Heading in FCS_FrontSideObject (RX) */
         .start_bit    = 49,
         .length       = 2,
         .byte_order   = 0,
@@ -2865,7 +3221,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FCS_ObjFrontRight_Heading in FCS_FrontSideObject */
+
+    { /* FCS_ObjFrontRight_Heading in FCS_FrontSideObject (RX) */
         .start_bit    = 51,
         .length       = 2,
         .byte_order   = 0,
@@ -2874,7 +3231,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_ACCompReq in AC_ReqSts */
+
+    /* --- RX: AC_ReqSts (0x02F1, dlc=8) --- */
+    { /* AC_ACCompReq in AC_ReqSts (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -2883,7 +3242,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_AmbientTemperatureInvalid in AC_ReqSts */
+
+    { /* AC_AmbientTemperatureInvalid in AC_ReqSts (RX) */
         .start_bit    = 1,
         .length       = 1,
         .byte_order   = 0,
@@ -2892,7 +3252,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_InsideTemperatureInvalid in AC_ReqSts */
+
+    { /* AC_InsideTemperatureInvalid in AC_ReqSts (RX) */
         .start_bit    = 7,
         .length       = 1,
         .byte_order   = 0,
@@ -2901,7 +3262,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_AmbientTemperature in AC_ReqSts */
+
+    { /* AC_AmbientTemperature in AC_ReqSts (RX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -2910,7 +3272,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_PM25InDen in AC_ReqSts */
+
+    { /* AC_PM25InDen in AC_ReqSts (RX) */
         .start_bit    = 23,
         .length       = 12,
         .byte_order   = 0,
@@ -2919,7 +3282,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* AC_PM25OutDen in AC_ReqSts */
+
+    { /* AC_PM25OutDen in AC_ReqSts (RX) */
         .start_bit    = 27,
         .length       = 12,
         .byte_order   = 0,
@@ -2928,7 +3292,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* AC_AirInQLevel in AC_ReqSts */
+
+    { /* AC_AirInQLevel in AC_ReqSts (RX) */
         .start_bit    = 42,
         .length       = 3,
         .byte_order   = 0,
@@ -2937,7 +3302,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_AirOutQLevel in AC_ReqSts */
+
+    { /* AC_AirOutQLevel in AC_ReqSts (RX) */
         .start_bit    = 45,
         .length       = 3,
         .byte_order   = 0,
@@ -2946,7 +3312,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_PM25Sts in AC_ReqSts */
+
+    { /* AC_PM25Sts in AC_ReqSts (RX) */
         .start_bit    = 47,
         .length       = 2,
         .byte_order   = 0,
@@ -2955,7 +3322,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_InsideTemperature in AC_ReqSts */
+
+    { /* AC_InsideTemperature in AC_ReqSts (RX) */
         .start_bit    = 55,
         .length       = 8,
         .byte_order   = 0,
@@ -2964,7 +3332,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_ParkingClimateStatus in AC_ReqSts */
+
+    { /* AC_ParkingClimateStatus in AC_ReqSts (RX) */
         .start_bit    = 57,
         .length       = 2,
         .byte_order   = 0,
@@ -2973,7 +3342,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_ParkingClimateFailStatus in AC_ReqSts */
+
+    { /* AC_ParkingClimateFailStatus in AC_ReqSts (RX) */
         .start_bit    = 59,
         .length       = 2,
         .byte_order   = 0,
@@ -2982,7 +3352,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* AC_PM25PopupReq in AC_ReqSts */
+
+    { /* AC_PM25PopupReq in AC_ReqSts (RX) */
         .start_bit    = 61,
         .length       = 2,
         .byte_order   = 0,
@@ -2991,7 +3362,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FLTyrePr in TPMS_TyreDataInfo */
+
+    /* --- RX: TPMS_TyreDataInfo (0x01F2, dlc=8) --- */
+    { /* TPMS_FLTyrePr in TPMS_TyreDataInfo (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -3000,7 +3373,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FRTyrePr in TPMS_TyreDataInfo */
+
+    { /* TPMS_FRTyrePr in TPMS_TyreDataInfo (RX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -3009,7 +3383,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RLTyrePr in TPMS_TyreDataInfo */
+
+    { /* TPMS_RLTyrePr in TPMS_TyreDataInfo (RX) */
         .start_bit    = 23,
         .length       = 8,
         .byte_order   = 0,
@@ -3018,7 +3393,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RRTyrePr in TPMS_TyreDataInfo */
+
+    { /* TPMS_RRTyrePr in TPMS_TyreDataInfo (RX) */
         .start_bit    = 31,
         .length       = 8,
         .byte_order   = 0,
@@ -3027,7 +3403,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FLTyreTemp in TPMS_TyreDataInfo */
+
+    { /* TPMS_FLTyreTemp in TPMS_TyreDataInfo (RX) */
         .start_bit    = 39,
         .length       = 8,
         .byte_order   = 0,
@@ -3036,7 +3413,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FRTyreTemp in TPMS_TyreDataInfo */
+
+    { /* TPMS_FRTyreTemp in TPMS_TyreDataInfo (RX) */
         .start_bit    = 47,
         .length       = 8,
         .byte_order   = 0,
@@ -3045,7 +3423,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RLTyreTemp in TPMS_TyreDataInfo */
+
+    { /* TPMS_RLTyreTemp in TPMS_TyreDataInfo (RX) */
         .start_bit    = 55,
         .length       = 8,
         .byte_order   = 0,
@@ -3054,7 +3433,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RRTyreTemp in TPMS_TyreDataInfo */
+
+    { /* TPMS_RRTyreTemp in TPMS_TyreDataInfo (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -3063,7 +3443,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FL_Learning_Sts in TPMS_TempStatusInfo */
+
+    /* --- RX: TPMS_TempStatusInfo (0x0370, dlc=8) --- */
+    { /* TPMS_FL_Learning_Sts in TPMS_TempStatusInfo (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -3072,7 +3454,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FR_Learning_Sts in TPMS_TempStatusInfo */
+
+    { /* TPMS_FR_Learning_Sts in TPMS_TempStatusInfo (RX) */
         .start_bit    = 1,
         .length       = 1,
         .byte_order   = 0,
@@ -3081,7 +3464,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RL_Learning_Sts in TPMS_TempStatusInfo */
+
+    { /* TPMS_RL_Learning_Sts in TPMS_TempStatusInfo (RX) */
         .start_bit    = 2,
         .length       = 1,
         .byte_order   = 0,
@@ -3090,7 +3474,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RR_Learning_Sts in TPMS_TempStatusInfo */
+
+    { /* TPMS_RR_Learning_Sts in TPMS_TempStatusInfo (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -3099,7 +3484,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_Mode in TPMS_TempStatusInfo */
+
+    { /* TPMS_Mode in TPMS_TempStatusInfo (RX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -3108,7 +3494,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_W_SensorVoltageFL in TPMS_TempStatusInfo */
+
+    { /* TPMS_W_SensorVoltageFL in TPMS_TempStatusInfo (RX) */
         .start_bit    = 5,
         .length       = 1,
         .byte_order   = 0,
@@ -3117,7 +3504,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_W_SensorVoltageFR in TPMS_TempStatusInfo */
+
+    { /* TPMS_W_SensorVoltageFR in TPMS_TempStatusInfo (RX) */
         .start_bit    = 6,
         .length       = 1,
         .byte_order   = 0,
@@ -3126,7 +3514,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_W_SensorVoltageRL in TPMS_TempStatusInfo */
+
+    { /* TPMS_W_SensorVoltageRL in TPMS_TempStatusInfo (RX) */
         .start_bit    = 7,
         .length       = 1,
         .byte_order   = 0,
@@ -3135,7 +3524,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_W_SensorVoltageRR in TPMS_TempStatusInfo */
+
+    { /* TPMS_W_SensorVoltageRR in TPMS_TempStatusInfo (RX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -3144,7 +3534,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_TurnIndicatorLeft in BCM_LightChimeReq */
+
+    /* --- RX: BCM_LightChimeReq (0x01F0, dlc=8) --- */
+    { /* BCM_TurnIndicatorLeft in BCM_LightChimeReq (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -3153,7 +3545,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_AntiPinchWarnSetResp in BCM_LightChimeReq */
+
+    { /* BCM_AntiPinchWarnSetResp in BCM_LightChimeReq (RX) */
         .start_bit    = 2,
         .length       = 1,
         .byte_order   = 0,
@@ -3162,7 +3555,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_TurnIndicatorRight in BCM_LightChimeReq */
+
+    { /* BCM_TurnIndicatorRight in BCM_LightChimeReq (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -3171,7 +3565,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_TurnLeverSts in BCM_LightChimeReq */
+
+    { /* BCM_TurnLeverSts in BCM_LightChimeReq (RX) */
         .start_bit    = 5,
         .length       = 2,
         .byte_order   = 0,
@@ -3180,7 +3575,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_LowBeamSts in BCM_LightChimeReq */
+
+    { /* BCM_LowBeamSts in BCM_LightChimeReq (RX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -3189,7 +3585,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_HighBeamSts in BCM_LightChimeReq */
+
+    { /* BCM_HighBeamSts in BCM_LightChimeReq (RX) */
         .start_bit    = 10,
         .length       = 1,
         .byte_order   = 0,
@@ -3198,7 +3595,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_PositionLightSts in BCM_LightChimeReq */
+
+    { /* BCM_PositionLightSts in BCM_LightChimeReq (RX) */
         .start_bit    = 11,
         .length       = 1,
         .byte_order   = 0,
@@ -3207,7 +3605,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DayRunningLightSts in BCM_LightChimeReq */
+
+    { /* BCM_DayRunningLightSts in BCM_LightChimeReq (RX) */
         .start_bit    = 12,
         .length       = 1,
         .byte_order   = 0,
@@ -3216,7 +3615,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_FollowMeHomeActive in BCM_LightChimeReq */
+
+    { /* BCM_FollowMeHomeActive in BCM_LightChimeReq (RX) */
         .start_bit    = 13,
         .length       = 1,
         .byte_order   = 0,
@@ -3225,7 +3625,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_FrontFogLightSts in BCM_LightChimeReq */
+
+    { /* BCM_FrontFogLightSts in BCM_LightChimeReq (RX) */
         .start_bit    = 14,
         .length       = 1,
         .byte_order   = 0,
@@ -3234,7 +3635,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RearFogLightSts in BCM_LightChimeReq */
+
+    { /* BCM_RearFogLightSts in BCM_LightChimeReq (RX) */
         .start_bit    = 15,
         .length       = 1,
         .byte_order   = 0,
@@ -3243,7 +3645,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_LightLeftOn in BCM_LightChimeReq */
+
+    { /* BCM_LightLeftOn in BCM_LightChimeReq (RX) */
         .start_bit    = 16,
         .length       = 1,
         .byte_order   = 0,
@@ -3252,7 +3655,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Warning_RKE_LOW_BATT in BCM_LightChimeReq */
+
+    { /* BCM_Warning_RKE_LOW_BATT in BCM_LightChimeReq (RX) */
         .start_bit    = 17,
         .length       = 1,
         .byte_order   = 0,
@@ -3261,7 +3665,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_BrakeLampsFailure in BCM_LightChimeReq */
+
+    { /* BCM_BrakeLampsFailure in BCM_LightChimeReq (RX) */
         .start_bit    = 24,
         .length       = 1,
         .byte_order   = 0,
@@ -3270,7 +3675,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_PositionLampsFailure in BCM_LightChimeReq */
+
+    { /* BCM_PositionLampsFailure in BCM_LightChimeReq (RX) */
         .start_bit    = 25,
         .length       = 1,
         .byte_order   = 0,
@@ -3279,7 +3685,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_ReverseLampsFailure in BCM_LightChimeReq */
+
+    { /* BCM_ReverseLampsFailure in BCM_LightChimeReq (RX) */
         .start_bit    = 26,
         .length       = 1,
         .byte_order   = 0,
@@ -3288,7 +3695,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RrFogLampsFailure in BCM_LightChimeReq */
+
+    { /* BCM_RrFogLampsFailure in BCM_LightChimeReq (RX) */
         .start_bit    = 27,
         .length       = 1,
         .byte_order   = 0,
@@ -3297,7 +3705,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DI_LampsFailure in BCM_LightChimeReq */
+
+    { /* BCM_DI_LampsFailure in BCM_LightChimeReq (RX) */
         .start_bit    = 28,
         .length       = 1,
         .byte_order   = 0,
@@ -3306,7 +3715,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_LowBeamLampsFailure in BCM_LightChimeReq */
+
+    { /* BCM_LowBeamLampsFailure in BCM_LightChimeReq (RX) */
         .start_bit    = 30,
         .length       = 1,
         .byte_order   = 0,
@@ -3315,7 +3725,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Drv_Wdw_valid in BCM_LDoorWindowState */
+
+    /* --- RX: BCM_LDoorWindowState (0x0285, dlc=8) --- */
+    { /* BCM_Drv_Wdw_valid in BCM_LDoorWindowState (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -3324,7 +3736,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Drv_Val_Wdw_Opened in BCM_LDoorWindowState */
+
+    { /* BCM_Drv_Val_Wdw_Opened in BCM_LDoorWindowState (RX) */
         .start_bit    = 7,
         .length       = 7,
         .byte_order   = 0,
@@ -3333,7 +3746,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Drv_Wdw_OD_Sts in BCM_LDoorWindowState */
+
+    { /* BCM_Drv_Wdw_OD_Sts in BCM_LDoorWindowState (RX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -3342,7 +3756,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Drv_Wdw_Obs_InhibitSts in BCM_LDoorWindowState */
+
+    { /* BCM_Drv_Wdw_Obs_InhibitSts in BCM_LDoorWindowState (RX) */
         .start_bit    = 9,
         .length       = 1,
         .byte_order   = 0,
@@ -3351,7 +3766,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Drv_Wdw_Running_Sts in BCM_LDoorWindowState */
+
+    { /* BCM_Drv_Wdw_Running_Sts in BCM_LDoorWindowState (RX) */
         .start_bit    = 12,
         .length       = 3,
         .byte_order   = 0,
@@ -3360,7 +3776,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Drv_Wdw_PositionSts in BCM_LDoorWindowState */
+
+    { /* BCM_Drv_Wdw_PositionSts in BCM_LDoorWindowState (RX) */
         .start_bit    = 14,
         .length       = 2,
         .byte_order   = 0,
@@ -3369,7 +3786,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Drv_Wdw_Error in BCM_LDoorWindowState */
+
+    { /* BCM_Drv_Wdw_Error in BCM_LDoorWindowState (RX) */
         .start_bit    = 15,
         .length       = 1,
         .byte_order   = 0,
@@ -3378,7 +3796,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLD_Wdw_valid in BCM_LDoorWindowState */
+
+    { /* BCM_RLD_Wdw_valid in BCM_LDoorWindowState (RX) */
         .start_bit    = 16,
         .length       = 1,
         .byte_order   = 0,
@@ -3387,7 +3806,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLD_Val_Wdw_Opened in BCM_LDoorWindowState */
+
+    { /* BCM_RLD_Val_Wdw_Opened in BCM_LDoorWindowState (RX) */
         .start_bit    = 23,
         .length       = 7,
         .byte_order   = 0,
@@ -3396,7 +3816,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLD_Wdw_OD_Sts in BCM_LDoorWindowState */
+
+    { /* BCM_RLD_Wdw_OD_Sts in BCM_LDoorWindowState (RX) */
         .start_bit    = 24,
         .length       = 1,
         .byte_order   = 0,
@@ -3405,7 +3826,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLD_Wdw_Obs_InhibitSts in BCM_LDoorWindowState */
+
+    { /* BCM_RLD_Wdw_Obs_InhibitSts in BCM_LDoorWindowState (RX) */
         .start_bit    = 25,
         .length       = 1,
         .byte_order   = 0,
@@ -3414,7 +3836,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLD_Wdw_Running_Sts in BCM_LDoorWindowState */
+
+    { /* BCM_RLD_Wdw_Running_Sts in BCM_LDoorWindowState (RX) */
         .start_bit    = 28,
         .length       = 3,
         .byte_order   = 0,
@@ -3423,7 +3846,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLD_Wdw_PositionSts in BCM_LDoorWindowState */
+
+    { /* BCM_RLD_Wdw_PositionSts in BCM_LDoorWindowState (RX) */
         .start_bit    = 30,
         .length       = 2,
         .byte_order   = 0,
@@ -3432,7 +3856,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLD_Wdw_Error in BCM_LDoorWindowState */
+
+    { /* BCM_RLD_Wdw_Error in BCM_LDoorWindowState (RX) */
         .start_bit    = 31,
         .length       = 1,
         .byte_order   = 0,
@@ -3441,7 +3866,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_FrontLeftDoorAjarStatus in BCM_LDoorWindowState */
+
+    { /* BCM_FrontLeftDoorAjarStatus in BCM_LDoorWindowState (RX) */
         .start_bit    = 32,
         .length       = 1,
         .byte_order   = 0,
@@ -3450,7 +3876,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RearLeftDoorAjarStatus in BCM_LDoorWindowState */
+
+    { /* BCM_RearLeftDoorAjarStatus in BCM_LDoorWindowState (RX) */
         .start_bit    = 33,
         .length       = 1,
         .byte_order   = 0,
@@ -3459,7 +3886,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_MechaKey_LockAction in BCM_LDoorWindowState */
+
+    { /* BCM_MechaKey_LockAction in BCM_LDoorWindowState (RX) */
         .start_bit    = 38,
         .length       = 1,
         .byte_order   = 0,
@@ -3468,7 +3896,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_WdwNotCloseWarning in BCM_LDoorWindowState */
+
+    { /* BCM_WdwNotCloseWarning in BCM_LDoorWindowState (RX) */
         .start_bit    = 39,
         .length       = 1,
         .byte_order   = 0,
@@ -3477,7 +3906,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_AutoLockFailWarning in BCM_LDoorWindowState */
+
+    { /* BCM_AutoLockFailWarning in BCM_LDoorWindowState (RX) */
         .start_bit    = 40,
         .length       = 1,
         .byte_order   = 0,
@@ -3486,7 +3916,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DoorChildLockst in BCM_LDoorWindowState */
+
+    { /* BCM_DoorChildLockst in BCM_LDoorWindowState (RX) */
         .start_bit    = 41,
         .length       = 1,
         .byte_order   = 0,
@@ -3495,7 +3926,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RearMirrorFoldSetResp in BCM_LDoorWindowState */
+
+    { /* BCM_RearMirrorFoldSetResp in BCM_LDoorWindowState (RX) */
         .start_bit    = 48,
         .length       = 1,
         .byte_order   = 0,
@@ -3504,7 +3936,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DoorLockStatusRL in BCM_LDoorWindowState */
+
+    { /* BCM_DoorLockStatusRL in BCM_LDoorWindowState (RX) */
         .start_bit    = 35,
         .length       = 2,
         .byte_order   = 0,
@@ -3513,7 +3946,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DoorLockStatusDrv in BCM_LDoorWindowState */
+
+    { /* BCM_DoorLockStatusDrv in BCM_LDoorWindowState (RX) */
         .start_bit    = 37,
         .length       = 2,
         .byte_order   = 0,
@@ -3522,7 +3956,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Pas_Wdw_valid in BCM_RDoorWindowState */
+
+    /* --- RX: BCM_RDoorWindowState (0x0286, dlc=8) --- */
+    { /* BCM_Pas_Wdw_valid in BCM_RDoorWindowState (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -3531,7 +3967,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Pas_Val_Wdw_Opened in BCM_RDoorWindowState */
+
+    { /* BCM_Pas_Val_Wdw_Opened in BCM_RDoorWindowState (RX) */
         .start_bit    = 7,
         .length       = 7,
         .byte_order   = 0,
@@ -3540,7 +3977,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Pas_Wdw_OD_Sts in BCM_RDoorWindowState */
+
+    { /* BCM_Pas_Wdw_OD_Sts in BCM_RDoorWindowState (RX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -3549,7 +3987,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Pas_Wdw_Obs_InhibitSts in BCM_RDoorWindowState */
+
+    { /* BCM_Pas_Wdw_Obs_InhibitSts in BCM_RDoorWindowState (RX) */
         .start_bit    = 9,
         .length       = 1,
         .byte_order   = 0,
@@ -3558,7 +3997,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Pas_Wdw_Running_Sts in BCM_RDoorWindowState */
+
+    { /* BCM_Pas_Wdw_Running_Sts in BCM_RDoorWindowState (RX) */
         .start_bit    = 12,
         .length       = 3,
         .byte_order   = 0,
@@ -3567,7 +4007,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Pas_Wdw_PositionSts in BCM_RDoorWindowState */
+
+    { /* BCM_Pas_Wdw_PositionSts in BCM_RDoorWindowState (RX) */
         .start_bit    = 14,
         .length       = 2,
         .byte_order   = 0,
@@ -3576,7 +4017,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Pas_Wdw_Error in BCM_RDoorWindowState */
+
+    { /* BCM_Pas_Wdw_Error in BCM_RDoorWindowState (RX) */
         .start_bit    = 15,
         .length       = 1,
         .byte_order   = 0,
@@ -3585,7 +4027,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RRD_Wdw_valid in BCM_RDoorWindowState */
+
+    { /* BCM_RRD_Wdw_valid in BCM_RDoorWindowState (RX) */
         .start_bit    = 16,
         .length       = 1,
         .byte_order   = 0,
@@ -3594,7 +4037,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RRD_Val_Wdw_Opened in BCM_RDoorWindowState */
+
+    { /* BCM_RRD_Val_Wdw_Opened in BCM_RDoorWindowState (RX) */
         .start_bit    = 23,
         .length       = 7,
         .byte_order   = 0,
@@ -3603,7 +4047,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RRD_Wdw_OD_Sts in BCM_RDoorWindowState */
+
+    { /* BCM_RRD_Wdw_OD_Sts in BCM_RDoorWindowState (RX) */
         .start_bit    = 24,
         .length       = 1,
         .byte_order   = 0,
@@ -3612,7 +4057,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RRD_Wdw_Obs_InhibitSts in BCM_RDoorWindowState */
+
+    { /* BCM_RRD_Wdw_Obs_InhibitSts in BCM_RDoorWindowState (RX) */
         .start_bit    = 25,
         .length       = 1,
         .byte_order   = 0,
@@ -3621,7 +4067,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RRD_Wdw_Running_Sts in BCM_RDoorWindowState */
+
+    { /* BCM_RRD_Wdw_Running_Sts in BCM_RDoorWindowState (RX) */
         .start_bit    = 28,
         .length       = 3,
         .byte_order   = 0,
@@ -3630,7 +4077,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RRD_Wdw_PositionSts in BCM_RDoorWindowState */
+
+    { /* BCM_RRD_Wdw_PositionSts in BCM_RDoorWindowState (RX) */
         .start_bit    = 30,
         .length       = 2,
         .byte_order   = 0,
@@ -3639,7 +4087,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RRD_Wdw_Error in BCM_RDoorWindowState */
+
+    { /* BCM_RRD_Wdw_Error in BCM_RDoorWindowState (RX) */
         .start_bit    = 31,
         .length       = 1,
         .byte_order   = 0,
@@ -3648,7 +4097,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_FrontRightDoorAjarStatus in BCM_RDoorWindowState */
+
+    { /* BCM_FrontRightDoorAjarStatus in BCM_RDoorWindowState (RX) */
         .start_bit    = 32,
         .length       = 1,
         .byte_order   = 0,
@@ -3657,7 +4107,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RearRightDoorAjarStatus in BCM_RDoorWindowState */
+
+    { /* BCM_RearRightDoorAjarStatus in BCM_RDoorWindowState (RX) */
         .start_bit    = 33,
         .length       = 1,
         .byte_order   = 0,
@@ -3666,7 +4117,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_CargoBoxLightSts in BCM_RDoorWindowState */
+
+    { /* BCM_CargoBoxLightSts in BCM_RDoorWindowState (RX) */
         .start_bit    = 39,
         .length       = 2,
         .byte_order   = 0,
@@ -3675,7 +4127,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_FueltankCapSts in BCM_RDoorWindowState */
+
+    { /* BCM_FueltankCapSts in BCM_RDoorWindowState (RX) */
         .start_bit    = 45,
         .length       = 1,
         .byte_order   = 0,
@@ -3684,7 +4137,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DoorLockStatusRR in BCM_RDoorWindowState */
+
+    { /* BCM_DoorLockStatusRR in BCM_RDoorWindowState (RX) */
         .start_bit    = 35,
         .length       = 2,
         .byte_order   = 0,
@@ -3693,7 +4147,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DoorLockStatusPass in BCM_RDoorWindowState */
+
+    { /* BCM_DoorLockStatusPass in BCM_RDoorWindowState (RX) */
         .start_bit    = 37,
         .length       = 2,
         .byte_order   = 0,
@@ -3702,7 +4157,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RearDefrosterSts in BCM_StateUpdate */
+
+    /* --- RX: BCM_StateUpdate (0x0284, dlc=8) --- */
+    { /* BCM_RearDefrosterSts in BCM_StateUpdate (RX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -3711,7 +4168,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Central_Lock_CMD in BCM_StateUpdate */
+
+    { /* BCM_Central_Lock_CMD in BCM_StateUpdate (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -3720,7 +4178,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Central_unLock_CMD in BCM_StateUpdate */
+
+    { /* BCM_Central_unLock_CMD in BCM_StateUpdate (RX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -3729,7 +4188,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_HoodAjarStatus in BCM_StateUpdate */
+
+    { /* BCM_HoodAjarStatus in BCM_StateUpdate (RX) */
         .start_bit    = 9,
         .length       = 2,
         .byte_order   = 0,
@@ -3738,7 +4198,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_TrunkAjarStatus in BCM_StateUpdate */
+
+    { /* BCM_TrunkAjarStatus in BCM_StateUpdate (RX) */
         .start_bit    = 10,
         .length       = 1,
         .byte_order   = 0,
@@ -3747,7 +4208,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RainshedStatus in BCM_StateUpdate */
+
+    { /* BCM_RainshedStatus in BCM_StateUpdate (RX) */
         .start_bit    = 11,
         .length       = 1,
         .byte_order   = 0,
@@ -3756,7 +4218,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_FollowMeHomeTimeSelectResp in BCM_StateUpdate */
+
+    { /* BCM_FollowMeHomeTimeSelectResp in BCM_StateUpdate (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -3765,7 +4228,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RearLightHardSwtSts in BCM_StateUpdate */
+
+    { /* BCM_RearLightHardSwtSts in BCM_StateUpdate (RX) */
         .start_bit    = 16,
         .length       = 1,
         .byte_order   = 0,
@@ -3774,7 +4238,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_AutoCloseWindowSetResp in BCM_StateUpdate */
+
+    { /* BCM_AutoCloseWindowSetResp in BCM_StateUpdate (RX) */
         .start_bit    = 22,
         .length       = 2,
         .byte_order   = 0,
@@ -3783,7 +4248,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RKEUnlockSetResp in BCM_StateUpdate */
+
+    { /* BCM_RKEUnlockSetResp in BCM_StateUpdate (RX) */
         .start_bit    = 23,
         .length       = 1,
         .byte_order   = 0,
@@ -3792,7 +4258,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_KeyInwithDrvDoorAjar in BCM_StateUpdate */
+
+    { /* BCM_KeyInwithDrvDoorAjar in BCM_StateUpdate (RX) */
         .start_bit    = 27,
         .length       = 1,
         .byte_order   = 0,
@@ -3801,7 +4268,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_ATWS_St in BCM_StateUpdate */
+
+    { /* BCM_ATWS_St in BCM_StateUpdate (RX) */
         .start_bit    = 31,
         .length       = 3,
         .byte_order   = 0,
@@ -3810,7 +4278,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLSModeSts in BCM_StateUpdate */
+
+    { /* BCM_RLSModeSts in BCM_StateUpdate (RX) */
         .start_bit    = 39,
         .length       = 2,
         .byte_order   = 0,
@@ -3819,7 +4288,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_IndicationPressClutch in BCM_StateUpdate */
+
+    { /* BCM_IndicationPressClutch in BCM_StateUpdate (RX) */
         .start_bit    = 40,
         .length       = 1,
         .byte_order   = 0,
@@ -3828,7 +4298,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DM_ReqType in BCM_StateUpdate */
+
+    { /* BCM_DM_ReqType in BCM_StateUpdate (RX) */
         .start_bit    = 42,
         .length       = 2,
         .byte_order   = 0,
@@ -3837,7 +4308,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_ATWarnTypeSetResp in BCM_StateUpdate */
+
+    { /* BCM_ATWarnTypeSetResp in BCM_StateUpdate (RX) */
         .start_bit    = 44,
         .length       = 2,
         .byte_order   = 0,
@@ -3846,7 +4318,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DayRunLightSetResp in BCM_StateUpdate */
+
+    { /* BCM_DayRunLightSetResp in BCM_StateUpdate (RX) */
         .start_bit    = 45,
         .length       = 1,
         .byte_order   = 0,
@@ -3855,7 +4328,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RearWiperAutoActiveAtReverse in BCM_StateUpdate */
+
+    { /* BCM_RearWiperAutoActiveAtReverse in BCM_StateUpdate (RX) */
         .start_bit    = 46,
         .length       = 1,
         .byte_order   = 0,
@@ -3864,7 +4338,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_ReverseGearInfo in BCM_StateUpdate */
+
+    { /* BCM_ReverseGearInfo in BCM_StateUpdate (RX) */
         .start_bit    = 47,
         .length       = 1,
         .byte_order   = 0,
@@ -3873,7 +4348,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_PowerMode in BCM_StateUpdate */
+
+    { /* BCM_PowerMode in BCM_StateUpdate (RX) */
         .start_bit    = 50,
         .length       = 3,
         .byte_order   = 0,
@@ -3882,7 +4358,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_PowertrainChainStatus in BCM_StateUpdate */
+
+    { /* BCM_PowertrainChainStatus in BCM_StateUpdate (RX) */
         .start_bit    = 51,
         .length       = 1,
         .byte_order   = 0,
@@ -3891,7 +4368,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Warning_IMMO_Fail in BCM_StateUpdate */
+
+    { /* BCM_Warning_IMMO_Fail in BCM_StateUpdate (RX) */
         .start_bit    = 52,
         .length       = 1,
         .byte_order   = 0,
@@ -3900,7 +4378,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RLS_WinCloseReminder in BCM_StateUpdate */
+
+    { /* BCM_RLS_WinCloseReminder in BCM_StateUpdate (RX) */
         .start_bit    = 55,
         .length       = 3,
         .byte_order   = 0,
@@ -3909,7 +4388,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_360LtgExecuteStsFB in BCM_StateUpdate */
+
+    { /* BCM_360LtgExecuteStsFB in BCM_StateUpdate (RX) */
         .start_bit    = 57,
         .length       = 2,
         .byte_order   = 0,
@@ -3918,7 +4398,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_360LtgExecuteZoneFB in BCM_StateUpdate */
+
+    { /* BCM_360LtgExecuteZoneFB in BCM_StateUpdate (RX) */
         .start_bit    = 61,
         .length       = 4,
         .byte_order   = 0,
@@ -3927,7 +4408,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_RKE_RemoteACCtrl in BCM_StateUpdate */
+
+    { /* BCM_RKE_RemoteACCtrl in BCM_StateUpdate (RX) */
         .start_bit    = 63,
         .length       = 2,
         .byte_order   = 0,
@@ -3936,7 +4418,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_Odometerbackup in BCM_SunroofState */
+
+    /* --- RX: BCM_SunroofState (0x0287, dlc=8) --- */
+    { /* BCM_Odometerbackup in BCM_SunroofState (RX) */
         .start_bit    = 5,
         .length       = 14,
         .byte_order   = 0,
@@ -3945,7 +4429,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* BCM_BottomClutchSwitchInvalid in BCM_SunroofState */
+
+    { /* BCM_BottomClutchSwitchInvalid in BCM_SunroofState (RX) */
         .start_bit    = 7,
         .length       = 1,
         .byte_order   = 0,
@@ -3954,7 +4439,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* L_Sunroof_Operation_State in BCM_SunroofState */
+
+    { /* L_Sunroof_Operation_State in BCM_SunroofState (RX) */
         .start_bit    = 43,
         .length       = 4,
         .byte_order   = 0,
@@ -3963,7 +4449,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_sunroof_valid in BCM_SunroofState */
+
+    { /* BCM_sunroof_valid in BCM_SunroofState (RX) */
         .start_bit    = 48,
         .length       = 1,
         .byte_order   = 0,
@@ -3972,7 +4459,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* L_sunroof_Val_Opened in BCM_SunroofState */
+
+    { /* L_sunroof_Val_Opened in BCM_SunroofState (RX) */
         .start_bit    = 55,
         .length       = 7,
         .byte_order   = 0,
@@ -3981,7 +4469,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* L_sunroof_ap_event in BCM_SunroofState */
+
+    { /* L_sunroof_ap_event in BCM_SunroofState (RX) */
         .start_bit    = 56,
         .length       = 1,
         .byte_order   = 0,
@@ -3990,7 +4479,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_sunroof_Error in BCM_SunroofState */
+
+    { /* BCM_sunroof_Error in BCM_SunroofState (RX) */
         .start_bit    = 57,
         .length       = 1,
         .byte_order   = 0,
@@ -3999,7 +4489,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* L_Sunroof_Position in BCM_SunroofState */
+
+    { /* L_Sunroof_Position in BCM_SunroofState (RX) */
         .start_bit    = 63,
         .length       = 3,
         .byte_order   = 0,
@@ -4008,7 +4499,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_RKECommand in PEPS_KeyReminder */
+
+    /* --- RX: PEPS_KeyReminder (0x027F, dlc=8) --- */
+    { /* PEPS_RKECommand in PEPS_KeyReminder (RX) */
         .start_bit    = 4,
         .length       = 4,
         .byte_order   = 0,
@@ -4017,7 +4510,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_Stop_Emergency in PEPS_KeyReminder */
+
+    { /* PEPS_Warning_Stop_Emergency in PEPS_KeyReminder (RX) */
         .start_bit    = 22,
         .length       = 1,
         .byte_order   = 0,
@@ -4026,7 +4520,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_Stop_Moving in PEPS_KeyReminder */
+
+    { /* PEPS_Warning_Stop_Moving in PEPS_KeyReminder (RX) */
         .start_bit    = 23,
         .length       = 1,
         .byte_order   = 0,
@@ -4035,7 +4530,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_PowerModeValidity in GW_PEPS_Information */
+
+    /* --- RX: GW_PEPS_Information (0x02FC, dlc=8) --- */
+    { /* PEPS_PowerModeValidity in GW_PEPS_Information (RX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -4044,7 +4541,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_PowerMode in GW_PEPS_Information */
+
+    { /* PEPS_PowerMode in GW_PEPS_Information (RX) */
         .start_bit    = 4,
         .length       = 3,
         .byte_order   = 0,
@@ -4053,7 +4551,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_EngineforbidSt in GW_PEPS_Information */
+
+    { /* PEPS_EngineforbidSt in GW_PEPS_Information (RX) */
         .start_bit    = 5,
         .length       = 1,
         .byte_order   = 0,
@@ -4062,7 +4561,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_EngForbidWarn in GW_PEPS_Information */
+
+    { /* PEPS_EngForbidWarn in GW_PEPS_Information (RX) */
         .start_bit    = 6,
         .length       = 1,
         .byte_order   = 0,
@@ -4071,7 +4571,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_RemoteControlSt in GW_PEPS_Information */
+
+    { /* PEPS_RemoteControlSt in GW_PEPS_Information (RX) */
         .start_bit    = 7,
         .length       = 1,
         .byte_order   = 0,
@@ -4080,7 +4581,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_FailReason2TBOX in GW_PEPS_Information */
+
+    { /* PEPS_FailReason2TBOX in GW_PEPS_Information (RX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -4089,7 +4591,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_StatusResponse2TBOX in GW_PEPS_Information */
+
+    { /* PEPS_StatusResponse2TBOX in GW_PEPS_Information (RX) */
         .start_bit    = 18,
         .length       = 3,
         .byte_order   = 0,
@@ -4098,7 +4601,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_No_key_found in GW_PEPS_Information */
+
+    { /* PEPS_Warning_No_key_found in GW_PEPS_Information (RX) */
         .start_bit    = 19,
         .length       = 1,
         .byte_order   = 0,
@@ -4107,7 +4611,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Indication_press_brake_clut in GW_PEPS_Information */
+
+    { /* PEPS_Indication_press_brake_clut in GW_PEPS_Information (RX) */
         .start_bit    = 21,
         .length       = 1,
         .byte_order   = 0,
@@ -4116,7 +4621,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Indication_shift_to_PN in GW_PEPS_Information */
+
+    { /* PEPS_Indication_shift_to_PN in GW_PEPS_Information (RX) */
         .start_bit    = 22,
         .length       = 1,
         .byte_order   = 0,
@@ -4125,7 +4631,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_TrunkUnlock_Enable in GW_PEPS_Information */
+
+    { /* PEPS_TrunkUnlock_Enable in GW_PEPS_Information (RX) */
         .start_bit    = 23,
         .length       = 1,
         .byte_order   = 0,
@@ -4134,7 +4641,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Indication_shift_to_Park in GW_PEPS_Information */
+
+    { /* PEPS_Indication_shift_to_Park in GW_PEPS_Information (RX) */
         .start_bit    = 24,
         .length       = 1,
         .byte_order   = 0,
@@ -4143,7 +4651,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_keyInReminder in GW_PEPS_Information */
+
+    { /* PEPS_Warning_keyInReminder in GW_PEPS_Information (RX) */
         .start_bit    = 27,
         .length       = 1,
         .byte_order   = 0,
@@ -4152,7 +4661,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_IGN1FailureWarning in GW_PEPS_Information */
+
+    { /* PEPS_IGN1FailureWarning in GW_PEPS_Information (RX) */
         .start_bit    = 28,
         .length       = 1,
         .byte_order   = 0,
@@ -4161,7 +4671,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_Auth_ESCL_Fail in GW_PEPS_Information */
+
+    { /* PEPS_Warning_Auth_ESCL_Fail in GW_PEPS_Information (RX) */
         .start_bit    = 29,
         .length       = 1,
         .byte_order   = 0,
@@ -4170,7 +4681,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_UID_LOW_BATT in GW_PEPS_Information */
+
+    { /* PEPS_Warning_UID_LOW_BATT in GW_PEPS_Information (RX) */
         .start_bit    = 30,
         .length       = 1,
         .byte_order   = 0,
@@ -4179,7 +4691,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_ChargerConnectStarter_Warnn in GW_PEPS_Information */
+
+    { /* PEPS_ChargerConnectStarter_Warnn in GW_PEPS_Information (RX) */
         .start_bit    = 31,
         .length       = 1,
         .byte_order   = 0,
@@ -4188,7 +4701,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_IMMO_Fail in GW_PEPS_Information */
+
+    { /* PEPS_Warning_IMMO_Fail in GW_PEPS_Information (RX) */
         .start_bit    = 32,
         .length       = 1,
         .byte_order   = 0,
@@ -4197,7 +4711,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_TELAuthenStatus in GW_PEPS_Information */
+
+    { /* PEPS_TELAuthenStatus in GW_PEPS_Information (RX) */
         .start_bit    = 34,
         .length       = 2,
         .byte_order   = 0,
@@ -4206,7 +4721,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Indication_UID_Closer in GW_PEPS_Information */
+
+    { /* PEPS_Indication_UID_Closer in GW_PEPS_Information (RX) */
         .start_bit    = 35,
         .length       = 1,
         .byte_order   = 0,
@@ -4215,7 +4731,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_CrankAllowSts in GW_PEPS_Information */
+
+    { /* PEPS_CrankAllowSts in GW_PEPS_Information (RX) */
         .start_bit    = 36,
         .length       = 1,
         .byte_order   = 0,
@@ -4224,7 +4741,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_Warning_PoweOnCounterRemain in GW_PEPS_Information */
+
+    { /* PEPS_Warning_PoweOnCounterRemain in GW_PEPS_Information (RX) */
         .start_bit    = 46,
         .length       = 4,
         .byte_order   = 0,
@@ -4233,7 +4751,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_0x1E2_TimeoutFlag in GW_PEPS_Information */
+
+    { /* PEPS_0x1E2_TimeoutFlag in GW_PEPS_Information (RX) */
         .start_bit    = 47,
         .length       = 1,
         .byte_order   = 0,
@@ -4242,7 +4761,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_0x270_TimeoutFlag in GW_PEPS_Information */
+
+    { /* PEPS_0x270_TimeoutFlag in GW_PEPS_Information (RX) */
         .start_bit    = 48,
         .length       = 1,
         .byte_order   = 0,
@@ -4251,7 +4771,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_0x272_TimeoutFlag in GW_PEPS_Information */
+
+    { /* PEPS_0x272_TimeoutFlag in GW_PEPS_Information (RX) */
         .start_bit    = 49,
         .length       = 1,
         .byte_order   = 0,
@@ -4260,7 +4781,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_SSB_Failure_warning in GW_PEPS_Information */
+
+    { /* PEPS_SSB_Failure_warning in GW_PEPS_Information (RX) */
         .start_bit    = 50,
         .length       = 1,
         .byte_order   = 0,
@@ -4269,7 +4791,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_WelcomeLightSetResp in GW_PEPS_Information */
+
+    { /* PEPS_WelcomeLightSetResp in GW_PEPS_Information (RX) */
         .start_bit    = 54,
         .length       = 1,
         .byte_order   = 0,
@@ -4278,7 +4801,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_APUCfgResult in GW_PEPS_Information */
+
+    { /* PEPS_APUCfgResult in GW_PEPS_Information (RX) */
         .start_bit    = 61,
         .length       = 1,
         .byte_order   = 0,
@@ -4287,7 +4811,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PEPS_WALCfgResult in GW_PEPS_Information */
+
+    { /* PEPS_WALCfgResult in GW_PEPS_Information (RX) */
         .start_bit    = 62,
         .length       = 1,
         .byte_order   = 0,
@@ -4296,7 +4821,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FLTyreWarn in GW_BCM_Information */
+
+    /* --- RX: GW_BCM_Information (0x02FD, dlc=8) --- */
+    { /* TPMS_FLTyreWarn in GW_BCM_Information (RX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -4305,7 +4832,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FLTyre_Temperature in GW_BCM_Information */
+
+    { /* TPMS_FLTyre_Temperature in GW_BCM_Information (RX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -4314,7 +4842,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FLTyre_Fast_Leak in GW_BCM_Information */
+
+    { /* TPMS_FLTyre_Fast_Leak in GW_BCM_Information (RX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -4323,7 +4852,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FLTyre_Sensor_Failure in GW_BCM_Information */
+
+    { /* TPMS_FLTyre_Sensor_Failure in GW_BCM_Information (RX) */
         .start_bit    = 5,
         .length       = 1,
         .byte_order   = 0,
@@ -4332,7 +4862,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_0x1F1_TimeoutFlag in GW_BCM_Information */
+
+    { /* TPMS_0x1F1_TimeoutFlag in GW_BCM_Information (RX) */
         .start_bit    = 7,
         .length       = 1,
         .byte_order   = 0,
@@ -4341,7 +4872,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FRTyreWarn in GW_BCM_Information */
+
+    { /* TPMS_FRTyreWarn in GW_BCM_Information (RX) */
         .start_bit    = 9,
         .length       = 2,
         .byte_order   = 0,
@@ -4350,7 +4882,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FRTyre_Temperature in GW_BCM_Information */
+
+    { /* TPMS_FRTyre_Temperature in GW_BCM_Information (RX) */
         .start_bit    = 11,
         .length       = 1,
         .byte_order   = 0,
@@ -4359,7 +4892,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FRTyre_Fast_Leak in GW_BCM_Information */
+
+    { /* TPMS_FRTyre_Fast_Leak in GW_BCM_Information (RX) */
         .start_bit    = 12,
         .length       = 1,
         .byte_order   = 0,
@@ -4368,7 +4902,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_FRTyre_Sensor_Failure in GW_BCM_Information */
+
+    { /* TPMS_FRTyre_Sensor_Failure in GW_BCM_Information (RX) */
         .start_bit    = 13,
         .length       = 1,
         .byte_order   = 0,
@@ -4377,7 +4912,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DMSDriveModeReqRej in GW_BCM_Information */
+
+    { /* BCM_DMSDriveModeReqRej in GW_BCM_Information (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -4386,7 +4922,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RLTyreWarn in GW_BCM_Information */
+
+    { /* TPMS_RLTyreWarn in GW_BCM_Information (RX) */
         .start_bit    = 17,
         .length       = 2,
         .byte_order   = 0,
@@ -4395,7 +4932,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RLTyre_Temperature in GW_BCM_Information */
+
+    { /* TPMS_RLTyre_Temperature in GW_BCM_Information (RX) */
         .start_bit    = 19,
         .length       = 1,
         .byte_order   = 0,
@@ -4404,7 +4942,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RLTyre_Fast_Leak in GW_BCM_Information */
+
+    { /* TPMS_RLTyre_Fast_Leak in GW_BCM_Information (RX) */
         .start_bit    = 20,
         .length       = 1,
         .byte_order   = 0,
@@ -4413,7 +4952,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RLTyre_Sensor_Failure in GW_BCM_Information */
+
+    { /* TPMS_RLTyre_Sensor_Failure in GW_BCM_Information (RX) */
         .start_bit    = 21,
         .length       = 1,
         .byte_order   = 0,
@@ -4422,7 +4962,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RRTyreWarn in GW_BCM_Information */
+
+    { /* TPMS_RRTyreWarn in GW_BCM_Information (RX) */
         .start_bit    = 25,
         .length       = 2,
         .byte_order   = 0,
@@ -4431,7 +4972,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RRTyre_Temperature in GW_BCM_Information */
+
+    { /* TPMS_RRTyre_Temperature in GW_BCM_Information (RX) */
         .start_bit    = 27,
         .length       = 1,
         .byte_order   = 0,
@@ -4440,7 +4982,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RRTyre_Fast_Leak in GW_BCM_Information */
+
+    { /* TPMS_RRTyre_Fast_Leak in GW_BCM_Information (RX) */
         .start_bit    = 28,
         .length       = 1,
         .byte_order   = 0,
@@ -4449,7 +4992,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_RRTyre_Sensor_Failure in GW_BCM_Information */
+
+    { /* TPMS_RRTyre_Sensor_Failure in GW_BCM_Information (RX) */
         .start_bit    = 29,
         .length       = 1,
         .byte_order   = 0,
@@ -4458,7 +5002,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TPMS_SystemSt in GW_BCM_Information */
+
+    { /* TPMS_SystemSt in GW_BCM_Information (RX) */
         .start_bit    = 33,
         .length       = 2,
         .byte_order   = 0,
@@ -4467,7 +5012,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DM_TargetModeReq in GW_BCM_Information */
+
+    { /* BCM_DM_TargetModeReq in GW_BCM_Information (RX) */
         .start_bit    = 36,
         .length       = 3,
         .byte_order   = 0,
@@ -4476,7 +5022,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DM_SwitchModeSts in GW_BCM_Information */
+
+    { /* BCM_DM_SwitchModeSts in GW_BCM_Information (RX) */
         .start_bit    = 39,
         .length       = 3,
         .byte_order   = 0,
@@ -4485,7 +5032,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DMSVehicleMode in GW_BCM_Information */
+
+    { /* BCM_DMSVehicleMode in GW_BCM_Information (RX) */
         .start_bit    = 41,
         .length       = 2,
         .byte_order   = 0,
@@ -4494,7 +5042,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DM_ChangeModeFailureControll in GW_BCM_Information */
+
+    { /* BCM_DM_ChangeModeFailureControll in GW_BCM_Information (RX) */
         .start_bit    = 44,
         .length       = 3,
         .byte_order   = 0,
@@ -4503,7 +5052,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DM_ChangeModeFailureReason in GW_BCM_Information */
+
+    { /* BCM_DM_ChangeModeFailureReason in GW_BCM_Information (RX) */
         .start_bit    = 47,
         .length       = 3,
         .byte_order   = 0,
@@ -4512,7 +5062,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_0x283_TimeoutFlag in GW_BCM_Information */
+
+    { /* BCM_0x283_TimeoutFlag in GW_BCM_Information (RX) */
         .start_bit    = 51,
         .length       = 1,
         .byte_order   = 0,
@@ -4521,7 +5072,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BCM_DM_SwitchModeStsDisp in GW_BCM_Information */
+
+    { /* BCM_DM_SwitchModeStsDisp in GW_BCM_Information (RX) */
         .start_bit    = 62,
         .length       = 3,
         .byte_order   = 0,
@@ -4530,7 +5082,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_SOCpointSetsts in VCU_DriverTqInfo */
+
+    /* --- RX: VCU_DriverTqInfo (0x01BB, dlc=8) --- */
+    { /* VCU_SOCpointSetsts in VCU_DriverTqInfo (RX) */
         .start_bit    = 39,
         .length       = 7,
         .byte_order   = 0,
@@ -4539,7 +5093,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_IntellTurnAidResp in VCU_DriverTqInfo */
+
+    { /* VCU_IntellTurnAidResp in VCU_DriverTqInfo (RX) */
         .start_bit    = 40,
         .length       = 1,
         .byte_order   = 0,
@@ -4548,7 +5103,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_IntellTurnAidOprNtc in VCU_DriverTqInfo */
+
+    { /* VCU_IntellTurnAidOprNtc in VCU_DriverTqInfo (RX) */
         .start_bit    = 42,
         .length       = 2,
         .byte_order   = 0,
@@ -4557,7 +5113,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_IntellTurnAidOprGuide in VCU_DriverTqInfo */
+
+    { /* VCU_IntellTurnAidOprGuide in VCU_DriverTqInfo (RX) */
         .start_bit    = 45,
         .length       = 3,
         .byte_order   = 0,
@@ -4566,7 +5123,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_IntellTurnAidSts in VCU_DriverTqInfo */
+
+    { /* VCU_IntellTurnAidSts in VCU_DriverTqInfo (RX) */
         .start_bit    = 47,
         .length       = 2,
         .byte_order   = 0,
@@ -4575,7 +5133,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_DriverTqInfo_AliveCounter in VCU_DriverTqInfo */
+
+    { /* VCU_DriverTqInfo_AliveCounter in VCU_DriverTqInfo (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -4584,7 +5143,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* VCU_DriverTqInfo_Checksum in VCU_DriverTqInfo */
+
+    { /* VCU_DriverTqInfo_Checksum in VCU_DriverTqInfo (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -4593,7 +5153,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_stMode in BMSH_General */
+
+    /* --- RX: BMSH_General (0x00B0, dlc=8) --- */
+    { /* BMSH_stMode in BMSH_General (RX) */
         .start_bit    = 3,
         .length       = 4,
         .byte_order   = 0,
@@ -4602,7 +5164,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_VehicleHVILSts in BMSH_General */
+
+    { /* BMSH_VehicleHVILSts in BMSH_General (RX) */
         .start_bit    = 13,
         .length       = 2,
         .byte_order   = 0,
@@ -4611,7 +5174,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_InterHVILSts in BMSH_General */
+
+    { /* BMSH_InterHVILSts in BMSH_General (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -4620,7 +5184,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_InsulationSts in BMSH_General */
+
+    { /* BMSH_InsulationSts in BMSH_General (RX) */
         .start_bit    = 23,
         .length       = 2,
         .byte_order   = 0,
@@ -4629,7 +5194,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_MainPrechgSt in BMSH_General */
+
+    { /* BMSH_MainPrechgSt in BMSH_General (RX) */
         .start_bit    = 29,
         .length       = 3,
         .byte_order   = 0,
@@ -4638,7 +5204,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_BattCurr in BMSH_VoltCurr */
+
+    /* --- RX: BMSH_VoltCurr (0x0178, dlc=8) --- */
+    { /* BMSH_BattCurr in BMSH_VoltCurr (RX) */
         .start_bit    = 7,
         .length       = 14,
         .byte_order   = 0,
@@ -4647,7 +5215,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -500.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* BMSH_HVBusVolt in BMSH_VoltCurr */
+
+    { /* BMSH_HVBusVolt in BMSH_VoltCurr (RX) */
         .start_bit    = 9,
         .length       = 10,
         .byte_order   = 0,
@@ -4656,7 +5225,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* BMSH_BattVolt in BMSH_VoltCurr */
+
+    { /* BMSH_BattVolt in BMSH_VoltCurr (RX) */
         .start_bit    = 31,
         .length       = 13,
         .byte_order   = 0,
@@ -4665,7 +5235,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* BMSH_BattFaultLampState in BMSH_VoltCurr */
+
+    { /* BMSH_BattFaultLampState in BMSH_VoltCurr (RX) */
         .start_bit    = 55,
         .length       = 2,
         .byte_order   = 0,
@@ -4674,7 +5245,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_ChargeLEDCtrl in BMSH_OBC_Control */
+
+    /* --- RX: BMSH_OBC_Control (0x0211, dlc=8) --- */
+    { /* BMSH_ChargeLEDCtrl in BMSH_OBC_Control (RX) */
         .start_bit    = 7,
         .length       = 4,
         .byte_order   = 0,
@@ -4683,7 +5256,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_FastChgCC2ConntState in BMSH_OBC_Control */
+
+    { /* BMSH_FastChgCC2ConntState in BMSH_OBC_Control (RX) */
         .start_bit    = 55,
         .length       = 2,
         .byte_order   = 0,
@@ -4692,7 +5266,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* DCChrgrSt in BMSH_Info */
+
+    /* --- RX: BMSH_Info (0x02F4, dlc=8) --- */
+    { /* DCChrgrSt in BMSH_Info (RX) */
         .start_bit    = 7,
         .length       = 4,
         .byte_order   = 0,
@@ -4701,7 +5277,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* BMSH_BattSOCDisp in BMSH_Info */
+
+    { /* BMSH_BattSOCDisp in BMSH_Info (RX) */
         .start_bit    = 15,
         .length       = 10,
         .byte_order   = 0,
@@ -4710,7 +5287,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* FuCnsAvgIndcdFuCnsIndcdVal1 in EcmChas2Fr92 */
+
+    /* --- RX: EcmChas2Fr92 (0x029A, dlc=8) --- */
+    { /* FuCnsAvgIndcdFuCnsIndcdVal1 in EcmChas2Fr92 (RX) */
         .start_bit    = 7,
         .length       = 9,
         .byte_order   = 0,
@@ -4719,7 +5298,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* PwrCnsAvgIndcdPwrCns1 in EcmChas2Fr92 */
+
+    { /* PwrCnsAvgIndcdPwrCns1 in EcmChas2Fr92 (RX) */
         .start_bit    = 14,
         .length       = 11,
         .byte_order   = 0,
@@ -4728,7 +5308,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -102.3f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* PwrCnsAvgIndcdPwrCns2 in EcmChas2Fr92 */
+
+    { /* PwrCnsAvgIndcdPwrCns2 in EcmChas2Fr92 (RX) */
         .start_bit    = 19,
         .length       = 11,
         .byte_order   = 0,
@@ -4737,7 +5318,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -102.3f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* FuCnsAvgIndcdFuCnsIndcdVal2 in EcmChas2Fr92 */
+
+    { /* FuCnsAvgIndcdFuCnsIndcdVal2 in EcmChas2Fr92 (RX) */
         .start_bit    = 24,
         .length       = 9,
         .byte_order   = 0,
@@ -4746,7 +5328,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* FuCnsAvgIndcdFuCnsIndcdVal3 in EcmChas2Fr92 */
+
+    { /* FuCnsAvgIndcdFuCnsIndcdVal3 in EcmChas2Fr92 (RX) */
         .start_bit    = 47,
         .length       = 9,
         .byte_order   = 0,
@@ -4755,7 +5338,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* PwrCnsAvgIndcdPwrCns3 in EcmChas2Fr92 */
+
+    { /* PwrCnsAvgIndcdPwrCns3 in EcmChas2Fr92 (RX) */
         .start_bit    = 54,
         .length       = 11,
         .byte_order   = 0,
@@ -4764,7 +5348,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -102.3f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* EgyAvgCnsDstSg in EcmChas2Fr92 */
+
+    { /* EgyAvgCnsDstSg in EcmChas2Fr92 (RX) */
         .start_bit    = 59,
         .length       = 1,
         .byte_order   = 0,
@@ -4773,7 +5358,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* DstToEmptyIndcdDstToEmpty1 in EcmChas2Fr93 */
+
+    /* --- RX: EcmChas2Fr93 (0x029B, dlc=8) --- */
+    { /* DstToEmptyIndcdDstToEmpty1 in EcmChas2Fr93 (RX) */
         .start_bit    = 7,
         .length       = 11,
         .byte_order   = 0,
@@ -4782,7 +5369,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* AcEgyDistbn in EcmChas2Fr93 */
+
+    { /* AcEgyDistbn in EcmChas2Fr93 (RX) */
         .start_bit    = 12,
         .length       = 10,
         .byte_order   = 0,
@@ -4791,7 +5379,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* DstToEmptyIndcdDstToEmpty2 in EcmChas2Fr93 */
+
+    { /* DstToEmptyIndcdDstToEmpty2 in EcmChas2Fr93 (RX) */
         .start_bit    = 18,
         .length       = 11,
         .byte_order   = 0,
@@ -4800,7 +5389,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* TotDrvPwrAct in EcmChas2Fr93 */
+
+    { /* TotDrvPwrAct in EcmChas2Fr93 (RX) */
         .start_bit    = 39,
         .length       = 11,
         .byte_order   = 0,
@@ -4809,7 +5399,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = -1000.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* ThmEgyDistbn in EcmChas2Fr93 */
+
+    { /* ThmEgyDistbn in EcmChas2Fr93 (RX) */
         .start_bit    = 44,
         .length       = 10,
         .byte_order   = 0,
@@ -4818,7 +5409,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* HvConvPwrAct in EcmChas2Fr93 */
+
+    { /* HvConvPwrAct in EcmChas2Fr93 (RX) */
         .start_bit    = 50,
         .length       = 10,
         .byte_order   = 0,
@@ -4827,7 +5419,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IdleChrgFctSts in EcmChas2Fr33 */
+
+    /* --- RX: EcmChas2Fr33 (0x0255, dlc=8) --- */
+    { /* IdleChrgFctSts in EcmChas2Fr33 (RX) */
         .start_bit    = 4,
         .length       = 3,
         .byte_order   = 0,
@@ -4836,7 +5430,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* EVBlkd in EcmChas2Fr33 */
+
+    { /* EVBlkd in EcmChas2Fr33 (RX) */
         .start_bit    = 5,
         .length       = 1,
         .byte_order   = 0,
@@ -4845,7 +5440,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* REVBlkd in EcmChas2Fr33 */
+
+    { /* REVBlkd in EcmChas2Fr33 (RX) */
         .start_bit    = 6,
         .length       = 1,
         .byte_order   = 0,
@@ -4854,7 +5450,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* DispIdlChrgPwr in EcmChas2Fr33 */
+
+    { /* DispIdlChrgPwr in EcmChas2Fr33 (RX) */
         .start_bit    = 15,
         .length       = 10,
         .byte_order   = 0,
@@ -4863,7 +5460,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* DstEstimdToEmptyForDrvgElec in EcmChas2Fr33 */
+
+    { /* DstEstimdToEmptyForDrvgElec in EcmChas2Fr33 (RX) */
         .start_bit    = 39,
         .length       = 10,
         .byte_order   = 0,
@@ -4872,7 +5470,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* DstEstimdToEmptyForDrvgElecPredT in EcmChas2Fr33 */
+
+    { /* DstEstimdToEmptyForDrvgElecPredT in EcmChas2Fr33 (RX) */
         .start_bit    = 45,
         .length       = 10,
         .byte_order   = 0,
@@ -4881,7 +5480,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* PCM_MotOverTemp in PCM_Temperature */
+
+    /* --- RX: PCM_Temperature (0x0364, dlc=8) --- */
+    { /* PCM_MotOverTemp in PCM_Temperature (RX) */
         .start_bit    = 45,
         .length       = 1,
         .byte_order   = 0,
@@ -4890,7 +5491,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PCM_IsgDeratSts in PCM_Warning */
+
+    /* --- RX: PCM_Warning (0x0365, dlc=8) --- */
+    { /* PCM_IsgDeratSts in PCM_Warning (RX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -4899,7 +5502,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PCM_MotTAlm in PCM_Warning */
+
+    { /* PCM_MotTAlm in PCM_Warning (RX) */
         .start_bit    = 17,
         .length       = 1,
         .byte_order   = 0,
@@ -4908,7 +5512,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* PCM_IsgTAlm in PCM_Warning */
+
+    { /* PCM_IsgTAlm in PCM_Warning (RX) */
         .start_bit    = 18,
         .length       = 1,
         .byte_order   = 0,
@@ -4917,7 +5522,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TrsmFltIndcn in PcmChas1Fr19 */
+
+    /* --- RX: PcmChas1Fr19 (0x0041, dlc=8) --- */
+    { /* TrsmFltIndcn in PcmChas1Fr19 (RX) */
         .start_bit    = 54,
         .length       = 5,
         .byte_order   = 0,
@@ -4926,7 +5533,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_IsgOverTemp in IPU_Temperature */
+
+    /* --- RX: IPU_Temperature (0x0360, dlc=8) --- */
+    { /* IPU_IsgOverTemp in IPU_Temperature (RX) */
         .start_bit    = 45,
         .length       = 1,
         .byte_order   = 0,
@@ -4935,7 +5544,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_MotTAlm in IPU_Warning */
+
+    /* --- RX: IPU_Warning (0x0361, dlc=8) --- */
+    { /* IPU_MotTAlm in IPU_Warning (RX) */
         .start_bit    = 17,
         .length       = 1,
         .byte_order   = 0,
@@ -4944,7 +5555,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_IPUTAlm in IPU_Warning */
+
+    { /* IPU_IPUTAlm in IPU_Warning (RX) */
         .start_bit    = 18,
         .length       = 1,
         .byte_order   = 0,
@@ -4953,7 +5565,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPU_IsgFAlm in IPU_Warning */
+
+    { /* IPU_IsgFAlm in IPU_Warning (RX) */
         .start_bit    = 20,
         .length       = 1,
         .byte_order   = 0,
@@ -4962,7 +5575,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TRM_TurnLeftLampsFailure in TRM_StatusInfo */
+
+    /* --- RX: TRM_StatusInfo (0x02EA, dlc=8) --- */
+    { /* TRM_TurnLeftLampsFailure in TRM_StatusInfo (RX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -4971,7 +5586,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TRM_TurnRightLampsFailure in TRM_StatusInfo */
+
+    { /* TRM_TurnRightLampsFailure in TRM_StatusInfo (RX) */
         .start_bit    = 1,
         .length       = 1,
         .byte_order   = 0,
@@ -4980,7 +5596,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TRM_EleIF_Connect_Status in TRM_StatusInfo */
+
+    { /* TRM_EleIF_Connect_Status in TRM_StatusInfo (RX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -4989,7 +5606,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TRM_EleIF_Connect_Failure in TRM_StatusInfo */
+
+    { /* TRM_EleIF_Connect_Failure in TRM_StatusInfo (RX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -4998,7 +5616,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TRM_Message_AliveCounter in TRM_StatusInfo */
+
+    { /* TRM_Message_AliveCounter in TRM_StatusInfo (RX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -5007,7 +5626,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* TRM_Message_CheckSum in TRM_StatusInfo */
+
+    { /* TRM_Message_CheckSum in TRM_StatusInfo (RX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -5016,7 +5636,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_IPKEngineTotalOdometer in IPK_EngineService */
+
+    /* --- TX: IPK_EngineService (0x03E9, dlc=8) --- */
+    { /* IPK_IPKEngineTotalOdometer in IPK_EngineService (TX) */
         .start_bit    = 7,
         .length       = 20,
         .byte_order   = 0,
@@ -5025,7 +5647,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U32,
     },
-    { /* IPK_DayToEngSrv in IPK_EngineService */
+
+    { /* IPK_DayToEngSrv in IPK_EngineService (TX) */
         .start_bit    = 16,
         .length       = 9,
         .byte_order   = 0,
@@ -5034,7 +5657,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_ServiceEngineMaintainInterva in IPK_EngineService */
+
+    { /* IPK_ServiceEngineMaintainInterva in IPK_EngineService (TX) */
         .start_bit    = 39,
         .length       = 16,
         .byte_order   = 0,
@@ -5043,7 +5667,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_AirbagUnitLEDSts in IPK_STS */
+
+    /* --- TX: IPK_STS (0x026D, dlc=8) --- */
+    { /* IPK_AirbagUnitLEDSts in IPK_STS (TX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -5052,7 +5678,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_SVA_AudibleWarningCfgResult in IPK_STS */
+
+    { /* IPK_SVA_AudibleWarningCfgResult in IPK_STS (TX) */
         .start_bit    = 2,
         .length       = 1,
         .byte_order   = 0,
@@ -5061,7 +5688,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_FuelLowLevelWarning in IPK_STS */
+
+    { /* IPK_FuelLowLevelWarning in IPK_STS (TX) */
         .start_bit    = 3,
         .length       = 1,
         .byte_order   = 0,
@@ -5070,7 +5698,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_ESCoffInfo in IPK_STS */
+
+    { /* IPK_ESCoffInfo in IPK_STS (TX) */
         .start_bit    = 4,
         .length       = 1,
         .byte_order   = 0,
@@ -5079,7 +5708,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Fail in IPK_STS */
+
+    { /* IPK_Fail in IPK_STS (TX) */
         .start_bit    = 5,
         .length       = 1,
         .byte_order   = 0,
@@ -5088,7 +5718,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_QDashALODFail in IPK_STS */
+
+    { /* IPK_QDashALODFail in IPK_STS (TX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -5097,7 +5728,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_FuelLevelSts in IPK_STS */
+
+    { /* IPK_FuelLevelSts in IPK_STS (TX) */
         .start_bit    = 15,
         .length       = 8,
         .byte_order   = 0,
@@ -5106,7 +5738,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_AverageVehicleSpeed in IPK_STS */
+
+    { /* IPK_AverageVehicleSpeed in IPK_STS (TX) */
         .start_bit    = 23,
         .length       = 8,
         .byte_order   = 0,
@@ -5115,7 +5748,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_HandBrakeSts in IPK_STS */
+
+    { /* IPK_HandBrakeSts in IPK_STS (TX) */
         .start_bit    = 24,
         .length       = 1,
         .byte_order   = 0,
@@ -5124,7 +5758,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_MaintanceWarningSts in IPK_STS */
+
+    { /* IPK_MaintanceWarningSts in IPK_STS (TX) */
         .start_bit    = 25,
         .length       = 1,
         .byte_order   = 0,
@@ -5133,7 +5768,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_LanguageMode in IPK_STS */
+
+    { /* IPK_LanguageMode in IPK_STS (TX) */
         .start_bit    = 29,
         .length       = 4,
         .byte_order   = 0,
@@ -5142,7 +5778,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_EPS_ModSetSelection in IPK_STS */
+
+    { /* IPK_EPS_ModSetSelection in IPK_STS (TX) */
         .start_bit    = 31,
         .length       = 2,
         .byte_order   = 0,
@@ -5151,7 +5788,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_EPS_DMCorrelativeMode in IPK_STS */
+
+    { /* IPK_EPS_DMCorrelativeMode in IPK_STS (TX) */
         .start_bit    = 34,
         .length       = 2,
         .byte_order   = 0,
@@ -5160,7 +5798,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Backlightadjust in IPK_STS */
+
+    { /* IPK_Backlightadjust in IPK_STS (TX) */
         .start_bit    = 39,
         .length       = 5,
         .byte_order   = 0,
@@ -5169,7 +5808,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_vDisplay in IPK_STS */
+
+    { /* IPK_vDisplay in IPK_STS (TX) */
         .start_bit    = 47,
         .length       = 13,
         .byte_order   = 0,
@@ -5178,7 +5818,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_OilLowPressure in IPK_STS */
+
+    { /* IPK_OilLowPressure in IPK_STS (TX) */
         .start_bit    = 48,
         .length       = 1,
         .byte_order   = 0,
@@ -5187,7 +5828,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_LIMmemoryEnabe_Reserved in IPK_STS */
+
+    { /* IPK_LIMmemoryEnabe_Reserved in IPK_STS (TX) */
         .start_bit    = 50,
         .length       = 2,
         .byte_order   = 0,
@@ -5196,7 +5838,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_BattLowVoltageWarning in IPK_STS */
+
+    { /* IPK_BattLowVoltageWarning in IPK_STS (TX) */
         .start_bit    = 56,
         .length       = 1,
         .byte_order   = 0,
@@ -5205,7 +5848,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_driving_mode_light_sts in IPK_STS */
+
+    { /* IPK_driving_mode_light_sts in IPK_STS (TX) */
         .start_bit    = 58,
         .length       = 2,
         .byte_order   = 0,
@@ -5214,7 +5858,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_AEB_FCWStateReq in IPK_SettingRequest */
+
+    /* --- TX: IPK_SettingRequest (0x0260, dlc=8) --- */
+    { /* IPK_AEB_FCWStateReq in IPK_SettingRequest (TX) */
         .start_bit    = 1,
         .length       = 2,
         .byte_order   = 0,
@@ -5223,7 +5869,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_AEB_AEBStateReq in IPK_SettingRequest */
+
+    { /* IPK_AEB_AEBStateReq in IPK_SettingRequest (TX) */
         .start_bit    = 3,
         .length       = 2,
         .byte_order   = 0,
@@ -5232,7 +5879,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_ALOD_ControlTypeReq in IPK_SettingRequest */
+
+    { /* IPK_ALOD_ControlTypeReq in IPK_SettingRequest (TX) */
         .start_bit    = 7,
         .length       = 2,
         .byte_order   = 0,
@@ -5241,7 +5889,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_LCA_EnableStatus in IPK_SettingRequest */
+
+    { /* IPK_LCA_EnableStatus in IPK_SettingRequest (TX) */
         .start_bit    = 9,
         .length       = 2,
         .byte_order   = 0,
@@ -5250,7 +5899,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_RCTA_EnableStatus in IPK_SettingRequest */
+
+    { /* IPK_RCTA_EnableStatus in IPK_SettingRequest (TX) */
         .start_bit    = 11,
         .length       = 2,
         .byte_order   = 0,
@@ -5259,7 +5909,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_RCW_EnableStatus in IPK_SettingRequest */
+
+    { /* IPK_RCW_EnableStatus in IPK_SettingRequest (TX) */
         .start_bit    = 13,
         .length       = 2,
         .byte_order   = 0,
@@ -5268,7 +5919,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_AEB_FCWSenlevel in IPK_SettingRequest */
+
+    { /* IPK_AEB_FCWSenlevel in IPK_SettingRequest (TX) */
         .start_bit    = 15,
         .length       = 2,
         .byte_order   = 0,
@@ -5277,7 +5929,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_LKS_LaneAssistTypeReq in IPK_SettingRequest */
+
+    { /* IPK_LKS_LaneAssistTypeReq in IPK_SettingRequest (TX) */
         .start_bit    = 18,
         .length       = 3,
         .byte_order   = 0,
@@ -5286,7 +5939,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_LDW_WarningTypeSetting in IPK_SettingRequest */
+
+    { /* IPK_LDW_WarningTypeSetting in IPK_SettingRequest (TX) */
         .start_bit    = 21,
         .length       = 2,
         .byte_order   = 0,
@@ -5295,7 +5949,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_IHBC_MenuReq in IPK_SettingRequest */
+
+    { /* IPK_IHBC_MenuReq in IPK_SettingRequest (TX) */
         .start_bit    = 23,
         .length       = 2,
         .byte_order   = 0,
@@ -5304,7 +5959,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_SLIF_MenuReq in IPK_SettingRequest */
+
+    { /* IPK_SLIF_MenuReq in IPK_SettingRequest (TX) */
         .start_bit    = 31,
         .length       = 2,
         .byte_order   = 0,
@@ -5313,7 +5969,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* FuFillgDetnForUseInt in IPK_Fuel_Sts */
+
+    /* --- TX: IPK_Fuel_Sts (0x02D8, dlc=8) --- */
+    { /* FuFillgDetnForUseInt in IPK_Fuel_Sts (TX) */
         .start_bit    = 0,
         .length       = 1,
         .byte_order   = 0,
@@ -5322,7 +5980,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RstTrip1 in IPK_Fuel_Sts */
+
+    { /* RstTrip1 in IPK_Fuel_Sts (TX) */
         .start_bit    = 4,
         .length       = 4,
         .byte_order   = 0,
@@ -5331,7 +5990,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* RstTrip2 in IPK_Fuel_Sts */
+
+    { /* RstTrip2 in IPK_Fuel_Sts (TX) */
         .start_bit    = 7,
         .length       = 3,
         .byte_order   = 0,
@@ -5340,7 +6000,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_IPKTotalOdometer in IPK_TotalOdometer */
+
+    /* --- TX: IPK_TotalOdometer (0x03F1, dlc=8) --- */
+    { /* IPK_IPKTotalOdometer in IPK_TotalOdometer (TX) */
         .start_bit    = 7,
         .length       = 24,
         .byte_order   = 0,
@@ -5349,7 +6011,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U32,
     },
-    { /* IPK_DTEodometer in IPK_TotalOdometer */
+
+    { /* IPK_DTEodometer in IPK_TotalOdometer (TX) */
         .start_bit    = 31,
         .length       = 12,
         .byte_order   = 0,
@@ -5358,7 +6021,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_OdometerbackupEnable in IPK_TotalOdometer */
+
+    { /* IPK_OdometerbackupEnable in IPK_TotalOdometer (TX) */
         .start_bit    = 32,
         .length       = 1,
         .byte_order   = 0,
@@ -5367,7 +6031,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_ServiceMaintainInterval in IPK_TotalOdometer */
+
+    { /* IPK_ServiceMaintainInterval in IPK_TotalOdometer (TX) */
         .start_bit    = 47,
         .length       = 16,
         .byte_order   = 0,
@@ -5376,7 +6041,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_Second in IPK_DateTime_Info */
+
+    /* --- TX: IPK_DateTime_Info (0x03F0, dlc=8) --- */
+    { /* IPK_Second in IPK_DateTime_Info (TX) */
         .start_bit    = 5,
         .length       = 6,
         .byte_order   = 0,
@@ -5385,7 +6052,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Minute in IPK_DateTime_Info */
+
+    { /* IPK_Minute in IPK_DateTime_Info (TX) */
         .start_bit    = 13,
         .length       = 6,
         .byte_order   = 0,
@@ -5394,7 +6062,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Hour in IPK_DateTime_Info */
+
+    { /* IPK_Hour in IPK_DateTime_Info (TX) */
         .start_bit    = 20,
         .length       = 5,
         .byte_order   = 0,
@@ -5403,7 +6072,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_TimeDisplayMode in IPK_DateTime_Info */
+
+    { /* IPK_TimeDisplayMode in IPK_DateTime_Info (TX) */
         .start_bit    = 21,
         .length       = 1,
         .byte_order   = 0,
@@ -5412,7 +6082,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Day in IPK_DateTime_Info */
+
+    { /* IPK_Day in IPK_DateTime_Info (TX) */
         .start_bit    = 28,
         .length       = 5,
         .byte_order   = 0,
@@ -5421,7 +6092,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Month in IPK_DateTime_Info */
+
+    { /* IPK_Month in IPK_DateTime_Info (TX) */
         .start_bit    = 35,
         .length       = 4,
         .byte_order   = 0,
@@ -5430,7 +6102,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Year in IPK_DateTime_Info */
+
+    { /* IPK_Year in IPK_DateTime_Info (TX) */
         .start_bit    = 45,
         .length       = 6,
         .byte_order   = 0,
@@ -5439,7 +6112,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_VehicleStopTime in IPK_DateTime_Info */
+
+    { /* IPK_VehicleStopTime in IPK_DateTime_Info (TX) */
         .start_bit    = 51,
         .length       = 12,
         .byte_order   = 0,
@@ -5448,7 +6122,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_FuelSensorVoltage in IPK_Fuel_Info */
+
+    /* --- TX: IPK_Fuel_Info (0x03F6, dlc=8) --- */
+    { /* IPK_FuelSensorVoltage in IPK_Fuel_Info (TX) */
         .start_bit    = 7,
         .length       = 15,
         .byte_order   = 0,
@@ -5457,7 +6133,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_AverageFuelConsumptionOneCyc in IPK_Fuel_Info */
+
+    { /* IPK_AverageFuelConsumptionOneCyc in IPK_Fuel_Info (TX) */
         .start_bit    = 8,
         .length       = 9,
         .byte_order   = 0,
@@ -5466,7 +6143,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_FuelSensorShortOrOpenBatt in IPK_Fuel_Info */
+
+    { /* IPK_FuelSensorShortOrOpenBatt in IPK_Fuel_Info (TX) */
         .start_bit    = 24,
         .length       = 1,
         .byte_order   = 0,
@@ -5475,7 +6153,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_FuelSensorShortGND in IPK_Fuel_Info */
+
+    { /* IPK_FuelSensorShortGND in IPK_Fuel_Info (TX) */
         .start_bit    = 25,
         .length       = 1,
         .byte_order   = 0,
@@ -5484,7 +6163,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_FuelSensorUpperLimit in IPK_Fuel_Info */
+
+    { /* IPK_FuelSensorUpperLimit in IPK_Fuel_Info (TX) */
         .start_bit    = 26,
         .length       = 1,
         .byte_order   = 0,
@@ -5493,7 +6173,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_DayToSrv in IPK_Fuel_Info */
+
+    { /* IPK_DayToSrv in IPK_Fuel_Info (TX) */
         .start_bit    = 39,
         .length       = 9,
         .byte_order   = 0,
@@ -5502,7 +6183,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_InstanteFuelConsumption in IPK_Fuel_Info */
+
+    { /* IPK_InstanteFuelConsumption in IPK_Fuel_Info (TX) */
         .start_bit    = 44,
         .length       = 9,
         .byte_order   = 0,
@@ -5511,7 +6193,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_Fuel_Info_AliveCounter in IPK_Fuel_Info */
+
+    { /* IPK_Fuel_Info_AliveCounter in IPK_Fuel_Info (TX) */
         .start_bit    = 51,
         .length       = 4,
         .byte_order   = 0,
@@ -5520,7 +6203,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Fuel_Info_Checksum in IPK_Fuel_Info */
+
+    { /* IPK_Fuel_Info_Checksum in IPK_Fuel_Info (TX) */
         .start_bit    = 63,
         .length       = 8,
         .byte_order   = 0,
@@ -5529,7 +6213,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_EVDTEodometer in IPK_ODO_Consump */
+
+    /* --- TX: IPK_ODO_Consump (0x03F7, dlc=8) --- */
+    { /* IPK_EVDTEodometer in IPK_ODO_Consump (TX) */
         .start_bit    = 7,
         .length       = 12,
         .byte_order   = 0,
@@ -5538,7 +6224,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_AveragePowerConsumption in IPK_ODO_Consump */
+
+    { /* IPK_AveragePowerConsumption in IPK_ODO_Consump (TX) */
         .start_bit    = 23,
         .length       = 14,
         .byte_order   = 0,
@@ -5547,7 +6234,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_InstantPowerConsumption in IPK_ODO_Consump */
+
+    { /* IPK_InstantPowerConsumption in IPK_ODO_Consump (TX) */
         .start_bit    = 39,
         .length       = 14,
         .byte_order   = 0,
@@ -5556,7 +6244,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_AverageFuelConsumptionUnit in IPK_ODO_Consump */
+
+    { /* IPK_AverageFuelConsumptionUnit in IPK_ODO_Consump (TX) */
         .start_bit    = 41,
         .length       = 2,
         .byte_order   = 0,
@@ -5565,7 +6254,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_AverageFuelConsumption in IPK_ODO_Consump */
+
+    { /* IPK_AverageFuelConsumption in IPK_ODO_Consump (TX) */
         .start_bit    = 55,
         .length       = 16,
         .byte_order   = 0,
@@ -5574,7 +6264,9 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
     },
-    { /* IPK_Address in NWM_IPK */
+
+    /* --- TX: NWM_IPK (0x0402, dlc=8) --- */
+    { /* IPK_Address in NWM_IPK (TX) */
         .start_bit    = 7,
         .length       = 8,
         .byte_order   = 0,
@@ -5583,7 +6275,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_RMR in NWM_IPK */
+
+    { /* IPK_RMR in NWM_IPK (TX) */
         .start_bit    = 8,
         .length       = 1,
         .byte_order   = 0,
@@ -5592,7 +6285,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_AWB in NWM_IPK */
+
+    { /* IPK_AWB in NWM_IPK (TX) */
         .start_bit    = 12,
         .length       = 1,
         .byte_order   = 0,
@@ -5601,7 +6295,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Wakeup_reasons in NWM_IPK */
+
+    { /* IPK_Wakeup_reasons in NWM_IPK (TX) */
         .start_bit    = 23,
         .length       = 8,
         .byte_order   = 0,
@@ -5610,7 +6305,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_NMSts in NWM_IPK */
+
+    { /* IPK_NMSts in NWM_IPK (TX) */
         .start_bit    = 24,
         .length       = 1,
         .byte_order   = 0,
@@ -5619,7 +6315,8 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
     },
-    { /* IPK_Stayawake_reasons in NWM_IPK */
+
+    { /* IPK_Stayawake_reasons in NWM_IPK (TX) */
         .start_bit    = 39,
         .length       = 32,
         .byte_order   = 0,
@@ -5628,11 +6325,12 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U32,
     },
+
 };
 
 /* === Per-message descriptors === */
 const can_msg_desc_t can_msg_descs_ipk[] = {
-    { /* MMI_DateTime_Msg */
+    { /* MMI_DateTime_Msg (RX) */
         .can_id     = 0x02AFu,
         .dlc        = 8u,
         .name       = "MMI_DateTime_Msg",
@@ -5641,7 +6339,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "MMI",
         .is_tx      = 0,
     },
-    { /* MMI_GPS_Info5 */
+
+    { /* MMI_GPS_Info5 (RX) */
         .can_id     = 0x03E0u,
         .dlc        = 8u,
         .name       = "MMI_GPS_Info5",
@@ -5650,7 +6349,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "MMI",
         .is_tx      = 0,
     },
-    { /* MMI_Status_Info */
+
+    { /* MMI_Status_Info (RX) */
         .can_id     = 0x02A4u,
         .dlc        = 8u,
         .name       = "MMI_Status_Info",
@@ -5659,7 +6359,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "MMI",
         .is_tx      = 0,
     },
-    { /* MMI_Safety_Info */
+
+    { /* MMI_Safety_Info (RX) */
         .can_id     = 0x02A8u,
         .dlc        = 8u,
         .name       = "MMI_Safety_Info",
@@ -5668,7 +6369,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "MMI",
         .is_tx      = 0,
     },
-    { /* MMI_SOCSet */
+
+    { /* MMI_SOCSet (RX) */
         .can_id     = 0x02A6u,
         .dlc        = 8u,
         .name       = "MMI_SOCSet",
@@ -5677,7 +6379,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "MMI",
         .is_tx      = 0,
     },
-    { /* EMS_EngRelateTrqSts */
+
+    { /* EMS_EngRelateTrqSts (RX) */
         .can_id     = 0x0084u,
         .dlc        = 8u,
         .name       = "EMS_EngRelateTrqSts",
@@ -5686,7 +6389,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EMS_EngineRPM */
+
+    { /* EMS_EngineRPM (RX) */
         .can_id     = 0x0085u,
         .dlc        = 8u,
         .name       = "EMS_EngineRPM",
@@ -5695,7 +6399,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EMS_EngineDriverInfo */
+
+    { /* EMS_EngineDriverInfo (RX) */
         .can_id     = 0x0288u,
         .dlc        = 8u,
         .name       = "EMS_EngineDriverInfo",
@@ -5704,7 +6409,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EMS_EnginePatsBatteryStat */
+
+    { /* EMS_EnginePatsBatteryStat (RX) */
         .can_id     = 0x028Au,
         .dlc        = 8u,
         .name       = "EMS_EnginePatsBatteryStat",
@@ -5713,7 +6419,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EMS_OBD_Info */
+
+    { /* EMS_OBD_Info (RX) */
         .can_id     = 0x028Cu,
         .dlc        = 8u,
         .name       = "EMS_OBD_Info",
@@ -5722,7 +6429,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EGSM_Status */
+
+    { /* EGSM_Status (RX) */
         .can_id     = 0x0145u,
         .dlc        = 8u,
         .name       = "EGSM_Status",
@@ -5731,7 +6439,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* OBC_Sts */
+
+    { /* OBC_Sts (RX) */
         .can_id     = 0x0220u,
         .dlc        = 8u,
         .name       = "OBC_Sts",
@@ -5740,7 +6449,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* OBC_Curr */
+
+    { /* OBC_Curr (RX) */
         .can_id     = 0x0221u,
         .dlc        = 8u,
         .name       = "OBC_Curr",
@@ -5749,7 +6459,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* OBC_Failmode */
+
+    { /* OBC_Failmode (RX) */
         .can_id     = 0x0222u,
         .dlc        = 8u,
         .name       = "OBC_Failmode",
@@ -5758,7 +6469,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BMSH_sts */
+
+    { /* BMSH_sts (RX) */
         .can_id     = 0x0354u,
         .dlc        = 8u,
         .name       = "BMSH_sts",
@@ -5767,7 +6479,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BMSH_Battery_chgstate */
+
+    { /* BMSH_Battery_chgstate (RX) */
         .can_id     = 0x017Bu,
         .dlc        = 8u,
         .name       = "BMSH_Battery_chgstate",
@@ -5776,7 +6489,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BMSH_CellTempLimitValue */
+
+    { /* BMSH_CellTempLimitValue (RX) */
         .can_id     = 0x0210u,
         .dlc        = 8u,
         .name       = "BMSH_CellTempLimitValue",
@@ -5785,7 +6499,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* VCU_Ctrl */
+
+    { /* VCU_Ctrl (RX) */
         .can_id     = 0x0162u,
         .dlc        = 8u,
         .name       = "VCU_Ctrl",
@@ -5794,7 +6509,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* VCU_InforCAN */
+
+    { /* VCU_InforCAN (RX) */
         .can_id     = 0x0214u,
         .dlc        = 8u,
         .name       = "VCU_InforCAN",
@@ -5803,7 +6519,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* VCU_DCDC_Ctrl */
+
+    { /* VCU_DCDC_Ctrl (RX) */
         .can_id     = 0x0161u,
         .dlc        = 8u,
         .name       = "VCU_DCDC_Ctrl",
@@ -5812,7 +6529,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* VCU_CSControl1 */
+
+    { /* VCU_CSControl1 (RX) */
         .can_id     = 0x01A5u,
         .dlc        = 8u,
         .name       = "VCU_CSControl1",
@@ -5821,7 +6539,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* VCU_ModeControl */
+
+    { /* VCU_ModeControl (RX) */
         .can_id     = 0x0165u,
         .dlc        = 8u,
         .name       = "VCU_ModeControl",
@@ -5830,7 +6549,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* IPU_TrqSpd */
+
+    { /* IPU_TrqSpd (RX) */
         .can_id     = 0x00A8u,
         .dlc        = 8u,
         .name       = "IPU_TrqSpd",
@@ -5839,7 +6559,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* IPU_Sts */
+
+    { /* IPU_Sts (RX) */
         .can_id     = 0x0171u,
         .dlc        = 8u,
         .name       = "IPU_Sts",
@@ -5848,7 +6569,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* AVAS_DisabledSts */
+
+    { /* AVAS_DisabledSts (RX) */
         .can_id     = 0x02B2u,
         .dlc        = 8u,
         .name       = "AVAS_DisabledSts",
@@ -5857,7 +6579,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "MMI",
         .is_tx      = 0,
     },
-    { /* ACU_ChimeTelltaleReq */
+
+    { /* ACU_ChimeTelltaleReq (RX) */
         .can_id     = 0x0380u,
         .dlc        = 8u,
         .name       = "ACU_ChimeTelltaleReq",
@@ -5866,7 +6589,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EPS_InformSts */
+
+    { /* EPS_InformSts (RX) */
         .can_id     = 0x0150u,
         .dlc        = 8u,
         .name       = "EPS_InformSts",
@@ -5875,7 +6599,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* ESC_Status */
+
+    { /* ESC_Status (RX) */
         .can_id     = 0x0125u,
         .dlc        = 8u,
         .name       = "ESC_Status",
@@ -5884,7 +6609,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* ESC_DriverRemind */
+
+    { /* ESC_DriverRemind (RX) */
         .can_id     = 0x012Fu,
         .dlc        = 8u,
         .name       = "ESC_DriverRemind",
@@ -5893,7 +6619,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* ESC_Regen */
+
+    { /* ESC_Regen (RX) */
         .can_id     = 0x0128u,
         .dlc        = 8u,
         .name       = "ESC_Regen",
@@ -5902,7 +6629,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* RSRSR_InformStatus */
+
+    { /* RSRSR_InformStatus (RX) */
         .can_id     = 0x02E4u,
         .dlc        = 8u,
         .name       = "RSRSR_InformStatus",
@@ -5911,7 +6639,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_ALAD_Status */
+
+    { /* FCS_ALAD_Status (RX) */
         .can_id     = 0x01B0u,
         .dlc        = 8u,
         .name       = "FCS_ALAD_Status",
@@ -5920,7 +6649,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_SLIF_IHBC_Status */
+
+    { /* FCS_SLIF_IHBC_Status (RX) */
         .can_id     = 0x02E0u,
         .dlc        = 8u,
         .name       = "FCS_SLIF_IHBC_Status",
@@ -5929,7 +6659,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_Road_Status */
+
+    { /* FCS_Road_Status (RX) */
         .can_id     = 0x01B2u,
         .dlc        = 8u,
         .name       = "FCS_Road_Status",
@@ -5938,7 +6669,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_ELK_Status */
+
+    { /* FCS_ELK_Status (RX) */
         .can_id     = 0x0114u,
         .dlc        = 8u,
         .name       = "FCS_ELK_Status",
@@ -5947,7 +6679,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_AEB */
+
+    { /* FCS_AEB (RX) */
         .can_id     = 0x01A2u,
         .dlc        = 8u,
         .name       = "FCS_AEB",
@@ -5956,7 +6689,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_Display */
+
+    { /* FCS_Display (RX) */
         .can_id     = 0x01A3u,
         .dlc        = 8u,
         .name       = "FCS_Display",
@@ -5965,7 +6699,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_FrontObject */
+
+    { /* FCS_FrontObject (RX) */
         .can_id     = 0x01A6u,
         .dlc        = 8u,
         .name       = "FCS_FrontObject",
@@ -5974,7 +6709,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* FCS_FrontSideObject */
+
+    { /* FCS_FrontSideObject (RX) */
         .can_id     = 0x01A7u,
         .dlc        = 8u,
         .name       = "FCS_FrontSideObject",
@@ -5983,7 +6719,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* AC_ReqSts */
+
+    { /* AC_ReqSts (RX) */
         .can_id     = 0x02F1u,
         .dlc        = 8u,
         .name       = "AC_ReqSts",
@@ -5992,7 +6729,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* TPMS_TyreDataInfo */
+
+    { /* TPMS_TyreDataInfo (RX) */
         .can_id     = 0x01F2u,
         .dlc        = 8u,
         .name       = "TPMS_TyreDataInfo",
@@ -6001,7 +6739,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* TPMS_TempStatusInfo */
+
+    { /* TPMS_TempStatusInfo (RX) */
         .can_id     = 0x0370u,
         .dlc        = 8u,
         .name       = "TPMS_TempStatusInfo",
@@ -6010,7 +6749,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BCM_LightChimeReq */
+
+    { /* BCM_LightChimeReq (RX) */
         .can_id     = 0x01F0u,
         .dlc        = 8u,
         .name       = "BCM_LightChimeReq",
@@ -6019,7 +6759,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BCM_LDoorWindowState */
+
+    { /* BCM_LDoorWindowState (RX) */
         .can_id     = 0x0285u,
         .dlc        = 8u,
         .name       = "BCM_LDoorWindowState",
@@ -6028,7 +6769,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BCM_RDoorWindowState */
+
+    { /* BCM_RDoorWindowState (RX) */
         .can_id     = 0x0286u,
         .dlc        = 8u,
         .name       = "BCM_RDoorWindowState",
@@ -6037,7 +6779,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BCM_StateUpdate */
+
+    { /* BCM_StateUpdate (RX) */
         .can_id     = 0x0284u,
         .dlc        = 8u,
         .name       = "BCM_StateUpdate",
@@ -6046,7 +6789,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BCM_SunroofState */
+
+    { /* BCM_SunroofState (RX) */
         .can_id     = 0x0287u,
         .dlc        = 8u,
         .name       = "BCM_SunroofState",
@@ -6055,7 +6799,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* PEPS_KeyReminder */
+
+    { /* PEPS_KeyReminder (RX) */
         .can_id     = 0x027Fu,
         .dlc        = 8u,
         .name       = "PEPS_KeyReminder",
@@ -6064,7 +6809,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* GW_PEPS_Information */
+
+    { /* GW_PEPS_Information (RX) */
         .can_id     = 0x02FCu,
         .dlc        = 8u,
         .name       = "GW_PEPS_Information",
@@ -6073,7 +6819,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* GW_BCM_Information */
+
+    { /* GW_BCM_Information (RX) */
         .can_id     = 0x02FDu,
         .dlc        = 8u,
         .name       = "GW_BCM_Information",
@@ -6082,7 +6829,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* VCU_DriverTqInfo */
+
+    { /* VCU_DriverTqInfo (RX) */
         .can_id     = 0x01BBu,
         .dlc        = 8u,
         .name       = "VCU_DriverTqInfo",
@@ -6091,7 +6839,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BMSH_General */
+
+    { /* BMSH_General (RX) */
         .can_id     = 0x00B0u,
         .dlc        = 8u,
         .name       = "BMSH_General",
@@ -6100,7 +6849,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BMSH_VoltCurr */
+
+    { /* BMSH_VoltCurr (RX) */
         .can_id     = 0x0178u,
         .dlc        = 8u,
         .name       = "BMSH_VoltCurr",
@@ -6109,7 +6859,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BMSH_OBC_Control */
+
+    { /* BMSH_OBC_Control (RX) */
         .can_id     = 0x0211u,
         .dlc        = 8u,
         .name       = "BMSH_OBC_Control",
@@ -6118,7 +6869,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* BMSH_Info */
+
+    { /* BMSH_Info (RX) */
         .can_id     = 0x02F4u,
         .dlc        = 8u,
         .name       = "BMSH_Info",
@@ -6127,7 +6879,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EcmChas2Fr92 */
+
+    { /* EcmChas2Fr92 (RX) */
         .can_id     = 0x029Au,
         .dlc        = 8u,
         .name       = "EcmChas2Fr92",
@@ -6136,7 +6889,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EcmChas2Fr93 */
+
+    { /* EcmChas2Fr93 (RX) */
         .can_id     = 0x029Bu,
         .dlc        = 8u,
         .name       = "EcmChas2Fr93",
@@ -6145,7 +6899,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* EcmChas2Fr33 */
+
+    { /* EcmChas2Fr33 (RX) */
         .can_id     = 0x0255u,
         .dlc        = 8u,
         .name       = "EcmChas2Fr33",
@@ -6154,7 +6909,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* PCM_Temperature */
+
+    { /* PCM_Temperature (RX) */
         .can_id     = 0x0364u,
         .dlc        = 8u,
         .name       = "PCM_Temperature",
@@ -6163,7 +6919,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* PCM_Warning */
+
+    { /* PCM_Warning (RX) */
         .can_id     = 0x0365u,
         .dlc        = 8u,
         .name       = "PCM_Warning",
@@ -6172,7 +6929,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* PcmChas1Fr19 */
+
+    { /* PcmChas1Fr19 (RX) */
         .can_id     = 0x0041u,
         .dlc        = 8u,
         .name       = "PcmChas1Fr19",
@@ -6181,7 +6939,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* IPU_Temperature */
+
+    { /* IPU_Temperature (RX) */
         .can_id     = 0x0360u,
         .dlc        = 8u,
         .name       = "IPU_Temperature",
@@ -6190,7 +6949,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* IPU_Warning */
+
+    { /* IPU_Warning (RX) */
         .can_id     = 0x0361u,
         .dlc        = 8u,
         .name       = "IPU_Warning",
@@ -6199,7 +6959,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* TRM_StatusInfo */
+
+    { /* TRM_StatusInfo (RX) */
         .can_id     = 0x02EAu,
         .dlc        = 8u,
         .name       = "TRM_StatusInfo",
@@ -6208,7 +6969,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "GW",
         .is_tx      = 0,
     },
-    { /* IPK_EngineService */
+
+    { /* IPK_EngineService (TX) */
         .can_id     = 0x03E9u,
         .dlc        = 8u,
         .name       = "IPK_EngineService",
@@ -6217,7 +6979,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* IPK_STS */
+
+    { /* IPK_STS (TX) */
         .can_id     = 0x026Du,
         .dlc        = 8u,
         .name       = "IPK_STS",
@@ -6226,7 +6989,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* IPK_SettingRequest */
+
+    { /* IPK_SettingRequest (TX) */
         .can_id     = 0x0260u,
         .dlc        = 8u,
         .name       = "IPK_SettingRequest",
@@ -6235,7 +6999,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* IPK_Fuel_Sts */
+
+    { /* IPK_Fuel_Sts (TX) */
         .can_id     = 0x02D8u,
         .dlc        = 8u,
         .name       = "IPK_Fuel_Sts",
@@ -6244,7 +7009,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* IPK_TotalOdometer */
+
+    { /* IPK_TotalOdometer (TX) */
         .can_id     = 0x03F1u,
         .dlc        = 8u,
         .name       = "IPK_TotalOdometer",
@@ -6253,7 +7019,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* IPK_DateTime_Info */
+
+    { /* IPK_DateTime_Info (TX) */
         .can_id     = 0x03F0u,
         .dlc        = 8u,
         .name       = "IPK_DateTime_Info",
@@ -6262,7 +7029,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* IPK_Fuel_Info */
+
+    { /* IPK_Fuel_Info (TX) */
         .can_id     = 0x03F6u,
         .dlc        = 8u,
         .name       = "IPK_Fuel_Info",
@@ -6271,7 +7039,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* IPK_ODO_Consump */
+
+    { /* IPK_ODO_Consump (TX) */
         .can_id     = 0x03F7u,
         .dlc        = 8u,
         .name       = "IPK_ODO_Consump",
@@ -6280,7 +7049,8 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
-    { /* NWM_IPK */
+
+    { /* NWM_IPK (TX) */
         .can_id     = 0x0402u,
         .dlc        = 8u,
         .name       = "NWM_IPK",
@@ -6289,6 +7059,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .tx_node    = "IPK",
         .is_tx      = 1,
     },
+
 };
 
 /* === Index tables (RX / TX) === */
