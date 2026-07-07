@@ -63,12 +63,12 @@ static c02b2_result_t prv_do_100ms_job(void)
 /* mod_desc_t hooks ----------------------------------------------------- */
 
 /**
- * @brief   mod_desc_t init hook: zero state, log cold/warm marker.
+ * @brief   mod_desc_t mcu_init hook: zero state, log cold/warm marker.
  * @brief   mod_desc_t init 钩子：清零状态，记录冷/热启动
  *
  * @param[in]  cold_boot  1 = cold boot, 0 = warm boot
  */
-static void prv_init(uint8_t cold_boot)
+static void prv_mcu_init(uint8_t cold_boot)
 {
     (void)cold_boot;
     s_ctx.init_done    = 1;
@@ -120,9 +120,25 @@ static void prv_standby(void)
  * @brief   Module descriptor registered in scheduler.c
  * @brief   在 scheduler.c 中注册的模块描述符
  */
+/**
+ * @brief   mod_desc_t wakeup_init hook: post-MCU-init restore.
+ * @brief   mod_desc_t wakeup_init 钩子: MCU 初始化后的唤醒恢复
+ *
+ * @details Runs after mcu_init() and before on_ign_on(). Use this
+ *          hook to re-arm NVIC priorities, restore wake-source
+ *          state, or prime caches that mcu_init left in a known
+ *          reset configuration. Currently a stub for all modules
+ *          - extend when a module needs real wake-from-reset work.
+ */
+static void prv_wakeup_init(void)
+{
+    LOG_I("wakeup_init");
+}
+
 const mod_desc_t mod_template = {
     .name      = "template",
-    .init      = prv_init,
+    .mcu_init   = prv_mcu_init,
+    .wakeup_init = prv_wakeup_init,
     .on_ign_on = prv_on_ign_on,
     .tick      = prv_tick,
     .standby   = prv_standby,

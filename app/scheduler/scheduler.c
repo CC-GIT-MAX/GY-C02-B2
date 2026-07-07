@@ -37,21 +37,28 @@ const mod_desc_t * const g_modules[] = {
 static const uint32_t g_module_cnt = sizeof(g_modules) / sizeof(g_modules[0]);
 
 /**
- * @brief   Initialize the scheduler and call init() on every module
- * @brief   初始化调度器并依次调用所有模块的 init()
+ * @brief   Initialize the scheduler and run mcu_init + wakeup_init
+ *          on every module.
+ * @brief   初始化调度器并依次调用所有模块的 mcu_init 与 wakeup_init
  *
- * @details Logs the registered module list, then calls each
- *          module's init hook with cold_boot=1.
+ * @details Walks g_modules[] in registration order and calls each
+ *          module's @c mcu_init(cold_boot=1) then @c wakeup_init()
+ *          hook.  Both NULL hooks are silently skipped.
  */
 void Scheduler_Init(void)
 {
     LOG_I("init: %u modules", (unsigned)g_module_cnt);
-    /* Walk the registry in order; log each name before init. */
+    /* Walk the registry in order; log each name before each phase. */
     for (uint32_t i = 0; i < g_module_cnt; i++) {
         const mod_desc_t *m = g_modules[i];
         LOG_I("  [%02u] %s", (unsigned)i, m->name);
-        /* NULL hook is allowed (module opts out of that phase). */
-        if (m->init) m->init(1u);
+        /* mcu_init runs first - hardware power-on setup, RAM zero,
+         * self-test. NULL hook is allowed (module opts out). */
+        if (m->mcu_init) m->mcu_init(1u);
+        /* wakeup_init runs after mcu_init and before any KL15 logic.
+         * Use it to re-arm NVIC / wake sources if mcu_init left the
+         * core in a clean reset state. */
+        if (m->wakeup_init) m->wakeup_init();
     }
 }
 

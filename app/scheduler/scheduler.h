@@ -4,16 +4,23 @@
  *
  * Every business module implements a const mod_desc_t and is added to
  * the g_modules[] array in scheduler.c. The scheduler walks the array
- * and invokes the four lifecycle hooks:
+ * and invokes five lifecycle hooks in registration order:
  *
- *   init(cold_boot)   - called once at startup
- *   on_ign_on()       - called when KL15 transitions ON
- *   tick()            - called every super-loop iteration; modules
- *                       decide their own sub-period using RTI_IsElapsed()
- *   standby()         - called when entering low-power mode
+ *   mcu_init(cold_boot) - MCU power-on init, called once at startup
+ *                         (clocks, RAM zero, hardware self-test).
+ *                         Runs before any peripheral or wakeup logic.
+ *   wakeup_init()       - Called after mcu_init when the system is
+ *                         leaving the deepest reset state and before
+ *                         KL15 is allowed to drive domain logic.
+ *                         Use it to restore NVIC / wake-source state.
+ *   on_ign_on()         - Called when KL15 transitions ON (cold boot
+ *                         path runs it once via Scheduler_OnIgnOn()).
+ *   tick()              - Called every super-loop iteration; modules
+ *                         decide their own sub-period using RTI_IsElapsed()
+ *   standby()           - Called when entering low-power mode
  *
  * To add a new module:
- *   1. Implement the four hooks in your module .c
+ *   1. Implement the five hooks in your module .c
  *   2. Define `extern const mod_desc_t mod_xxx;` in its .h
  *   3. Add &mod_xxx to g_modules[] in scheduler.c
  *
@@ -39,11 +46,22 @@ struct mod_desc_s;
  *          so a module can opt out of a phase it does not need.
  */
 typedef struct mod_desc_s {
-    const char *name;                       /* for log / debug */
-    void (*init)(uint8_t cold_boot);
-    void (*on_ign_on)(void);
-    void (*tick)(void);
-    void (*standby)(void);
+    const char *name;       /**< Module tag, used by LOG_I for init/tick trace. */
+    void (*mcu_init)(uint8_t cold_boot);
+                            /**< MCU-level init hook: clocks, RAM zero, hardware
+                             *   self-test. Called exactly once during Scheduler_Init
+                             *   with @c cold_boot=1 for power-on reset, 0 for warm
+                             *   reset (currently always 1). Runs before wakeup_init
+                             *   and before any peripheral driver is touched. */
+    void (*wakeup_init)(void);
+                            /**< Wakeup-from-reset hook: restore NVIC priorities,
+                             *   re-arm wake sources, prime caches. Runs after
+                             *   mcu_init() and before on_ign_on() so the system
+                             *   is fully alive when KL15 logic starts. NULL
+                             *   is silently skipped. */
+    void (*on_ign_on)(void);/**< KL15 rising-edge hook. NULL skipped. */
+    void (*tick)(void);     /**< Super-loop tick. NULL skipped. */
+    void (*standby)(void);  /**< Pre-sleep hook. NULL skipped. */
 } mod_desc_t;
 
 /**
