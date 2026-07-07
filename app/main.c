@@ -6,6 +6,7 @@
 
 #include "bsp_init.h"
 #include "drv_init.h"
+#include "utility_print_config.h"  /* UTILITY_PRINT_Init */
 #include "drv_api/can/can_if.h"
 #include "rti.h"
 #include "scheduler.h"
@@ -96,9 +97,19 @@ void DMA_UART2_TX_FUNCTION_CALLBACK(void *parameter, dma_chn_status_t status)
  */
 int main(void)
 {
-    /* BSP / DRV init: order is fixed in those modules. */
+    /* BSP brings up clocks, pins, DMA, power, WDG and NVIC.
+     * After it returns, the LINFlexD UART clock is configured,
+     * so we can call UTILITY_PRINT_Init here (before DRV_Init)
+     * and start seeing LOG_* output from the very first marker
+     * below. */
     (void)BSP_Init();
+    (void)UTILITY_PRINT_Init();
+    LOG_I("=== C02-B2 boot (post-BSP, UART up) ===");
+
+    /* DRV init: per-peripheral drivers. Any LOG_I called inside
+     * DRV_Init is now visible on the UART. */
     (void)DRV_Init();
+    LOG_I("=== C02-B2 boot (post-DRV) ===");
     /* Start the 1 ms RTI counter; ISR-driven after this. */
     RTI_Init();
     /* Bring up CAN: FLEXCAN_DRV_Init + InstallEventCallback. */
@@ -111,6 +122,8 @@ int main(void)
      * wired in via mod_can once DBC signals are populated. */
     Scheduler_OnIgnOn();
     LOG_I("=== C02-B2 boot OK ===");
+    LOG_I("tick=1ms source=SysTick via OSIF");
+
 
     /* Super-loop: dispatch every module's tick, then sleep until ISR. */
     for (;;) {

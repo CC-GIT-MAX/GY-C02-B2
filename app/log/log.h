@@ -37,8 +37,15 @@ typedef enum {
 #endif
 
 #ifndef LOG_PRINTF
+  /* Vendor printf.h defines `#define PRINTF printf_` and the tiny
+   * printf_() implementation calls printf_char() which we wired
+   * to LINFlexD UART2 in board/utility_print_config.c.
+   * We deliberately use PRINTF (uppercase) instead of plain
+   * printf - the bare printf() resolves to IAR DLib stdio
+   * which routes through semihosting / stdout and never reaches
+   * the UART. */
   #include "printf.h"
-  #define LOG_PRINTF(...)  printf(__VA_ARGS__)
+  #define LOG_PRINTF(...)  PRINTF(__VA_ARGS__)
 #endif
 
 /**
