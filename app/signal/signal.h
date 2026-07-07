@@ -93,10 +93,19 @@ typedef enum {
 
     /* ---------------------------------------------------------------- *
      *  CAN receive status (timeout flags)                              *
+     *                                                                    *
+     *  SIG_CAN_RX_TIMEOUT_MAP is the single authoritative source: an    *
+     *  int32 bitfield where bit i corresponds to                        *
+     *  can_msg_descs_ipk[i].  Bit set = that message has not been       *
+     *  received within g_can_rx_timeout_table[i] ms.  Updated by        *
+     *  mod_can_rx::prv_check_timeouts() every 50 ms.  Consumers read    *
+     *  individual flags via `(Signal_Get(SIG_CAN_RX_TIMEOUT_MAP) >> i)  *
+     *  & 1` - no per-message bool signal is needed.                     *
+     *                                                                    *
+     *  The early per-message bool signals (SIG_CAN_RX_TIMEOUT_0/_1)     *
+     *  were removed; if a consumer needs a name, derive one from the    *
+     *  bitfield instead of adding to the enum.                         *
      * ---------------------------------------------------------------- */
-    SIG_CAN_RX_TIMEOUT_0,  /* bool, ID0 timeout                       */
-    SIG_CAN_RX_TIMEOUT_1,  /* bool, ID1 timeout                       */
-    /* ... append as needed, or use a bitmap signal below ...          */
     SIG_CAN_RX_TIMEOUT_MAP,/* int32, bitfield of timeout flags */
 
     /* ---------------------------------------------------------------- *
