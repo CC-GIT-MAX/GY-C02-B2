@@ -147,10 +147,13 @@ def emit_header(node, msgs, enum_names):
     L.append("")
     L.append(f"/* Signal IDs -- order matches can_sig_descs_{node.lower()}[] */")
     L.append("typedef enum {")
-    L.append("    CAN_DB_SIG_INVALID = 0,")
-    for n in enum_names:
-        L.append(f"    {n},")
-    L.append("    CAN_DB_SIG_MAX")
+    L.append("    CAN_DB_SIG_INVALID = 0, /* [  0] invalid sentinel */")
+    # Emit one-based index in the trailing comment for fast lookup
+    # against can_sig_descs_<node>[]. The index also matches the
+    # "i + 1" mapping used by prv_find_sig_in_msg() in can_tx.c.
+    for i, n in enumerate(enum_names, start=1):
+        L.append(f"    {n}, /* [{i:>3}] */")
+    L.append("    CAN_DB_SIG_MAX /* [total] end-of-enum sentinel */")
     L.append(f"}} can_db_sig_id_t_{node.lower()};")
     L.append("")
     rx_n = sum(1 for m in msgs if m.transmitter != node)

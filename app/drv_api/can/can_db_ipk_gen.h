@@ -7,140 +7,140 @@
 
 /* Signal IDs -- order matches can_sig_descs_ipk[] */
 typedef enum {
-    CAN_DB_SIG_INVALID = 0,
-    CAN_DB_SIG_MMI_Second,
-    CAN_DB_SIG_MMI_Minute,
-    CAN_DB_SIG_MMI_Hour,
-    CAN_DB_SIG_MMI_Day,
-    CAN_DB_SIG_MMI_Month,
-    CAN_DB_SIG_MMI_Year,
-    CAN_DB_SIG_GPS_elevation_Info,
-    CAN_DB_SIG_MMI_GPS_Info5_AliveCounter,
-    CAN_DB_SIG_MMI_GPS_Info5_CheckSum,
-    CAN_DB_SIG_MMI_RightSwStatus,
-    CAN_DB_SIG_MMI_LeftSwStatus,
-    CAN_DB_SIG_MMI_UpSwStatus,
-    CAN_DB_SIG_MMI_DownSwStatus,
-    CAN_DB_SIG_MMI_ConfirmSwStatus,
-    CAN_DB_SIG_MMI_ReturnSwStatus,
-    CAN_DB_SIG_MMI_WorkMode,
-    CAN_DB_SIG_MMI_SkinMode,
-    CAN_DB_SIG_MMI_HUDAciveRequest,
-    CAN_DB_SIG_MMI_AVH_Request,
-    CAN_DB_SIG_MMI_OdometerClearReq,
-    CAN_DB_SIG_MMI_SkinModeCorrelativeSts,
-    CAN_DB_SIG_MMI_SVA_AudibleWarningOption,
-    CAN_DB_SIG_MMI_LCA_AudioWarning,
-    CAN_DB_SIG_MMI_ePTRegencyLevRequest,
-    CAN_DB_SIG_MMI_DM_SwitchModeSts,
-    CAN_DB_SIG_MMI_RoadCameraWarning,
-    CAN_DB_SIG_MMI_BCM_DchaChargehint,
-    CAN_DB_SIG_MMI_RDiffLockReq,
-    CAN_DB_SIG_MMI_NationalDrivingRank,
-    CAN_DB_SIG_MMI_EnergySavingModeReq,
-    CAN_DB_SIG_MMI_CampModeReq,
-    CAN_DB_SIG_MMI_EpedalSettingInfo,
-    CAN_DB_SIG_MMI_ESCoffInfo,
-    CAN_DB_SIG_MMI_HDC_Request,
-    CAN_DB_SIG_MMI_IntellTurnAidReq,
-    CAN_DB_SIG_MMI_IntellTurnAidTerrSeln,
-    CAN_DB_SIG_MMI_OnboardScaleReq,
-    CAN_DB_SIG_MMI_iTPMS_reset_Request,
-    CAN_DB_SIG_MMI_Nav_SpeedLimit,
-    CAN_DB_SIG_MMI_Nav_RampSts,
-    CAN_DB_SIG_MMI_Nav_CurrRoadType,
-    CAN_DB_SIG_MMI_Nav_status,
-    CAN_DB_SIG_MMI_Nav_CountryID,
-    CAN_DB_SIG_MMI_TollGateIndication,
-    CAN_DB_SIG_MMI_SVC_status,
-    CAN_DB_SIG_MMI_APA_Function_Select,
-    CAN_DB_SIG_MMI_SVA_Request,
-    CAN_DB_SIG_MMI_APA_ConfirmButton,
-    CAN_DB_SIG_MMI_PSC_Function_Select,
-    CAN_DB_SIG_MMI_NavTunnelIndication,
-    CAN_DB_SIG_MMI_NavDestinationIndication,
-    CAN_DB_SIG_MMI_DayNightMode,
-    CAN_DB_SIG_MMI_IBBrakeModeSet,
-    CAN_DB_SIG_MMI_SailingSwitch,
-    CAN_DB_SIG_MMI_Start_Stop_switch,
-    CAN_DB_SIG_MMI_NavSyncDisplay,
-    CAN_DB_SIG_MMI_Safety_Info_AliveCounter,
-    CAN_DB_SIG_MMI_Safety_Info_CheckSum,
-    CAN_DB_SIG_MMI_DchaChargeControlCmd,
-    CAN_DB_SIG_MMI_SocWarValue,
-    CAN_DB_SIG_MMI_EVDTEodometer_ModeSet,
-    CAN_DB_SIG_MMI_FridgeCoolReq,
-    CAN_DB_SIG_MMI_SaveModeReq,
-    CAN_DB_SIG_MMI_ACDisChrgCmd,
-    CAN_DB_SIG_MMI_RearPanelDisChrgCmd,
-    CAN_DB_SIG_MMI_DCDisChrgCmd,
-    CAN_DB_SIG_MMI_FrontPanelDisChrgCmd,
-    CAN_DB_SIG_MMI_OTA_Status,
-    CAN_DB_SIG_MMI_MidPanelDisChrgCmd,
-    CAN_DB_SIG_MMI_RefuUnlckReq,
-    CAN_DB_SIG_MMI_SOCPointSet,
-    CAN_DB_SIG_EMS_ControlSetSpeed,
-    CAN_DB_SIG_EMS_CruiseSwitchSts,
-    CAN_DB_SIG_EMS_CruiseControlSts,
-    CAN_DB_SIG_EMS_Real_PedalPositionInvalid,
-    CAN_DB_SIG_EMS_Real_PedalPosition,
-    CAN_DB_SIG_EMS_FuelPulsesRollingCounter,
-    CAN_DB_SIG_EMS_EngineSpeedRPM,
-    CAN_DB_SIG_EMS_EngineSpeedRPMInvalid,
-    CAN_DB_SIG_EMS_EngStatus,
-    CAN_DB_SIG_EMS_AccelPedalPosition,
-    CAN_DB_SIG_EMS_AccelPedalPositionInvalid,
-    CAN_DB_SIG_EMS_EngineCoolantTemperature,
-    CAN_DB_SIG_EMS_EngineCoolantTemperatureInva,
-    CAN_DB_SIG_EMS_EngineSVSTelltale,
-    CAN_DB_SIG_EMS_EngineMILTelltale,
-    CAN_DB_SIG_EMS_OilPressureWarning,
-    CAN_DB_SIG_EMS_Odometerbackup,
-    CAN_DB_SIG_EMS_LIMSetSpeed,
-    CAN_DB_SIG_EMS_EAV_ModSetStatus,
-    CAN_DB_SIG_EMS_LIMControlSts,
-    CAN_DB_SIG_EMS_LIMmemorySts_Reserved,
-    CAN_DB_SIG_EMS_LIMSwitchSts,
-    CAN_DB_SIG_EMS_LIMOverSpdWarningSts,
-    CAN_DB_SIG_EMS_GPF_Warning,
-    CAN_DB_SIG_EMS_BrakeOverrideSts,
-    CAN_DB_SIG_EMS_TankLeakDiagSts,
-    CAN_DB_SIG_EMS_AdaptiveTargetMode,
-    CAN_DB_SIG_EMS_DM_ModeProgBar,
-    CAN_DB_SIG_IPK_IPKEngineTotalOdometer,
-    CAN_DB_SIG_IPK_DayToEngSrv,
-    CAN_DB_SIG_IPK_ServiceEngineMaintainInterva,
-    CAN_DB_SIG_IPK_AirbagUnitLEDSts,
-    CAN_DB_SIG_IPK_SVA_AudibleWarningCfgResult,
-    CAN_DB_SIG_IPK_FuelLowLevelWarning,
-    CAN_DB_SIG_IPK_ESCoffInfo,
-    CAN_DB_SIG_IPK_Fail,
-    CAN_DB_SIG_IPK_QDashALODFail,
-    CAN_DB_SIG_IPK_FuelLevelSts,
-    CAN_DB_SIG_IPK_AverageVehicleSpeed,
-    CAN_DB_SIG_IPK_HandBrakeSts,
-    CAN_DB_SIG_IPK_MaintanceWarningSts,
-    CAN_DB_SIG_IPK_LanguageMode,
-    CAN_DB_SIG_IPK_EPS_ModSetSelection,
-    CAN_DB_SIG_IPK_EPS_DMCorrelativeMode,
-    CAN_DB_SIG_IPK_Backlightadjust,
-    CAN_DB_SIG_IPK_vDisplay,
-    CAN_DB_SIG_IPK_OilLowPressure,
-    CAN_DB_SIG_IPK_LIMmemoryEnabe_Reserved,
-    CAN_DB_SIG_IPK_BattLowVoltageWarning,
-    CAN_DB_SIG_IPK_driving_mode_light_sts,
-    CAN_DB_SIG_IPK_AEB_FCWStateReq,
-    CAN_DB_SIG_IPK_AEB_AEBStateReq,
-    CAN_DB_SIG_IPK_ALOD_ControlTypeReq,
-    CAN_DB_SIG_IPK_LCA_EnableStatus,
-    CAN_DB_SIG_IPK_RCTA_EnableStatus,
-    CAN_DB_SIG_IPK_RCW_EnableStatus,
-    CAN_DB_SIG_IPK_AEB_FCWSenlevel,
-    CAN_DB_SIG_IPK_LKS_LaneAssistTypeReq,
-    CAN_DB_SIG_IPK_LDW_WarningTypeSetting,
-    CAN_DB_SIG_IPK_IHBC_MenuReq,
-    CAN_DB_SIG_IPK_SLIF_MenuReq,
-    CAN_DB_SIG_MAX
+    CAN_DB_SIG_INVALID = 0, /* [  0] invalid sentinel */
+    CAN_DB_SIG_MMI_Second, /* [  1] */
+    CAN_DB_SIG_MMI_Minute, /* [  2] */
+    CAN_DB_SIG_MMI_Hour, /* [  3] */
+    CAN_DB_SIG_MMI_Day, /* [  4] */
+    CAN_DB_SIG_MMI_Month, /* [  5] */
+    CAN_DB_SIG_MMI_Year, /* [  6] */
+    CAN_DB_SIG_GPS_elevation_Info, /* [  7] */
+    CAN_DB_SIG_MMI_GPS_Info5_AliveCounter, /* [  8] */
+    CAN_DB_SIG_MMI_GPS_Info5_CheckSum, /* [  9] */
+    CAN_DB_SIG_MMI_RightSwStatus, /* [ 10] */
+    CAN_DB_SIG_MMI_LeftSwStatus, /* [ 11] */
+    CAN_DB_SIG_MMI_UpSwStatus, /* [ 12] */
+    CAN_DB_SIG_MMI_DownSwStatus, /* [ 13] */
+    CAN_DB_SIG_MMI_ConfirmSwStatus, /* [ 14] */
+    CAN_DB_SIG_MMI_ReturnSwStatus, /* [ 15] */
+    CAN_DB_SIG_MMI_WorkMode, /* [ 16] */
+    CAN_DB_SIG_MMI_SkinMode, /* [ 17] */
+    CAN_DB_SIG_MMI_HUDAciveRequest, /* [ 18] */
+    CAN_DB_SIG_MMI_AVH_Request, /* [ 19] */
+    CAN_DB_SIG_MMI_OdometerClearReq, /* [ 20] */
+    CAN_DB_SIG_MMI_SkinModeCorrelativeSts, /* [ 21] */
+    CAN_DB_SIG_MMI_SVA_AudibleWarningOption, /* [ 22] */
+    CAN_DB_SIG_MMI_LCA_AudioWarning, /* [ 23] */
+    CAN_DB_SIG_MMI_ePTRegencyLevRequest, /* [ 24] */
+    CAN_DB_SIG_MMI_DM_SwitchModeSts, /* [ 25] */
+    CAN_DB_SIG_MMI_RoadCameraWarning, /* [ 26] */
+    CAN_DB_SIG_MMI_BCM_DchaChargehint, /* [ 27] */
+    CAN_DB_SIG_MMI_RDiffLockReq, /* [ 28] */
+    CAN_DB_SIG_MMI_NationalDrivingRank, /* [ 29] */
+    CAN_DB_SIG_MMI_EnergySavingModeReq, /* [ 30] */
+    CAN_DB_SIG_MMI_CampModeReq, /* [ 31] */
+    CAN_DB_SIG_MMI_EpedalSettingInfo, /* [ 32] */
+    CAN_DB_SIG_MMI_ESCoffInfo, /* [ 33] */
+    CAN_DB_SIG_MMI_HDC_Request, /* [ 34] */
+    CAN_DB_SIG_MMI_IntellTurnAidReq, /* [ 35] */
+    CAN_DB_SIG_MMI_IntellTurnAidTerrSeln, /* [ 36] */
+    CAN_DB_SIG_MMI_OnboardScaleReq, /* [ 37] */
+    CAN_DB_SIG_MMI_iTPMS_reset_Request, /* [ 38] */
+    CAN_DB_SIG_MMI_Nav_SpeedLimit, /* [ 39] */
+    CAN_DB_SIG_MMI_Nav_RampSts, /* [ 40] */
+    CAN_DB_SIG_MMI_Nav_CurrRoadType, /* [ 41] */
+    CAN_DB_SIG_MMI_Nav_status, /* [ 42] */
+    CAN_DB_SIG_MMI_Nav_CountryID, /* [ 43] */
+    CAN_DB_SIG_MMI_TollGateIndication, /* [ 44] */
+    CAN_DB_SIG_MMI_SVC_status, /* [ 45] */
+    CAN_DB_SIG_MMI_APA_Function_Select, /* [ 46] */
+    CAN_DB_SIG_MMI_SVA_Request, /* [ 47] */
+    CAN_DB_SIG_MMI_APA_ConfirmButton, /* [ 48] */
+    CAN_DB_SIG_MMI_PSC_Function_Select, /* [ 49] */
+    CAN_DB_SIG_MMI_NavTunnelIndication, /* [ 50] */
+    CAN_DB_SIG_MMI_NavDestinationIndication, /* [ 51] */
+    CAN_DB_SIG_MMI_DayNightMode, /* [ 52] */
+    CAN_DB_SIG_MMI_IBBrakeModeSet, /* [ 53] */
+    CAN_DB_SIG_MMI_SailingSwitch, /* [ 54] */
+    CAN_DB_SIG_MMI_Start_Stop_switch, /* [ 55] */
+    CAN_DB_SIG_MMI_NavSyncDisplay, /* [ 56] */
+    CAN_DB_SIG_MMI_Safety_Info_AliveCounter, /* [ 57] */
+    CAN_DB_SIG_MMI_Safety_Info_CheckSum, /* [ 58] */
+    CAN_DB_SIG_MMI_DchaChargeControlCmd, /* [ 59] */
+    CAN_DB_SIG_MMI_SocWarValue, /* [ 60] */
+    CAN_DB_SIG_MMI_EVDTEodometer_ModeSet, /* [ 61] */
+    CAN_DB_SIG_MMI_FridgeCoolReq, /* [ 62] */
+    CAN_DB_SIG_MMI_SaveModeReq, /* [ 63] */
+    CAN_DB_SIG_MMI_ACDisChrgCmd, /* [ 64] */
+    CAN_DB_SIG_MMI_RearPanelDisChrgCmd, /* [ 65] */
+    CAN_DB_SIG_MMI_DCDisChrgCmd, /* [ 66] */
+    CAN_DB_SIG_MMI_FrontPanelDisChrgCmd, /* [ 67] */
+    CAN_DB_SIG_MMI_OTA_Status, /* [ 68] */
+    CAN_DB_SIG_MMI_MidPanelDisChrgCmd, /* [ 69] */
+    CAN_DB_SIG_MMI_RefuUnlckReq, /* [ 70] */
+    CAN_DB_SIG_MMI_SOCPointSet, /* [ 71] */
+    CAN_DB_SIG_EMS_ControlSetSpeed, /* [ 72] */
+    CAN_DB_SIG_EMS_CruiseSwitchSts, /* [ 73] */
+    CAN_DB_SIG_EMS_CruiseControlSts, /* [ 74] */
+    CAN_DB_SIG_EMS_Real_PedalPositionInvalid, /* [ 75] */
+    CAN_DB_SIG_EMS_Real_PedalPosition, /* [ 76] */
+    CAN_DB_SIG_EMS_FuelPulsesRollingCounter, /* [ 77] */
+    CAN_DB_SIG_EMS_EngineSpeedRPM, /* [ 78] */
+    CAN_DB_SIG_EMS_EngineSpeedRPMInvalid, /* [ 79] */
+    CAN_DB_SIG_EMS_EngStatus, /* [ 80] */
+    CAN_DB_SIG_EMS_AccelPedalPosition, /* [ 81] */
+    CAN_DB_SIG_EMS_AccelPedalPositionInvalid, /* [ 82] */
+    CAN_DB_SIG_EMS_EngineCoolantTemperature, /* [ 83] */
+    CAN_DB_SIG_EMS_EngineCoolantTemperatureInva, /* [ 84] */
+    CAN_DB_SIG_EMS_EngineSVSTelltale, /* [ 85] */
+    CAN_DB_SIG_EMS_EngineMILTelltale, /* [ 86] */
+    CAN_DB_SIG_EMS_OilPressureWarning, /* [ 87] */
+    CAN_DB_SIG_EMS_Odometerbackup, /* [ 88] */
+    CAN_DB_SIG_EMS_LIMSetSpeed, /* [ 89] */
+    CAN_DB_SIG_EMS_EAV_ModSetStatus, /* [ 90] */
+    CAN_DB_SIG_EMS_LIMControlSts, /* [ 91] */
+    CAN_DB_SIG_EMS_LIMmemorySts_Reserved, /* [ 92] */
+    CAN_DB_SIG_EMS_LIMSwitchSts, /* [ 93] */
+    CAN_DB_SIG_EMS_LIMOverSpdWarningSts, /* [ 94] */
+    CAN_DB_SIG_EMS_GPF_Warning, /* [ 95] */
+    CAN_DB_SIG_EMS_BrakeOverrideSts, /* [ 96] */
+    CAN_DB_SIG_EMS_TankLeakDiagSts, /* [ 97] */
+    CAN_DB_SIG_EMS_AdaptiveTargetMode, /* [ 98] */
+    CAN_DB_SIG_EMS_DM_ModeProgBar, /* [ 99] */
+    CAN_DB_SIG_IPK_IPKEngineTotalOdometer, /* [100] */
+    CAN_DB_SIG_IPK_DayToEngSrv, /* [101] */
+    CAN_DB_SIG_IPK_ServiceEngineMaintainInterva, /* [102] */
+    CAN_DB_SIG_IPK_AirbagUnitLEDSts, /* [103] */
+    CAN_DB_SIG_IPK_SVA_AudibleWarningCfgResult, /* [104] */
+    CAN_DB_SIG_IPK_FuelLowLevelWarning, /* [105] */
+    CAN_DB_SIG_IPK_ESCoffInfo, /* [106] */
+    CAN_DB_SIG_IPK_Fail, /* [107] */
+    CAN_DB_SIG_IPK_QDashALODFail, /* [108] */
+    CAN_DB_SIG_IPK_FuelLevelSts, /* [109] */
+    CAN_DB_SIG_IPK_AverageVehicleSpeed, /* [110] */
+    CAN_DB_SIG_IPK_HandBrakeSts, /* [111] */
+    CAN_DB_SIG_IPK_MaintanceWarningSts, /* [112] */
+    CAN_DB_SIG_IPK_LanguageMode, /* [113] */
+    CAN_DB_SIG_IPK_EPS_ModSetSelection, /* [114] */
+    CAN_DB_SIG_IPK_EPS_DMCorrelativeMode, /* [115] */
+    CAN_DB_SIG_IPK_Backlightadjust, /* [116] */
+    CAN_DB_SIG_IPK_vDisplay, /* [117] */
+    CAN_DB_SIG_IPK_OilLowPressure, /* [118] */
+    CAN_DB_SIG_IPK_LIMmemoryEnabe_Reserved, /* [119] */
+    CAN_DB_SIG_IPK_BattLowVoltageWarning, /* [120] */
+    CAN_DB_SIG_IPK_driving_mode_light_sts, /* [121] */
+    CAN_DB_SIG_IPK_AEB_FCWStateReq, /* [122] */
+    CAN_DB_SIG_IPK_AEB_AEBStateReq, /* [123] */
+    CAN_DB_SIG_IPK_ALOD_ControlTypeReq, /* [124] */
+    CAN_DB_SIG_IPK_LCA_EnableStatus, /* [125] */
+    CAN_DB_SIG_IPK_RCTA_EnableStatus, /* [126] */
+    CAN_DB_SIG_IPK_RCW_EnableStatus, /* [127] */
+    CAN_DB_SIG_IPK_AEB_FCWSenlevel, /* [128] */
+    CAN_DB_SIG_IPK_LKS_LaneAssistTypeReq, /* [129] */
+    CAN_DB_SIG_IPK_LDW_WarningTypeSetting, /* [130] */
+    CAN_DB_SIG_IPK_IHBC_MenuReq, /* [131] */
+    CAN_DB_SIG_IPK_SLIF_MenuReq, /* [132] */
+    CAN_DB_SIG_MAX /* [total] end-of-enum sentinel */
 } can_db_sig_id_t_ipk;
 
 #define CAN_DB_IPK_MSG_COUNT  (13u)
