@@ -1,96 +1,90 @@
 /**
  * @file    rti.c
- * @brief   RTI tick implementation + LPTMR0 ISR hook
+ * @brief   RTI tick implementation backed by OSIF (SysTick)
  *
- * Hardware-specific. The project must:
- *   1. Configure LPTMR instance 0 to fire @ 1 kHz (board layer).
- *   2. Enable the LPTMR0 IRQ in the NVIC (board/interrupt_config.c).
- * The actual ISR handler `lpTMR0_IRQHandler` is provided at the
- * bottom of this file - it is intentionally co-located with RTI
- * because the only thing it does is drive the 1 ms tick.
+ * Tick source:
+ *   - Normal operation: SysTick_Handler (in this file) drives the
+ *     1 ms RTI tick via RTI_OnTick1ms(), feeds the watchdog, and
+ *     calls osif_Tick() so that OSIF_GetMilliseconds() / OSIF_TimeDelay
+ *     work too.
+ *   - Low-power sleep: LPTMR remains initialised (drv_init) and
+ *     could take over the tick source while the core is stopped;
+ *     not used here.
  *
- * WDG feed is handled inside the ISR or by scheduler.
+ * RTI_IsElapsed() / RTI_GetTick1ms() now read from OSIF instead of
+ * a private counter - there is no double bookkeeping.
  */
 #include "rti.h"
 #include "rti_defer.h"
-#include "lptmr_driver.h"   /* lpTMR_DRV_ClearCompareFlag */
-
-/* Monotonic 1 ms counter. `volatile` because the ISR writes it. */
-static volatile uint32_t s_tick_ms = 0;
+#include "osif.h"           /* OSIF_GetMilliseconds + osif_Tick */
+#include "wdg_hw_access.h"  /* WDG_DRV_Trigger                  */
 
 /**
- * @brief   Initialize the 1 ms RTI counter
- * @brief   初始化 1ms RTI 计数器
+ * @brief   Initialize RTI: start SysTick via OSIF and clear the
+ *          one-shot deferred-callback pool.
+ * @brief   初始化 RTI：通过 OSIF 启动 SysTick 并清空一次性延迟回调池
+ *
+ * @details Calling OSIF_TimeDelay(0) is the vendor-documented way to
+ *          initialise SysTick without any side effects (it does not
+ *          actually wait, but triggers osif_UpdateTickConfig() which
+ *          programs SysTick->LOAD/CTRL). After this call the
+ *          SysTick_Handler at the bottom of this file starts firing
+ *          at 1 kHz.
  */
 void RTI_Init(void)
 {
-    s_tick_ms = 0;
-    /* LPTMR_Init is performed by board/board_init.c. */
-    /* Clear the one-shot deferred-callback pool too. */
+    /* Start SysTick; the counter inside osif_Tick() is what we read
+     * from RTI_GetTick1ms() below. */
+    OSIF_TimeDelay(0);
+    /* Clear the one-shot deferred-callback pool. */
     RTI_DeferInit();
 }
 
 /**
- * @brief   1 kHz tick callback invoked from the LPTMR ISR
- * @brief   LPTMR ISR 调用的 1kHz tick 回调
- *
- * @details Bare-bones: only bumps the counter. Any work that
- *          needs to happen every 1 ms should use RTI_IsElapsed().
+ * @brief   1 kHz tick callback invoked from the SysTick ISR
+ * @brief   SysTick ISR 调用的 1kHz tick 回调
  */
 void RTI_OnTick1ms(void)
 {
-    s_tick_ms++;
+    /* Intentionally empty: the SysTick_Handler at the bottom of this
+     * file is the one true ISR that drives osif_Tick() + RTI_OnTick1ms
+     * side-effects (watchdog feed). Kept as a hook so existing call
+     * sites do not break. */
 }
 
 /**
  * @brief   Get the current 1 ms tick count
  * @brief   获取当前 1ms tick 计数
  *
- * @return  uint32_t  Monotonic 1 ms tick
+ * @return  uint32_t  Monotonic 1 ms tick from OSIF
  */
 uint32_t RTI_GetTick1ms(void)
 {
-    return s_tick_ms;
+    return OSIF_GetMilliseconds();
 }
 
 /**
  * @brief   Detect the first call after power-on or RTI_Init
  * @brief   检测上电或 RTI_Init 之后的第一次调用
- *
- * @details Trick: keep a `sentinel` last-tick value (0xFFFFFFFF)
- *          that can never match a real tick. The first call always
- *          sees the sentinel and returns true; subsequent calls
- *          see the saved tick and return false.
  */
 bool RTI_IsFirstCall(void)
 {
     static uint32_t s_last = 0xFFFFFFFFu;
+    const uint32_t now = OSIF_GetMilliseconds();
     bool first = (s_last == 0xFFFFFFFFu);
-    /* Update last-tick to the current real counter for next call. */
-    s_last = s_tick_ms;
+    s_last = now;
     return first;
 }
 
 /**
  * @brief   Check whether the requested period has elapsed since the last call
  * @brief   检查自上次调用以来指定周期是否已到
- *
- * @details Each period enum value maps to a slot in a static
- *          last-run array; the same slot is shared between all
- *          callers using that period, so this helper is best
- *          for "only one module needs this period" use cases.
- *
- * @param[in]  period  One of RTI_5MS..RTI_1000MS
- *
- * @return  bool
- * @retval  true   Period elapsed
- * @retval  false  Not yet elapsed
  */
 bool RTI_IsElapsed(rti_period_t period)
 {
     /* 8 static slots, one per supported period. */
     static uint32_t s_last[8] = {0};
-    /* Map the period enum to its slot index. */
+    const uint32_t now = OSIF_GetMilliseconds();
     uint32_t slot;
     switch (period) {
         case RTI_5MS:    slot = 0; break;
@@ -103,34 +97,29 @@ bool RTI_IsElapsed(rti_period_t period)
         case RTI_1000MS: slot = 7; break;
         default:         return false;
     }
-    /* Unsigned subtraction is wrap-safe; >= period means "elapsed". */
-    if (s_tick_ms - s_last[slot] >= (uint32_t)period) {
-        /* Stamp the new last-run tick for the next round. */
-        s_last[slot] = s_tick_ms;
+    if (now - s_last[slot] >= (uint32_t)period) {
+        s_last[slot] = now;
         return true;
     }
     return false;
 }
 
-/* ---------------------------------------------------------------- *
- *  LPTMR0 ISR                                                       *
- *                                                                    *
- *  Drives the 1 ms RTI tick used by the scheduler / can_rx / can_tx.*
- *  Must clear the LPTMR compare flag or the ISR will re-enter       *
- *  immediately on return.                                            *
- *                                                                    *
- *  Compiled here (and not in board/vector_table_copy.c) because:    *
- *    - the only job is to feed RTI;                                  *
- *    - keeping it next to RTI makes the LPTMR <-> RTI contract       *
- *      visible in one file;                                          *
- *    - vector_table_copy.c only owns weak default stubs and is not   *
- *      expected to provide strong handlers.                          *
- *                                                                    *
- *  The weak `lpTMR0_IRQHandler` stub in vector_table_copy.c was     *
- *  deleted so the linker does not see two definitions (Pe247).       *
- * ---------------------------------------------------------------- */
-void lpTMR0_IRQHandler(void)
+/**
+ * @brief   1 ms SysTick ISR: drives OSIF tick, RTI tick, and WDG feed.
+ * @brief   1ms SysTick 中断：驱动 OSIF 滴答、RTI 滴答、喂狗
+ *
+ * @details Single authoritative source of all 1 ms side-effects.
+ *          Owns three responsibilities:
+ *            1. osif_Tick()        - increments s_osif_tick_cnt so
+ *                                     OSIF_GetMilliseconds /
+ *                                     OSIF_TimeDelay reflect real time.
+ *            2. RTI_OnTick1ms()    - feeds the RTI scheduler side.
+ *            3. WDG_DRV_Trigger(0) - feeds the watchdog so a hung
+ *                                     super-loop resets the MCU.
+ */
+void SysTick_Handler(void)
 {
+    osif_Tick();
     RTI_OnTick1ms();
-    lpTMR_DRV_ClearCompareFlag(0);
+    WDG_DRV_Trigger(0);
 }

@@ -47,9 +47,20 @@
 #include "interrupt_manager.h"
 #include "clock_manager.h"
 
+/* s_osif_tick_cnt stays static - the only writer is osif_Tick()
+ * in this TU, the only reader is osif_GetCurrentTickCount() in
+ * this TU. External callers must go through OSIF_GetMilliseconds. */
 static volatile uint32_t s_osif_tick_cnt = 0u;
 
-static inline void osif_Tick(void)
+/* osif_Tick is intentionally non-static and NON-inline: it is
+ * called from the SysTick_Handler defined in app/rti/rti.c (which
+ * also feeds the RTI scheduler and the watchdog). It MUST be
+ * a regular function so the linker finds exactly one definition
+ * in this TU - using `inline` here would let the compiler skip
+ * emitting the symbol (the IAR Pe005 / GCC unspecified behaviour
+ * for plain `inline` without `extern` is exactly what caused the
+ * previous Li005 error). */
+void osif_Tick(void)
 {
     s_osif_tick_cnt++; /*PRQA S 3387*/
 }
@@ -63,12 +74,12 @@ static inline uint32_t osif_GetCurrentTickCount(void)
 
 #if FEATURE_OSIF_USE_SYSTICK
 
-void SysTick_Handler(void);
-
-void SysTick_Handler(void)
-{
-    osif_Tick();
-}
+//void SysTick_Handler(void);
+//
+//void SysTick_Handler(void)
+//{
+//    osif_Tick();
+//}
 
 static inline void osif_UpdateTickConfig(void)
 {
