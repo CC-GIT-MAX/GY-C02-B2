@@ -40,7 +40,7 @@ peripheral_clock_config_t clock_config0PeripheralClockConfig[16] = {
         .clkSrc = CLK_SRC_DISABLED,
     },
     {
-        .clkName = LINFlexD1_CLK,
+        .clkName = LINFlexD0_CLK,
         .clkGate = true,
         .divider = DIV_BY_3,
         .clkSrc = CLK_SRC_PLL,
@@ -58,13 +58,13 @@ peripheral_clock_config_t clock_config0PeripheralClockConfig[16] = {
         .clkSrc = CLK_SRC_FXOSC,
     },
     {
-        .clkName = SPI0_CLK,
+        .clkName = FlexCAN1_CLK,
         .clkGate = true,
         .divider = DIV_BY_1,
-        .clkSrc = CLK_SRC_SIRC,
+        .clkSrc = CLK_SRC_DISABLED,
     },
     {
-        .clkName = FlexCAN0_CLK,
+        .clkName = FlexCAN2_CLK,
         .clkGate = true,
         .divider = DIV_BY_1,
         .clkSrc = CLK_SRC_DISABLED,
