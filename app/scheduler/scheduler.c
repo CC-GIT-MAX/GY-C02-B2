@@ -37,27 +37,47 @@ const mod_desc_t * const g_modules[] = {
 static const uint32_t g_module_cnt = sizeof(g_modules) / sizeof(g_modules[0]);
 
 /**
- * @brief   Initialize the scheduler and run mcu_init + wakeup_init
- *          on every module.
- * @brief   初始化调度器并依次调用所有模块的 mcu_init 与 wakeup_init
+ * @brief   Initialize the scheduler and run mcu_init on every module
+ * @brief   初始化调度器并依次调用所有模块的 mcu_init
  *
- * @details Walks g_modules[] in registration order and calls each
- *          module's @c mcu_init(cold_boot=1) then @c wakeup_init()
- *          hook.  Both NULL hooks are silently skipped.
+ * @details First scheduler phase. Walks g_modules[] in registration
+ *          order and calls each module's @c mcu_init(cold_boot=1)
+ *          hook.  NULL hooks are silently skipped.  The matching
+ *          wakeup phase is Scheduler_WakeupInit() - call it from
+ *          main.c after Scheduler_Init() returns.
  */
 void Scheduler_Init(void)
 {
     LOG_I("init: %u modules", (unsigned)g_module_cnt);
-    /* Walk the registry in order; log each name before each phase. */
+    /* Walk the registry in order; log each name before mcu_init. */
     for (uint32_t i = 0; i < g_module_cnt; i++) {
         const mod_desc_t *m = g_modules[i];
         LOG_I("  [%02u] %s", (unsigned)i, m->name);
         /* mcu_init runs first - hardware power-on setup, RAM zero,
          * self-test. NULL hook is allowed (module opts out). */
         if (m->mcu_init) m->mcu_init(1u);
-        /* wakeup_init runs after mcu_init and before any KL15 logic.
-         * Use it to re-arm NVIC / wake sources if mcu_init left the
-         * core in a clean reset state. */
+    }
+}
+
+/**
+ * @brief   Walk the registry and call wakeup_init on every module
+ * @brief   遍历注册表, 依次调用所有模块的 wakeup_init
+ *
+ * @details Second scheduler phase. Runs after Scheduler_Init (so all
+ *          mcu_init hooks have completed) and before Scheduler_OnIgnOn
+ *          (so KL15 / domain logic has not started yet). Use this
+ *          phase to re-arm NVIC priorities, restore wake-source
+ *          state, and prime caches that mcu_init left in a known
+ *          reset state.
+ *
+ * @note    Not reentrant; call once per boot, between Scheduler_Init
+ *          and Scheduler_OnIgnOn.
+ */
+void Scheduler_WakeupInit(void)
+{
+    for (uint32_t i = 0; i < g_module_cnt; i++) {
+        const mod_desc_t *m = g_modules[i];
+        /* wakeup_init is allowed to be NULL (module opts out). */
         if (m->wakeup_init) m->wakeup_init();
     }
 }

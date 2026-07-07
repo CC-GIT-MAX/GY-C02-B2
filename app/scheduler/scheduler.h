@@ -6,25 +6,35 @@
  * the g_modules[] array in scheduler.c. The scheduler walks the array
  * and invokes five lifecycle hooks in registration order:
  *
- *   mcu_init(cold_boot) - MCU power-on init, called once at startup
- *                         (clocks, RAM zero, hardware self-test).
+ *   mcu_init(cold_boot) - MCU power-on init, called once during
+ *                         Scheduler_Init (clocks, RAM zero, HW self-test).
  *                         Runs before any peripheral or wakeup logic.
- *   wakeup_init()       - Called after mcu_init when the system is
- *                         leaving the deepest reset state and before
- *                         KL15 is allowed to drive domain logic.
- *                         Use it to restore NVIC / wake-source state.
+ *   wakeup_init()       - Called during Scheduler_WakeupInit (a
+ *                         separate scheduler phase invoked from main.c
+ *                         after Scheduler_Init). Use it to restore NVIC
+ *                         / wake-source state when the system leaves
+ *                         the deepest reset.
  *   on_ign_on()         - Called when KL15 transitions ON (cold boot
  *                         path runs it once via Scheduler_OnIgnOn()).
  *   tick()              - Called every super-loop iteration; modules
  *                         decide their own sub-period using RTI_IsElapsed()
  *   standby()           - Called when entering low-power mode
  *
+ * Lifecycle call order at boot:
+ *   Scheduler_Init()      -> mcu_init()         (one pass)
+ *   Scheduler_WakeupInit() -> wakeup_init()     (one pass)
+ *   Scheduler_OnIgnOn()   -> on_ign_on()       (broadcast)
+ *   Scheduler_Run()       -> tick()            (every super-loop iter)
+ *   Scheduler_Standby()   -> standby()         (broadcast on sleep)
+ *
  * To add a new module:
  *   1. Implement the five hooks in your module .c
  *   2. Define `extern const mod_desc_t mod_xxx;` in its .h
  *   3. Add &mod_xxx to g_modules[] in scheduler.c
  *
- * No changes to main.c or scheduler.c body required.
+ * No changes to main.c body required beyond adding Scheduler_WakeupInit
+ * to the boot sequence (it goes between Scheduler_Init and
+ * Scheduler_OnIgnOn).
  */
 #ifndef C02B2_SCHEDULER_H
 #define C02B2_SCHEDULER_H
@@ -65,17 +75,37 @@ typedef struct mod_desc_s {
 } mod_desc_t;
 
 /**
- * @brief   Initialize the scheduler and call init() on every module
- * @brief   初始化调度器并依次调用所有模块的 init()
+ * @brief   Initialize the scheduler and call mcu_init() on every module
+ * @brief   初始化调度器并依次调用所有模块的 mcu_init()
  *
- * @details Iterates g_modules[] in order, calls each module's
- *          init(cold_boot=1) hook. Must be called exactly once
- *          during system startup, after BSP_Init/DRV_Init and
- *          after the signal bus is up.
+ * @details Walks g_modules[] in order, calls each module's
+ *          mcu_init(cold_boot=1) hook. Must be called exactly once
+ *          during system startup, after BSP_Init/DRV_Init and after
+ *          the signal bus is up.
  *
- * @note    Not reentrant; call once before Scheduler_Run().
+ *          This is the first scheduler phase; the matching wakeup
+ *          phase is Scheduler_WakeupInit() and must be invoked from
+ *          main.c explicitly between Scheduler_Init and
+ *          Scheduler_OnIgnOn.
+ *
+ * @note    Not reentrant; call once before Scheduler_WakeupInit().
  */
 void Scheduler_Init(void);
+
+/**
+ * @brief   Walk the registry and call wakeup_init() on every module
+ * @brief   遍历注册表, 依次调用所有模块的 wakeup_init()
+ *
+ * @details Second scheduler phase. Runs after Scheduler_Init (so all
+ *          mcu_init hooks have completed) and before Scheduler_OnIgnOn
+ *          (so domain logic has not started yet). Use this phase to
+ *          re-arm NVIC priorities, restore wake-source state, and
+ *          prime caches that mcu_init left in a known reset state.
+ *
+ * @note    Not reentrant; call once during boot, between
+ *          Scheduler_Init() and Scheduler_OnIgnOn().
+ */
+void Scheduler_WakeupInit(void);
 
 /**
  * @brief   Broadcast IGN ON event to every module

@@ -115,8 +115,14 @@ int main(void)
     /* Bring up CAN: FLEXCAN_DRV_Init + InstallEventCallback. */
     (void)CanIf_Init();
 
-    /* Initialize the scheduler: calls every module's init() hook. */
+    /* Initialize the scheduler: calls every module's mcu_init()
+     * hook (clocks, RAM zero, hardware self-test). */
     Scheduler_Init();
+    /* Wakeup phase: re-arm NVIC / wake sources before KL15 logic
+     * starts. Separated from Scheduler_Init so modules can keep
+     * their reset-state setup in mcu_init and their restore-from-
+     * reset work in wakeup_init. */
+    Scheduler_WakeupInit();
     /* Cold-boot broadcast: assume IGN ON so every module's
      * on_ign_on() runs at startup.  Real KL15 detection will be
      * wired in via mod_can once DBC signals are populated. */
