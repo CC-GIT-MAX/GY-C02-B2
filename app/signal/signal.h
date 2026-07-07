@@ -117,6 +117,18 @@ typedef enum {
     SIG_CAN_RX_TIMEOUT_MAP_HI, /* int32, bits 0..31 = rx_msg_idx 32..63 timeout flags */
 
     /* ---------------------------------------------------------------- *
+     *  CAN bus health (error interrupt driven)                         *
+     *                                                                    *
+     *  Published by app/drv_api/can/can_if.c::prv_flexcan_err_cb.       *
+     *  Updated on every error interrupt from the SDK so any consumer   *
+     *  (diag, NM, meter telltale) can react.                            *
+     * ---------------------------------------------------------------- */
+    SIG_CAN_BUS_OFF,         /* bool, 1 = instance currently in bus-off */
+    SIG_CAN_BUS_OFF_COUNT,   /* int32, cumulative bus-off enter count   */
+    SIG_CAN_TX_ERR_CNT,      /* int32, last TX error counter (0..255)    */
+    SIG_CAN_RX_ERR_CNT,      /* int32, last RX error counter (0..255)    */
+
+    /* ---------------------------------------------------------------- *
      *  System                                                          *
      * ---------------------------------------------------------------- */
     SIG_FW_VERSION,        /* int32, packed MAJOR/MINOR/PATCH          */
@@ -832,7 +844,6 @@ typedef enum {
     SIG_CAN_IPK_Wakeup_reasons,/* 8bit unsigned raw*1 [0..255] */
     SIG_CAN_IPK_NMSts,/* 1bit unsigned raw*1 [0..1] */
     SIG_CAN_IPK_Stayawake_reasons,/* 32bit unsigned raw*1 [0..4294967295] */
-
     SIG_MAX
 } signal_id_t;
 

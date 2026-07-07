@@ -20,6 +20,7 @@
 
 #define LOG_NAME  "CIF "
 #include "log.h"
+#include "signal.h"
 
 /* -------------------------------------------------------------------- *
  *  Ring buffer of received frames
@@ -239,6 +240,136 @@ static void prv_flexcan_cb(u8 instance,
 }
 
 /* -------------------------------------------------------------------- *
+ *  Error callback (runs in ISR context)                                *
+ *                                                                    *
+ *  Subscribes to FLEXCAN_DRV_InstallErrorCallback.  The SDK calls    *
+ *  us whenever ESR1 fires one of the interrupt bits (BUS_OFF_ENTER,  *
+ *  BUS_OFF_DONE, TX_WARNING, RX_WARNING, BIT_ERROR, ERROR_OVERRUN,   *
+ *  RAM_ECC).  We log the event and publish bus-health signals so     *
+ *  consumers (diag, NM, meter telltales) can react.                  *
+ * -------------------------------------------------------------------- */
+
+/** Per-channel cumulative bus-off enter counter (incremented on each
+ *  BUS_OFF_ENTER transition; not cleared on recovery so the total is
+ *  preserved across recoveries). */
+static u32 s_bus_off_count[CAN_CH_MAX] = { 0u, 0u };
+
+/**
+ * @brief   Map a flexcan instance index to our logical channel
+ * @brief   按 flexcan 实例号映射到逻辑通道
+ */
+static can_channel_t prv_inst_to_logical(u8 instance)
+{
+    /* public_can_INST=2, private_can_INST=1; everything else maps to PUBLIC
+     * (defensive default for future instances). */
+    if (instance == private_can_INST) return CAN_CH_PRIVATE;
+    return CAN_CH_PUBLIC;
+}
+
+/**
+ * @brief   flexcan error callback (runs in ISR context)
+ * @brief   flexcan 错误回调（运行于 ISR 上下文）
+ *
+ * @details Handles the four events the cluster actually cares about:
+ *   - BUS_OFF_ENTER  -> log error, set SIG_CAN_BUS_OFF=1, bump counter
+ *   - BUS_OFF_DONE   -> log info, clear SIG_CAN_BUS_OFF=0
+ *   - TX_WARNING     -> log warning with current TX error counter
+ *   - RX_WARNING     -> log warning with current RX error counter
+ *   - others         -> log debug
+ *
+ * @param[in]  instance   flexcan instance index
+ * @param[in]  eventType  which ESR1 bit fired
+ * @param[in]  state      Driver state (unused)
+ */
+static void prv_flexcan_err_cb(u8 instance,
+                               flexcan_error_event_type_t eventType,
+                               flexcan_state_t *state)
+{
+    (void)state;
+    const can_channel_t ch = prv_inst_to_logical(instance);
+
+    /* Read ESR1 once: it carries TX/RX error counters and the live
+     * status bits.  Per YTM32B1M ref manual, [TXERRCNT:24-31] and
+     * [RXERRCNT:16-23]. */
+    const u32 esr1 = FLEXCAN_DRV_GetErrorStatus(instance);
+    const u32 tx_err = (esr1 >> 24) & 0xFFu;
+    const u32 rx_err = (esr1 >> 16) & 0xFFu;
+    (void)Signal_Set(SIG_CAN_TX_ERR_CNT, (int32_t)tx_err);
+    (void)Signal_Set(SIG_CAN_RX_ERR_CNT, (int32_t)rx_err);
+
+    switch (eventType) {
+        case FLEXCAN_BUS_OFF_ENTER_EVENT: {
+            /* The controller has gone bus-off: it has stopped
+             * participating in the bus.  Per CAN ISO 11898 the
+             * controller stays in this state for at least 128
+             * occurrences of 11 consecutive recessive bits before
+             * BUS_OFF_DONE fires.  We cannot recover from here in
+             * software - just flag it. */
+            s_bus_off_count[ch]++;
+            (void)Signal_Set(SIG_CAN_BUS_OFF, 1);
+            (void)Signal_Set(SIG_CAN_BUS_OFF_COUNT,
+                             (int32_t)s_bus_off_count[ch]);
+            LOG_E("CAN%u BUS_OFF enter (tx_err=%u rx_err=%u, total=%u)",
+                  (unsigned)instance,
+                  (unsigned)tx_err, (unsigned)rx_err,
+                  (unsigned)s_bus_off_count[ch]);
+            break;
+        }
+        case FLEXCAN_BUS_OFF_DONE_EVENT: {
+            /* The controller has recovered from bus-off and is back
+             * on the bus.  Clear the flag - normal TX can resume. */
+            (void)Signal_Set(SIG_CAN_BUS_OFF, 0);
+            LOG_W("CAN%u BUS_OFF done -> back on bus", (unsigned)instance);
+            break;
+        }
+        case FLEXCAN_TX_WARNING_EVENT: {
+            /* TX error counter crossed the warning threshold (96).
+             * Bus is degraded but not yet bus-off. */
+            LOG_W("CAN%u TX warning (tx_err=%u)", (unsigned)instance,
+                  (unsigned)tx_err);
+            break;
+        }
+        case FLEXCAN_RX_WARNING_EVENT: {
+            /* RX error counter crossed the warning threshold (96). */
+            LOG_W("CAN%u RX warning (rx_err=%u)", (unsigned)instance,
+                  (unsigned)rx_err);
+            break;
+        }
+        case FLEXCAN_BIT_ERROR_EVENT: {
+            LOG_W("CAN%u bit error (tx_err=%u rx_err=%u)",
+                  (unsigned)instance, (unsigned)tx_err, (unsigned)rx_err);
+            break;
+        }
+        case FLEXCAN_ERROR_OVERRUN_EVENT: {
+            /* RX overrun on a single MB - the MB was overwritten
+             * before software read it.  Should not happen with FIFO
+             * mode + 16-frame ring, but log if it does. */
+            LOG_E("CAN%u overrun - frame(s) lost on MB",
+                  (unsigned)instance);
+            break;
+        }
+#if FEATURE_CAN_HAS_RAM_ECC
+        case FLEXCAN_RAM_ECC_ERROR_EVENT: {
+            /* CAN RAM ECC error - hardware fault, log at error level. */
+            LOG_E("CAN%u RAM ECC error - controller in fault",
+                  (unsigned)instance);
+            break;
+        }
+#endif
+        case FLEXCAN_WAKEUP_EVENT: {
+            /* Wake-up from low-power - log at info. */
+            LOG_I("CAN%u wakeup event", (unsigned)instance);
+            break;
+        }
+        default:
+            LOG_D("CAN%u error event=0x%X (tx_err=%u rx_err=%u)",
+                  (unsigned)instance, (unsigned)eventType,
+                  (unsigned)tx_err, (unsigned)rx_err);
+            break;
+    }
+}
+
+/* -------------------------------------------------------------------- *
  *  TX mailbox round-robin                                                *
  *                                                                     *
  *  Per YTM32B1M Table 18.20:                                          *
@@ -327,8 +458,9 @@ c02b2_result_t CanIf_Init(void)
             LOG_E("init inst=%u failed", (unsigned)inst);
             return C02B2_ERR;
         }
-        /* Register our ISR callback for RX events. */
+        /* Register our ISR callbacks for RX + error events. */
         FLEXCAN_DRV_InstallEventCallback(inst, prv_flexcan_cb, NULL);
+        FLEXCAN_DRV_InstallErrorCallback(inst, prv_flexcan_err_cb, NULL);
     }
     LOG_I("init OK");
     return C02B2_OK;
