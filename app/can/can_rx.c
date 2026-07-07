@@ -31,6 +31,46 @@ static struct {
     rx_track_t track[MAX_RX_TRACKED];
 } s_rx;
 /* ---------------------------------------------------------------- *
+ *  RX timeout table                                                  *
+ *                                                                    *
+ *  Per-IPK-message receive timeout.  Read by prv_check_timeouts()   *
+ *  every 50 ms; bit idx in SIG_CAN_RX_TIMEOUT_MAP is set when       *
+ *  (now - last_rx_tick_ms[idx]) > timeout_ms[idx].                  *
+ *                                                                    *
+ *  0 = no monitoring.  Indices match can_msg_descs_ipk[]. The DBC   *
+ *  itself has no notion of cycle/timeout so this hand-authored      *
+ *  table is the source of truth.                                    *
+ * ---------------------------------------------------------------- */
+
+/**
+ * @brief   Static default receive timeout for every IPK message
+ * @brief   每条 IPK 报文的静态默认接收超时
+ *
+ * @details Index matches `can_msg_descs_ipk[]`. The CANalyzer /
+ *          network analysis team fills this in once the bus trace
+ *          is available; until then the table is permissive (0 =
+ *          no monitoring) so the cluster boots clean.
+ *
+ *          Typical rule of thumb: cycle * 3, rounded up to the
+ *          nearest 50 ms. Units: milliseconds.
+ */
+static const u16 g_can_rx_timeout_table[CAN_DB_IPK_MSG_COUNT] = {
+    /* 0  MMI_DateTime_Msg          */ 3000u,  /* cycle ~1 s   -> 3 s   */
+    /* 1  MMI_GPS_Info5             */ 3000u,
+    /* 2  MMI_Status_Info           */  300u,  /* cycle 100 ms -> 300 ms */
+    /* 3  MMI_Safety_Info           */  300u,
+    /* 4  MMI_SOCSet                */  500u,
+    /* 5  EMS_EngRelateTrqSts       */  300u,
+    /* 6  EMS_EngineRPM             */  300u,
+    /* 7  EMS_EngineDriverInfo      */  500u,
+    /* 8  EMS_EnginePatsBatteryStat */  500u,
+    /* 9  EMS_OBD_Info              */  500u,
+    /* 10 IPK_EngineService         */ 3000u,  /* cycle 1 s    -> 3 s   */
+    /* 11 IPK_STS                   */  300u,
+    /* 12 IPK_SettingRequest        */  300u,
+};
+
+/* ---------------------------------------------------------------- *
  *  Lookup helpers (DBC-driven)                                      *
  * ---------------------------------------------------------------- */
 
@@ -72,20 +112,11 @@ static u16 prv_timeout_for(u16 idx)
     if (idx >= (u16)CAN_DB_IPK_MSG_COUNT) {
         return 0u;
     }
-    /* Per-message timeout table.  The DBC has no notion of cycle/
-     * timeout so this hand-authored parallel table is the source
-     * of truth.  Empty by default; populate in a follow-up batch
-     * once network analysis is done. */
-    static const struct {
-        u16  msg_index;
-        u16  timeout_ms;
-    } prv_timeout_table[1] = { { 0u, 0u } };
-    for (u32 i = 0; i < (u32)(sizeof(prv_timeout_table) / sizeof(prv_timeout_table[0])); i++) {
-        if (prv_timeout_table[i].msg_index == idx) {
-            return prv_timeout_table[i].timeout_ms;
-        }
-    }
-    return 0u;
+    /* Look up the per-message timeout from g_can_rx_timeout_table[].
+     * The DBC has no notion of cycle/timeout so this hand-authored
+     * parallel table is the source of truth.  Index matches
+     * can_msg_descs_ipk[]. 0 = do not monitor. */
+    return g_can_rx_timeout_table[idx];
 }
 
 /* ---------------------------------------------------------------- *
@@ -93,12 +124,12 @@ static u16 prv_timeout_for(u16 idx)
  * ---------------------------------------------------------------- */
 
 /**
- * @brief   mod_desc_t init hook: zero the timeout table.
- * @brief   mod_desc_t init 钩子: 清零超时表
+ * @brief   mod_desc_t mcu_init hook: zero the timeout table.
+ * @brief   mod_desc_t mcu_init 钩子: 清零超时表
  *
  * @param[in]  cold_boot  1 = cold boot, 0 = warm boot
  */
-static void prv_init(u8 cold_boot)
+static void prv_mcu_init(u8 cold_boot)
 {
     (void)cold_boot;
     for (u32 i = 0; i < MAX_RX_TRACKED; i++) {
@@ -203,9 +234,25 @@ static void prv_standby(void)
  * @brief   Module descriptor registered in scheduler.c
  * @brief   在 scheduler.c 中注册的模块描述符
  */
+/**
+ * @brief   mod_desc_t wakeup_init hook: post-MCU-init restore.
+ * @brief   mod_desc_t wakeup_init 钩子: MCU 初始化后的唤醒恢复
+ *
+ * @details Runs after mcu_init() and before on_ign_on(). Use this
+ *          hook to re-arm NVIC priorities, restore wake-source
+ *          state, or prime caches that mcu_init left in a known
+ *          reset configuration. Currently a stub for all modules
+ *          - extend when a module needs real wake-from-reset work.
+ */
+static void prv_wakeup_init(void)
+{
+    LOG_I("wakeup_init");
+}
+
 const mod_desc_t mod_can_rx = {
     .name      = "can_rx",
-    .init      = prv_init,
+    .mcu_init   = prv_mcu_init,
+    .wakeup_init = prv_wakeup_init,
     .on_ign_on = prv_on_ign_on,
     .tick      = prv_tick,
     .standby   = prv_standby,

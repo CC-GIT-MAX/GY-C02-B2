@@ -53,6 +53,41 @@ static struct {
     u16           tx_msg_idx[MAX_TX_TRACKED];   /**< map slot -> ipk index */
     u16           tx_count;                      /**< number of TX entries  */
 } s_tx;
+/* ---------------------------------------------------------------- *
+ *  TX cyclic period table                                            *
+ *                                                                    *
+ *  Per-IPK-TX-message cyclic send period.  Read by prv_build_tx_table *
+ *  during mcu_init to seed s_tx.payloads[].cycle_ms.  Override at    *
+ *  runtime via CanTx_SetCycle(). 0 = event-driven only (no cyclic).  *
+ * ---------------------------------------------------------------- */
+
+/**
+ * @brief   Static default cyclic period for every IPK TX message
+ * @brief   每条 IPK TX 报文的静态默认发送周期
+ *
+ * @details Index matches `can_msg_descs_ipk[]`. Entries for RX
+ *          messages are placeholders (0) and never read because
+ *          prv_build_tx_table only walks `is_tx==1` rows.
+ *
+ *          Adjust values here, or override at runtime via
+ *          CanTx_SetCycle(can_id, cycle_ms). Units: milliseconds.
+ */
+static const u16 g_can_tx_cycle_table[CAN_DB_IPK_MSG_COUNT] = {
+    /* 0  MMI_DateTime_Msg         (RX) */ 0u,
+    /* 1  MMI_GPS_Info5            (RX) */ 0u,
+    /* 2  MMI_Status_Info          (RX) */ 0u,
+    /* 3  MMI_Safety_Info          (RX) */ 0u,
+    /* 4  MMI_SOCSet               (RX) */ 0u,
+    /* 5  EMS_EngRelateTrqSts      (RX) */ 0u,
+    /* 6  EMS_EngineRPM            (RX) */ 0u,
+    /* 7  EMS_EngineDriverInfo     (RX) */ 0u,
+    /* 8  EMS_EnginePatsBatteryStat(RX) */ 0u,
+    /* 9  EMS_OBD_Info             (RX) */ 0u,
+    /* 10 IPK_EngineService        (TX) */ 1000u,  /* 1 s  */
+    /* 11 IPK_STS                  (TX) */ 100u,   /* 100 ms (mod_can_demo uses 200ms) */
+    /* 12 IPK_SettingRequest       (TX) */ 100u,   /* 100 ms (mod_can_demo uses 200ms) */
+};
+
 /**
  * @brief   Locate the slot index in s_tx for a given IPK TX can_id.
  * @brief   按 IPK TX can_id 查找 s_tx 中的 slot 索引
@@ -90,7 +125,9 @@ static void prv_build_tx_table(void)
         const u16 slot = s_tx.tx_count;
         s_tx.tx_msg_idx[slot] = i;
         s_tx.payloads[slot].dlc = can_msg_descs_ipk[i].dlc;
-        s_tx.payloads[slot].cycle_ms = 100u;   /* default: 100 ms; can be overridden per-msg */
+        /* Default cycle from g_can_tx_cycle_table[]. Override per-msg
+         * at runtime via CanTx_SetCycle(). */
+        s_tx.payloads[slot].cycle_ms = g_can_tx_cycle_table[i];
         for (u8 b = 0; b < 8u; b++) { s_tx.payloads[slot].data[b] = 0u; }
         s_tx.tx_count++;
     }
@@ -125,10 +162,10 @@ static void prv_send(u16 slot)
  * ---------------------------------------------------------------- */
 
 /**
- * @brief   mod_desc_t init hook: zero state and build TX slot map.
- * @brief   mod_desc_t init 钩子: 清零状态并构建 TX slot 映射
+ * @brief   mod_desc_t mcu_init hook: zero state and build TX slot map.
+ * @brief   mod_desc_t mcu_init 钩子: 清零状态并构建 TX slot 映射
  */
-static void prv_init(u8 cold_boot)
+static void prv_mcu_init(u8 cold_boot)
 {
     (void)cold_boot;
     for (u32 i = 0; i < MAX_TX_TRACKED; i++) {
@@ -189,9 +226,25 @@ static void prv_standby(void)
  * @brief   Module descriptor registered in scheduler.c
  * @brief   在 scheduler.c 中注册的模块描述符
  */
+/**
+ * @brief   mod_desc_t wakeup_init hook: post-MCU-init restore.
+ * @brief   mod_desc_t wakeup_init 钩子: MCU 初始化后的唤醒恢复
+ *
+ * @details Runs after mcu_init() and before on_ign_on(). Use this
+ *          hook to re-arm NVIC priorities, restore wake-source
+ *          state, or prime caches that mcu_init left in a known
+ *          reset configuration. Currently a stub for all modules
+ *          - extend when a module needs real wake-from-reset work.
+ */
+static void prv_wakeup_init(void)
+{
+    LOG_I("wakeup_init");
+}
+
 const mod_desc_t mod_can_tx = {
     .name      = "can_tx",
-    .init      = prv_init,
+    .mcu_init   = prv_mcu_init,
+    .wakeup_init = prv_wakeup_init,
     .on_ign_on = prv_on_ign_on,
     .tick      = prv_tick,
     .standby   = prv_standby,
