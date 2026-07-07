@@ -94,27 +94,35 @@ typedef enum {
     /* ---------------------------------------------------------------- *
      *  CAN receive status (timeout flags)                              *
      *                                                                    *
-     *  Two int32 bitfields cover all 64 RX messages in the IPK DBC:    *
-     *    SIG_CAN_RX_TIMEOUT_MAP_LO:  bits  0..31 -> rx_msg_idx 0..31    *
-     *    SIG_CAN_RX_TIMEOUT_MAP_HI:  bits  0..31 -> rx_msg_idx 32..63   *
+     *  Three int32 bitfields cover up to 96 RX messages in the IPK     *
+     *  DBC (room for ~24 additional RX messages before this needs     *
+     *  widening again):                                               *
+     *    SIG_CAN_RX_TIMEOUT_MAP_LO:   bits  0..31 -> rx_msg_idx  0..31  *
+     *    SIG_CAN_RX_TIMEOUT_MAP_HI:   bits  0..31 -> rx_msg_idx 32..63  *
+     *    SIG_CAN_RX_TIMEOUT_MAP_HI2:  bits  0..31 -> rx_msg_idx 64..95  *
      *                                                                    *
      *  Bit set means "no frame received within                          *
      *  g_can_rx_timeout_table[rx_msg_idx] ms".  Updated by              *
      *  mod_can_rx::prv_check_timeouts() every 50 ms.  Consumers read    *
      *  individual flags via                                            *
-     *    idx < 32  ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO) >> idx) & 1*
-     *    idx >= 32 ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI) >> (idx-32)) & 1*
+     *    idx < 32  ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO)  >> idx)     & 1*
+     *    32..63   ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI)  >> (idx-32)) & 1*
+     *    64..95   ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2) >> (idx-64)) & 1*
      *                                                                    *
      *  The early per-message bool signals (SIG_CAN_RX_TIMEOUT_0/_1)     *
      *  were removed; if a consumer needs a name, derive one from the    *
      *  bitfields instead of adding to the enum.                         *
      *                                                                    *
-     *  NOTE: TX messages and rx_msg_idx >= 64 have no timeout tracking  *
-     *  and never set a bit.  g_can_rx_timeout_table entries for those   *
-     *  rows are 0 (never monitored).                                    *
+     *  NOTE: TX messages and rx_msg_idx >= MAX_RX_TRACKED (96) have no   *
+     *  timeout tracking and never set a bit.                           *
+     *  g_can_rx_timeout_table entries for those rows are 0 (not         *
+     *  monitored).  When the cluster crosses 96 RX messages, extend    *
+     *  the bitmap by adding MAP_HI3 / MAP_HI4 entries below and bump    *
+     *  MAX_RX_TRACKED in app/can/can_rx.c - both must move together.    *
      * ---------------------------------------------------------------- */
-    SIG_CAN_RX_TIMEOUT_MAP_LO, /* int32, bits 0..31 = rx_msg_idx 0..31 timeout flags */
-    SIG_CAN_RX_TIMEOUT_MAP_HI, /* int32, bits 0..31 = rx_msg_idx 32..63 timeout flags */
+    SIG_CAN_RX_TIMEOUT_MAP_LO,  /* int32, bits  0..31 = rx_msg_idx  0..31 timeout flags */
+    SIG_CAN_RX_TIMEOUT_MAP_HI,  /* int32, bits  0..31 = rx_msg_idx 32..63 timeout flags */
+    SIG_CAN_RX_TIMEOUT_MAP_HI2, /* int32, bits  0..31 = rx_msg_idx 64..95 timeout flags */
 
     /* ---------------------------------------------------------------- *
      *  CAN bus health (error interrupt driven)                         *

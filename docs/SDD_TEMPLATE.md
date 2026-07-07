@@ -265,7 +265,8 @@ if (sample != last_sample) {
 
 ### 11.3 故障注入
 
-- [ ] 持续 1 s 无 CAN 帧 → SIG_CAN_RX_TIMEOUT_MAP 置位
+- [ ] 持续 1 s 无 CAN 帧 → 对应 bit 在 SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2} 中置位；
+      idx 由 g_can_rx_timeout_table[] 配置决定（>= 96 的报文不再监控，详见 SIG_CAN_RX_TIMEOUT_MAP_HI2 的 banner 注释）
 - [ ] ADC 通道短路 → 进入 FAULT
 
 ### 11.4 验收

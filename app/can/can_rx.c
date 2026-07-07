@@ -20,7 +20,7 @@
 #define LOG_NAME  "CRX "
 #include "log.h"
 
-#define MAX_RX_TRACKED  64u   /**< bitmap width of SIG_CAN_RX_TIMEOUT_MAP */
+#define MAX_RX_TRACKED  96u   /**< bitmap width of SIG_CAN_RX_TIMEOUT_MAP (LO+HI+HI2 = 3 slots x 32 bit) */
 
 typedef struct {
     u32 last_rx_tick_ms;  /**< RTI tick at last successful rx (0 = never) */
@@ -220,7 +220,9 @@ static void prv_wakeup_init(void)
  */
 static void prv_on_ign_on(void)
 {
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO, 0); Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI, 0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0);
 }
 /**
  * @brief   Drain pending frames from the RX ring and dispatch via
@@ -260,21 +262,25 @@ static void prv_drain(void)
 }
 
 /**
- * @brief   Walk the IPK descriptor table and update
- *          SIG_CAN_RX_TIMEOUT_MAP_LO / SIG_CAN_RX_TIMEOUT_MAP_HI.
- * @brief   遍历 IPK 描述符表, 更新 SIG_CAN_RX_TIMEOUT_MAP_LO/HI
+ * @brief   Walk the IPK descriptor table and update the three
+ *          bitmap slots of SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}.
+ * @brief   遍历 IPK 描述符表, 更新 SIG_CAN_RX_TIMEOUT_MAP_LO/HI/HI2
  *
  * @details For every RX descriptor with a configured timeout, set
- *          bit `idx` in either LO (idx 0..31) or HI (idx 32..63) if
- *          (now - last_rx_tick_ms[idx]) > timeout_ms.  TX rows
- *          (g_can_rx_timeout_table[i] == 0) are skipped.  Indices
- *          >= MAX_RX_TRACKED (64) are silently skipped.
+ *          bit `idx` in LO/HI/HI2 if
+ *          (now - last_rx_tick_ms[idx]) > timeout_ms[idx]:
+ *            idx  0..31 -> MAP_LO  (bit (idx))
+ *            idx 32..63 -> MAP_HI  (bit (idx - 32))
+ *            idx 64..95 -> MAP_HI2 (bit (idx - 64))
+ *          TX rows (g_can_rx_timeout_table[i] == 0) are skipped.
+ *          Indices >= MAX_RX_TRACKED (96) are silently skipped.
  */
 static void prv_check_timeouts(void)
 {
     const u32 now = RTI_GetTick1ms();
-    u32 map_lo = 0u;
-    u32 map_hi = 0u;
+    u32 map_lo  = 0u;
+    u32 map_hi  = 0u;
+    u32 map_hi2 = 0u;
     for (u16 i = 0; i < (u16)CAN_DB_IPK_MSG_COUNT; i++) {
         const u16 tmo = prv_timeout_for(i);
         if (tmo == 0u) continue;
@@ -283,12 +289,15 @@ static void prv_check_timeouts(void)
         if ((now - last) <= (u32)tmo) continue;
         if (i < 32u) {
             map_lo |= (1u << i);
-        } else {
+        } else if (i < 64u) {
             map_hi |= (1u << (i - 32u));
+        } else {
+            map_hi2 |= (1u << (i - 64u));
         }
     }
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO, (int32_t)map_lo);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI, (int32_t)map_hi);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  (int32_t)map_lo);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  (int32_t)map_hi);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, (int32_t)map_hi2);
 }
 
 /**
@@ -308,7 +317,9 @@ static void prv_tick(void)
  */
 static void prv_standby(void)
 {
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO, 0); Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI, 0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0);
 }
 
 /**
