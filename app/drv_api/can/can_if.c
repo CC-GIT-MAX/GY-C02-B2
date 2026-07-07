@@ -547,10 +547,30 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
               (unsigned)inst, (unsigned)mb_idx, (unsigned)can_id);
         return C02B2_ERR;
     }
+    /* Per YTM32B1M init flow: FLEXCAN_EnableRxFifo writes RXIMR[i] = 0
+     * for every MB outside the FIFO table.  That zeroes the per-MB ID
+     * mask, so any frame reaching this MB is filtered out before the
+     * CS-word ID compare runs.  ConfigRxMb itself does NOT touch
+     * RXIMR - we have to open the mask explicitly.  Use "all-ones" for
+     * exact-match (every ID bit must match the CS-word ID).  Set
+     * SetRxMaskType stays at the default GLOBAL: all MB indices
+     * 20..25 are >= 14 so they always consult RXIMR regardless of MRP,
+     * and SetRxIndividualMask correctly distinguishes STD vs EXT in
+     * the bit positions the compare logic cares about. */
+    const flexcan_msgbuff_id_type_t id_type = (ide != 0u) ? FLEXCAN_MSG_ID_EXT
+                                                          : FLEXCAN_MSG_ID_STD;
+    const uint32_t all_ones = (ide != 0u) ? 0x1FFFFFFFu : 0x7FFu;
+    if (FLEXCAN_DRV_SetRxIndividualMask(inst, id_type, mb_idx, all_ones)
+            != STATUS_SUCCESS) {
+        LOG_E("ConfigRxMb mask set failed inst=%u mb=%u",
+              (unsigned)inst, (unsigned)mb_idx);
+        return C02B2_ERR;
+    }
     /* Arm the MB so the driver writes into it on the next match. */
     if (FLEXCAN_DRV_Receive(inst, mb_idx, &s_rx_arm_buf) != STATUS_SUCCESS) {
         LOG_W("ConfigRxMb arm failed inst=%u mb=%u", (unsigned)inst, (unsigned)mb_idx);
     }
-    LOG_I("ConfigRxMb ch=%u mb=%u id=0x%X", (unsigned)ch, (unsigned)mb_idx, (unsigned)can_id);
+    LOG_I("ConfigRxMb ch=%u mb=%u id=0x%X ide=%u",
+          (unsigned)ch, (unsigned)mb_idx, (unsigned)can_id, (unsigned)ide);
     return C02B2_OK;
 }
