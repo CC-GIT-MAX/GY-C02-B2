@@ -538,10 +538,10 @@
                 },
                 {
                   "name": "LINFlexD0_CLK",
-                  "gate": false,
+                  "gate": true,
                   "busSrc": 0,
                   "periSrc": 4,
-                  "userCtrl": false,
+                  "userCtrl": true,
                   "busClock": [
                     "SLOW_BUS_CLK"
                   ],
@@ -556,10 +556,10 @@
                 },
                 {
                   "name": "LINFlexD1_CLK",
-                  "gate": true,
+                  "gate": false,
                   "busSrc": 0,
                   "periSrc": 4,
-                  "userCtrl": true,
+                  "userCtrl": false,
                   "busClock": [
                     "SLOW_BUS_CLK"
                   ],
@@ -646,10 +646,10 @@
                 },
                 {
                   "name": "SPI0_CLK",
-                  "gate": true,
+                  "gate": false,
                   "busSrc": 0,
                   "periSrc": 2,
-                  "userCtrl": true,
+                  "userCtrl": false,
                   "busClock": [
                     "SLOW_BUS_CLK"
                   ],
@@ -718,6 +718,18 @@
                 },
                 {
                   "name": "FlexCAN0_CLK",
+                  "gate": false,
+                  "busSrc": 0,
+                  "periSrc": 0,
+                  "userCtrl": false,
+                  "busClock": [
+                    "FAST_BUS_CLK",
+                    "FXOSC_CLK"
+                  ],
+                  "div": 0
+                },
+                {
+                  "name": "FlexCAN1_CLK",
                   "gate": true,
                   "busSrc": 0,
                   "periSrc": 0,
@@ -729,23 +741,11 @@
                   "div": 0
                 },
                 {
-                  "name": "FlexCAN1_CLK",
-                  "gate": false,
-                  "busSrc": 0,
-                  "periSrc": 0,
-                  "userCtrl": false,
-                  "busClock": [
-                    "FAST_BUS_CLK",
-                    "FXOSC_CLK"
-                  ],
-                  "div": 0
-                },
-                {
                   "name": "FlexCAN2_CLK",
-                  "gate": false,
+                  "gate": true,
                   "busSrc": 0,
                   "periSrc": 0,
-                  "userCtrl": false,
+                  "userCtrl": true,
                   "busClock": [
                     "FAST_BUS_CLK",
                     "FXOSC_CLK"
@@ -1062,7 +1062,7 @@
           }
         ]
       },
-      "updateTime": 1783072644481,
+      "updateTime": 1783418187737,
       "lock": false,
       "type": "driver"
     },
@@ -3951,9 +3951,22 @@
           "rxTransferType": "LINFlexD_UART_USING_DMA",
           "txDMAChannel": 1,
           "rxDMAChannel": 0
+        },
+        {
+          "name": "Printf_uart_config",
+          "readonly": true,
+          "baudrate": 500000,
+          "parityCheck": false,
+          "parityType": "LINFlexD_UART_PARITY_EVEN",
+          "stopBitsCount": "LINFlexD_UART_ONE_STOP_BIT",
+          "wordLength": "LINFlexD_UART_8_BITS",
+          "txTransferType": "LINFlexD_UART_USING_INTERRUPTS",
+          "rxTransferType": "LINFlexD_UART_USING_INTERRUPTS",
+          "txDMAChannel": 0,
+          "rxDMAChannel": 0
         }
       ],
-      "updateTime": 1783075123722,
+      "updateTime": 1783418212669,
       "lock": false,
       "type": "driver"
     },
@@ -3965,7 +3978,7 @@
           "readonly": true,
           "inst": 2,
           "max_num_mb": 32,
-          "num_id_filters": "FLEXCAN_RX_FIFO_ID_FILTERS_128",
+          "num_id_filters": "FLEXCAN_RX_FIFO_ID_FILTERS_72",
           "flexcanMode": "FLEXCAN_NORMAL_MODE",
           "payload": "FLEXCAN_PAYLOAD_SIZE_8",
           "fd_enable": false,
@@ -4029,7 +4042,7 @@
           }
         }
       ],
-      "updateTime": 1783072649106,
+      "updateTime": 1783419692189,
       "lock": false,
       "type": "driver"
     },
@@ -4722,9 +4735,9 @@
       "data": {
         "mode": "full_printf",
         "rtt": false,
-        "initUart": false,
+        "initUart": true,
         "initUartInst": 2,
-        "initUartName": "linflexd2_uart_config",
+        "initUartName": "Printf_uart_config",
         "rttConfig": {
           "maxUpNum": 3,
           "maxDownNum": 3,
@@ -4734,7 +4747,7 @@
           "rttMode": "NO_BLOCK_TRIM"
         }
       },
-      "updateTime": 1783072649325,
+      "updateTime": 1783418220556,
       "lock": false,
       "type": "middleware"
     }
