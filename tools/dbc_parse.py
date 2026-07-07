@@ -7,15 +7,15 @@
 
 @param[in]  argv[1]  path to the input .dbc file
 @param[in]  argv[2]  target node name (default: IPK)
-@param[in]  argv[3]  max RX messages to emit (default: 10)
-@param[in]  argv[4]  max TX messages to emit (default: 3)
+@param[in]  argv[3]  max RX messages to emit (default: 64)
+@param[in]  argv[4]  max TX messages to emit (default: 9)
 @param[out] stdout or --split out_dir writes generated source files
 
 @return  exit 0 on success
 
 Usage:
     python tools/dbc_parse.py <dbc> [node] [rx_n] [tx_n]
-    python tools/dbc_parse.py <dbc> IPK 10 3 --split app/can
+    python tools/dbc_parse.py <dbc> IPK 64 9 --split app/drv_api/can
 """
 from __future__ import annotations
 
@@ -232,8 +232,9 @@ def main():
         return 2
     dbc_path = sys.argv[1]
     node = sys.argv[2] if len(sys.argv) > 2 else "IPK"
-    rx_n = int(sys.argv[3]) if len(sys.argv) > 3 else 10
-    tx_n = int(sys.argv[4]) if len(sys.argv) > 4 else 3
+    # IPK node defaults to 64 RX + 9 TX per C02-B2 cluster DBC.
+    rx_n = int(sys.argv[3]) if len(sys.argv) > 3 else 64
+    tx_n = int(sys.argv[4]) if len(sys.argv) > 4 else 9
 
     all_msgs = parse_dbc(dbc_path)
     rx, tx = select_for_node(all_msgs, node, rx_n, tx_n)
