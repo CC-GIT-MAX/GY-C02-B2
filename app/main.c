@@ -6,7 +6,7 @@
 
 #include "bsp_init.h"
 #include "drv_init.h"
-#include "can_if.h"
+#include "drv_api/can/can_if.h"
 #include "rti.h"
 #include "scheduler.h"
 

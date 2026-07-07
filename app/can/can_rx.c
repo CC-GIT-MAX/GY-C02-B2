@@ -12,8 +12,8 @@
  * SIG_CAN_RX_TIMEOUT_MAP.
  */
 #include "can_rx.h"
-#include "can_if.h"
-#include "can_db.h"
+#include "drv_api/can/can_if.h"
+#include "drv_api/can/can_db.h"
 #include "rti.h"
 #include "signal.h"
 

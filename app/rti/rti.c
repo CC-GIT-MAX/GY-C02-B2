@@ -1,14 +1,19 @@
 /**
  * @file    rti.c
- * @brief   RTI tick implementation
+ * @brief   RTI tick implementation + LPTMR0 ISR hook
  *
- * NOTE: Hardware-specific. Project must:
- *   1. Configure LPTMR to fire @ 1 kHz (or use SysTick).
- *   2. In the ISR, call RTI_OnTick1ms() then clear the LPTMR flag.
- *   3. WDG feed is handled inside the ISR or by scheduler.
+ * Hardware-specific. The project must:
+ *   1. Configure LPTMR instance 0 to fire @ 1 kHz (board layer).
+ *   2. Enable the LPTMR0 IRQ in the NVIC (board/interrupt_config.c).
+ * The actual ISR handler `lpTMR0_IRQHandler` is provided at the
+ * bottom of this file - it is intentionally co-located with RTI
+ * because the only thing it does is drive the 1 ms tick.
+ *
+ * WDG feed is handled inside the ISR or by scheduler.
  */
 #include "rti.h"
 #include "rti_defer.h"
+#include "lptmr_driver.h"   /* lpTMR_DRV_ClearCompareFlag */
 
 /* Monotonic 1 ms counter. `volatile` because the ISR writes it. */
 static volatile uint32_t s_tick_ms = 0;
@@ -105,4 +110,27 @@ bool RTI_IsElapsed(rti_period_t period)
         return true;
     }
     return false;
+}
+
+/* ---------------------------------------------------------------- *
+ *  LPTMR0 ISR                                                       *
+ *                                                                    *
+ *  Drives the 1 ms RTI tick used by the scheduler / can_rx / can_tx.*
+ *  Must clear the LPTMR compare flag or the ISR will re-enter       *
+ *  immediately on return.                                            *
+ *                                                                    *
+ *  Compiled here (and not in board/vector_table_copy.c) because:    *
+ *    - the only job is to feed RTI;                                  *
+ *    - keeping it next to RTI makes the LPTMR <-> RTI contract       *
+ *      visible in one file;                                          *
+ *    - vector_table_copy.c only owns weak default stubs and is not   *
+ *      expected to provide strong handlers.                          *
+ *                                                                    *
+ *  The weak `lpTMR0_IRQHandler` stub in vector_table_copy.c was     *
+ *  deleted so the linker does not see two definitions (Pe247).       *
+ * ---------------------------------------------------------------- */
+void lpTMR0_IRQHandler(void)
+{
+    RTI_OnTick1ms();
+    lpTMR_DRV_ClearCompareFlag(0);
 }

@@ -15,8 +15,8 @@
  * scratch-buffer API.
  */
 #include "can_tx.h"
-#include "can_if.h"
-#include "can_db.h"
+#include "drv_api/can/can_if.h"
+#include "drv_api/can/can_db.h"
 #include "rti.h"
 #include "signal.h"
 
