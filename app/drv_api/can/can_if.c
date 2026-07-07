@@ -175,19 +175,67 @@ static void prv_flexcan_cb(u8 instance,
                            flexcan_state_t *state)
 {
     (void)state;
-    /* Only handle RX-FIFO completion; TX-complete / error handled separately. */
-    if (ev == FLEXCAN_EVENT_RXFIFO_COMPLETE) {
-        flexcan_msgbuff_t mb;
-        /* Pull raw frame from hardware mailbox. */
-        if (FLEXCAN_DRV_Receive(instance, (u8)buffIdx, &mb) == STATUS_SUCCESS) {
-            can_msg_t m;
-            /* Convert vendor format to portable can_msg_t. */
-            prv_extract_msg(&mb, &m);
-            /* Push to ring; on overflow drop silently (no blocking in ISR). */
-            (void)prv_ring_push(&m);
+    switch (ev) {
+        case FLEXCAN_EVENT_RXFIFO_COMPLETE: {
+            /* RX-FIFO: driver hands us one frame in
+             * state->mbs[FLEXCAN_MB_HANDLE_RXFIFO].mb_message.  We must
+             * use FLEXCAN_DRV_RxFifo (NOT FLEXCAN_DRV_Receive) to pull
+             * it out - Receive is for single-MB mode and will fail on
+             * a FIFO-enabled instance.  Drain in a loop until empty so
+             * burst traffic cannot starve later RX events. */
+            flexcan_msgbuff_t mb;
+            while (FLEXCAN_DRV_RxFifo(instance, &mb) == STATUS_SUCCESS) {
+                can_msg_t m;
+                prv_extract_msg(&mb, &m);
+                if (!prv_ring_push(&m)) {
+                    /* Ring full - drop and let the drain count surface it. */
+                    LOG_W("rx ring full (inst=%u id=0x%X dropped)",
+                          (unsigned)instance, (unsigned)m.id);
+                }
+            }
+            break;
         }
+        case FLEXCAN_EVENT_RXFIFO_WARNING: {
+            /* 5+ frames waiting - either bus is busy or consumer (tick)
+             * is starved.  Log once per warning event so the operator can
+             * correlate. */
+            LOG_W("rx fifo warning (inst=%u) - consumer slow?", (unsigned)instance);
+            break;
+        }
+        case FLEXCAN_EVENT_RXFIFO_OVERFLOW: {
+            /* At least one frame was overwritten by the hardware before
+             * we drained it.  This is a hard error: a real-world frame
+             * is lost.  Log + bump an internal counter (future patch:
+             * publish to signal bus). */
+            LOG_E("rx fifo OVERFLOW (inst=%u) - frame(s) lost!", (unsigned)instance);
+            break;
+        }
+        case FLEXCAN_EVENT_RX_COMPLETE: {
+            /* Single-MB RX (a Mailbox configured via CanIf_ConfigRxMb).
+             * buffIdx is the MB index; pull the frame from it. */
+            flexcan_msgbuff_t mb;
+            if (FLEXCAN_DRV_Receive(instance, (u8)buffIdx, &mb) == STATUS_SUCCESS) {
+                can_msg_t m;
+                prv_extract_msg(&mb, &m);
+                if (!prv_ring_push(&m)) {
+                    LOG_W("rx ring full (inst=%u mb=%u id=0x%X dropped)",
+                          (unsigned)instance, (unsigned)buffIdx,
+                          (unsigned)m.id);
+                }
+                /* Re-arm the MB so the next match writes into it again. */
+                (void)FLEXCAN_DRV_Receive(instance, (u8)buffIdx, &mb);
+            }
+            break;
+        }
+        case FLEXCAN_EVENT_TX_COMPLETE: {
+            /* Round-robin TX MB finished - no action needed, the next
+             * CanIf_Send call will pick an idle MB via prv_pick_tx_mb(). */
+            break;
+        }
+        default:
+            /* Errors / wakeup handled by separate error callback. */
+            break;
     }
-    /* TX-complete / error events can be hooked here later. */
 }
 
 /* -------------------------------------------------------------------- *
