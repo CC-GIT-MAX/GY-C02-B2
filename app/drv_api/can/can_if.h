@@ -59,6 +59,58 @@ c02b2_result_t CanIf_Init(void);
 c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg);
 
 /**
+ * @brief   Mailbox layout per channel (after RFFN is applied)
+ * @brief   每个通道的邮箱布局（FIFO 配置后）
+ *
+ * @details Per YTM32B1M Table 18.20:
+ *          - public_can  RFFN=8 (72 filters) -> FIFO occupies MB 0..23
+ *          - private_can RFFN=6 (56 filters) -> FIFO occupies MB 0..19
+ *
+ *          The MB windows below are reserved for the caller's use
+ *          (single-MB ID-mask RX + TX round-robin).  The constants
+ *          are channel-aware because the private bus has 6 extra
+ *          MB available for single-MB RX.
+ */
+typedef struct {
+    u8 rx_mb_first;   /**< First single-MB ID-mask RX mailbox (inclusive) */
+    u8 rx_mb_last;    /**< Last single-MB ID-mask RX mailbox (inclusive)  */
+    u8 tx_mb_first;   /**< First TX round-robin mailbox (always 26)      */
+    u8 tx_mb_last;    /**< Last TX round-robin mailbox (always 31)       */
+} can_mb_layout_t;
+
+/**
+ * @brief   Return the post-FIFO mailbox layout for a channel
+ * @brief   返回某通道 FIFO 配置之后的邮箱布局
+ *
+ * @param[in]  ch  Logical channel
+ *
+ * @return  can_mb_layout_t  RX/TX mailbox windows for the caller
+ */
+can_mb_layout_t CanIf_GetMbLayout(can_channel_t ch);
+
+/**
+ * @brief   Configure a single RX mailbox with an exact CAN id
+ * @brief   把单个接收邮箱配置为精确匹配某个 CAN id
+ *
+ * @details Uses one of the post-FIFO single-MB slots (24..25 on
+ *          public, 20..25 on private) so it does NOT collide with
+ *          the FIFO ID filter table or the TX round-robin pool.
+ *
+ * @param[in]  ch      Logical channel
+ * @param[in]  mb_idx  Mailbox index (must be inside the layout's
+ *                     rx_mb_first..rx_mb_last window)
+ * @param[in]  can_id  11-bit standard id to match exactly
+ * @param[in]  ide     0 = STD, 1 = EXT (extended id)
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK         Mailbox configured and armed for RX
+ * @retval  C02B2_ERR_PARAM  mb_idx outside the allowed RX window
+ */
+c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
+                                u32 can_id, u8 ide);
+
+
+/**
  * @brief   Register an RX callback (legacy stub)
  * @brief   注册一个 RX 回调（保留旧 API，无实际操作）
  *

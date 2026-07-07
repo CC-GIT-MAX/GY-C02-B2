@@ -34,6 +34,9 @@ typedef struct {
 
 static can_rx_ring_t s_rx_ring;
 
+/** Reusable scratch buffer used when arming single-MB RX. */
+static flexcan_msgbuff_t s_rx_arm_buf;
+
 /**
  * @brief   Lock-free single-producer push; drops frame on overflow.
  * @brief   无锁单生产者入队；环满时丢弃最新帧
@@ -188,6 +191,60 @@ static void prv_flexcan_cb(u8 instance,
 }
 
 /* -------------------------------------------------------------------- *
+ *  TX mailbox round-robin                                                *
+ *                                                                     *
+ *  Per YTM32B1M Table 18.20:                                          *
+ *    public_can  RFFN=8 (72 filters) -> FIFO occupies MB 0..23         *
+ *    private_can RFFN=6 (56 filters) -> FIFO occupies MB 0..19         *
+ *                                                                     *
+ *  MB 26..31 are reserved for TX on both channels and are polled       *
+ *  round-robin (next available MB wins).  The cursor is per-channel   *
+ *  so PUBLIC and PRIVATE never collide on the same hardware MB.       *
+ * -------------------------------------------------------------------- */
+#define CAN_TX_MB_FIRST  26u   /**< First TX mailbox (inclusive)        */
+#define CAN_TX_MB_LAST   31u   /**< Last TX mailbox (inclusive)         */
+#define CAN_TX_MB_COUNT   6u   /**< Number of TX mailboxes for round-robin */
+
+/** Per-channel round-robin cursor into the 26..31 TX mailbox window. */
+static u8 s_tx_cursor[CAN_CH_MAX] = { CAN_TX_MB_FIRST, CAN_TX_MB_FIRST };
+
+/**
+ * @brief   Pick the next TX mailbox via round-robin
+ * @brief   通过轮询选取下一个发送邮箱
+ *
+ * @details Walks MB 26..31 in order and returns the first one whose
+ *          driver state is FLEXCAN_MB_IDLE (i.e. not currently
+ *          transmitting).  When all six are busy the function
+ *          returns 0xFFu so the caller can report ERR_BUSY.
+ *
+ *          The start cursor is the channel's last successful TX
+ *          mailbox (s_tx_cursor[ch]) so that load spreads evenly
+ *          and a mailbox that just finished is preferred for the
+ *          next frame.
+ *
+ * @param[in]  inst  flexcan instance index (for status query)
+ * @param[in]  ch    Logical channel (advances its cursor on success)
+ *
+ * @return  u8  Selected mailbox index (26..31), or 0xFFu if all busy
+ */
+static u8 prv_pick_tx_mb(u8 inst, can_channel_t ch)
+{
+    u8 start = s_tx_cursor[ch];
+    for (u8 off = 0; off < CAN_TX_MB_COUNT; off++) {
+        u8 mb = (u8)(CAN_TX_MB_FIRST +
+                     ((start - CAN_TX_MB_FIRST + off) % CAN_TX_MB_COUNT));
+        if (FLEXCAN_DRV_GetTransferStatus(inst, mb) != STATUS_BUSY) {
+            s_tx_cursor[ch] = (u8)(mb + 1u);
+            if (s_tx_cursor[ch] > CAN_TX_MB_LAST) {
+                s_tx_cursor[ch] = CAN_TX_MB_FIRST;
+            }
+            return mb;
+        }
+    }
+    return 0xFFu;  /* all six TX mailboxes busy */
+}
+
+/* -------------------------------------------------------------------- *
  *  Public API
  * -------------------------------------------------------------------- */
 
@@ -281,13 +338,18 @@ c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
     info.data_length = msg->dlc;
     info.is_remote   = (msg->rtr != 0u);
 
-    /* Reuse MB 30 (public) / 31 (private) as TX slots. The YTM32B1M SDK
-     * FLEXCAN_DRV_Send takes (inst, mb_idx, &info, msg_id, mb_data) -
-     * five arguments with mb_data as const uint8_t*, NOT a flexcan_msgbuff_t.
-     * The driver fills the MB CS word (id type, dlc, remote bit) from
-     * tx_info internally; no separate FLEXCAN_DRV_ConfigTxMb call is
-     * required for one-shot sends. */
-    u8 mb_idx = (ch == CAN_CH_PUBLIC) ? 30u : 31u;
+    /* Round-robin pick from MB 26..31. prv_pick_tx_mb() returns
+     * 0xFFu when all six are busy, in which case we report
+     * C02B2_ERR_BUSY and let the caller retry next tick. */
+    u8 mb_idx = prv_pick_tx_mb(inst, ch);
+    if (mb_idx == 0xFFu) {
+        LOG_W("send id=0x%X all 6 TX MB busy", (unsigned)msg->id);
+        return C02B2_ERR_BUSY;
+    }
+    /* FLEXCAN_DRV_Send takes (inst, mb_idx, &info, msg_id, mb_data):
+     * the driver fills the MB CS word (id type, dlc, remote bit)
+     * from tx_info internally; no separate FLEXCAN_DRV_ConfigTxMb
+     * call is required for one-shot sends. */
     status_t r = FLEXCAN_DRV_Send(inst, mb_idx, &info, msg->id, msg->data);
     if (r != STATUS_SUCCESS) {
         LOG_W("send id=0x%X failed (%d)", (unsigned)msg->id, (int)r);
@@ -406,4 +468,89 @@ u32 CanIf_RxPending(void)
     u8 tail = s_rx_ring.tail;
     /* +CAN_RX_RING_SIZE guards against negative intermediate when head < tail. */
     return (u32)((head + CAN_RX_RING_SIZE - tail) % CAN_RX_RING_SIZE);
+}
+
+
+/**
+ * @brief   Return the post-FIFO mailbox layout for a channel
+ * @brief   返回某通道 FIFO 配置之后的邮箱布局
+ *
+ * @details Hard-coded from board/can_config.c:
+ *          - public_can  : FIFO 0..23 (72 filters),  RX 24..25,  TX 26..31
+ *          - private_can : FIFO 0..19 (56 filters),  RX 20..25,  TX 26..31
+ *
+ * @param[in]  ch  Logical channel
+ *
+ * @return  can_mb_layout_t  RX/TX mailbox windows for the caller
+ */
+can_mb_layout_t CanIf_GetMbLayout(can_channel_t ch)
+{
+    can_mb_layout_t lay;
+    if (ch == CAN_CH_PUBLIC) {
+        /* public_can:  RFFN=8 (72 filters) -> FIFO MB 0..23 */
+        lay.rx_mb_first = 24u;
+        lay.rx_mb_last  = 25u;
+        lay.tx_mb_first = CAN_TX_MB_FIRST;
+        lay.tx_mb_last  = CAN_TX_MB_LAST;
+    } else {
+        /* private_can: RFFN=6 (56 filters) -> FIFO MB 0..19 */
+        lay.rx_mb_first = 20u;
+        lay.rx_mb_last  = 25u;
+        lay.tx_mb_first = CAN_TX_MB_FIRST;
+        lay.tx_mb_last  = CAN_TX_MB_LAST;
+    }
+    return lay;
+}
+
+/**
+ * @brief   Configure a single RX mailbox with an exact CAN id
+ * @brief   把单个接收邮箱配置为精确匹配某个 CAN id
+ *
+ * @details Wraps FLEXCAN_DRV_ConfigRxMb so application code does not
+ *          have to know the post-FIFO mailbox window.  The mailbox
+ *          index must be inside the channel's rx_mb_first..rx_mb_last
+ *          range returned by CanIf_GetMbLayout(); anything else is
+ *          rejected to avoid stomping on the FIFO ID filter table
+ *          or the TX round-robin pool.
+ *
+ * @param[in]  ch      Logical channel
+ * @param[in]  mb_idx  Mailbox index
+ * @param[in]  can_id  11-bit standard id to match
+ * @param[in]  ide     0 = STD, 1 = EXT
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK         Mailbox configured and armed for RX
+ * @retval  C02B2_ERR_PARAM  mb_idx outside the allowed RX window or
+ *                           the SDK rejected the configuration
+ */
+c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
+                                u32 can_id, u8 ide)
+{
+    const can_mb_layout_t lay = CanIf_GetMbLayout(ch);
+    if (mb_idx < lay.rx_mb_first || mb_idx > lay.rx_mb_last) {
+        LOG_W("ConfigRxMb: mb=%u outside RX window [%u..%u] on ch=%u",
+              (unsigned)mb_idx,
+              (unsigned)lay.rx_mb_first, (unsigned)lay.rx_mb_last,
+              (unsigned)ch);
+        return C02B2_ERR_PARAM;
+    }
+    const u8 inst = prv_logical_to_inst(ch);
+    flexcan_data_info_t info;
+    info.msg_id_type = (ide != 0u) ? FLEXCAN_MSG_ID_EXT : FLEXCAN_MSG_ID_STD;
+    info.data_length = 8u;
+    info.fd_enable   = false;
+    info.fd_padding  = 0u;
+    info.enable_brs  = false;
+    info.is_remote   = false;
+    if (FLEXCAN_DRV_ConfigRxMb(inst, mb_idx, &info, can_id) != STATUS_SUCCESS) {
+        LOG_E("ConfigRxMb failed inst=%u mb=%u id=0x%X",
+              (unsigned)inst, (unsigned)mb_idx, (unsigned)can_id);
+        return C02B2_ERR;
+    }
+    /* Arm the MB so the driver writes into it on the next match. */
+    if (FLEXCAN_DRV_Receive(inst, mb_idx, &s_rx_arm_buf) != STATUS_SUCCESS) {
+        LOG_W("ConfigRxMb arm failed inst=%u mb=%u", (unsigned)inst, (unsigned)mb_idx);
+    }
+    LOG_I("ConfigRxMb ch=%u mb=%u id=0x%X", (unsigned)ch, (unsigned)mb_idx, (unsigned)can_id);
+    return C02B2_OK;
 }

@@ -20,7 +20,11 @@ flexcan_state_t public_can_State;
 
 const flexcan_user_config_t public_can = {
     .max_num_mb = 32UL,
-    .num_id_filters = FLEXCAN_RX_FIFO_ID_FILTERS_128,
+    /* RFFN=8 -> 72 RX FIFO filters -> FIFO consumes MB 0..23
+     * (per YTM32B1M Table 18.20). Leaves MB 24..31 free:
+     *   MB 24..25  = single-MB ID-mask RX (for range / specific ID)
+     *   MB 26..31  = TX round-robin poll (6 mailboxes) */
+    .num_id_filters = FLEXCAN_RX_FIFO_ID_FILTERS_72,
     .is_rx_fifo_needed = true,
     .flexcanMode = FLEXCAN_NORMAL_MODE,
     .payload = FLEXCAN_PAYLOAD_SIZE_8,
@@ -54,6 +58,10 @@ flexcan_state_t private_can_State;
 
 const flexcan_user_config_t private_can = {
     .max_num_mb = 32UL,
+    /* RFFN=6 -> 56 RX FIFO filters -> FIFO consumes MB 0..19
+     * (per YTM32B1M Table 18.20). Leaves MB 20..31 free:
+     *   MB 20..25  = single-MB ID-mask RX (for range / specific ID)
+     *   MB 26..31  = TX round-robin poll (6 mailboxes) */
     .num_id_filters = FLEXCAN_RX_FIFO_ID_FILTERS_56,
     .is_rx_fifo_needed = true,
     .flexcanMode = FLEXCAN_NORMAL_MODE,
