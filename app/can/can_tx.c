@@ -138,15 +138,15 @@ static const u16 g_can_tx_cycle_table[CAN_DB_IPK_MSG_COUNT] = {
     /*  61 IPU_Temperature                  (RX) */ 0u,
     /*  62 IPU_Warning                      (RX) */ 0u,
     /*  63 TRM_StatusInfo                   (RX) */ 0u,
-    /*  64 IPK_EngineService                (TX) */ 1000u,  /* 1 s   */
-    /*  65 IPK_STS                          (TX) */ 100u,  /* 100 ms; mod_can_demo overrides to 200 ms */
-    /*  66 IPK_SettingRequest               (TX) */ 100u,  /* 100 ms; mod_can_demo overrides to 200 ms */
-    /*  67 IPK_Fuel_Sts                     (TX) */ 100u,  /* 100 ms; mod_can_demo overrides to 200 ms */
-    /*  68 IPK_TotalOdometer                (TX) */ 500u,  /* 500 ms */
-    /*  69 IPK_DateTime_Info                (TX) */ 500u,  /* 500 ms */
-    /*  70 IPK_Fuel_Info                    (TX) */ 500u,  /* 500 ms */
-    /*  71 IPK_ODO_Consump                  (TX) */ 500u,  /* 500 ms */
-    /*  72 NWM_IPK                          (TX) */ 500u,  /* 500 ms */
+    /*  64 IPK_EngineService                (TX) */ 1000u,
+    /*  65 IPK_STS                          (TX) */ 100u,
+    /*  66 IPK_SettingRequest               (TX) */ 100u,
+    /*  67 IPK_Fuel_Sts                     (TX) */ 100u,
+    /*  68 IPK_TotalOdometer                (TX) */ 500u,
+    /*  69 IPK_DateTime_Info                (TX) */ 500u,
+    /*  70 IPK_Fuel_Info                    (TX) */ 500u,
+    /*  71 IPK_ODO_Consump                  (TX) */ 500u,
+    /*  72 NWM_IPK                          (TX) */ 500u,
 };
 
 /**

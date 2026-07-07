@@ -13,9 +13,28 @@
 
 @return  exit 0 on success
 
+Side-effect flags (write artefacts to disk, can be combined):
+    --split OUT_DIR        Write can_db_<node>_gen.{h,c} into OUT_DIR
+    --emit-signal-block OUT
+                           Write app/signal/signal.h CAN section to OUT
+                           (splice between SIG_CAN_RX_TIMEOUT_MAP_HI and
+                           SIG_MAX; consumer script handles the splice)
+    --emit-map OUT         Write the s_dbc_to_bus[CAN_DB_IPK_SIG_COUNT]
+                           designated-init body (without the array
+                           declaration) to OUT.  Splice in can_db.c.
+    --emit-tables OUT_TX OUT_RX
+                           Write g_can_tx_cycle_table and
+                           g_can_rx_timeout_table bodies (without the
+                           static const u16 ... declarations) to OUT_TX
+                           and OUT_RX.  Splice in can_tx.c and can_rx.c.
+
 Usage:
     python tools/dbc_parse.py <dbc> [node] [rx_n] [tx_n]
     python tools/dbc_parse.py <dbc> IPK 64 9 --split app/drv_api/can
+    python tools/dbc_parse.py <dbc> IPK 64 9 \
+        --emit-signal-block _signal_can_block.txt \
+        --emit-map _s_dbc_to_bus_block.txt \
+        --emit-tables _cycle.txt _timeout.txt
 """
 from __future__ import annotations
 
@@ -23,6 +42,7 @@ import re
 import sys
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
+from pathlib import Path
 
 
 @dataclass
@@ -184,8 +204,8 @@ def emit_source(node, msgs, enum_names):
                 f"        .length       = {s.length},\n"
                 f"        .byte_order   = {s.byte_order},\n"
                 f"        .is_signed    = {1 if s.is_signed else 0},\n"
-                f"        .factor       = {_format_float(s.factor)}f,\n"
-                f"        .offset       = {_format_float(s.offset)}f,\n"
+                f"        .factor       = {_format_float_c(s.factor)}f,\n"
+                f"        .offset       = {_format_float_c(s.offset)}f,\n"
                 f"        .raw_type     = {raw_t},\n"
                 f"    }},"
             )
@@ -226,6 +246,144 @@ def emit_source(node, msgs, enum_names):
     return "\n".join(L)
 
 
+
+def _format_float(v):
+    """Format a float for human display (signal annotations)."""
+    if v == int(v):
+        return f"{int(v)}"
+    s = f"{v:.6g}"
+    return s if s else "0"
+
+def _format_float_c(v):
+    """Format a float as a C99 float literal, always with a decimal
+    point and at most 9 significant digits. Output without a trailing
+    f; caller appends that suffix."""
+    iv = int(v)
+    if v == iv:
+        return f"{iv}.0"
+    s = f"{v:.9g}"
+    return s if s else "0.0"
+
+
+def emit_signal_block(selected):
+    """Emit the SIG_CAN_<Name> block for app/signal/signal.h.
+
+    Each entry is annotated with raw-range and factor/offset so a reader
+    can tell what kind of value to expect on the signal bus.  Grouped by
+    message with a /* 0x<id> <name> (RX|TX)  dlc=<n> */ banner.
+    """
+    out = []
+    sig_iter = []
+    for m in selected:
+        for s in m.signals:
+            sig_iter.append((m, s))
+    # signals inside a message
+    sig_idx = 0
+    for m in selected:
+        rx_tx = "TX" if m.transmitter == _get_self_node() else "RX"
+        out.append(f"/* 0x{m.can_id:03X} {m.name} ({rx_tx})  dlc={m.dlc} */")
+        for s in m.signals:
+            length = s.length
+            is_signed = bool(s.is_signed)
+            if is_signed:
+                vmin = -(1 << (length - 1)) * s.factor + s.offset
+                vmax = ((1 << (length - 1)) - 1) * s.factor + s.offset
+            else:
+                vmin = 0.0 * s.factor + s.offset
+                vmax = ((1 << length) - 1) * s.factor + s.offset
+            def _f(v):
+                if v == int(v):
+                    return f"{int(v)}"
+                s_ = f"{v:.6g}"
+                return s_ if s_ else "0"
+            fact_str = f"raw*{_f(s.factor)}" if s.factor != 1.0 else "raw*1"
+            if s.offset != 0.0:
+                op = "+" if s.offset >= 0 else ""
+                fact_str += f"{op}{_f(s.offset)}"
+            rng = f"[{_f(vmin)}..{_f(vmax)}]"
+            out.append(
+                f"    SIG_CAN_{s.name},/* {length}bit "
+                f"{'signed' if is_signed else 'unsigned'} {fact_str} {rng} */"
+            )
+            sig_idx += 1
+    return "\n".join(out) + "\n"
+
+
+def emit_map_body(selected):
+    """Emit the s_dbc_to_bus[] designated-init body for can_db.c."""
+    out = ["static const signal_id_t s_dbc_to_bus[CAN_DB_IPK_SIG_COUNT] = {",
+           "    [0] = SIG_INVALID, /* CAN_DB_SIG_INVALID */"]
+    for m in selected:
+        for s in m.signals:
+            out.append(f"    [CAN_DB_SIG_{s.name} - 1u] = SIG_CAN_{s.name},")
+    out.append("};")
+    return "\n".join(out) + "\n"
+
+
+def _default_cycle_ms(msg):
+    """Heuristic default cyclic send period for a TX message (ms).
+
+    100 ms for STS / SettingRequest, 500 ms for fuel / odo / datetime,
+    1 s for service / NWM / everything else.
+    """
+    n = msg.name.lower()
+    if "sts" in n or "settingrequest" in n:
+        return 100
+    if any(k in n for k in ("fuel_info", "fuel_sts", "odo", "datetime", "nwm")):
+        return 500
+    return 1000
+
+
+def emit_tx_cycle_table(selected, node):
+    """Emit g_can_tx_cycle_table[CAN_DB_IPK_MSG_COUNT] body."""
+    out = [
+        "/* AUTOGENERATED by tools/dbc_parse.py. */",
+        "static const u16 g_can_tx_cycle_table[CAN_DB_IPK_MSG_COUNT] = {",
+    ]
+    for i, m in enumerate(selected):
+        rx_tx = "TX" if m.transmitter == node else "RX"
+        cyc = _default_cycle_ms(m) if m.transmitter == node else 0
+        out.append(f"    /* {i:>3} {m.name:<32} ({rx_tx}) */ {cyc}u,")
+    out.append("};")
+    return "\n".join(out) + "\n"
+
+
+def emit_rx_timeout_table(selected, node):
+    """Emit g_can_rx_timeout_table[CAN_DB_IPK_MSG_COUNT] body.
+
+    Heuristic: cycle * 3 rounded up to nearest 50 ms.  TX rows = 0
+    (not monitored).  Unknown cycle = 0 (no monitoring).
+    """
+    out = [
+        "/* AUTOGENERATED by tools/dbc_parse.py. */",
+        "static const u16 g_can_rx_timeout_table[CAN_DB_IPK_MSG_COUNT] = {",
+    ]
+    for i, m in enumerate(selected):
+        rx_tx = "TX" if m.transmitter == node else "RX"
+        if m.transmitter == node:
+            tmo = 0  # TX rows not monitored
+            note = "  /* TX row, not monitored */"
+        else:
+            cyc = _default_cycle_ms(m)
+            if cyc == 0:
+                tmo = 0
+                note = ""
+            else:
+                tmo = ((cyc * 3 + 49) // 50) * 50
+                note = "  /* cycle * 3, round 50 ms */"
+        out.append(f"    /* {i:>3} {m.name:<32} ({rx_tx}) */ {tmo}u,{note}")
+    out.append("};")
+    return "\n".join(out) + "\n"
+
+
+def _get_self_node():
+    """Helper: the node argument passed by the user (set by main())."""
+    return _SELF_NODE[0]
+
+
+_SELF_NODE = [None]
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__, file=sys.stderr)
@@ -248,13 +406,34 @@ def main():
     header = emit_header(node, selected, enum_names)
     source = emit_source(node, selected, enum_names)
 
+    _SELF_NODE[0] = node
+
+    if "--emit-signal-block" in sys.argv:
+        out = sys.argv[sys.argv.index("--emit-signal-block") + 1]
+        Path(out).write_text(emit_signal_block(selected), encoding="utf-8")
+        print(f"signal block -> {out}", file=sys.stderr)
+
+    if "--emit-map" in sys.argv:
+        out = sys.argv[sys.argv.index("--emit-map") + 1]
+        Path(out).write_text(emit_map_body(selected), encoding="utf-8")
+        print(f"map body -> {out}", file=sys.stderr)
+
+    if "--emit-tables" in sys.argv:
+        i = sys.argv.index("--emit-tables")
+        out_tx = sys.argv[i + 1]
+        out_rx = sys.argv[i + 2]
+        Path(out_tx).write_text(emit_tx_cycle_table(selected, node), encoding="utf-8")
+        Path(out_rx).write_text(emit_rx_timeout_table(selected, node), encoding="utf-8")
+        print(f"cycle table -> {out_tx}", file=sys.stderr)
+        print(f"timeout table -> {out_rx}", file=sys.stderr)
+
     if "--split" in sys.argv:
         out_dir = sys.argv[sys.argv.index("--split") + 1]
         with open(f"{out_dir}/can_db_{node.lower()}_gen.h", "w", encoding="utf-8") as f:
             f.write(header)
         with open(f"{out_dir}/can_db_{node.lower()}_gen.c", "w", encoding="utf-8") as f:
             f.write(source)
-    else:
+    elif not any(f in sys.argv for f in ("--emit-signal-block", "--emit-map", "--emit-tables")):
         sys.stdout.write(f"/* === FILE: can_db_{node.lower()}_gen.h === */\n")
         sys.stdout.write(header)
         sys.stdout.write(f"/* === FILE: can_db_{node.lower()}_gen.c === */\n")
