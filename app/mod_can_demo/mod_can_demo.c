@@ -86,6 +86,20 @@ static void prv_mcu_init(uint8_t cold_boot)
           (unsigned)DEMO_TX_B_CAN_ID, (unsigned)DEMO_TX_B_CYCLE_MS,
           (unsigned)DEMO_TX_B_SIG_ID);
 }
+/**
+ * @brief   mod_desc_t wakeup_init hook: post-MCU-init restore.
+ * @brief   mod_desc_t wakeup_init 钩子: MCU 初始化后的唤醒恢复
+ *
+ * @details Runs after mcu_init() and before on_ign_on(). Use this
+ *          hook to re-arm NVIC priorities, restore wake-source
+ *          state, or prime caches that mcu_init left in a known
+ *          reset configuration. Currently a stub for all modules
+ *          - extend when a module needs real wake-from-reset work.
+ */
+static void prv_wakeup_init(void)
+{
+    LOG_I("wakeup_init");
+}
 
 static void prv_on_ign_on(void)
 {
@@ -201,21 +215,6 @@ static void prv_standby(void)
 /* ---------------------------------------------------------------- *
  *  Module descriptor                                                *
  * ---------------------------------------------------------------- */
-/**
- * @brief   mod_desc_t wakeup_init hook: post-MCU-init restore.
- * @brief   mod_desc_t wakeup_init 钩子: MCU 初始化后的唤醒恢复
- *
- * @details Runs after mcu_init() and before on_ign_on(). Use this
- *          hook to re-arm NVIC priorities, restore wake-source
- *          state, or prime caches that mcu_init left in a known
- *          reset configuration. Currently a stub for all modules
- *          - extend when a module needs real wake-from-reset work.
- */
-static void prv_wakeup_init(void)
-{
-    LOG_I("wakeup_init");
-}
-
 const mod_desc_t mod_can_demo = {
     .name      = "can_demo",
     .mcu_init   = prv_mcu_init,
