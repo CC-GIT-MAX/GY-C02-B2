@@ -22,6 +22,8 @@
 #include "log.h"
 #include "signal.h"
 
+#include "osif.h"           /* OSIF_GetMilliseconds for busy-warn dedup */
+
 /* -------------------------------------------------------------------- *
  *  Ring buffer of received frames
  * -------------------------------------------------------------------- */
@@ -387,6 +389,13 @@ static void prv_flexcan_err_cb(u8 instance,
 /** Per-channel round-robin cursor into the 26..31 TX mailbox window. */
 static u8 s_tx_cursor[CAN_CH_MAX] = { CAN_TX_MB_FIRST, CAN_TX_MB_FIRST };
 
+/* Cooldown for the "all 6 TX MB busy" warning. The can_tx sweep
+ * can legitimately hit the mailbox ceiling on cold boot while
+ * draining a backlog of due frames; warn at most once per window
+ * to keep the log readable. */
+#define CAN_TX_BUSY_WARN_COOLDOWN_MS  200u
+static u32 s_tx_busy_warn_ms[CAN_CH_MAX] = { 0u, 0u };
+
 /**
  * @brief   Pick the next TX mailbox via round-robin
  * @brief   通过轮询选取下一个发送邮箱
@@ -539,7 +548,16 @@ c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
      * C02B2_ERR_BUSY and let the caller retry next tick. */
     u8 mb_idx = prv_pick_tx_mb(inst, ch);
     if (mb_idx == 0xFFu) {
-        LOG_W("send id=0x%X all 6 TX MB busy", (unsigned)msg->id);
+        /* Mailbox pool exhausted (cold-boot backlog, transient
+         * bus saturation). Log at most once per cooldown window
+         * per channel; can_tx will retry the deferred frame on
+         * the next sweep. */
+        const u32 now_ms = OSIF_GetMilliseconds();
+        if ((now_ms - s_tx_busy_warn_ms[ch]) >= CAN_TX_BUSY_WARN_COOLDOWN_MS) {
+            s_tx_busy_warn_ms[ch] = now_ms;
+            LOG_W("send id=0x%X all 6 TX MB busy (suppressed %ums)",
+                  (unsigned)msg->id, (unsigned)CAN_TX_BUSY_WARN_COOLDOWN_MS);
+        }
         return C02B2_ERR_BUSY;
     }
     /* FLEXCAN_DRV_Send takes (inst, mb_idx, &info, msg_id, mb_data):

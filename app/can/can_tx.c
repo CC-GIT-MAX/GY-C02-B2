@@ -26,6 +26,11 @@
 
 #define MAX_TX_TRACKED  32u
 
+/* Upper bound on TX frames that can be in flight on a single
+ * bus. Matches the CAN2 MB 26..31 reservation (6 MBs). Keep in
+ * sync with CAN_TX_MB_COUNT in app/drv_api/can/can_if.c. */
+#define CAN_TX_BUDGET   6u
+
 typedef struct {
     u32 last_send_tick_ms;   /**< RTI tick at last successful tx (0 = never) */
     u8  pending;             /**< set by CanTx_Trigger, cleared after send   */
@@ -263,8 +268,41 @@ static void prv_on_ign_on(void)
 {
     const u32 now = RTI_GetTick1ms();
     s_tx.sweep_tick_ms = now;
+    /* Phase-stagger every TX slot by tmo/tx_count so that
+     * messages sharing the same cycle period do not expire
+     * on the same 10 ms sweep. With 9 messages and 3 sharing
+     * 100 ms, the three are spread across 33 ms each; with
+     * 5 sharing 500 ms, they spread across 100 ms each.
+     *
+     * Effect on long-run:
+     *   3 x 100 ms   - never more than 1 due per 10 ms sweep
+     *   5 x 500 ms   - never more than 1 due per 100 ms sweep
+     *   1 x 1000 ms  - never overlaps others in the same sweep
+     * Steady-state: 1-2 TX frames per sweep, well below the
+     * CAN_TX_BUDGET=6 ceiling. The budget guard in prv_tick
+     * stays as defense-in-depth.
+     *
+     * Effect on cold boot: all 9 messages would otherwise
+     * expire simultaneously on the first sweep (and spam
+     * the can_if "all 6 TX MB busy" warning). With stagger,
+     * the first sweep sees 1 message, the next sees another,
+     * and the full backlog drains cleanly within ~1 s.
+     */
     for (u16 i = 0; i < s_tx.tx_count; i++) {
-        s_tx.track[i].last_send_tick_ms = now;
+        const u16 tmo = s_tx.payloads[i].cycle_ms;
+        if (tmo == 0u) {
+            /* Event-driven: stamp as "just sent" so it does
+             * not fire spuriously if a Trigger sneaks in. */
+            s_tx.track[i].last_send_tick_ms = now;
+        } else {
+            /* offset = i * tmo / tx_count gives 0..tmo spread
+             * with the wrap point sitting at slot tx_count-1.
+             * Subtracting from now makes the slot look like it
+             * sent <offset> ms ago, so the next due instant is
+             * <tmo - offset> ms from now. */
+            const u32 offset = ((u32)i * (u32)tmo) / (u32)s_tx.tx_count;
+            s_tx.track[i].last_send_tick_ms = now - offset;
+        }
     }
 }
 
@@ -283,15 +321,27 @@ static void prv_tick(void)
     const u32 now = RTI_GetTick1ms();
     if ((now - s_tx.sweep_tick_ms) < 10u) return;
     s_tx.sweep_tick_ms = now;
+    /* TX budget guard. The CAN2 bus has only CAN_TX_BUDGET
+     * mailboxes reserved for TX; looping through every slot
+     * and sending all that are due would (a) exceed the MB
+     * pool, and (b) emit a spammy "all 6 TX MB busy" warning
+     * on every cold boot. Cap each sweep at CAN_TX_BUDGET
+     * frames; anything left over is picked up on the next
+     * 10 ms sweep. */
+    u8 sent_this_sweep = 0u;
     for (u16 i = 0; i < s_tx.tx_count; i++) {
+        if (sent_this_sweep >= CAN_TX_BUDGET) {
+            break;
+        }
         const u16 tmo = s_tx.payloads[i].cycle_ms;
         if (tmo == 0u) {
             /* Event-driven only. */
-            if (s_tx.track[i].pending) { prv_send(i); }
+            if (s_tx.track[i].pending) { prv_send(i); sent_this_sweep++; }
             continue;
         }
         if ((now - s_tx.track[i].last_send_tick_ms) >= tmo) {
             prv_send(i);
+            sent_this_sweep++;
         }
     }
 }
