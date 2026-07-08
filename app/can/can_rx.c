@@ -8,8 +8,10 @@
  * dispatches it via `CanDb_DispatchByDb`.  Unknown IDs are logged
  * at DEBUG (could be a future frame).
  *
- * A 50 ms timer walks the descriptor table to refresh
- * SIG_CAN_RX_TIMEOUT_MAP.
+ * Timeout monitor (50 ms tick) walks the 96-entry
+ * `s_bit_to_can_id[]` lookup table (Sentinel strategy) and updates
+ * SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}.  bit-N is per-CAN-ID so DBC
+ * message reordering does not shift the bit numbering.
  */
 #include "can_rx.h"
 #include "drv_api/can/can_if.h"
@@ -180,6 +182,57 @@ static u16 prv_timeout_for(u16 idx)
     return g_can_rx_timeout_table[idx];
 }
 
+/**
+ * @brief   Look up the bit-N for a given CAN ID via the Sentinel table.
+ * @brief   在 Sentinel 表中查找某 CAN ID 对应的 bit-N
+ *
+ * @details Linear search over s_bit_to_can_id[].  Returns 0xFFu when
+ *          the CAN ID is not assigned a bit (deleted-DBC sentinel,
+ *          reserved pool, or unknown ID).  O(96) worst case which
+ *          is fine for a 50 ms tick on Cortex-M0+.
+ *
+ * @param[in]  can_id  11-bit standard CAN identifier
+ *
+ * @return  u8  bit index (0..95) or 0xFFu if not mapped
+ */
+static u8 prv_bit_for_can_id(u32 can_id)
+{
+    for (u8 b = 0u; b < (u8)CAN_BITMAP_MAX; b++) {
+        if (s_bit_to_can_id[b] == can_id) {
+            return b;
+        }
+    }
+    return 0xFFu;
+}
+
+/**
+ * @brief   Read the per-bit timeout (ms) from the existing per-idx table.
+ * @brief   从既有的 per-idx 超时表中读取对应 bit 的超时值
+ *
+ * @details Translates bit-N back to the descriptor index so the
+ *          hand-authored (or DBC-regenerated) g_can_rx_timeout_table
+ *          can be re-used as-is.  TX rows return 0 (not monitored).
+ *
+ * @param[in]  bit  bit index 0..95
+ *
+ * @return  u16  Timeout in milliseconds (0 = do not monitor)
+ */
+static u16 prv_timeout_for_bit(u8 bit)
+{
+    if (bit >= (u8)CAN_BITMAP_MAX) {
+        return 0u;
+    }
+    const u32 can_id = s_bit_to_can_id[bit];
+    if (can_id == sentinel_unused) {
+        return 0u;
+    }
+    const u16 idx = prv_find_ipk_index(can_id);
+    if (idx == 0xFFFFu) {
+        return 0u;
+    }
+    return g_can_rx_timeout_table[idx];
+}
+
 /* ---------------------------------------------------------------- *
  *  Module lifecycle                                                 *
  * ---------------------------------------------------------------- */
@@ -248,8 +301,11 @@ static void prv_drain(void)
         if (idx != 0xFFFFu) {
             /* Known frame: hand off to the DBC dispatcher. */
             CanDb_DispatchByDb(&can_msg_descs_ipk[idx], m.data);
-            if (idx < MAX_RX_TRACKED) {
-                s_rx.track[idx].last_rx_tick_ms = RTI_GetTick1ms();
+            /* Stamp the per-bit-N last-rx tick (Sentinel: bit-N is
+             * stable across DBC reorders; the table is the SoT). */
+            const u8 bit = prv_bit_for_can_id(m.id);
+            if (bit < (u8)CAN_BITMAP_MAX) {
+                s_rx.track[bit].last_rx_tick_ms = RTI_GetTick1ms();
             }
         } else {
             /* Unknown id -- not necessarily an error. */
@@ -281,18 +337,20 @@ static void prv_check_timeouts(void)
     u32 map_lo  = 0u;
     u32 map_hi  = 0u;
     u32 map_hi2 = 0u;
-    for (u16 i = 0; i < (u16)CAN_DB_IPK_MSG_COUNT; i++) {
-        const u16 tmo = prv_timeout_for(i);
+    /* Walk the 96-bit Sentinel table.  sentinel_unused (DBC-deleted
+     * or reserved-pool) bits are skipped by prv_timeout_for_bit()
+     * returning 0, so they are permanently 0 in the bitmap. */
+    for (u8 bit = 0u; bit < (u8)CAN_BITMAP_MAX; bit++) {
+        const u16 tmo = prv_timeout_for_bit(bit);
         if (tmo == 0u) continue;
-        if (i >= MAX_RX_TRACKED) break;
-        const u32 last = s_rx.track[i].last_rx_tick_ms;
+        const u32 last = s_rx.track[bit].last_rx_tick_ms;
         if ((now - last) <= (u32)tmo) continue;
-        if (i < 32u) {
-            map_lo |= (1u << i);
-        } else if (i < 64u) {
-            map_hi |= (1u << (i - 32u));
+        if (bit < 32u) {
+            map_lo |= ((u32)1u << bit);
+        } else if (bit < 64u) {
+            map_hi |= ((u32)1u << (bit - 32u));
         } else {
-            map_hi2 |= (1u << (i - 64u));
+            map_hi2 |= ((u32)1u << (bit - 64u));
         }
     }
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  (int32_t)map_lo);

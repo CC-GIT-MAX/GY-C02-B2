@@ -11,6 +11,8 @@
            - app/drv_api/can/can_db.c              (s_dbc_to_bus[] body)
            - app/can/can_tx.c                      (g_can_tx_cycle_table[] body)
            - app/can/can_rx.c                      (g_can_rx_timeout_table[] body)
+  - app/drv_api/can/can_db_ipk_gen.c      (s_bit_to_can_id[] body;
+                                              Sentinel timeout bitmap)
 
          Each splice anchors on the existing table / banner line, so
          it tolerates hand-tweaked prose around the table.
@@ -85,17 +87,19 @@ def run_parser(dbc: Path, node: str, rx_n: int, tx_n: int,
     m = SCRATCH / "map.txt"
     t = SCRATCH / "tx.txt"
     r = SCRATCH / "rx.txt"
+    b = SCRATCH / "bitmap.txt"
     cmd = [sys.executable, str(PARSER), str(dbc), node,
            str(rx_n), str(tx_n),
            "--split", str(out_dir),
            "--emit-signal-block", str(s),
            "--emit-map", str(m),
-           "--emit-tables", str(t), str(r)]
+           "--emit-tables", str(t), str(r),
+           "--emit-bitmap-map", str(b)]
     print("[regen] $ " + " ".join(cmd))
     rc = subprocess.run(cmd, check=False).returncode
     if rc != 0:
         sys.exit(f"dbc_parse.py failed ({rc})")
-    return dict(signal=s, map=m, cycle=t, timeout=r)
+    return dict(signal=s, map=m, cycle=t, timeout=r, bitmap=b)
 
 
 def splice_signal_block(block: Path, target: Path, dry: bool):
@@ -174,7 +178,13 @@ def main():
         r"(static const u16 g_can_rx_timeout_table\[CAN_DB_IPK_MSG_COUNT\] = \{\n)",
         a.dry_run, "can_rx.c g_can_rx_timeout_table",
     )
-    print("[regen] all 5 artefacts refreshed.")
+    splice_table_body(
+        arts["bitmap"],
+        GEN_OUT / f"can_db_{a.node.lower()}_gen.c",
+        r"(const u32 s_bit_to_can_id\[CAN_BITMAP_MAX\] = \{\n)",
+        a.dry_run, "can_db_ipk_gen.c s_bit_to_can_id",
+    )
+    print("[regen] all 6 artefacts refreshed.")
     return 0
 
 

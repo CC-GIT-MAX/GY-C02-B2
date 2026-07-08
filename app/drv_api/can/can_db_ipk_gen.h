@@ -641,4 +641,25 @@ typedef enum {
 #define CAN_DB_IPK_RX_COUNT   (64u)
 #define CAN_DB_IPK_TX_COUNT   (9u)
 
+/* ---------------------------------------------------------------- */
+/* RX timeout bitmap                                               */
+/*                                                                 */
+/* CAN_BITMAP_MAX is the width of the 3-slot timeout bitmap         */
+/* (SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}) and the SOC-facing        */
+/* bit-N encoding.  Layout (per Sentinel strategy):                */
+/*   bit  0..63  allocated to RX messages (DBC drives assignment)  */
+/*   bit 64..95  reserved pool for future RX additions             */
+/* A bit whose s_bit_to_can_id[] entry is 0 is a sentinel_unused   */
+/* slot (historically mapped to a now-removed DBC message); it     */
+/* is permanently 0 and never set by the timeout monitor.         */
+/* ---------------------------------------------------------------- */
+#define CAN_BITMAP_MAX          (96u)
+#define CAN_BITMAP_RX_ALLOC_MAX (64u)  /* RX allocations cap (bit 0..63) */
+#define sentinel_unused          (0u)
+
+/* Per-bit CAN ID lookup table (Sentinel). */
+/* Definition lives in can_db_<node>_gen.c; consumers */
+/* include this header to get the prototype. */
+extern const u32 s_bit_to_can_id[CAN_BITMAP_MAX];
+
 #endif /* CAN_DB_IPK_GEN_H */

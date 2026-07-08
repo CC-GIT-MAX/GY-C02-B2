@@ -34,15 +34,28 @@ Usage:
     python tools/dbc_parse.py <dbc> IPK 64 9 \
         --emit-signal-block _signal_can_block.txt \
         --emit-map _s_dbc_to_bus_block.txt \
-        --emit-tables _cycle.txt _timeout.txt
+        --emit-tables _cycle.txt _timeout.txt \
+        --emit-bitmap-map _bitmap.txt
+
+Side-effect flag for the Sentinel timeout bitmap:
+    --emit-bitmap-map OUT
+                           Write s_bit_to_can_id[CAN_BITMAP_MAX] body
+                           (without the array declaration) to OUT.
+                           Splice in can_db_<node>_gen.c.  Reads and
+                           writes .bitmap_state.json so bit numbers
+                           stay stable across DBC revisions.
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 from pathlib import Path
+
+_CURRENT_BITMAP_TABLE = [0] * 96
+_BITMAP_STATE_FILE = ".bitmap_state.json"
 
 
 @dataclass
@@ -183,6 +196,27 @@ def emit_header(node, msgs, enum_names):
     L.append(f"#define CAN_DB_{node.upper()}_RX_COUNT   ({rx_n}u)")
     L.append(f"#define CAN_DB_{node.upper()}_TX_COUNT   ({tx_n}u)")
     L.append("")
+    L.append("/* ---------------------------------------------------------------- */")
+    L.append("/* RX timeout bitmap                                               */")
+    L.append("/*                                                                 */")
+    L.append("/* CAN_BITMAP_MAX is the width of the 3-slot timeout bitmap         */")
+    L.append("/* (SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}) and the SOC-facing        */")
+    L.append("/* bit-N encoding.  Layout (per Sentinel strategy):                */")
+    L.append("/*   bit  0..63  allocated to RX messages (DBC drives assignment)  */")
+    L.append("/*   bit 64..95  reserved pool for future RX additions             */")
+    L.append("/* A bit whose s_bit_to_can_id[] entry is 0 is a sentinel_unused   */")
+    L.append("/* slot (historically mapped to a now-removed DBC message); it     */")
+    L.append("/* is permanently 0 and never set by the timeout monitor.         */")
+    L.append("/* ---------------------------------------------------------------- */")
+    L.append("#define CAN_BITMAP_MAX          (96u)")
+    L.append("#define CAN_BITMAP_RX_ALLOC_MAX (64u)  /* RX allocations cap (bit 0..63) */")
+    L.append("#define sentinel_unused          (0u)")
+    L.append("")
+    L.append("/* Per-bit CAN ID lookup table (Sentinel). */")
+    L.append("/* Definition lives in can_db_<node>_gen.c; consumers */")
+    L.append("/* include this header to get the prototype. */")
+    L.append("extern const u32 s_bit_to_can_id[CAN_BITMAP_MAX];")
+    L.append("")
     L.append(f"#endif /* {guard} */")
     L.append("")
     return "\n".join(L)
@@ -248,12 +282,94 @@ def emit_source(node, msgs, enum_names):
     L.append("    " + (", ".join(f"{i}u" for i in tx_idx) + ("," if tx_idx else "")))
     L.append("};")
     L.append("")
+    L.append("/* === Per-bit CAN ID lookup (Sentinel) === */")
+    L.append("/* Index = SIG_CAN_RX_TIMEOUT_MAP_LO/HI/HI2 bit-N. */")
+    L.append("/* bit-N -> CAN ID; sentinel_unused = 0 means the bit is reserved, deleted, or in the reserved pool; the timeout monitor never sets such bits. */")
+    L.append("const u32 s_bit_to_can_id[CAN_BITMAP_MAX] = {")
+    for chunk in range(3):
+        base = chunk * 32
+        L.append("    /* bit {0:>2}..{1:>2} */  {2},".format(
+            base, base + 31,
+            ", ".join("0x{:04X}u".format(_CURRENT_BITMAP_TABLE[base + i]) for i in range(32)),
+        ))
+    L.append("};")
+    L.append("")
     L.append(f"#define CAN_DB_{node.upper()}_RX_COUNT  ({len(rx_idx)}u)")
     L.append(f"#define CAN_DB_{node.upper()}_TX_COUNT  ({len(tx_idx)}u)")
     L.append("")
     return "\n".join(L)
 
 
+
+def load_bitmap_state(path):
+    "Return {bit: can_id} from a previous regen, or empty dict."
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    out = {}
+    for k, v in raw.items():
+        try:
+            out[int(k)] = int(v)
+        except (TypeError, ValueError):
+            continue
+    return out
+
+def save_bitmap_state(path, state):
+    "Persist {bit: can_id} so the next regen honours Sentinel."
+    serialised = {str(b): c for b, c in sorted(state.items())}
+    path.write_text(json.dumps(serialised, indent=2) + chr(10), encoding="utf-8")
+
+def assign_bitmap(selected, node, prev_state):
+    "Compute the new s_bit_to_can_id[96] table (Sentinel)."
+    rx_ids = [m.can_id for m in selected if m.transmitter != node]
+    rx_set = set(rx_ids)
+    # Sentinel rule: a bit once assigned keeps its slot forever.
+    # If its CAN ID is removed from the DBC, the bit stays at
+    # sentinel_unused; it is NOT re-allocated.
+    locked = {b: c for b, c in prev_state.items() if c in rx_set and b < 64}
+    retired_bits = {b for b, c in prev_state.items() if c not in rx_set and b < 64}
+    locked_ids = set(locked.values())
+    used_bits = set(locked.keys()) | retired_bits
+    new_assignments = {}
+    next_bit = 0
+    for cid in rx_ids:
+        if cid in locked_ids:
+            continue
+        while next_bit in used_bits or next_bit >= 64:
+            next_bit += 1
+            if next_bit >= 64:
+                break
+        if next_bit >= 64:
+            break
+        new_assignments[next_bit] = cid
+        used_bits.add(next_bit)
+        next_bit += 1
+    table = [0] * 96
+    merged = {}
+    merged.update(locked)
+    merged.update(new_assignments)
+    for b, c in merged.items():
+        if 0 <= b < 96:
+            table[b] = c
+    return table, merged
+
+def emit_bitmap_map_body(table):
+    "Emit s_bit_to_can_id[CAN_BITMAP_MAX] body."
+    out = [
+        "/* AUTOGENERATED by tools/dbc_parse.py -- do not edit by hand. */",
+        "const u32 s_bit_to_can_id[CAN_BITMAP_MAX] = {",
+    ]
+    for chunk in range(3):
+        base = chunk * 32
+        out.append("    /* bit {0:>2}..{1:>2} */  {2},".format(
+            base, base + 31,
+            ", ".join("0x{:04X}u".format(table[base + i]) for i in range(32)),
+        ))
+    out.append("};")
+    return chr(10).join(out) + chr(10)
 
 def _format_float(v):
     """Format a float for human display (signal annotations)."""
@@ -560,6 +676,12 @@ def main():
         Path(out).write_text(emit_map_body(selected), encoding="utf-8")
         print(f"map body -> {out}", file=sys.stderr)
 
+    # Compute bitmap table (always; emit_source needs it).
+    global _CURRENT_BITMAP_TABLE
+    prev_bitmap_state = load_bitmap_state(Path(_BITMAP_STATE_FILE))
+    _bitmap_table_96, new_bitmap_state = assign_bitmap(selected, node, prev_bitmap_state)
+    _CURRENT_BITMAP_TABLE = _bitmap_table_96
+
     if "--emit-tables" in sys.argv:
         i = sys.argv.index("--emit-tables")
         out_tx = sys.argv[i + 1]
@@ -568,6 +690,12 @@ def main():
         Path(out_rx).write_text(emit_rx_timeout_table(selected, node), encoding="utf-8")
         print(f"cycle table -> {out_tx}", file=sys.stderr)
         print(f"timeout table -> {out_rx}", file=sys.stderr)
+
+    if "--emit-bitmap-map" in sys.argv:
+        out = sys.argv[sys.argv.index("--emit-bitmap-map") + 1]
+        Path(out).write_text(emit_bitmap_map_body(_CURRENT_BITMAP_TABLE), encoding="utf-8")
+        save_bitmap_state(Path(_BITMAP_STATE_FILE), new_bitmap_state)
+        print(f"bitmap map -> {out}", file=sys.stderr)
 
     if "--split" in sys.argv:
         out_dir = sys.argv[sys.argv.index("--split") + 1]
