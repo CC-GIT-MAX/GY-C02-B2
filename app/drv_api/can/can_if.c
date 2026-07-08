@@ -507,7 +507,23 @@ c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_
 c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
 {
     u8 inst = prv_logical_to_inst(ch);
-    flexcan_data_info_t info;
+    /* Zero-init every field up front; we then overwrite only the
+     * fields the driver actually needs for classic CAN.  Without
+     * this, fd_enable / fd_padding / enable_brs pick up stack
+     * garbage and the driver puts CAN-FD frames on a classic-CAN
+     * bus -- the analyzer sees nothing, the driver counts bit
+     * errors, and we end up in a BUS_OFF / recover loop.
+     * Designated-initializer used so the enum-typed fields stay
+     * enum-typed (silences Pe188 that plain = { 0 } would
+     * trigger: 0 is int, fields are flexcan_msg_id_type_t). */
+    flexcan_data_info_t info = {
+        .msg_id_type = FLEXCAN_MSG_ID_STD,
+        .data_length = 0u,
+        .fd_enable   = false,
+        .fd_padding  = 0u,
+        .enable_brs  = false,
+        .is_remote   = false,
+    };
 
     /* Select 11-bit / 29-bit id format. msg->ide is u8 to stay portable;
      * the comparison is wrapped in a conditional to silence Pe188 (enum
@@ -715,13 +731,19 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
         return C02B2_ERR_PARAM;
     }
     const u8 inst = prv_logical_to_inst(ch);
-    flexcan_data_info_t info;
+    /* Designated-init to silence Pe188 (0-as-int into enum fields)
+     * while keeping every boolean field explicitly false.  Same
+     * defensive style as CanIf_Send: never trust stack garbage
+     * on boolean driver flags. */
+    flexcan_data_info_t info = {
+        .msg_id_type = FLEXCAN_MSG_ID_STD,
+        .data_length = 8u,
+        .fd_enable   = false,
+        .fd_padding  = 0u,
+        .enable_brs  = false,
+        .is_remote   = false,
+    };
     info.msg_id_type = (ide != 0u) ? FLEXCAN_MSG_ID_EXT : FLEXCAN_MSG_ID_STD;
-    info.data_length = 8u;
-    info.fd_enable   = false;
-    info.fd_padding  = 0u;
-    info.enable_brs  = false;
-    info.is_remote   = false;
     if (FLEXCAN_DRV_ConfigRxMb(inst, mb_idx, &info, can_id) != STATUS_SUCCESS) {
         LOG_E("ConfigRxMb failed inst=%u mb=%u id=0x%X",
               (unsigned)inst, (unsigned)mb_idx, (unsigned)can_id);
@@ -754,3 +776,5 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
           (unsigned)ch, (unsigned)mb_idx, (unsigned)can_id, (unsigned)ide);
     return C02B2_OK;
 }
+
+
