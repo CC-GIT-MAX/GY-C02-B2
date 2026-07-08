@@ -18,6 +18,7 @@
 #include "drv_api/can/can_if.h"
 #include "drv_api/can/can_db.h"
 #include "rti.h"
+#include "osif.h"
 #include "signal.h"
 
 #define LOG_NAME  "CTX "
@@ -48,6 +49,7 @@ typedef struct {
 
 static struct {
     bool          init_done;
+    u32           sweep_tick_ms;  /* OSIF tick at last successful sweep */
     tx_track_t    track[MAX_TX_TRACKED];
     tx_payload_t  payloads[MAX_TX_TRACKED];
     u16           tx_msg_idx[MAX_TX_TRACKED];   /**< map slot -> ipk index */
@@ -235,6 +237,7 @@ static void prv_mcu_init(u8 cold_boot)
     }
     prv_build_tx_table();
     s_tx.init_done = true;
+    s_tx.sweep_tick_ms = OSIF_GetMilliseconds();
     LOG_I("init (cold=%u, tx=%u)", (unsigned)cold_boot, (unsigned)s_tx.tx_count);
 }
 /**
@@ -259,6 +262,7 @@ static void prv_wakeup_init(void)
 static void prv_on_ign_on(void)
 {
     const u32 now = RTI_GetTick1ms();
+    s_tx.sweep_tick_ms = now;
     for (u16 i = 0; i < s_tx.tx_count; i++) {
         s_tx.track[i].last_send_tick_ms = now;
     }
@@ -271,8 +275,14 @@ static void prv_on_ign_on(void)
 static void prv_tick(void)
 {
     if (!s_tx.init_done) return;
-    if (!RTI_IsElapsed(RTI_10MS)) return;
+    /* Self-paced 10 ms sweep gate. Scheduler_Run is high-frequency
+     * (>= 1 ms/tick on this M33 build), so a static RTI_IsElapsed
+     * slot would be re-stamped on every call and never fire.
+     * Owning the sweep cadence here keeps the cyclic rate correct
+     * regardless of super-loop frequency. */
     const u32 now = RTI_GetTick1ms();
+    if ((now - s_tx.sweep_tick_ms) < 10u) return;
+    s_tx.sweep_tick_ms = now;
     for (u16 i = 0; i < s_tx.tx_count; i++) {
         const u16 tmo = s_tx.payloads[i].cycle_ms;
         if (tmo == 0u) {
