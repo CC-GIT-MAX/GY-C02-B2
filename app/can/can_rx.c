@@ -159,30 +159,6 @@ static u16 prv_find_ipk_index(u32 can_id)
 }
 
 /**
- * @brief   Look up the timeout configured for a given message.
- * @brief   查找某条报文配置的超时值
- *
- * @details Reads a per-message timeout from a small static table.
- *          The DBC has no notion of cycle/timeout so we keep a
- *          hand-authored parallel table (see prv_timeout_table[]).
- *
- * @param[in]  idx  Index into can_msg_descs_ipk[]
- *
- * @return  u16  Timeout in milliseconds (0 = do not monitor)
- */
-static u16 prv_timeout_for(u16 idx)
-{
-    if (idx >= (u16)CAN_DB_IPK_MSG_COUNT) {
-        return 0u;
-    }
-    /* Look up the per-message timeout from g_can_rx_timeout_table[].
-     * The DBC has no notion of cycle/timeout so this hand-authored
-     * parallel table is the source of truth.  Index matches
-     * can_msg_descs_ipk[]. 0 = do not monitor. */
-    return g_can_rx_timeout_table[idx];
-}
-
-/**
  * @brief   Look up the bit-N for a given CAN ID via the Sentinel table.
  * @brief   在 Sentinel 表中查找某 CAN ID 对应的 bit-N
  *

@@ -381,7 +381,6 @@
           <state>$PROJ_DIR$/../app/signal</state>
           <state>$PROJ_DIR$/../app/storage</state>
           <state>$PROJ_DIR$/../app/mod_template</state>
-          <state>$PROJ_DIR$/../app/mod_can_demo</state>
           <state>$PROJ_DIR$/../app/drv_api/can</state>
           <state>$PROJ_DIR$/../app/drv_api/lptmr</state>
           <state>$PROJ_DIR$/../app/drv_api/adc</state>
@@ -1302,15 +1301,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$/../app/signal/signal_test.c</name>
-      </file>
-    </group>
-    <group>
-      <name>mod_can_demo</name>
-      <file>
-        <name>$PROJ_DIR$/../app/mod_can_demo/mod_can_demo.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/mod_can_demo/mod_can_demo.h</name>
       </file>
     </group>
     <group>

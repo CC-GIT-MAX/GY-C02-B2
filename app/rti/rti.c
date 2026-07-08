@@ -82,8 +82,15 @@ bool RTI_IsFirstCall(void)
  */
 bool RTI_IsElapsed(rti_period_t period)
 {
-    /* 8 static slots, one per supported period. */
-    static uint32_t s_last[8] = {0};
+    /* 8 static slots, one per supported period. Each slot has a
+     * parallel `inited` flag so the FIRST call stamps the current
+     * OSIF tick and returns false. This avoids the historic edge
+     * case where every slot started at 0 and an early call from a
+     * different period could accidentally over-stamp the wrong slot
+     * (the static was zero-initialised and the `now - 0 >= period`
+     * check always succeeded, then overwrote the wrong index). */
+    static uint32_t s_last[8] = {0,0,0,0,0,0,0,0};
+    static bool     s_inited[8] = {false,false,false,false,false,false,false,false};
     const uint32_t now = OSIF_GetMilliseconds();
     uint32_t slot;
     switch (period) {
@@ -96,6 +103,11 @@ bool RTI_IsElapsed(rti_period_t period)
         case RTI_500MS:  slot = 6; break;
         case RTI_1000MS: slot = 7; break;
         default:         return false;
+    }
+    if (!s_inited[slot]) {
+        s_last[slot] = now;
+        s_inited[slot] = true;
+        return false;
     }
     if (now - s_last[slot] >= (uint32_t)period) {
         s_last[slot] = now;
