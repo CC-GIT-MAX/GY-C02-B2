@@ -221,7 +221,7 @@ const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0] = 
             .width = 0U,
         },
         .gpioBase = GPIOC,
-        .direction = GPIO_INPUT_DIRECTION,
+        .direction = GPIO_OUTPUT_DIRECTION,
         .initValue = 0,
     },
     /* PTB_1-33-GPIO- */

@@ -364,29 +364,29 @@
                 "dsEnable": false
               },
               "cmu0": {
-                "reset": false,
+                "reset": true,
                 "ref": 0,
-                "enable": false,
+                "enable": true,
                 "compareHigh": 50,
                 "compareLow": 30
               },
               "cmu1": {
-                "reset": false,
+                "reset": true,
                 "ref": 0,
-                "enable": false,
+                "enable": true,
                 "compareHigh": 120,
                 "compareLow": 72
               },
               "cmu2": {
-                "reset": false,
+                "reset": true,
                 "ref": 0,
-                "enable": false,
+                "enable": true,
                 "compareHigh": 150,
                 "compareLow": 90
               },
               "cmu3": {
-                "reset": false,
-                "enable": false,
+                "reset": true,
+                "enable": true,
                 "ref": 0,
                 "compareHigh": 30,
                 "compareLow": 18
@@ -1062,7 +1062,7 @@
           }
         ]
       },
-      "updateTime": 1783418187737,
+      "updateTime": 1783509286631,
       "lock": false,
       "type": "driver"
     },
@@ -3378,7 +3378,7 @@
                 "feature": "GPIO",
                 "alt": "PCTRL_MUX_AS_GPIO",
                 "intCfg": "PCTRL_DMA_INT_DISABLED",
-                "direction": "GPIO_INPUT_DIRECTION",
+                "direction": "GPIO_OUTPUT_DIRECTION",
                 "pullEnable": 0,
                 "pullSelect": "",
                 "filter": false,
@@ -3816,7 +3816,7 @@
         ],
         "curIdx": "0"
       },
-      "updateTime": 1783499204005,
+      "updateTime": 1783509406557,
       "lock": false,
       "type": "driver"
     },

@@ -148,29 +148,29 @@ const scu_config_t clock_config0ScuConfig = {
 
 const cmu_config_t clock_config0CmuConfig = {
     .slowBusMonitor={
-        .enable = false,                 
-        .resetEnable = false,           
+        .enable = true,                 
+        .resetEnable = true,           
         .refClock = CMU_REF_SIRC_CLOCK,              
         .compareHigh = (50 * 128 / 12),        
         .compareLow = (30 * 128 / 12),       
     },
     .fircClockMonitor={
-        .enable = false,                 
-        .resetEnable = false,           
+        .enable = true,                 
+        .resetEnable = true,           
         .refClock = CMU_REF_SIRC_CLOCK,              
         .compareHigh = (120 * 128 / 12),        
         .compareLow = (72 * 128 / 12),         
     },
     .pllClockMonitor={
-        .enable = false,                 
-        .resetEnable = false,           
+        .enable = true,                 
+        .resetEnable = true,           
         .refClock = CMU_REF_SIRC_CLOCK,              
         .compareHigh = (150 * 128 / 12),        
         .compareLow = (90 * 128 / 12),         
     },
     .fxoscClockMonitor={
-        .enable = false,                 
-        .resetEnable = false,           
+        .enable = true,                 
+        .resetEnable = true,           
         .refClock = CMU_REF_SIRC_CLOCK,              
         .compareHigh = (30 * 128 / 12),        
         .compareLow = (18 * 128 / 12),         
