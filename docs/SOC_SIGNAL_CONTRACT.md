@@ -254,6 +254,44 @@ DBC 是 CAN 侧的源数据。它**可以**频繁修订（DBC 是和车厂联合
   - 或者 `g_can_rx_timeout_table` 里有非零条目——SOC 协议把 timeout bitfield
     转成超时事件，需要重新建表
 
+### Sentinel 超时位图策略
+
+SOC 超时状态依赖 `SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}` 这 3 个
+int32 位字段，覆盖 `CAN_BITMAP_MAX = 96` 个 bit（bit 0..95）。
+按 Sentinel 策略，**bit-N 与 CAN ID 一一绑定**，由
+`s_bit_to_can_id[]` 查找表维护（生成器自动从
+`tools/.bitmap_state.json` 加载历史映射）。
+
+- **bit 0..63**：RX 报文分配池（上限 `CAN_BITMAP_RX_ALLOC_MAX = 64`）
+- **bit 64..95**：reserved 池（预留仓位，临时为 0）
+- **删除报文**：对应 bit 留为 `sentinel_unused = 0`，**永远为 0**，
+  不重新分配，SOC 端 bit-N 编号不变。
+
+#### DBC 变更时的保障
+
+  1. 跑 `python tools/regen_can_artifacts.py --dbc <new.dbc>`。
+  2. 生成器会读 `.bitmap_state.json`，以**历史 bit 编号**为准
+     重新分配：
+     - 已存在的 CAN ID 保持原 bit 不变（locked）
+     - 新增的 CAN ID 从 reserved pool (64..95) 或未占用位位分配
+     - 删除的 CAN ID 对应 bit 留 sentinel，不重分配
+  3. `g_can_rx_timeout_table[]` 同步 regen，考虑到 DBC 可能修改
+     了 cycle，需检查 timeout 是否合理。
+  4. SOC_PROTOCOL_VERSION 在 Sentinel 策略下保持 v1.0（bit-N
+     不变）；只有报文本身增减且 SOC 端重新跟进
+     时才 bump。
+
+#### 带来的限制
+
+  - **RX 上限 64**：超出 64 个 RX 报文后，新增报文无
+    法获得 bit，只能在 SOC 协议重新计划时一起升级
+    `CAN_BITMAP_MAX`。
+  - **DBC 文件保留**：删除报文后，对应 bit 不能重用。
+    万一后续 DBC 又加上该报文，会被分到 reserved pool
+    的第一个空位，不会恢复原 bit。
+  - **.bitmap_state.json 需随工程提交**：丢失会导致 bit 重新
+    分配，与 Sentinel 原意相反。
+
 ### DBC 删报文 / 信号
 
 ```
