@@ -45,6 +45,8 @@ build.ninja
 *.pbi.xcl
 
 # IAR EWARM：保留工程定义，忽略构建缓存与本地设置
+EWARM/*.ewd
+EWARM/*.eww
 EWARM/settings/
 EWARM/FLASH/
 EWARM/Backup*/
