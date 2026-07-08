@@ -40,6 +40,16 @@ static can_rx_ring_t s_rx_ring;
 /** Reusable scratch buffer used when arming single-MB RX. */
 static flexcan_msgbuff_t s_rx_arm_buf;
 
+/** Reusable scratch buffer used to kick off RX-FIFO reception.
+ *  The buffer is handed to FLEXCAN_DRV_RxFifo() once at init;
+ *  the driver uses it as the destination for the first frame,
+ *  then replaces it on every FLEXCAN_EVENT_RXFIFO_COMPLETE. */
+static flexcan_msgbuff_t s_rx_fifo_start_buf;
+
+/** Tracks whether CanIf_Init has already been processed. The
+ *  install-callback work must run exactly once per boot. */
+static bool s_if_inited = false;
+
 /**
  * @brief   Lock-free single-producer push; drops frame on overflow.
  * @brief   无锁单生产者入队；环满时丢弃最新帧
@@ -145,18 +155,6 @@ static u8 prv_logical_to_inst(can_channel_t ch)
 {
     /* Match board/can_config.h naming. */
     return (ch == CAN_CH_PUBLIC) ? public_can_INST : private_can_INST;
-}
-
-/** @brief  Get the flexcan state object for a channel. */
-static flexcan_state_t *prv_state(can_channel_t ch)
-{
-    return (ch == CAN_CH_PUBLIC) ? &public_can_State : &private_can_State;
-}
-
-/** @brief  Get the flexcan user config for a channel. */
-static const flexcan_user_config_t *prv_cfg(can_channel_t ch)
-{
-    return (ch == CAN_CH_PUBLIC) ? &public_can : &private_can;
 }
 
 /**
@@ -452,26 +450,47 @@ static u8 prv_pick_tx_mb(u8 inst, can_channel_t ch)
  */
 c02b2_result_t CanIf_Init(void)
 {
-    /* Reset ring buffer (empty state: head == tail == 0). */
+    /* Reentrancy guard: this function is idempotent on purpose so
+     * callers can safely call it more than once, but the
+     * install-callback + RxFifo-prime work only runs on the first
+     * call. Subsequent calls just re-zero the ring buffer. */
     s_rx_ring.head = 0u;
     s_rx_ring.tail = 0u;
+    if (s_if_inited) {
+        LOG_I("init (re-entry, ring reset only)");
+        return C02B2_OK;
+    }
 
-    /* Initialize every logical channel. */
+    /* CAN hardware is already up from Can_Init() (called out of
+     * DRV_Init). Re-Init here would clobber the RX-FIFO ID filter
+     * table, the RXIMR per-MB masks, and re-toggle the controller
+     * through freeze/active -- every one of which silently breaks
+     * reception for any MB that was configured between the two
+     * Init calls. Install ISR callbacks only. */
     for (u32 ch = 0; ch < CAN_CH_MAX; ch++) {
-        u8 inst = prv_logical_to_inst((can_channel_t)ch);
-        flexcan_state_t *st = prv_state((can_channel_t)ch);
-        const flexcan_user_config_t *cfg = prv_cfg((can_channel_t)ch);
+        const u8 inst = prv_logical_to_inst((can_channel_t)ch);
 
-        /* Init hardware; if any channel fails we abort immediately. */
-        if (FLEXCAN_DRV_Init(inst, st, cfg) != STATUS_SUCCESS) {
-            LOG_E("init inst=%u failed", (unsigned)inst);
-            return C02B2_ERR;
-        }
-        /* Register our ISR callbacks for RX + error events. */
         FLEXCAN_DRV_InstallEventCallback(inst, prv_flexcan_cb, NULL);
         FLEXCAN_DRV_InstallErrorCallback(inst, prv_flexcan_err_cb, NULL);
+
+        /* CRITICAL: in RX-FIFO mode, the SDK does NOT enable the
+         * FRAME_AVAILABLE interrupt during FLEXCAN_DRV_Init. The
+         * interrupt is enabled inside FLEXCAN_StartRxMessageFifoData
+         * -- the function behind FLEXCAN_DRV_RxFifo(). The first
+         * call therefore arms the FIFO; subsequent calls inside the
+         * event callback arm it for the next frame. A missing first
+         * call leaves the controller alive on the bus but with all
+         * 3 RX-FIFO interrupts masked, which manifests as "the bus
+         * is up, the analyzer sends frames, but the application
+         * never sees an RX callback". */
+        const status_t r = FLEXCAN_DRV_RxFifo(inst, &s_rx_fifo_start_buf);
+        if (r != STATUS_SUCCESS) {
+            LOG_E("RxFifo prime failed inst=%u (%d)", (unsigned)inst, (int)r);
+            return C02B2_ERR;
+        }
     }
-    LOG_I("init OK");
+    s_if_inited = true;
+    LOG_I("init OK (rx-fifo armed, callbacks installed)");
     return C02B2_OK;
 }
 
@@ -491,7 +510,11 @@ c02b2_result_t CanIf_Init(void)
  */
 c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t cb)
 {
-    /* Static table handles registration. Route through can_db instead. */
+    /* DEPRECATED stub. Retained for source compatibility with the
+     * pre-DBC API; has no runtime effect. RX routing is driven by
+     * can_db.c (CanDb_DispatchByDb) walking can_msg_descs_ipk[] on
+     * the ring buffer the ISR fills. Future per-id filtering should
+     * be expressed in the DBC + can_db_ipk_gen, not in this hook. */
     (void)ch; (void)can_id; (void)ide; (void)cb;
     return C02B2_OK;
 }

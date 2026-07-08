@@ -24,6 +24,12 @@
 
 #define MAX_RX_TRACKED  96u   /**< bitmap width of SIG_CAN_RX_TIMEOUT_MAP (LO+HI+HI2 = 3 slots x 32 bit) */
 
+/* Small LRU of unknown CAN ids already announced via LOG_I. We
+ * want a noisy bus (0x371 test id, vendor-specific frames) to
+ * surface once per id, not every 5 ms. 8 slots covers the usual
+ * test-bench traffic; older entries get evicted FIFO. */
+#define MAX_RX_UNKNOWN_LOG  8u
+
 typedef struct {
     u32 last_rx_tick_ms;  /**< RTI tick at last successful rx (0 = never) */
 } rx_track_t;
@@ -31,6 +37,9 @@ typedef struct {
 static struct {
     bool       init_done;
     rx_track_t track[MAX_RX_TRACKED];
+    u32        seen_unknown_ids[MAX_RX_UNKNOWN_LOG];  /**< FIFO of announced unknown ids */
+    u8         seen_unknown_count;                    /**< 0..MAX_RX_UNKNOWN_LOG */
+    u8         seen_unknown_next;                     /**< next FIFO write index */
 } s_rx;
 /* ---------------------------------------------------------------- *
  *  RX timeout table                                                  *
@@ -226,6 +235,8 @@ static void prv_mcu_init(u8 cold_boot)
         s_rx.track[i].last_rx_tick_ms = 0u;
     }
     s_rx.init_done = true;
+    s_rx.seen_unknown_count = 0u;
+    s_rx.seen_unknown_next  = 0u;
     LOG_I("init (cold=%u, registered_rx=%u)", (unsigned)cold_boot, (unsigned)CAN_DB_IPK_RX_COUNT);
 }
 /**
@@ -284,8 +295,26 @@ static void prv_drain(void)
                 s_rx.track[bit].last_rx_tick_ms = RTI_GetTick1ms();
             }
         } else {
-            /* Unknown id -- not necessarily an error. */
-            LOG_D("rx id=0x%X (no DBC entry)", (unsigned)m.id);
+            /* Unknown id: not necessarily an error (could be a
+             * future-DBC frame or vendor-specific msg), but if we
+             * have never announced it before we want to surface it
+             * once at LOG_I so the operator can correlate with the
+             * bus trace. Repeated unknown ids within the FIFO get
+             * demoted to LOG_D to keep the log readable. */
+            bool announced = false;
+            for (u8 k = 0u; k < s_rx.seen_unknown_count; k++) {
+                if (s_rx.seen_unknown_ids[k] == m.id) { announced = true; break; }
+            }
+            if (announced) {
+                LOG_D("rx id=0x%X (no DBC entry, already announced)", (unsigned)m.id);
+            } else {
+                s_rx.seen_unknown_ids[s_rx.seen_unknown_next] = m.id;
+                s_rx.seen_unknown_next = (u8)((s_rx.seen_unknown_next + 1u) % MAX_RX_UNKNOWN_LOG);
+                if (s_rx.seen_unknown_count < MAX_RX_UNKNOWN_LOG) {
+                    s_rx.seen_unknown_count++;
+                }
+                LOG_I("rx id=0x%X (no DBC entry, first seen)", (unsigned)m.id);
+            }
         }
     }
     if (drained > 0u) {
