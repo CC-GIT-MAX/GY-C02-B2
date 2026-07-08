@@ -9,6 +9,7 @@
 #include "utility_print_config.h"  /* UTILITY_PRINT_Init */
 #include "drv_api/can/can_if.h"
 #include "rti.h"
+#include "osif.h"
 #include "scheduler.h"
 
 #define LOG_NAME  "MAIN"
@@ -132,9 +133,14 @@ int main(void)
 
 
     /* Super-loop: dispatch every module's tick, then sleep until ISR. */
+    /* Canonical ARM Cortex-M wake-from-WFI sequence. OSIF_TimeDelay(0)
+     * has already primed the SysTick tick config during RTI_Init();
+     * subsequent main-loop rounds only re-prime once on first entry. */
     for (;;) {
         Scheduler_Run();
-        /* Wait For Interrupt: clock-gates the CPU until next 1 ms tick. */
-        __WFI();
+        __DSB();      /* ensure prior writes are committed before sleep */
+        __WFI();      /* wake on next enabled IRQ (SysTick is the
+                         canonical 1 ms source) */
+        __ISB();      /* flush the instruction pipeline on wake */
     }
 }
