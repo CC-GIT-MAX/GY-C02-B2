@@ -189,16 +189,11 @@ u32 CanIf_GetBusOffCount(can_channel_t ch);
 bool CanIf_PopRx(can_msg_t *out);
 
 /**
- * @brief   Count frames pending in the RX ring
- * @brief   接收环中待处理的报文数
- */
-u32 CanIf_RxPending(void);
-
-/**
  * @brief   Number of frames currently waiting in the RX ring
  * @brief   接收环中当前等待的报文数量
  *
  * @return  u32  Count of pending frames
  */
+u32 CanIf_RxPending(void);
 
 #endif /* C02B2_CAN_IF_H */
