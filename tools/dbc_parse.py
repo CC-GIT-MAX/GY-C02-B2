@@ -393,6 +393,116 @@ def emit_rx_timeout_table(selected, node):
     return "\n".join(out) + "\n"
 
 
+def report_diffs(old_dbc: str, new_dbc: str, node: str) -> int:
+    """Compute the diff between two DBCs (message / signal add-remove-modify).
+
+    Returns 0 on success; non-zero on read failure.  Writes a human-readable
+    diff to stdout and an exit-status line:
+
+        rc=0  no SOC-touching changes (purely DBC internal)
+        rc=1  message-level add/remove   (potential SOC impact)
+        rc=2  signal-level add/remove   (potential SOC impact)
+        rc=3  signal-level modify only  (DBC only, no SOC impact if SOC
+               reads the runtime Signal_Get(), not the raw DBC layout)
+
+    The rc is also printed so callers / CI can grep for it.
+    """
+    try:
+        old_msgs = parse_dbc(old_dbc)
+        new_msgs = parse_dbc(new_dbc)
+    except Exception as ex:
+        print(f"diff: parse error: {ex}", file=sys.stderr)
+        return 4
+
+    def key(msg): return msg.can_id
+    old = {key(m): m for m in old_msgs}
+    new = {key(m): m for m in new_msgs}
+    added_ids   = sorted(set(new) - set(old))
+    removed_ids = sorted(set(old) - set(new))
+    common_ids  = sorted(set(old) & set(new))
+
+    sig_added = sig_removed = sig_modified = 0
+    msg_added = len(added_ids)
+    msg_removed = len(removed_ids)
+
+    print("=== DBC diff ============================================")
+    print(f"old : {old_dbc}")
+    print(f"new : {new_dbc}")
+    print(f"node: {node}")
+    print()
+
+    if msg_added:
+        print(f"[+] messages added   ({msg_added}):")
+        for mid in added_ids:
+            m = new[mid]
+            tx_dir = "TX" if m.transmitter == node else "RX"
+            print(f"    + 0x{mid:04X} {m.name} ({tx_dir}, dlc={m.dlc}, {len(m.signals)} sigs)")
+    if msg_removed:
+        print(f"[-] messages removed ({msg_removed}):")
+        for mid in removed_ids:
+            m = old[mid]
+            tx_dir = "TX" if m.transmitter == node else "RX"
+            print(f"    - 0x{mid:04X} {m.name} ({tx_dir}, dlc={m.dlc}, {len(m.signals)} sigs)")
+    if msg_added or msg_removed:
+        print()
+
+    for mid in common_ids:
+        o = old[mid]; n = new[mid]
+        o_sigs = {s.name: s for s in o.signals}
+        n_sigs = {s.name: s for s in n.signals}
+        msg_sig_added   = sorted(set(n_sigs) - set(o_sigs))
+        msg_sig_removed = sorted(set(o_sigs) - set(n_sigs))
+        msg_sig_changed = []
+        for nm in set(o_sigs) & set(n_sigs):
+            os, ns = o_sigs[nm], n_sigs[nm]
+            if (os.start_bit != ns.start_bit or os.length != ns.length
+                or os.byte_order != ns.byte_order or os.is_signed != ns.is_signed
+                or abs(os.factor - ns.factor) > 1e-9 or abs(os.offset - ns.offset) > 1e-9):
+                msg_sig_changed.append(nm)
+        if msg_sig_added or msg_sig_removed or msg_sig_changed:
+            print(f"[*] 0x{mid:04X} {n.name}:")
+            for nm in msg_sig_added:
+                s = n_sigs[nm]
+                print(f"        + signal {nm} (start={s.start_bit}, len={s.length}bit, factor={s.factor})")
+                sig_added += 1
+            for nm in msg_sig_removed:
+                s = o_sigs[nm]
+                print(f"        - signal {nm} (was start={s.start_bit}, len={s.length}bit)")
+                sig_removed += 1
+            for nm in msg_sig_changed:
+                os = o_sigs[nm]; ns = n_sigs[nm]
+                diff = []
+                if os.start_bit != ns.start_bit:   diff.append(f"start_bit {os.start_bit} -> {ns.start_bit}")
+                if os.length != ns.length:         diff.append(f"length {os.length} -> {ns.length}")
+                if os.byte_order != ns.byte_order: diff.append(f"byte_order {os.byte_order} -> {ns.byte_order}")
+                if os.is_signed != ns.is_signed:   diff.append(f"is_signed {os.is_signed} -> {ns.is_signed}")
+                if abs(os.factor - ns.factor) > 1e-9: diff.append(f"factor {os.factor} -> {ns.factor}")
+                if abs(os.offset - ns.offset) > 1e-9: diff.append(f"offset {os.offset} -> {ns.offset}")
+                print(f"        ~ signal {nm}: " + ", ".join(diff))
+                sig_modified += 1
+
+    print()
+    print("=== Summary ===============================================")
+    print(f"  messages : +{msg_added} -{msg_removed}")
+    print(f"  signals  : +{sig_added} -{sig_removed} (modified {sig_modified})")
+    print()
+    if msg_added or msg_removed:
+        rc = 1
+    elif sig_added or sig_removed:
+        rc = 2
+    elif sig_modified:
+        rc = 3
+    else:
+        rc = 0
+    print(f"SOC protocol impact: " + (
+        "MESSAGES ADDED/REMOVED (treat as SOC protocol revision!)" if rc == 1 else
+        "SIGNALS ADDED/REMOVED (SOC team must review)" if rc == 2 else
+        "ONLY SIGNAL LAYOUT CHANGED (DBC internal)" if rc == 3 else
+        "NO change"))
+    print(f"diff-rc={rc}")
+    return rc
+
+
 def _get_self_node():
     """Helper: the node argument passed by the user (set by main())."""
     return _SELF_NODE[0]
@@ -402,9 +512,24 @@ _SELF_NODE = [None]
 
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
         print(__doc__, file=sys.stderr)
         return 2
+    # --report-diffs OLD NEW [--node X] is its own command and takes
+    # TWO positional path args; handle it before the default argv shape
+    # below tries to int() them.
+    if sys.argv[1] == "--report-diffs":
+        # form: --report-diffs OLD NEW [--node X]
+        args = sys.argv[2:]
+        if len(args) < 2:
+            print("usage: --report-diffs OLD_DBC NEW_DBC [--node X]", file=sys.stderr)
+            return 2
+        old_dbc, new_dbc = args[0], args[1]
+        node = "IPK"
+        if "--node" in args:
+            j = args.index("--node")
+            node = args[j + 1] if j + 1 < len(args) else "IPK"
+        return report_diffs(old_dbc, new_dbc, node)
     dbc_path = sys.argv[1]
     node = sys.argv[2] if len(sys.argv) > 2 else "IPK"
     # IPK node defaults to 64 RX + 9 TX per C02-B2 cluster DBC.

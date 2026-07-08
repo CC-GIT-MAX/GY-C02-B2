@@ -886,6 +886,25 @@ c02b2_result_t Signal_Set(signal_id_t id, int32_t value);
 int32_t      Signal_Get(signal_id_t id);
 
 /**
+ * @brief   Resolve a signal id to its enum string ("SIG_<NAME>").
+ * @brief   把信号 id 解析为对应的枚举字符串("SIG_<NAME>")
+ *
+ * @details Used by SOC decode / diagnostic dumps / logging to
+ *          render a human-readable name without forcing every
+ *          caller to maintain their own id->name table.
+ *
+ *          The returned pointer is to a static const string and
+ *          must not be freed.  For invalid ids returns
+ *          "<invalid>"; for ids the toolchain has not yet
+ *          stubbed returns "<unmapped>".
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ *
+ * @return  const char*  Stable, NUL-terminated string
+ */
+const char * Signal_GetName(signal_id_t id);
+
+/**
  * @brief   Check whether the signal slot is currently valid
  * @brief   检查信号槽位当前是否有效
  *
