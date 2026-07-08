@@ -35,7 +35,7 @@ extern "C" {
 
 /*! @brief Definitions for BOARD_InitPins Functional Group */
 /*! @brief User number of pins cfg InitConfigArr0 */
-#define NUM_OF_CONFIGURED_PINS0                        (33U)
+#define NUM_OF_CONFIGURED_PINS0                        (31U)
 
 /*! @brief User configuration cfg InitConfigArr0 array */
 extern const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0];
