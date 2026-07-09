@@ -847,3 +847,47 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
 }
 
 
+
+
+/* ---------------------------------------------------------------- *
+ *  DBC-aware convenience wrappers (see can_if.h for contract)
+ *
+ *  These forward to app/can/can_tx.c + can_rx.c so the caller
+ *  (typically mod_can_demo or a diag module) only needs to include
+ *  can_if.h.
+ *
+ *  The forward declarations below let us avoid pulling
+ *  app/can/can_tx.h + can_rx.h into can_if.c -- the linker resolves
+ *  them at link time.  Keep the signatures in lock-step with the
+ *  real definitions.
+ * ---------------------------------------------------------------- */
+c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
+c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw);
+c02b2_result_t CanTx_Trigger(u32 can_id);
+c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
+u32 CanRx_GetRawFrameCount(void);
+
+c02b2_result_t CanIf_TxPreparePayload(u32 can_id, const u8 *data, u8 dlc)
+{
+    return CanTx_PreparePayload(can_id, data, dlc);
+}
+
+c02b2_result_t CanIf_TxEncodeSignal(u32 can_id, u16 sig_id, u32 raw)
+{
+    return CanTx_EncodeSignal(can_id, sig_id, raw);
+}
+
+c02b2_result_t CanIf_TxTrigger(u32 can_id)
+{
+    return CanTx_Trigger(can_id);
+}
+
+c02b2_result_t CanIf_RxGetLastRawFrame(u32 can_id, can_msg_t *out)
+{
+    return CanRx_GetLastRawFrame(can_id, out);
+}
+
+u32 CanIf_RxGetRawFrameCount(void)
+{
+    return CanRx_GetRawFrameCount();
+}

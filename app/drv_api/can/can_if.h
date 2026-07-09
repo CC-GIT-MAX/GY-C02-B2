@@ -5,16 +5,27 @@
  * Only this header + can_if.c touch flexcan_driver.h.
  *
  * Layering (top -> bottom):
- *   app/mod_can_demo        <- uses app/can/can_tx.h + can_rx.h (DBC-aware)
+ *   app/mod_can_demo        <- may use either app/can/can_tx.h + can_rx.h
+ *                              OR the CanIf_Tx<...> / CanIf_Rx<...> wrappers in this
+ *                              header
  *   app/can/can_tx.c        <- CanTx_PreparePayload / EncodeSignal / Trigger
  *   app/can/can_rx.c        <- CanRx_GetLastRawFrame / GetRawFrameCount
  *   app/drv_api/can/can_if  <- CanIf_Send / PopRx / ConfigRxMb  <-- THIS FILE
+ *                              + DBC-aware wrappers (CanIf_TxPreparePayload,
+ *                                CanIf_TxEncodeSignal, CanIf_TxTrigger,
+ *                                CanIf_RxGetLastRawFrame, ...)
  *   SDK flexcan_driver      <- FLEXCAN_DRV_*
  *
- * DBC-aware APIs (send whole payload / send one signal / receive
- * last frame by CAN id) live one layer up -- in app/can/can_tx.h
- * and app/can/can_rx.h.  This header intentionally does NOT
- * re-export them, so that drv_api/ stays a downward-only layer.
+ * DBC-aware entry points (send whole payload / send one signal /
+ * receive last frame by CAN id) are available two ways:
+ *   1. Directly from app/can/can_tx.h + can_rx.h (the implementation).
+ *   2. As CanIf_Tx<...> / CanIf_Rx<...> wrappers in this header (forwarded by
+ *      can_if.c).  These exist so demo / diag modules only need to
+ *      include can_if.h.
+ *
+ * The wrappers add an app/drv_api/can/ -> app/can/ dependency, but
+ * only one-way (can_tx / can_rx never reach back into can_if
+ * internals).
  */
 #ifndef C02B2_CAN_IF_H
 #define C02B2_CAN_IF_H
@@ -239,5 +250,88 @@ bool CanIf_PopRx(can_msg_t *out);
  * @return  u32  Count of pending frames
  */
 u32 CanIf_RxPending(void);
+
+/* ---------------------------------------------------------------- *
+ *  DBC-aware convenience APIs (used by mod_can_demo / diag)
+ *
+ *  These thin wrappers forward to app/can/can_tx.c + can_rx.c so the
+ *  caller only needs to include can_if.h.  They address CAN frames by
+ *  the 11-bit IPK CAN id (NOT by mailbox index or channel), which is
+ *  what demo / diag modules already work with.
+ *
+ *  Layering note: can_if lives in app/drv_api/can/ but these four
+ *  entry points call into app/can/can_tx.h + can_rx.h.  The dependency
+ *  is intentional and one-way -- can_tx / can_rx never reach into
+ *  can_if internals.
+ * ---------------------------------------------------------------- */
+
+/**
+ * @brief   Fill a TX message payload (whole-buffer)
+ * @brief   填充一条 TX 报文 payload（整报文）
+ *
+ * @details Forwards to CanTx_PreparePayload().  See app/can/can_tx.h
+ *          for full semantics.
+ *
+ * @param[in]  can_id  IPK TX message can_id (11-bit standard)
+ * @param[in]  data    Source buffer (at least `dlc` bytes)
+ * @param[in]  dlc     Data length (0..8)
+ *
+ * @return  c02b2_result_t  See CanTx_PreparePayload()
+ */
+c02b2_result_t CanIf_TxPreparePayload(u32 can_id, const u8 *data, u8 dlc);
+
+/**
+ * @brief   Update a single signal inside an existing TX payload
+ * @brief   在已有 TX payload 中更新单个信号
+ *
+ * @details Forwards to CanTx_EncodeSignal().  Other signals in the
+ *          same message keep their previous values.
+ *
+ * @param[in]  can_id  IPK TX message can_id
+ * @param[in]  sig_id  CAN_DB_SIG_* signal id belonging to that message
+ * @param[in]  raw     Raw bit pattern (NOT physical -- the caller must
+ *                     already have applied factor/offset if needed)
+ *
+ * @return  c02b2_result_t  See CanTx_EncodeSignal()
+ */
+c02b2_result_t CanIf_TxEncodeSignal(u32 can_id, u16 sig_id, u32 raw);
+
+/**
+ * @brief   Force immediate send of a single TX frame (event-driven)
+ * @brief   强制立即发送一帧（事件驱动）
+ *
+ * @details Forwards to CanTx_Trigger().  The frame payload must already
+ *          have been prepared via CanIf_TxPreparePayload() or
+ *          CanIf_TxEncodeSignal().
+ *
+ * @param[in]  can_id  11-bit CAN identifier (must match a TX db entry)
+ *
+ * @return  c02b2_result_t  See CanTx_Trigger()
+ */
+c02b2_result_t CanIf_TxTrigger(u32 can_id);
+
+/**
+ * @brief   Copy the most recent raw 8-byte payload of a CAN frame
+ * @brief   复制指定 CAN id 最近收到的 8 字节原始 payload
+ *
+ * @details Forwards to CanRx_GetLastRawFrame().  The RX tick caches
+ *          one frame per IPK CAN id (8-byte payload + dlc).
+ *
+ * @param[in]   can_id  IPK RX can_id (11-bit standard)
+ * @param[out]  out     Filled on success
+ *
+ * @return  c02b2_result_t  See CanRx_GetLastRawFrame()
+ */
+c02b2_result_t CanIf_RxGetLastRawFrame(u32 can_id, can_msg_t *out);
+
+/**
+ * @brief   Number of distinct IPK RX messages whose cache holds a frame
+ * @brief   已缓存最近一帧的 IPK RX 报文数量
+ *
+ * @details Forwards to CanRx_GetRawFrameCount().
+ *
+ * @return  u32  Count of cached entries (0 .. CAN_DB_IPK_RX_COUNT)
+ */
+u32 CanIf_RxGetRawFrameCount(void);
 
 #endif /* C02B2_CAN_IF_H */
