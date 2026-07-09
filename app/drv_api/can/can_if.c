@@ -178,16 +178,39 @@ static void prv_flexcan_cb(u8 instance,
     (void)state;
     switch (ev) {
         case FLEXCAN_EVENT_RXFIFO_COMPLETE: {
-            /* RX-FIFO: driver hands us one frame in
-             * state->mbs[FLEXCAN_MB_HANDLE_RXFIFO].mb_message.  We must
-             * use FLEXCAN_DRV_RxFifo (NOT FLEXCAN_DRV_Receive) to pull
-             * it out - Receive is for single-MB mode and will fail on
-             * a FIFO-enabled instance.  Drain in a loop until empty so
-             * burst traffic cannot starve later RX events. */
-            flexcan_msgbuff_t mb;
-            while (FLEXCAN_DRV_RxFifo(instance, &mb) == STATUS_SUCCESS) {
+            /* RX-FIFO completion.
+             *
+             * By the time we get here:
+             *   1. SDK ISR has called FLEXCAN_ReadRxFifo() into
+             *      state->mbs[RXFIFO].mb_message, which is still
+             *      &s_rx_fifo_start_buf (we re-arm with the SAME pointer).
+             *      So the new frame is sitting in s_rx_fifo_start_buf.
+             *   2. SDK has set state->mbs[RXFIFO].state = IDLE.
+             *   3. SDK will, on return, check the state again: if it is
+             *      still IDLE it calls FLEXCAN_CompleteRxMessageFifoData()
+             *      which DISABLES the FRAME_AVAILABLE interrupt -- and then
+             *      we never receive another frame.
+             *
+             * So we MUST call FLEXCAN_DRV_RxFifo() before returning to flip
+             * the state back to RX_BUSY.  Crucially, we pass the SAME buffer
+             * (&s_rx_fifo_start_buf), not a stack-local: the SDK would
+             * otherwise rewrite mb_message to the stack address and the next
+             * ISR would write the next frame there.
+             *
+             * Reading s_rx_fifo_start_buf AFTER FLEXCAN_DRV_RxFifo() is OK
+             * because the SDK only writes the buffer inside ISR (FLEXCAN_
+             * ReadRxFifo); the arm call just flips state and re-enables
+             * IRQs without touching the buffer contents.
+             */
+            {
                 can_msg_t m;
-                prv_extract_msg(&mb, &m);
+                prv_extract_msg(&s_rx_fifo_start_buf, &m);
+                /* Re-arm with the SAME buffer so the SDK keeps writing
+                 * new frames here on subsequent IRQs.  This also flips
+                 * state back to RX_BUSY so the SDK does NOT call
+                 * FLEXCAN_CompleteRxMessageFifoData() (which would mask
+                 * the FRAME_AVAILABLE interrupt and stop further RX). */
+                (void)FLEXCAN_DRV_RxFifo(instance, &s_rx_fifo_start_buf);
                 if (!prv_ring_push(&m)) {
                     /* Ring full - drop and let the drain count surface it. */
                     LOG_W("rx ring full (inst=%u id=0x%X dropped)",
@@ -448,49 +471,54 @@ static u8 prv_pick_tx_mb(u8 inst, can_channel_t ch)
  * @retval  C02B2_OK  Both channels up
  * @retval  C02B2_ERR At least one FLEXCAN_DRV_Init failed
  */
-c02b2_result_t CanIf_Init(void)
+void CanIf_InstallFlexcanCallbacks(void)
 {
-    /* Reentrancy guard: this function is idempotent on purpose so
-     * callers can safely call it more than once, but the
-     * install-callback + RxFifo-prime work only runs on the first
-     * call. Subsequent calls just re-zero the ring buffer. */
-    s_rx_ring.head = 0u;
-    s_rx_ring.tail = 0u;
-    if (s_if_inited) {
-        LOG_I("init (re-entry, ring reset only)");
-        return C02B2_OK;
-    }
-
-    /* CAN hardware is already up from Can_Init() (called out of
-     * DRV_Init). Re-Init here would clobber the RX-FIFO ID filter
-     * table, the RXIMR per-MB masks, and re-toggle the controller
-     * through freeze/active -- every one of which silently breaks
-     * reception for any MB that was configured between the two
-     * Init calls. Install ISR callbacks only. */
     for (u32 ch = 0; ch < CAN_CH_MAX; ch++) {
         const u8 inst = prv_logical_to_inst((can_channel_t)ch);
-
         FLEXCAN_DRV_InstallEventCallback(inst, prv_flexcan_cb, NULL);
         FLEXCAN_DRV_InstallErrorCallback(inst, prv_flexcan_err_cb, NULL);
+    }
+}
 
-        /* CRITICAL: in RX-FIFO mode, the SDK does NOT enable the
-         * FRAME_AVAILABLE interrupt during FLEXCAN_DRV_Init. The
-         * interrupt is enabled inside FLEXCAN_StartRxMessageFifoData
-         * -- the function behind FLEXCAN_DRV_RxFifo(). The first
-         * call therefore arms the FIFO; subsequent calls inside the
-         * event callback arm it for the next frame. A missing first
-         * call leaves the controller alive on the bus but with all
-         * 3 RX-FIFO interrupts masked, which manifests as "the bus
-         * is up, the analyzer sends frames, but the application
-         * never sees an RX callback". */
+c02b2_result_t CanIf_ArmRxFifo(void)
+{
+    /* CRITICAL: in RX-FIFO mode, the SDK does NOT enable the
+     * FRAME_AVAILABLE / WARNING / OVERFLOW interrupts during
+     * FLEXCAN_DRV_Init.  The interrupts are enabled inside
+     * FLEXCAN_StartRxMessageFifoData -- the function behind
+     * FLEXCAN_DRV_RxFifo().  The first call therefore arms the
+     * FIFO; subsequent calls inside the event callback re-arm it
+     * for the next frame.  A missing first call leaves the
+     * controller alive on the bus but with all 3 RX-FIFO interrupts
+     * masked, which manifests as "the bus is up, the analyzer sends
+     * frames, but the application never sees an RX callback". */
+    for (u32 ch = 0; ch < CAN_CH_MAX; ch++) {
+        const u8 inst = prv_logical_to_inst((can_channel_t)ch);
         const status_t r = FLEXCAN_DRV_RxFifo(inst, &s_rx_fifo_start_buf);
         if (r != STATUS_SUCCESS) {
             LOG_E("RxFifo prime failed inst=%u (%d)", (unsigned)inst, (int)r);
             return C02B2_ERR;
         }
     }
-    s_if_inited = true;
-    LOG_I("init OK (rx-fifo armed, callbacks installed)");
+    return C02B2_OK;
+}
+
+c02b2_result_t CanIf_Init(void)
+{
+    /* All FlexCAN hardware bring-up (FLEXCAN_DRV_Init, FIFO filter
+     * configuration, callback installation, FIFO priming) lives in
+     * Can_Init().  This function is intentionally lightweight:
+     * it just resets the application-layer RX ring buffer so the
+     * scheduler tick has a known-empty queue at boot.  It is safe
+     * to call more than once. */
+    s_rx_ring.head = 0u;
+    s_rx_ring.tail = 0u;
+    if (s_if_inited) {
+        LOG_I("init (re-entry, ring reset only)");
+    } else {
+        s_if_inited = true;
+        LOG_I("init OK (ring buffer armed; HW up via Can_Init())");
+    }
     return C02B2_OK;
 }
 

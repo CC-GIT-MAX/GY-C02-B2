@@ -39,11 +39,43 @@ typedef void (*can_rx_cb_t)(const can_msg_t *msg);
  * @brief   Initialize both CAN channels and the RX ring buffer
  * @brief   初始化两条 CAN 通道及接收环形缓冲
  *
+ * @details Reset the RX ring buffer only.  All FlexCAN hardware bring-up
+          (FLEXCAN_DRV_Init, FIFO filter configuration, event / error
+          callback installation and FIFO priming) is done in Can_Init().
+          This function is intentionally lightweight so it can be called
+          repeatedly without re-arming the controller.
+ *
  * @return  c02b2_result_t
- * @retval  C02B2_OK  Both channels up
- * @retval  C02B2_ERR At least one FLEXCAN_DRV_Init failed
+ * @retval  C02B2_OK  Ring buffer reset (always succeeds)
  */
 c02b2_result_t CanIf_Init(void);
+
+/**
+ * @brief   Install the FlexCAN event + error callbacks for both instances
+ * @brief   为两个 FlexCAN 实例安装事件 / 错误回调
+ *
+ * @details Thin wrapper that registers prv_flexcan_cb (RX/TX events) and
+          prv_flexcan_err_cb (bus-off / warning / bit-error) for both
+          instances.  Called from Can_Init() so the bring-up sequence
+          stays in one place.
+ */
+void CanIf_InstallFlexcanCallbacks(void);
+
+/**
+ * @brief   Prime the RX FIFO for both instances (arm first receive)
+ * @brief   启动两个实例的 RX FIFO（首帧接收预热）
+ *
+ * @details Calls FLEXCAN_DRV_RxFifo(inst, &s_rx_fifo_start_buf) for both
+          instances.  This is what enables the FRAME_AVAILABLE /
+          WARNING / OVERFLOW interrupts in RX-FIFO mode -- the SDK does
+          NOT enable them inside FLEXCAN_DRV_Init, so without this call
+          no RX callback will ever fire.
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK   Both FIFOs primed
+ * @retval  C02B2_ERR  At least one FLEXCAN_DRV_RxFifo returned non-SUCCESS
+ */
+c02b2_result_t CanIf_ArmRxFifo(void);
 
 /**
  * @brief   Send a single CAN frame on the chosen channel
