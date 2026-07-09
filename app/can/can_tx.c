@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file    can_tx.c
  * @brief   Cyclic + event-triggered CAN transmit (DBC-driven)
  * @brief   周期 + 事件驱动的 CAN 发送（DBC 驱动）
@@ -485,13 +485,13 @@ static const can_sig_desc_t *prv_find_sig_in_msg(const can_msg_desc_t *msg, u16 
  *
  * @param[in]  can_id  IPK TX message can_id
  * @param[in]  sig_id  CAN_DB_SIG_* signal id belonging to that message
- * @param[in]  value   Physical value (will be quantised per factor/offset)
+ * @param[in]  raw     RAW value (bus-level u32; no factor/offset applied)
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK         Signal packed into the slot's payload
  * @retval  C02B2_ERR_PARAM  can_id not a TX message, sig_id not in it
  */
-c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, s32 value)
+c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw)
 {
     const u16 slot = prv_find_slot(can_id);
     if (slot == 0xFFFFu) { return C02B2_ERR_PARAM; }
@@ -499,7 +499,8 @@ c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, s32 value)
     const can_msg_desc_t *msg = &can_msg_descs_ipk[msg_idx];
     const can_sig_desc_t *sig = prv_find_sig_in_msg(msg, sig_id);
     if (sig == NULL) { return C02B2_ERR_PARAM; }
-    CanDb_EncodeAndPack(s_tx.payloads[slot].data, sig, value);
+    /* The bus now carries RAW; pack raw directly (no factor math). */
+    CanDb_PackSignal(s_tx.payloads[slot].data, sig, raw);
     return C02B2_OK;
 }
 
@@ -510,7 +511,7 @@ c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, s32 value)
  *
  * @details First clears the payload to zeros, then for every signal
  *          in the message reads Signal_Get(SIG_CAN_<Name>) and packs
- *          it via CanDb_EncodeAndPack().  Suitable for cyclic frames
+ *          it raw via CanDb_PackSignal().  Suitable for cyclic frames
  *          whose entire payload is derived from bus state.
  *
  *          Side-effect: the slot's payload is updated synchronously,
@@ -539,8 +540,10 @@ c02b2_result_t CanTx_RebuildFromSignals(u32 can_id)
         const can_sig_desc_t *sig = &can_sig_descs_ipk[i];
         const u16 db_sig_id       = (u16)(i + 1u);
         const signal_id_t bus_id  = CanDb_DbcSigToBus(db_sig_id);
-        const s32 value           = Signal_Get(bus_id);
-        CanDb_EncodeAndPack(s_tx.payloads[slot].data, sig, value);
+        /* raw loopback */
+        const u32 raw              = Signal_Get(bus_id);
+        /* The bus now carries RAW; pack raw directly (no factor math). */
+    CanDb_PackSignal(s_tx.payloads[slot].data, sig, raw);
     }
     return C02B2_OK;
 }

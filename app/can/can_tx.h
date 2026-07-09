@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file    can_tx.h
  * @brief   CAN transmit module (DBC-driven)
  * @brief   CAN 发送模块（DBC 驱动）
@@ -62,7 +62,7 @@ c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
  * @retval  C02B2_ERR_PARAM  can_id not a TX message, sig_id not in it,
  *                         or value out of representable range
  */
-c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, s32 value);
+c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw);
 
 /**
  * @brief   Rebuild a TX payload from every signal of that message,

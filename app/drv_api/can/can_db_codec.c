@@ -269,12 +269,18 @@ void CanDb_PackSignal(u8 *data, const can_sig_desc_t *sig, can_raw_t raw)
 
 /**
  * @brief   Convenience: encode a physical s32 AND pack it
- *          into the payload in one step.
- * @brief   便捷函数: 一步完成 int32 总线值的编码 + payload 写入
+ *          into the payload.  Use ONLY when the caller has a s32 physical
+ *          value (e.g. user formula result), NOT for raw-loopback. For
+ *          raw already on the bus, prefer CanDb_PackSignal() /
+ *          CanDb_BitEncode() to avoid the (value - offset) / factor round-trip.
+ * @brief   便捷函数: 一步完成 s32 物理量 + payload 写入。仅在调用方
+ *           手上有 s32 物理量(例如公式推导)时使用;raw-loopback 路径
+ *           请用 CanDb_PackSignal / CanDb_BitEncode(避免 (value - offset)
+ *           / factor 往返)。
  *
  * @param[out] data   8-byte payload buffer
  * @param[in]  sig    Signal descriptor
- * @param[in]  value  Physical value (bus-level)
+ * @param[in]  value  Physical value (bus-level, s32)
  */
 void CanDb_EncodeAndPack(u8 *data, const can_sig_desc_t *sig, s32 value)
 {

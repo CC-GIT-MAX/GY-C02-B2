@@ -189,10 +189,10 @@ static void prv_demo_tx_signal(u32 sweep)
 {
     /* Modulo 512 keeps the value in range for a length=9, factor=1
      * signal so the encode step does not reject out-of-range values. */
-    /* CanTx_EncodeSignal takes s32 physical; this demo pretends to
-     * emit count-N which is a DBC `+` signal so u32 -> s32 widening
-     * is lossless. */
-    const s32 v = (s32)((sweep * 7u) % 512u);
+    /* The bus carries RAW; demo emits a raw value that
+     * IPK_DayToEngSrv (length=9, factor=1, offset=0) accepts.
+     * For a DBC `+` (unsigned) signal raw range is 0..511. */
+    const u32 v = (sweep * 7u) % 512u;
     const c02b2_result_t e = CanTx_EncodeSignal(DEMO_TX_ID_SIGNAL,
                                                 DEMO_TX_SIGNAL_ID, v);
     if (e != C02B2_OK) {

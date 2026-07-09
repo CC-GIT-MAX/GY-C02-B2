@@ -331,7 +331,7 @@ static void prv_flexcan_err_cb(u8 instance,
             s_bus_off_count[ch]++;
             (void)Signal_Set(SIG_CAN_BUS_OFF, 1);
             (void)Signal_Set(SIG_CAN_BUS_OFF_COUNT,
-                             (int32_t)s_bus_off_count[ch]);
+                             s_bus_off_count[ch]);
             LOG_E("CAN%u BUS_OFF enter (tx_err=%u rx_err=%u, total=%u)",
                   (unsigned)instance,
                   (unsigned)tx_err, (unsigned)rx_err,
