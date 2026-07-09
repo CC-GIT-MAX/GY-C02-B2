@@ -58,13 +58,22 @@ def get_bit_msb(data: bytearray, n: int) -> int:
 
 
 def bit_extract(data: bytearray, start_bit: int, length: int, byte_order: int) -> int:
+    # byte_order: 0 = Motorola (DBC @0+, start_bit is sawtooth index of MSB),
+    #             1 = Intel    (DBC @1+, start_bit is network bit of LSB).
     if length == 0:
         return 0
     value = 0
-    for i in range(length):
-        n = start_bit + length - 1 - i
-        b = get_bit_lsb(data, n) if byte_order == 0 else get_bit_msb(data, n)
-        value = (value << 1) | b
+    if byte_order == 1:
+        # Intel: MSB sits at network (start_bit + length - 1); per-byte is LSB-up.
+        for i in range(length):
+            n = start_bit + length - 1 - i
+            value = (value << 1) | get_bit_lsb(data, n)
+    else:
+        # Motorola: convert sawtooth start_bit to network MSB, then walk forward.
+        msb_net = (start_bit & 0xFFF8) + (7 - (start_bit & 0x7))
+        for i in range(length):
+            n = msb_net + i
+            value = (value << 1) | get_bit_msb(data, n)
     return value & 0xFFFFFFFF
 
 
@@ -80,17 +89,28 @@ def bit_extract_signed(data: bytearray, start_bit: int, length: int, byte_order:
 def bit_encode(data: bytearray, start_bit: int, length: int, byte_order: int, value: int) -> None:
     if length == 0:
         return
-    for i in range(length):
-        n = start_bit + i
-        b = (value >> i) & 1
-        if byte_order == 0:
+    if byte_order == 1:
+        # Intel: write LSB of value into start_bit and walk upward.
+        for i in range(length):
+            n = start_bit + i
+            b = (value >> i) & 1
             byte_idx, bit_idx = n >> 3, n & 0x7
-        else:
+            if b:
+                data[byte_idx] |=  (1 << bit_idx)
+            else:
+                data[byte_idx] &= ~(1 << bit_idx)
+    else:
+        # Motorola: convert sawtooth to network MSB, then walk forward
+        # placing the MSB of value at the network MSB position.
+        msb_net = (start_bit & 0xFFF8) + (7 - (start_bit & 0x7))
+        for i in range(length):
+            n = msb_net + i
+            b = (value >> (length - 1 - i)) & 1
             byte_idx, bit_idx = n >> 3, 7 - (n & 0x7)
-        if b:
-            data[byte_idx] |=  (1 << bit_idx)
-        else:
-            data[byte_idx] &= ~(1 << bit_idx)
+            if b:
+                data[byte_idx] |=  (1 << bit_idx)
+            else:
+                data[byte_idx] &= ~(1 << bit_idx)
 
 
 def decode_signal(data: bytearray, sig: dbc_parse.Signal) -> int:

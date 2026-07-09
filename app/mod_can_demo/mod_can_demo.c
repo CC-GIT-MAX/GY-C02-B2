@@ -3,7 +3,7 @@
  * @brief   Demo / bring-up module that exercises the full CAN stack
  * @brief   演练完整 CAN 栈的 demo / 联调模块
  *
- * @details Five things are demonstrated on a 1 s tick:
+ * @details Six things are demonstrated on a 1 s tick:
  *
  *   1. signal-bus read       -> Signal_Get(SIG_CAN_*) + LOG_I
  *   2. timeout-bitmap decode -> walk s_bit_to_can_id[] and the three
@@ -11,6 +11,11 @@
  *   3. raw frame cache       -> CanRx_GetLastRawFrame on a chosen IPK id
  *   4. TX whole payload      -> CanTx_PreparePayload + CanTx_Trigger
  *   5. TX one signal         -> CanTx_EncodeSignal + CanTx_Trigger
+ *   6. raw <-> physical      -> CanDb_PackSignal / CanDb_GetRaw /
+ *                              CanDb_DecodeSignal / CanDb_EncodeSignalValue
+ *                              on EMS_EngineSpeedRPM (0x85) and
+ *                              ESC_VehicleSpeed (0x125); live RX
+ *                              Signal_Get + phys printed each tick
  *
  * All demo work targets the IPK test batch (CAN_DB_IPK_*) only.
  */
@@ -72,16 +77,17 @@ static struct {
  */
 static void prv_emit_sig(u16 db_id, signal_id_t bus_id, const char *name)
 {
-    /* RAW u32 on the bus; consumer uses CanDb_DecodeSignal for physical. */
+    /* RAW u32 on the signal bus (already the raw bit pattern of the
+     * field).  Consumer modules that need the physical value call
+     * CanDb_DecodeSignal() on top of it. */
     const u32 raw = Signal_Get(bus_id);
     (void)db_id;
-    LOG_I("  sig %s (bus=%u) raw=0x%08X",
-          name, (unsigned)bus_id, (unsigned)raw);
+    LOG_I("  sig %s (bus=%u) raw=0x%08X", name, (unsigned)bus_id, (unsigned)raw);
 }
 
 static void prv_demo_signals(void)
 {
-    LOG_I("[1/5] signals (live Signal_Get):");
+    LOG_I("[1/6] signals (live Signal_Get):");
     /* All demo signals are pulled from IPK RX messages that already
      * exist in the IPK DBC (signal.h -> SIG_CAN_* already populated
      * by app/can/can_rx.c). */
@@ -111,7 +117,7 @@ static void prv_demo_timeouts(void)
         if ((hi  >> i) & 1) { to_cnt++; }
         if ((hi2 >> i) & 1) { to_cnt++; }
     }
-    LOG_I("[2/5] timeouts: LO=0x%08X HI=0x%08X HI2=0x%08X set=%u",
+    LOG_I("[2/6] timeouts: LO=0x%08X HI=0x%08X HI2=0x%08X set=%u",
           (unsigned)lo, (unsigned)hi, (unsigned)hi2, (unsigned)to_cnt);
 
     /* Enumerate the first few set bits back to CAN id (Sentinel
@@ -140,17 +146,17 @@ static void prv_demo_raw_frame(void)
     can_msg_t frame;
     const c02b2_result_t r = CanRx_GetLastRawFrame(DEMO_RX_ID_RAW, &frame);
     if (r == C02B2_ERR_NOT_FOUND) {
-        LOG_I("[3/5] raw cache: id=0x%X never received yet",
+        LOG_I("[3/6] raw cache: id=0x%X never received yet",
               (unsigned)DEMO_RX_ID_RAW);
         return;
     }
     if (r != C02B2_OK) {
-        LOG_W("[3/5] raw cache lookup failed id=0x%X (%d)",
+        LOG_W("[3/6] raw cache lookup failed id=0x%X (%d)",
               (unsigned)DEMO_RX_ID_RAW, (int)r);
         return;
     }
     const char *name = CanDb_FindIpkById(frame.id)->name;
-    LOG_I("[3/5] raw cache: id=0x%X (%s) dlc=%u bytes = %02X %02X %02X %02X %02X %02X %02X %02X",
+    LOG_I("[3/6] raw cache: id=0x%X (%s) dlc=%u bytes = %02X %02X %02X %02X %02X %02X %02X %02X",
           (unsigned)frame.id, name, (unsigned)frame.dlc,
           frame.data[0], frame.data[1], frame.data[2], frame.data[3],
           frame.data[4], frame.data[5], frame.data[6], frame.data[7]);
@@ -168,17 +174,17 @@ static void prv_demo_tx_payload(u32 sweep)
     const c02b2_result_t r = CanTx_PreparePayload(DEMO_TX_ID_PAYLOAD,
                                                  buf, 8u);
     if (r != C02B2_OK) {
-        LOG_W("[4/5] PreparePayload id=0x%X failed (%d)",
+        LOG_W("[4/6] PreparePayload id=0x%X failed (%d)",
               (unsigned)DEMO_TX_ID_PAYLOAD, (int)r);
         return;
     }
     const c02b2_result_t t = CanTx_Trigger(DEMO_TX_ID_PAYLOAD);
     if (t != C02B2_OK) {
-        LOG_W("[4/5] Trigger id=0x%X failed (%d)",
+        LOG_W("[4/6] Trigger id=0x%X failed (%d)",
               (unsigned)DEMO_TX_ID_PAYLOAD, (int)t);
         return;
     }
-    LOG_I("[4/5] tx 0x%X (IPK_STS): 8-byte payload queued and triggered",
+    LOG_I("[4/6] tx 0x%X (IPK_STS): 8-byte payload queued and triggered",
           (unsigned)DEMO_TX_ID_PAYLOAD);
 }
 
@@ -196,19 +202,132 @@ static void prv_demo_tx_signal(u32 sweep)
     const c02b2_result_t e = CanTx_EncodeSignal(DEMO_TX_ID_SIGNAL,
                                                 DEMO_TX_SIGNAL_ID, v);
     if (e != C02B2_OK) {
-        LOG_W("[5/5] EncodeSignal id=0x%X sig=%u v=%d failed (%d)",
+        LOG_W("[5/6] EncodeSignal id=0x%X sig=%u v=%d failed (%d)",
               (unsigned)DEMO_TX_ID_SIGNAL,
               (unsigned)DEMO_TX_SIGNAL_ID, (int)v, (int)e);
         return;
     }
     const c02b2_result_t t = CanTx_Trigger(DEMO_TX_ID_SIGNAL);
     if (t != C02B2_OK) {
-        LOG_W("[5/5] Trigger id=0x%X failed (%d)",
+        LOG_W("[5/6] Trigger id=0x%X failed (%d)",
               (unsigned)DEMO_TX_ID_SIGNAL, (int)t);
         return;
     }
-    LOG_I("[5/5] tx 0x%X (IPK_EngineService): IPK_DayToEngSrv=%d (queued)",
+    LOG_I("[5/6] tx 0x%X (IPK_EngineService): IPK_DayToEngSrv=%d (queued)",
           (unsigned)DEMO_TX_ID_SIGNAL, (int)v);
+}
+
+/* ---------------------------------------------------------------- *
+ *  Demo #6: raw <-> physical round-trip on RX signals (SOC bring-up)
+ *
+ *  Two Motorola signals are exercised on a 1 s tick:
+ *    - EMS_EngineSpeedRPM  (CAN ID 0x85,  start=23, len=16, factor=0.25)
+ *    - ESC_VehicleSpeed    (CAN ID 0x125, start=15, len=13, factor=0.05625)
+ *
+ *  Three independent round-trips are reported per signal so a CANalyzer
+ *  sweep can verify the codec against SOC ground truth:
+ *
+ *  [A] raw   -> pack    -> GetRaw                  (must equal raw)
+ *  [B] raw   -> decode  -> phys (s32 integer)     (raw * factor + offset, rounded)
+ *  [C] phys  -> encode  -> pack -> decode -> phys  (must equal phys)
+ *  [D] RX side (live): Signal_Get + CanDb_DecodeSignal on the
+ *      last frame received from CANalyzer.
+ *
+ *  For non-power-of-two factors (0.05625) the [B] phys is a quantised
+ *  s32 -- one phys step covers `factor` raw steps.  Round-tripping
+ *  raw -> phys -> raw may shift by one raw step; this is expected and
+ *  matches how every other CAN toolchain reports the signal.
+ * ---------------------------------------------------------------- */
+
+/* Sweep raw through the signal range so each tick prints a fresh
+ * value to compare against CANalyzer.  LCG keeps the value deterministic. */
+static u32 prv_demo_raw_step(u32 sweep, u32 mask)
+{
+    u32 v = (sweep * 2654435761u) + 1u;
+    return v & mask;
+}
+
+/* Pretty-print one signal across paths A / B / C and the live RX path D.
+ * Designed to be line-parsable by hand while CANalyzer logs the bus. */
+static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
+{
+    const can_sig_desc_t *sig = CanDb_FindIpkSig(sig_id);
+    if (sig == NULL) {
+        LOG_W("[6/6] %s: CanDb_FindIpkSig sig=%u -> NULL",
+              name, (unsigned)sig_id);
+        return;
+    }
+
+    /* [A] raw -> pack -> GetRaw */
+    u8 payload[8] = {0};
+    CanDb_PackSignal(payload, sig, raw_in);
+    const u32 raw_a = CanDb_GetRaw(payload, sig);
+
+    /* [B] raw -> decode -> phys (s32 integer) */
+    const s32 phys_b = CanDb_DecodeSignal(payload, sig);
+
+    /* [C] phys -> encode -> pack -> decode -> phys */
+    const can_raw_t raw_c = CanDb_EncodeSignalValue(phys_b, sig);
+    u8 payload_c[8] = {0};
+    CanDb_PackSignal(payload_c, sig, raw_c);
+    const s32 phys_c = CanDb_DecodeSignal(payload_c, sig);
+
+    const bool ok_a = (raw_a == raw_in);
+    const bool ok_c = (phys_c == phys_b);
+
+    LOG_I("[6/6] %-18s A:raw 0x%04X->pack->0x%04X %s | "
+          "B:phys %d | C:phys%d->encode 0x%04X->pack->phys%d %s | "
+          "pld=%02X %02X %02X %02X %02X %02X %02X %02X",
+          name,
+          (unsigned)raw_in, (unsigned)raw_a, ok_a ? "OK" : "MISS",
+          (int)phys_b,
+          (int)phys_b, (unsigned)raw_c, (int)phys_c, ok_c ? "OK" : "MISS",
+          payload[0], payload[1], payload[2], payload[3],
+          payload[4], payload[5], payload[6], payload[7]);
+}
+
+/* Print the live RX side: Signal_Get returns the raw bit pattern from
+ * the last payload the RX path drained.  Pair with CANalyzer -- if
+ * CANalyzer sends a 16-bit raw value to 0x85 and you see the same raw
+ * here, the Motorola decode is correct.  `phys` shows the s32 quantised
+ * value (raw * factor + offset, rounded); use this for SOC cross-check. */
+static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
+{
+    const u32 raw_live = Signal_Get(bus_id);
+    const can_sig_desc_t *sig = CanDb_FindIpkSig(sig_id);
+    s32 phys_live = 0;
+    if (sig != NULL) {
+        /* Reuse the last-frame cache to drive a synthetic decode that
+         * matches what a consumer module would do.  We cannot call
+         * CanDb_DecodeSignal() directly on Signal_Get() -- the bus
+         * holds raw, the decode needs the original 8-byte payload.
+         * Instead just compute phys = raw * factor + offset inline. */
+        phys_live = (s32)(((float)raw_live * sig->factor) + sig->offset + 0.5f);
+    }
+    LOG_I("[6/6] RX %-18s raw=0x%04X phys=%d",
+          name, (unsigned)raw_live, (int)phys_live);
+}
+
+static void prv_demo_raw_physical(u32 sweep)
+{
+    /* Sweep raw through the full length-bit range so CANalyzer sees
+     * the physical value transition across the full scale. */
+    const u32 rpm_mask   = (1u << 16) - 1u;  /* EMS_EngineSpeedRPM len=16 */
+    const u32 speed_mask = (1u << 13) - 1u;  /* ESC_VehicleSpeed   len=13 */
+
+    const u32 rpm_raw   = prv_demo_raw_step(sweep * 2u + 1u, rpm_mask);
+    const u32 speed_raw = prv_demo_raw_step(sweep * 2u + 2u, speed_mask);
+
+    prv_demo_roundtrip((u16)CAN_DB_SIG_EMS_EngineSpeedRPM,
+                       "EMS_EngineSpeedRPM", rpm_raw);
+    prv_demo_roundtrip((u16)CAN_DB_SIG_ESC_VehicleSpeed,
+                       "ESC_VehicleSpeed",   speed_raw);
+
+    /* Live RX: what the codec actually extracted from the last frame. */
+    prv_demo_live_rx((u16)CAN_DB_SIG_EMS_EngineSpeedRPM,
+                     SIG_CAN_EMS_EngineSpeedRPM, "EMS_EngineSpeedRPM");
+    prv_demo_live_rx((u16)CAN_DB_SIG_ESC_VehicleSpeed,
+                     SIG_CAN_ESC_VehicleSpeed,   "ESC_VehicleSpeed");
 }
 
 /* ---------------------------------------------------------------- *
@@ -263,6 +382,7 @@ static void prv_tick(void)
     prv_demo_raw_frame();
     prv_demo_tx_payload(sweep);
     prv_demo_tx_signal(sweep);
+    prv_demo_raw_physical(sweep);
 }
 
 static void prv_standby(void)
