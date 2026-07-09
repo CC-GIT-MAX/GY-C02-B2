@@ -13,6 +13,7 @@
 extern const mod_desc_t mod_template;
 extern const mod_desc_t mod_can_rx;
 extern const mod_desc_t mod_can_tx;
+extern const mod_desc_t mod_can_demo;
 
 /**
  * @brief   Module registry (registration order = tick / init order)
@@ -28,6 +29,7 @@ const mod_desc_t * const g_modules[] = {
     &mod_template,
     &mod_can_rx,    /* pull from ring first */
     &mod_can_tx,    /* push to bus */
+    &mod_can_demo,  /* bring-up demo: exercises Signal_Get + raw cache + TX */
     /* &mod_diag, &mod_storage, ... append here */
 };
 

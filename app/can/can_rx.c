@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file    can_rx.c
  * @brief   CAN receive dispatcher + timeout monitor
  * @brief   CAN 接收分发 + 超时监控
@@ -34,9 +34,22 @@ typedef struct {
     u32 last_rx_tick_ms;  /**< RTI tick at last successful rx (0 = never) */
 } rx_track_t;
 
+/** Per-IPK-message raw frame cache.
+ *  Indexed by can_msg_descs_ipk[] (NOT by can_id directly, because two
+ *  messages cannot share an id but the table is the SoT for "which ids
+ *  do we know about").  `valid` flips to 1 the first time a frame arrives
+ *  for that index; the cached bytes are then refreshed on every match.
+ */
+typedef struct {
+    bool valid;
+    can_msg_t frame;
+    u32  rx_tick_ms;
+} rx_raw_cache_t;
+
 static struct {
     bool       init_done;
     rx_track_t track[MAX_RX_TRACKED];
+    rx_raw_cache_t raw[CAN_DB_IPK_MSG_COUNT];  /**< most-recent raw frame */
     u32        seen_unknown_ids[MAX_RX_UNKNOWN_LOG];  /**< FIFO of announced unknown ids */
     u8         seen_unknown_count;                    /**< 0..MAX_RX_UNKNOWN_LOG */
     u8         seen_unknown_next;                     /**< next FIFO write index */
@@ -286,6 +299,13 @@ static void prv_drain(void)
         drained++;
         const u16 idx = prv_find_ipk_index(m.id);
         if (idx != 0xFFFFu) {
+            /* Cache the raw frame so diag / demo modules can read
+             * the full 8-byte payload without re-decoding every signal.
+             * Cache index matches can_msg_descs_ipk[] order; the array
+             * is sized to CAN_DB_IPK_MSG_COUNT so any idx is in range. */
+            s_rx.raw[idx].frame     = m;
+            s_rx.raw[idx].rx_tick_ms = RTI_GetTick1ms();
+            s_rx.raw[idx].valid      = true;
             /* Known frame: hand off to the DBC dispatcher. */
             CanDb_DispatchByDb(&can_msg_descs_ipk[idx], m.data);
             /* Stamp the per-bit-N last-rx tick (Sentinel: bit-N is
@@ -383,6 +403,43 @@ static void prv_standby(void)
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0);
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0);
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0);
+}
+
+/* ---------------------------------------------------------------- *
+ *  Public API: raw frame cache
+ *
+ *  Indexed lookup.  The cache is updated inside prv_drain(); the read
+ *  API is safe to call from any tick (5 ms or slower) or from main().
+ * ---------------------------------------------------------------- */
+c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
+{
+    if (out == NULL) {
+        return C02B2_ERR_PARAM;
+    }
+    /* Linear scan of can_msg_descs_ipk[] is fine: 73 entries, called
+     * from a 1 s demo tick -- no need for a hash. */
+    for (u32 i = 0u; i < (u32)CAN_DB_IPK_MSG_COUNT; i++) {
+        if (can_msg_descs_ipk[i].can_id != can_id) { continue; }
+        if (can_msg_descs_ipk[i].is_tx != 0u) {
+            /* TX entries have no RX cache; refuse. */
+            return C02B2_ERR_PARAM;
+        }
+        if (!s_rx.raw[i].valid) {
+            return C02B2_ERR_NOT_FOUND;
+        }
+        *out = s_rx.raw[i].frame;
+        return C02B2_OK;
+    }
+    return C02B2_ERR_PARAM;   /* unknown can_id */
+}
+
+u32 CanRx_GetRawFrameCount(void)
+{
+    u32 n = 0u;
+    for (u32 i = 0u; i < (u32)CAN_DB_IPK_MSG_COUNT; i++) {
+        if (s_rx.raw[i].valid) { n++; }
+    }
+    return n;
 }
 
 /**
