@@ -15,7 +15,7 @@
  * a private counter - there is no double bookkeeping.
  */
 #include "rti.h"
-#include "rti_defer.h"
+#include "drv_api/rti_defer/rti_defer.h"
 #include "osif.h"           /* OSIF_GetMilliseconds + osif_Tick */
 #include "wdg_hw_access.h"  /* WDG_DRV_Trigger                  */
 

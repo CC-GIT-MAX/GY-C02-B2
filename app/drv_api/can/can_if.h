@@ -85,6 +85,19 @@ c02b2_result_t CanIf_Init(void);
 void CanIf_InstallFlexcanCallbacks(void);
 
 /**
+ * @brief   Initialize both FlexCAN instances (driver-level bring-up)
+ * @brief   初始化两个 FlexCAN 实例（驱动级初始化）
+ *
+ * @details Single entry point that runs the full FlexCAN bring-up
+ *          sequence (Init -> ConfigRxFifo -> InstallCallbacks ->
+ *          ArmRxFifo).  Called once from app/init/drv_init.c.
+ *          Lives in this header because it operates on the same
+ *          hardware state as the rest of can_if; the legacy
+ *          app/drv_api/can/can_init.c was merged into can_if.c.
+ */
+void Can_Init(void);
+
+/**
  * @brief   Prime the RX FIFO for both instances (arm first receive)
  * @brief   启动两个实例的 RX FIFO（首帧接收预热）
  *

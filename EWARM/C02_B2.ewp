@@ -389,6 +389,9 @@
           <state>$PROJ_DIR$/../app/drv_api/i2c</state>
           <state>$PROJ_DIR$/../app/drv_api/uart</state>
           <state>$PROJ_DIR$/../app/drv_api/flash</state>
+          <state>$PROJ_DIR$/../app/drv_api/rti_defer</state>
+          <state>$PROJ_DIR$/../app/drv_api/io</state>
+          <state>$PROJ_DIR$/../app/drv_api/wdg</state>
           <state>$PROJ_DIR$/../app/drv_api</state></option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1174,9 +1177,6 @@
     <group>
       <name>drv_api/can</name>
       <file>
-        <name>$PROJ_DIR$/../app/drv_api/can/can_init.c</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$/../app/drv_api/can/can_if.c</name>
       </file>
       <file>
@@ -1200,45 +1200,90 @@
       <file>
         <name>$PROJ_DIR$/../app/drv_api/can/can_db_ipk_gen.h</name>
       </file>
-    </group>
+</group>
     <group>
       <name>drv_api/lptmr</name>
       <file>
-        <name>$PROJ_DIR$/../app/drv_api/lptmr/lptmr_init.c</name>
+        <name>$PROJ_DIR$/../app/drv_api/lptmr/lptmr.c</name>
       </file>
-    </group>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/lptmr/lptmr.h</name>
+      </file>
+</group>
     <group>
       <name>drv_api/adc</name>
       <file>
-        <name>$PROJ_DIR$/../app/drv_api/adc/adc_init.c</name>
+        <name>$PROJ_DIR$/../app/drv_api/adc/adc.c</name>
       </file>
-    </group>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/adc/adc.h</name>
+      </file>
+</group>
     <group>
       <name>drv_api/etmr</name>
       <file>
-        <name>$PROJ_DIR$/../app/drv_api/etmr/etmr_init.c</name>
+        <name>$PROJ_DIR$/../app/drv_api/etmr/etmr.c</name>
       </file>
-    </group>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/etmr/etmr.h</name>
+      </file>
+</group>
     <group>
       <name>drv_api/i2c</name>
       <file>
-        <name>$PROJ_DIR$/../app/drv_api/i2c/i2c_init.c</name>
+        <name>$PROJ_DIR$/../app/drv_api/i2c/i2c.c</name>
       </file>
-    </group>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/i2c/i2c.h</name>
+      </file>
+</group>
     <group>
       <name>drv_api/uart</name>
       <file>
-        <name>$PROJ_DIR$/../app/drv_api/uart/uart_init.c</name>
+        <name>$PROJ_DIR$/../app/drv_api/uart/uart.c</name>
       </file>
-    </group>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/uart/uart.h</name>
+      </file>
+</group>
     <group>
       <name>drv_api/flash</name>
       <file>
-        <name>$PROJ_DIR$/../app/drv_api/flash/flash_init.c</name>
+        <name>$PROJ_DIR$/../app/drv_api/flash/flash.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/flash/flash.h</name>
+      </file>
+</group>
+    <group>
+          <group>
+      <name>drv_api/rti_defer</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/rti_defer/rti_defer.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/rti_defer/rti_defer.h</name>
       </file>
     </group>
     <group>
-      <name>init</name>
+      <name>drv_api/io</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/io/io.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/io/io.h</name>
+      </file>
+    </group>
+    <group>
+      <name>drv_api/wdg</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/wdg/wdg.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/wdg/wdg.h</name>
+      </file>
+    </group>
+<name>init</name>
       <file>
         <name>$PROJ_DIR$/../app/init/bsp_init.c</name>
       </file>
@@ -1269,12 +1314,6 @@
       <file>
         <name>$PROJ_DIR$/../app/rti/rti.h</name>
       </file>
-      <file>
-        <name>$PROJ_DIR$/../app/rti/rti_defer.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/rti/rti_defer.h</name>
-      </file>
     </group>
     <group>
       <name>scheduler</name>
@@ -1283,13 +1322,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$/../app/scheduler/scheduler.h</name>
-      </file>
-    
-      <file>
-        <name>$PROJ_DIR$/../app/rti/rti_defer.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../app/rti/rti_defer.h</name>
       </file>
     </group>
     <group>

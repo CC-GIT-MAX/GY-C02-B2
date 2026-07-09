@@ -18,57 +18,20 @@
 #include "sdk_project_config.h"
 
 /* Per-peripheral init helpers - one per app/drv_api/<periph>/.   *
- * Each is defined in its own drv_api/<periph>/<periph>_init.c;    *
- * the briefs below are short pointers to the full implementation. */
-/**
- * @brief   Initialize LPTMR instance 0 (1 kHz RTI tick source).
- * @brief   初始化 LPTMR 实例 0（1 kHz RTI 时钟源）
- *
- * @see     app/drv_api/lptmr/lptmr_init.c
- */
-void Lptmr_Init(void);
-/**
- * @brief   Initialize ADC instance 0 (converter config).
- * @brief   初始化 ADC 实例 0（转换器配置）
- *
- * @see     app/drv_api/adc/adc_init.c
- */
-void Adc_Init(void);
-/**
- * @brief   Initialize eTMR channels 0 + 3 (counter + PWM).
- * @brief   初始化 eTMR 通道 0 + 3（计数 + PWM）
- *
- * @see     app/drv_api/etmr/etmr_init.c
- */
-void Etmr_Init(void);
-/**
- * @brief   Initialize I2C instance 0 in master mode.
- * @brief   初始化 I2C 实例 0（主设备模式）
- *
- * @see     app/drv_api/i2c/i2c_init.c
- */
-void I2c_Init(void);
-/**
- * @brief   Initialize LINFlexD UART instance 0 (factory comms).
- * @brief   初始化 LINFlexD UART 实例 0（工厂通信）
- *
- * @see     app/drv_api/uart/uart_init.c
- */
-void Uart_Init(void);
-/**
- * @brief   Initialize both FlexCAN instances (1=private, 2=public).
- * @brief   初始化 两个 FlexCAN 实例（1=私域，2=公域）
- *
- * @see     app/drv_api/can/can_init.c
- */
-void Can_Init(void);
-/**
- * @brief   Initialize FLASH instance 0 (used by app/storage/kv).
- * @brief   初始化 FLASH 实例 0（被 app/storage/kv 使用）
- *
- * @see     app/drv_api/flash/flash_init.c
- */
-void Flash_Init(void);
+ * Each is declared in drv_api/<periph>/<periph>.h and defined in    *
+ * drv_api/<periph>/<periph>.c (the older <periph>_init.c files     *
+ * were merged into those .c/.h pairs). */
+
+/* Drivers not used in the current build are still listed here so    *
+ * that adding a new module only touches this dispatcher. */
+
+#include "drv_api/lptmr/lptmr.h"   /* Lptmr_Init (1 kHz RTI tick source)  */
+#include "drv_api/adc/adc.h"       /* Adc_Init (converter config)         */
+#include "drv_api/etmr/etmr.h"     /* Etmr_Init (counter + PWM channels)  */
+#include "drv_api/i2c/i2c.h"       /* I2c_Init (master mode)              */
+#include "drv_api/uart/uart.h"     /* Uart_Init (LINFlexD UART0)          */
+#include "drv_api/can/can_if.h"    /* Can_Init (FlexCAN1 + FlexCAN2)      */
+#include "drv_api/flash/flash.h"   /* Flash_Init (used by app/storage/kv) */
 
 #define LOG_NAME  "DRV"
 #include "log.h"

@@ -4,7 +4,7 @@
  */
 #include "scheduler.h"
 #include "rti.h"
-#include "rti_defer.h"
+#include "drv_api/rti_defer/rti_defer.h"
 
 #define LOG_NAME  "SCH"
 #include "log.h"
