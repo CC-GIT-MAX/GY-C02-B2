@@ -3,6 +3,18 @@
  * @brief   CAN interface abstraction
  *
  * Only this header + can_if.c touch flexcan_driver.h.
+ *
+ * Layering (top -> bottom):
+ *   app/mod_can_demo        <- uses app/can/can_tx.h + can_rx.h (DBC-aware)
+ *   app/can/can_tx.c        <- CanTx_PreparePayload / EncodeSignal / Trigger
+ *   app/can/can_rx.c        <- CanRx_GetLastRawFrame / GetRawFrameCount
+ *   app/drv_api/can/can_if  <- CanIf_Send / PopRx / ConfigRxMb  <-- THIS FILE
+ *   SDK flexcan_driver      <- FLEXCAN_DRV_*
+ *
+ * DBC-aware APIs (send whole payload / send one signal / receive
+ * last frame by CAN id) live one layer up -- in app/can/can_tx.h
+ * and app/can/can_rx.h.  This header intentionally does NOT
+ * re-export them, so that drv_api/ stays a downward-only layer.
  */
 #ifndef C02B2_CAN_IF_H
 #define C02B2_CAN_IF_H

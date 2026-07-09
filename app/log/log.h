@@ -95,11 +95,11 @@ void Log_Print(log_level_t lvl, const char *mod, const char *fmt, ...);
  *    - 自检/测试 PASS/FAIL 总结
  * ---------------------------------------------------------------- */
 #ifndef CAN_DEBUG_LOG
-  #define CAN_DEBUG_LOG  0   /* app/can/can_rx.c / can_tx.c 高频跟踪 */
+  #define CAN_DEBUG_LOG  1   /* 临时打开验证, 验证后回退为 0 */
 #endif
 
 #ifndef CAN_DEMO_LOG
-  #define CAN_DEMO_LOG  0   /* app/mod_can_demo/mod_can_demo.c 每个 tick 演示 */
+  #define CAN_DEMO_LOG  1   /* app/mod_can_demo/mod_can_demo.c 演示模块默认开启 */
 #endif
 
 #ifndef SCHED_DEBUG_LOG
