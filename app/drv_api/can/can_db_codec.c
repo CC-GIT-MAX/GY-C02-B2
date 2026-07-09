@@ -4,15 +4,19 @@
  * @brief   CAN 信号编/解码原语
  *
  * Two byte orders are supported:
- *   - Intel / little-endian (DBC @0+): bytes laid out LSB first,
- *     within each byte the LSB is bit 0.
- *   - Motorola / big-endian (DBC @1+): bytes laid out MSB first,
- *     "start_bit" refers to the MSB of the field.
+ *   - Motorola / big-endian (DBC @0+): the payload is read MSB-first
+ *     across bytes.  `start_bit` is a "sawtooth" index -- it is the
+ *     position of the MSB of the field, counted from the MSB of each
+ *     byte going down toward LSB and then into the next byte.  The
+ *     sawtooth index is converted to a network bit position by
+ *     `network = 8 * (start / 8) + (7 - start % 8)`.
+ *   - Intel / little-endian (DBC @1+): `start_bit` is the network bit
+ *     position of the LSB of the field.  Bits within a byte are read
+ *     from LSB upward.
  *
- * Bit numbering convention follows Vector DBC v3 / CANdb++ docs:
- *   byte index = start_bit / 8
- *   Intel:   bit-within-byte (from LSB) = start_bit % 8
- *   Motorola:bit-within-byte (from MSB) = 7 - (start_bit % 8)
+ * The two byte orders agree on the network bit numbering -- network
+ * bit 0 is the MSB of byte 0, bit 7 is the LSB of byte 0, bit 8 is
+ * the MSB of byte 1, ...  Bit-7-of-byte-N == network bit (8N+7).
  *
  * Performance: all paths are O(length) with no malloc; safe to call
  * from any context including CAN RX interrupt.
@@ -81,7 +85,7 @@ static inline u8 prv_get_bit_msb(const u8 *data, u8 n)
  * @param[in]  data        Pointer to at least 8 bytes of payload
  * @param[in]  start_bit   DBC start_bit
  * @param[in]  length      Bit width (1..32)
- * @param[in]  byte_order  0 = Intel, 1 = Motorola
+ * @param[in]  byte_order  0 = Motorola, 1 = Intel
  *
  * @return  can_raw_t  Zero-extended raw value
  */
@@ -93,17 +97,27 @@ can_raw_t CanDb_BitExtract(const u8 *data, u16 start_bit, u8 length, u8 byte_ord
     /* Walk MSB-first within the field so the read order does not
      * matter for endianness: each step contributes the next bit
      * of the result shifted into the high end. */
-    if (byte_order == 0u) {
-        /* Intel: bit n is at data[n/8] bit (n%8) */
+    if (byte_order == 1u) {
+        /* Intel: start_bit is the network position of the LSB; the
+         * MSB of the field sits at network position (start_bit +
+         * length - 1).  Within each byte the field's bit ordering
+         * is LSB-up, so we read with prv_get_bit_lsb(). */
         for (u8 i = 0u; i < length; i++) {
             const u16 n = (u16)(start_bit + length - 1u - i);
             const u8  b = prv_get_bit_lsb(data, (u8)n);
             value = (can_raw_t)((value << 1) | (can_raw_t)b);
         }
     } else {
-        /* Motorola: bit n is at data[n/8] bit (7 - n%8) */
+        /* Motorola: start_bit is the sawtooth index of the MSB of
+         * the field.  Convert it to the network bit position where
+         * the MSB actually lives, then read `length` bits MSB-first
+         * (network 0 = byte 0 MSB, network 7 = byte 0 LSB,
+         *  network 8 = byte 1 MSB, ...).  Reading MSB-first means
+         * the per-byte bit index decreases by one each step. */
+        const u16 msb_net = (u16)((u16)(start_bit & 0xFFF8u)
+                                 + (u16)(7u - (start_bit & 0x7u)));
         for (u8 i = 0u; i < length; i++) {
-            const u16 n = (u16)(start_bit + length - 1u - i);
+            const u16 n = (u16)(msb_net + i);
             const u8  b = prv_get_bit_msb(data, (u8)n);
             value = (can_raw_t)((value << 1) | (can_raw_t)b);
         }
@@ -117,7 +131,7 @@ can_raw_t CanDb_BitExtract(const u8 *data, u16 start_bit, u8 length, u8 byte_ord
  * @param[in]  data        Pointer to at least 8 bytes of payload
  * @param[in]  start_bit   DBC start_bit
  * @param[in]  length      Bit width (1..32)
- * @param[in]  byte_order  0 = Intel, 1 = Motorola
+ * @param[in]  byte_order  0 = Motorola, 1 = Intel
  *
  * @return  can_raw_s_t  Sign-extended raw value
  */
@@ -146,22 +160,31 @@ can_raw_s_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 
  * @param[out] data        Payload buffer (8 bytes)
  * @param[in]  start_bit   DBC start_bit
  * @param[in]  length      Bit width (1..32)
- * @param[in]  byte_order  0 = Intel, 1 = Motorola
+ * @param[in]  byte_order  0 = Motorola, 1 = Intel
  * @param[in]  value       Raw value (only low `length` bits used)
  */
 void CanDb_BitEncode(u8 *data, u16 start_bit, u8 length, u8 byte_order, can_raw_t value)
 {
     if (length == 0u) { return; }
-    if (byte_order == 0u) {
+    if (byte_order == 1u) {
+        /* Intel: write the LSB of `value` into start_bit and walk
+         * upward.  Per-byte ordering is LSB-up. */
         for (u8 i = 0u; i < length; i++) {
             const u16 n = (u16)(start_bit + i);
             const u8  b = (u8)((value >> i) & 0x1u);
             prv_set_bit_lsb(data, (u8)n, b);
         }
     } else {
+        /* Motorola: convert sawtooth start_bit to network MSB and
+         * walk forward.  Each subsequent bit lives at the next
+         * network position, which is the next byte's MSB after the
+         * byte boundary is crossed.  The MSB of `value` lands at
+         * the network MSB position. */
+        const u16 msb_net = (u16)((u16)(start_bit & 0xFFF8u)
+                                 + (u16)(7u - (start_bit & 0x7u)));
         for (u8 i = 0u; i < length; i++) {
-            const u16 n = (u16)(start_bit + i);
-            const u8  b = (u8)((value >> i) & 0x1u);
+            const u16 n = (u16)(msb_net + i);
+            const u8  b = (u8)((value >> (length - 1u - i)) & 0x1u);
             prv_set_bit_msb(data, (u8)n, b);
         }
     }

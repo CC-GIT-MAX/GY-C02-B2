@@ -8,10 +8,13 @@
  * payloads, as defined by Vector DBC files.
  *
  * Two byte orders are supported:
- *   - Intel / little-endian (DBC @0+) -- bytes laid out LSB first,
- *     within each byte the LSB is the lowest bit.
- *   - Motorola / big-endian (DBC @1+) -- bytes laid out MSB first,
- *     "start_bit" refers to the MSB of the field.
+ *   - Motorola / big-endian (DBC @0+) -- the payload is read MSB-first
+ *     across bytes.  `start_bit` is a sawtooth index of the MSB of
+ *     the field, converted to a network bit position by
+ *     `network = 8 * (start / 8) + (7 - start % 8)`.
+ *   - Intel / little-endian (DBC @1+) -- `start_bit` is the network
+ *     bit position of the LSB of the field, and bits within each byte
+ *     run from LSB upward.
  *
  * The signal descriptor `can_sig_desc_t` and the message descriptor
  * `can_msg_desc_t` are shared with the AUTOGEN tables emitted by
@@ -98,7 +101,7 @@ typedef enum {
  *
  * Fields map 1:1 to DBC attributes:
  *   - start_bit / length: bit position and width in the payload.
- *   - byte_order: 0 = Intel (little-endian), 1 = Motorola (big-endian).
+ *   - byte_order: 0 = Motorola (big-endian), 1 = Intel (little-endian).
  *   - is_signed: 0 = unsigned, 1 = signed (two's complement).
  *   - factor / offset: physical = raw * factor + offset.
  *   - raw_type: storage hint (U8/I8/U16/...) used by the codec.
@@ -106,7 +109,7 @@ typedef enum {
 typedef struct {
     u16           start_bit;
     u8            length;
-    u8            byte_order;   /**< 0 = Intel / little-endian, 1 = Motorola / big-endian */
+    u8            byte_order;   /**< 0 = Motorola / big-endian, 1 = Intel / little-endian */
     u8            is_signed;    /**< 0 = unsigned, 1 = signed */
     u8            _rsvd;        /**< explicit pad for alignment */
     float         factor;
@@ -150,14 +153,15 @@ typedef struct {
  *          unsigned value; use `CanDb_BitExtractSigned` if the
  *          signal is two's-complement.
  *
- *          `length` must be 1..32. `start_bit` is in DBC convention:
- *            Intel:    bit 0 = LSB of byte 0
- *            Motorola: bit 0 = MSB of byte 0
+ *          `length` must be 1..32. `start_bit` follows the Vector
+ *          DBC convention:
+ *            Motorola: sawtooth index of the MSB of the field
+ *            Intel:    network bit position of the LSB of the field
  *
  * @param[in]  data        Pointer to at least 8 bytes of payload
  * @param[in]  start_bit   DBC start_bit (see above)
  * @param[in]  length      Bit width (1..32)
- * @param[in]  byte_order  0 = Intel, 1 = Motorola
+ * @param[in]  byte_order  0 = Motorola, 1 = Intel
  *
  * @return  can_raw_t  Zero-extended raw value
  */
@@ -170,7 +174,7 @@ can_raw_t CanDb_BitExtract(const u8 *data, u16 start_bit, u8 length, u8 byte_ord
  * @param[in]  data        Pointer to at least 8 bytes of payload
  * @param[in]  start_bit   DBC start_bit
  * @param[in]  length      Bit width (1..32)
- * @param[in]  byte_order  0 = Intel, 1 = Motorola
+ * @param[in]  byte_order  0 = Motorola, 1 = Intel
  *
  * @return  can_raw_s_t  Sign-extended raw value (two's complement)
  */
@@ -186,7 +190,7 @@ can_raw_s_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 
  * @param[out] data        Payload buffer (8 bytes)
  * @param[in]  start_bit   DBC start_bit
  * @param[in]  length      Bit width (1..32)
- * @param[in]  byte_order  0 = Intel, 1 = Motorola
+ * @param[in]  byte_order  0 = Motorola, 1 = Intel
  * @param[in]  value       Raw value (only low `length` bits used)
  */
 void CanDb_BitEncode(u8 *data, u16 start_bit, u8 length, u8 byte_order, can_raw_t value);
