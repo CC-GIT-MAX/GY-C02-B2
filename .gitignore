@@ -45,6 +45,7 @@ build.ninja
 *.pbi.xcl
 
 # IAR EWARM：保留工程定义，忽略构建缓存与本地设置
+EWARM/*.ewd
 EWARM/settings/
 EWARM/FLASH/
 EWARM/Backup*/
@@ -79,6 +80,11 @@ $RECYCLE.BIN/
 *.orig
 *.rej
 *.saving
+
+# Python (tools/ 下可能有脚本)
+__pycache__/
+*.pyc
+*.pyo
 *.crdownload
 
 # 本地草稿

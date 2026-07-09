@@ -27,4 +27,17 @@ const linflexd_uart_user_config_t COMM_uart_config = {
     .txDMAChannel=1,
     .rxDMAChannel=0,
 };
+/*Printf_uart_config*/
+linflexd_uart_state_t Printf_uart_config_State;
+const linflexd_uart_user_config_t Printf_uart_config = {
+    .baudRate=500000U,
+    .parityCheck=false,
+    .parityType=LINFlexD_UART_PARITY_EVEN,
+    .stopBitsCount=LINFlexD_UART_ONE_STOP_BIT,
+    .wordLength=LINFlexD_UART_8_BITS,
+    .txTransferType=LINFlexD_UART_USING_INTERRUPTS,
+    .rxTransferType=LINFlexD_UART_USING_INTERRUPTS,
+    .txDMAChannel=0,
+    .rxDMAChannel=0,
+};
 

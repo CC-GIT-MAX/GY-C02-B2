@@ -36,7 +36,7 @@ report "$cnt" "extern in app/**/*.c (excluding scheduler.c)"
 # 2. 业务代码 include 驱动头（排除白名单）
 cnt=$(grep -rEn "#include[[:space:]]+\"(flexcan_driver|adc_driver|spi_driver|i2c_driver|linflexd_uart_driver|dma_driver|etmr_pwm_driver|pins_driver|interrupt_manager|power_manager|clock_manager|wdg_driver|flash_driver|lptmr_driver)\.h\"" \
         --include="*.c" --include="*.h" "$APP_DIR" 2>/dev/null \
-        | grep -vE "app/can/can_if\.c|app/init/(bsp|drv)_init\.c" | wc -l | tr -d " ")
+        | grep -vE "app/can/can_if\.c|app/drv_api/can/can_if\.c|app/init/(bsp|drv)_init\.c" | wc -l | tr -d " ")
 report "$cnt" "driver headers included by app/ (except can_if/bsp_init/drv_init)"
 
 # 3. printf 出现在业务代码（应走 LOG_*）
