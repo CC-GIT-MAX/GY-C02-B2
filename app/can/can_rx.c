@@ -326,19 +326,25 @@ static void prv_drain(void)
                 if (s_rx.seen_unknown_ids[k] == m.id) { announced = true; break; }
             }
             if (announced) {
+                #if CAN_DEBUG_LOG
                 LOG_D("rx id=0x%X (no DBC entry, already announced)", (unsigned)m.id);
+                #endif
             } else {
                 s_rx.seen_unknown_ids[s_rx.seen_unknown_next] = m.id;
                 s_rx.seen_unknown_next = (u8)((s_rx.seen_unknown_next + 1u) % MAX_RX_UNKNOWN_LOG);
                 if (s_rx.seen_unknown_count < MAX_RX_UNKNOWN_LOG) {
                     s_rx.seen_unknown_count++;
                 }
+                #if CAN_DEBUG_LOG
                 LOG_I("rx id=0x%X (no DBC entry, first seen)", (unsigned)m.id);
+                #endif
             }
         }
     }
     if (drained > 0u) {
+        #if CAN_DEBUG_LOG
         LOG_D("drained %u frame(s), pending=%u", (unsigned)drained, (unsigned)CanIf_RxPending());
+        #endif
     }
 }
 

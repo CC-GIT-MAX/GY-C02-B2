@@ -82,12 +82,16 @@ static void prv_emit_sig(u16 db_id, signal_id_t bus_id, const char *name)
      * CanDb_DecodeSignal() on top of it. */
     const u32 raw = Signal_Get(bus_id);
     (void)db_id;
+    #if CAN_DEMO_LOG
     LOG_I("  sig %s (bus=%u) raw=0x%08X", name, (unsigned)bus_id, (unsigned)raw);
+    #endif
 }
 
 static void prv_demo_signals(void)
 {
+    #if CAN_DEMO_LOG
     LOG_I("[1/6] signals (live Signal_Get):");
+    #endif
     /* All demo signals are pulled from IPK RX messages that already
      * exist in the IPK DBC (signal.h -> SIG_CAN_* already populated
      * by app/can/can_rx.c). */
@@ -117,8 +121,10 @@ static void prv_demo_timeouts(void)
         if ((hi  >> i) & 1) { to_cnt++; }
         if ((hi2 >> i) & 1) { to_cnt++; }
     }
+    #if CAN_DEMO_LOG
     LOG_I("[2/6] timeouts: LO=0x%08X HI=0x%08X HI2=0x%08X set=%u",
           (unsigned)lo, (unsigned)hi, (unsigned)hi2, (unsigned)to_cnt);
+    #endif
 
     /* Enumerate the first few set bits back to CAN id (Sentinel
      * mapping; bit-N is stable across DBC reorders). */
@@ -132,8 +138,10 @@ static void prv_demo_timeouts(void)
         const u32 can_id = prv_bit_to_can_id(bit);
         const char *name = (can_id != 0u)
             ? CanDb_FindIpkById(can_id)->name : "unused";
+        #if CAN_DEMO_LOG
         LOG_I("  bit=%u -> id=0x%X (%s) TIMEOUT",
               (unsigned)bit, (unsigned)can_id, name);
+        #endif
         printed++;
     }
 }
@@ -146,8 +154,10 @@ static void prv_demo_raw_frame(void)
     can_msg_t frame;
     const c02b2_result_t r = CanRx_GetLastRawFrame(DEMO_RX_ID_RAW, &frame);
     if (r == C02B2_ERR_NOT_FOUND) {
+        #if CAN_DEMO_LOG
         LOG_I("[3/6] raw cache: id=0x%X never received yet",
               (unsigned)DEMO_RX_ID_RAW);
+        #endif
         return;
     }
     if (r != C02B2_OK) {
@@ -156,10 +166,12 @@ static void prv_demo_raw_frame(void)
         return;
     }
     const char *name = CanDb_FindIpkById(frame.id)->name;
+    #if CAN_DEMO_LOG
     LOG_I("[3/6] raw cache: id=0x%X (%s) dlc=%u bytes = %02X %02X %02X %02X %02X %02X %02X %02X",
           (unsigned)frame.id, name, (unsigned)frame.dlc,
           frame.data[0], frame.data[1], frame.data[2], frame.data[3],
           frame.data[4], frame.data[5], frame.data[6], frame.data[7]);
+    #endif
 }
 
 /* ---------------------------------------------------------------- *
@@ -184,8 +196,10 @@ static void prv_demo_tx_payload(u32 sweep)
               (unsigned)DEMO_TX_ID_PAYLOAD, (int)t);
         return;
     }
+    #if CAN_DEMO_LOG
     LOG_I("[4/6] tx 0x%X (IPK_STS): 8-byte payload queued and triggered",
           (unsigned)DEMO_TX_ID_PAYLOAD);
+    #endif
 }
 
 /* ---------------------------------------------------------------- *
@@ -213,8 +227,10 @@ static void prv_demo_tx_signal(u32 sweep)
               (unsigned)DEMO_TX_ID_SIGNAL, (int)t);
         return;
     }
+    #if CAN_DEMO_LOG
     LOG_I("[5/6] tx 0x%X (IPK_EngineService): IPK_DayToEngSrv=%d (queued)",
           (unsigned)DEMO_TX_ID_SIGNAL, (int)v);
+    #endif
 }
 
 /* ---------------------------------------------------------------- *
@@ -274,7 +290,10 @@ static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
 
     const bool ok_a = (raw_a == raw_in);
     const bool ok_c = (phys_c == phys_b);
+    (void)ok_a;
+    (void)ok_c;
 
+    #if CAN_DEMO_LOG
     LOG_I("[6/6] %-18s A:raw 0x%04X->pack->0x%04X %s | "
           "B:phys %d | C:phys%d->encode 0x%04X->pack->phys%d %s | "
           "pld=%02X %02X %02X %02X %02X %02X %02X %02X",
@@ -284,6 +303,7 @@ static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
           (int)phys_b, (unsigned)raw_c, (int)phys_c, ok_c ? "OK" : "MISS",
           payload[0], payload[1], payload[2], payload[3],
           payload[4], payload[5], payload[6], payload[7]);
+    #endif
 }
 
 /* Print the live RX side: Signal_Get returns the raw bit pattern from
@@ -304,8 +324,11 @@ static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
          * Instead just compute phys = raw * factor + offset inline. */
         phys_live = (s32)(((float)raw_live * sig->factor) + sig->offset + 0.5f);
     }
+    (void)phys_live;
+    #if CAN_DEMO_LOG
     LOG_I("[6/6] RX %-18s raw=0x%04X phys=%d",
           name, (unsigned)raw_live, (int)phys_live);
+    #endif
 }
 
 static void prv_demo_raw_physical(u32 sweep)
@@ -375,8 +398,10 @@ static void prv_tick(void)
     s_demo.last_tick_ms = now;
     s_demo.sweep_count++;
     const u32 sweep = s_demo.sweep_count;
+    #if CAN_DEMO_LOG
     LOG_I("=== can_demo sweep #%u (raw cache holds %u) ===",
           (unsigned)sweep, (unsigned)CanRx_GetRawFrameCount());
+    #endif
     prv_demo_signals();
     prv_demo_timeouts();
     prv_demo_raw_frame();
