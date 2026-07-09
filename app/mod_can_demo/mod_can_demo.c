@@ -8,9 +8,9 @@
  *   1. signal-bus read       -> Signal_Get(SIG_CAN_*) + LOG_I
  *   2. timeout-bitmap decode -> walk s_bit_to_can_id[] and the three
  *                              SIG_CAN_RX_TIMEOUT_MAP_LO/HI/HI2 slots
- *   3. raw frame cache       -> CanRx_GetLastRawFrame on a chosen IPK id
- *   4. TX whole payload      -> CanTx_PreparePayload + CanTx_Trigger
- *   5. TX one signal         -> CanTx_EncodeSignal + CanTx_Trigger
+ *   3. raw frame cache       -> CanIf_RxGetLastRawFrame on a chosen IPK id
+ *   4. TX whole payload      -> CanIf_TxPreparePayload + CanIf_TxTrigger
+ *   5. TX one signal         -> CanIf_TxEncodeSignal + CanIf_TxTrigger
  *   6. raw <-> physical      -> CanDb_PackSignal / CanDb_GetRaw /
  *                              CanDb_DecodeSignal / CanDb_EncodeSignalValue
  *                              on EMS_EngineSpeedRPM (0x85) and
@@ -26,8 +26,6 @@
 #include "signal.h"
 #include "can_db.h"            /* can_msg_descs_ipk[] / CanDb_*              */
 #include "can_db_ipk_gen.h"    /* CAN_DB_IPK_*_COUNT, signal enum            */
-#include "can_rx.h"            /* CanRx_GetLastRawFrame / GetRawFrameCount  */
-#include "can_tx.h"            /* CanTx_PreparePayload / EncodeSignal / ... */
 #include "drv_api/can/can_if.h"/* can_msg_t                                  */
 
 #define LOG_NAME  "CDEM"
@@ -152,7 +150,7 @@ static void prv_demo_timeouts(void)
 static void prv_demo_raw_frame(void)
 {
     can_msg_t frame;
-    const c02b2_result_t r = CanRx_GetLastRawFrame(DEMO_RX_ID_RAW, &frame);
+    const c02b2_result_t r = CanIf_RxGetLastRawFrame(DEMO_RX_ID_RAW, &frame);
     if (r == C02B2_ERR_NOT_FOUND) {
         #if CAN_DEMO_LOG
         LOG_I("[3/6] raw cache: id=0x%X never received yet",
@@ -183,14 +181,14 @@ static void prv_demo_tx_payload(u32 sweep)
      * the CANalyzer trace. */
     u8 buf[8];
     for (u32 i = 0u; i < 8u; i++) { buf[i] = (u8)((sweep + i) & 0xFFu); }
-    const c02b2_result_t r = CanTx_PreparePayload(DEMO_TX_ID_PAYLOAD,
+    const c02b2_result_t r = CanIf_TxPreparePayload(DEMO_TX_ID_PAYLOAD,
                                                  buf, 8u);
     if (r != C02B2_OK) {
         LOG_W("[4/6] PreparePayload id=0x%X failed (%d)",
               (unsigned)DEMO_TX_ID_PAYLOAD, (int)r);
         return;
     }
-    const c02b2_result_t t = CanTx_Trigger(DEMO_TX_ID_PAYLOAD);
+    const c02b2_result_t t = CanIf_TxTrigger(DEMO_TX_ID_PAYLOAD);
     if (t != C02B2_OK) {
         LOG_W("[4/6] Trigger id=0x%X failed (%d)",
               (unsigned)DEMO_TX_ID_PAYLOAD, (int)t);
@@ -213,7 +211,7 @@ static void prv_demo_tx_signal(u32 sweep)
      * IPK_DayToEngSrv (length=9, factor=1, offset=0) accepts.
      * For a DBC `+` (unsigned) signal raw range is 0..511. */
     const u32 v = (sweep * 7u) % 512u;
-    const c02b2_result_t e = CanTx_EncodeSignal(DEMO_TX_ID_SIGNAL,
+    const c02b2_result_t e = CanIf_TxEncodeSignal(DEMO_TX_ID_SIGNAL,
                                                 DEMO_TX_SIGNAL_ID, v);
     if (e != C02B2_OK) {
         LOG_W("[5/6] EncodeSignal id=0x%X sig=%u v=%d failed (%d)",
@@ -221,7 +219,7 @@ static void prv_demo_tx_signal(u32 sweep)
               (unsigned)DEMO_TX_SIGNAL_ID, (int)v, (int)e);
         return;
     }
-    const c02b2_result_t t = CanTx_Trigger(DEMO_TX_ID_SIGNAL);
+    const c02b2_result_t t = CanIf_TxTrigger(DEMO_TX_ID_SIGNAL);
     if (t != C02B2_OK) {
         LOG_W("[5/6] Trigger id=0x%X failed (%d)",
               (unsigned)DEMO_TX_ID_SIGNAL, (int)t);
@@ -400,7 +398,7 @@ static void prv_tick(void)
     const u32 sweep = s_demo.sweep_count;
     #if CAN_DEMO_LOG
     LOG_I("=== can_demo sweep #%u (raw cache holds %u) ===",
-          (unsigned)sweep, (unsigned)CanRx_GetRawFrameCount());
+          (unsigned)sweep, (unsigned)CanIf_RxGetRawFrameCount());
     #endif
     prv_demo_signals();
     prv_demo_timeouts();
