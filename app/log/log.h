@@ -99,7 +99,7 @@ void Log_Print(log_level_t lvl, const char *mod, const char *fmt, ...);
 #endif
 
 #ifndef CAN_DEMO_LOG
-  #define CAN_DEMO_LOG  1   /* app/mod_can_demo/mod_can_demo.c 演示模块默认开启 */
+  #define CAN_DEMO_LOG  0   /* app/mod_can_demo/mod_can_demo.c 每个 tick 演示, 默认关闭 */
 #endif
 
 #ifndef SCHED_DEBUG_LOG
