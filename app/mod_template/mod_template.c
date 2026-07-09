@@ -55,8 +55,8 @@ static c02b2_result_t prv_do_10ms_job(void)
 static c02b2_result_t prv_do_100ms_job(void)
 {
     /* Example: read a signal, compute, publish back. */
-    int32_t ign = Signal_Get(SIG_IGN_ON);
-    LOG_D("ign=%d, diag=%u", (int)ign, (unsigned)s_ctx.diag_value);
+    u32 ign = Signal_Get(SIG_IGN_ON);
+    LOG_D("ign=%u, diag=%u", (unsigned)ign, (unsigned)s_ctx.diag_value);
     return C02B2_OK;
 }
 

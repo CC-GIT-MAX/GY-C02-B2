@@ -257,7 +257,7 @@ DBC 是 CAN 侧的源数据。它**可以**频繁修订（DBC 是和车厂联合
 ### Sentinel 超时位图策略
 
 SOC 超时状态依赖 `SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}` 这 3 个
-int32 位字段，覆盖 `CAN_BITMAP_MAX = 96` 个 bit（bit 0..95）。
+`u32` 位字段，覆盖 `CAN_BITMAP_MAX = 96` 个 bit（bit 0..95）。
 按 Sentinel 策略，**bit-N 与 CAN ID 一一绑定**，由
 `s_bit_to_can_id[]` 查找表维护（生成器自动从
 `tools/.bitmap_state.json` 加载历史映射）。

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file    can_db_codec.h
  * @brief   CAN signal encoding / decoding primitives
  * @brief   CAN 信号编/解码原语
@@ -34,7 +34,7 @@
  *                                  of CanDb_BitExtractSigned(); never
  *                                  use it to hold a raw bit field.
  *   - `CanDb_BitExtract / Encode`: take / return `can_raw_t` (u32)
- *   - `CanDb_DecodeSignal`        : returns `s32` -- the decoded
+ *   - `CanDb_DecodeSignal`        : returns `s32` -- the decoded *physical* (raw stays on the signal bus; CanDb_DecodeSignal is only used by signal consumers that need a physical)
  *                                  physical value may be negative
  *                                  (signed DBC signal)
  *   - `CanDb_EncodeSignalValue`  : takes `s32` (physical input may
@@ -197,7 +197,7 @@ void CanDb_BitEncode(u8 *data, u16 start_bit, u8 length, u8 byte_order, can_raw_
 
 /**
  * @brief   Decode a signal descriptor's field from a payload into
- *          the int32 signal-bus representation.
+ *          the raw u32 bit pattern on the signal bus.
  * @brief   从 payload 中按信号描述符解析字段, 转换成 int32 信号总线表示
  *
  *          Output = raw * factor + offset, rounded to nearest int32.
@@ -211,7 +211,29 @@ void CanDb_BitEncode(u8 *data, u16 start_bit, u8 length, u8 byte_order, can_raw_
 s32 CanDb_DecodeSignal(const u8 *data, const can_sig_desc_t *sig);
 
 /**
- * @brief   Convert an int32 signal-bus value into the raw value
+ * @brief   Extract a signal as a RAW (un-decoded) value from a payload.
+ * @brief   从 payload 中按信号描述符抽取信号的 RAW(未解码)值
+ *
+ * @details Honors `sig->is_signed`. Unsigned signals return
+ *          a zero-extended raw value (CanDb_BitExtract). Signed
+ *          (DBC `-`) signals return a sign-extended raw value
+ *          (CanDb_BitExtractSigned). The bit pattern is preserved
+ *          so that downstream Signal_Set(u32) round-trips loss-
+ *          less and CanDb_DecodeSignal can re-derive physical.
+ *
+ *          This is the call site for raw-on-the-bus policy: the
+ *          signal-bus value is the raw bit pattern; physical is
+ *          computed by modules via CanDb_DecodeSignal(raw, sig).
+ *
+ * @param[in]  data  8-byte payload (Intel or Motorola)
+ * @param[in]  sig   Signal descriptor (start/length/order/signed)
+ *
+ * @return  u32  Raw bit pattern cast back to unsigned
+ */
+u32 CanDb_GetRaw(const u8 *data, const can_sig_desc_t *sig);
+
+/**
+ * @brief   Decode a physical s32 (CanDb_DecodeSignal / Signal_Get on a non-CAN signal) into a u32 raw for the payload (rare -- physical already comes from DBC factor/offset; most callers use CanDb_EncodeSignal)
  *          that the CAN payload should carry.
  * @brief   把 int32 信号总线值转换为 CAN payload 应承载的原始值
  *
@@ -237,7 +259,7 @@ can_raw_t CanDb_EncodeSignalValue(s32 value, const can_sig_desc_t *sig);
 void CanDb_PackSignal(u8 *data, const can_sig_desc_t *sig, can_raw_t raw);
 
 /**
- * @brief   Convenience: encode the int32 bus value AND pack it
+ * @brief   Convenience: encode a physical s32 AND pack it
  *          into the payload in one step.
  * @brief   便捷函数: 一步完成 int32 总线值的编码 + payload 写入
  *

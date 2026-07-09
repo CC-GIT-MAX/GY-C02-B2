@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file    can_db.h
  * @brief   CAN database facade
  * @brief   CAN 数据库门面头
@@ -48,7 +48,7 @@ extern const u16             can_db_ipk_tx_idx[];          /**< IPK TX indices (
 
 /**
  * @brief   Decode every signal of `desc` out of `data` and publish
- *          the int32 signal-bus values via Signal_Set().
+ *          the raw u32 bit-pattern via Signal_Set()
  * @brief   从 `data` 中按 `desc` 拆出每个信号, 并通过 Signal_Set
  *          发布到 int32 信号总线
  *

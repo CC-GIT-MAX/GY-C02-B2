@@ -378,9 +378,9 @@ static void prv_check_timeouts(void)
             map_hi2 |= ((u32)1u << (bit - 64u));
         }
     }
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  (int32_t)map_lo);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  (int32_t)map_hi);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, (int32_t)map_hi2);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  map_lo);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  map_hi);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, map_hi2);
 }
 
 /**

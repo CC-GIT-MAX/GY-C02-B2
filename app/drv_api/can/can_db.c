@@ -6,7 +6,7 @@
  * Replaces the legacy hand-written sample frames.  Each IPK
  * message/signal descriptor is generated from the DBC by
  * `tools/dbc_parse.py` into `can_db_ipk_gen.c`; this file exposes
- * the runtime helpers that turn incoming payloads into int32 bus
+ * the runtime helpers that turn incoming payloads into raw u32 bus
  * values (RX) and look up descriptors by id (RX dispatch + TX build).
  */
 #include "can_db.h"
@@ -772,9 +772,10 @@ signal_id_t CanDb_DbcSigToBus(u16 db_sig_id)
 
 /**
  * @brief   Decode every signal of `desc` out of `data` and publish
- *          the int32 signal-bus values via Signal_Set().
+ *          the RAW u32 bit-patterns via Signal_Set().
  * @brief   从 `data` 中按 `desc` 拆出每个信号, 并通过 Signal_Set
- *          发布到 int32 信号总线
+ *          发布原始 RAW u32 bit pattern(不做 factor/offset)。消费者需要
+ *          物理量时自行调用 CanDb_DecodeSignal。
  *
  * @param[in]  desc  Message descriptor (AUTOGEN, read-only)
  * @param[in]  data  8-byte payload (Intel or Motorola)
@@ -789,13 +790,17 @@ void CanDb_DispatchByDb(const can_msg_desc_t *desc, const u8 *data)
     for (u16 i = sig_start; i < sig_end; i++) {
         const can_sig_desc_t *sig = &can_sig_descs_ipk[i];
 
-        /* Decode raw -> physical, store on int32 bus. */
-        const s32 physical = CanDb_DecodeSignal(data, sig);
+        /* Publish RAW u32 to signal bus. Consumers derive physical
+         * values themselves via CanDb_DecodeSignal() when needed.
+         * For DBC `-` (signed) signals the bit pattern of the
+         * sign-extended raw is preserved through the s32->u32
+         * cast; consumer-side decode repaints it to physical. */
+        const u32 raw = CanDb_GetRaw(data, sig);
 
         /* Translate DBC enum id -> signal bus id. */
         const u16 db_sig_id = (u16)(i + 1u);   /* enum is 1-based */
         const signal_id_t bus_id = CanDb_DbcSigToBus(db_sig_id);
-        Signal_Set(bus_id, physical);
+        Signal_Set(bus_id, raw);
     }
 }
 

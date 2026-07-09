@@ -317,8 +317,8 @@ static void prv_flexcan_err_cb(u8 instance,
     const u32 esr1 = FLEXCAN_DRV_GetErrorStatus(instance);
     const u32 tx_err = (esr1 >> 24) & 0xFFu;
     const u32 rx_err = (esr1 >> 16) & 0xFFu;
-    (void)Signal_Set(SIG_CAN_TX_ERR_CNT, (int32_t)tx_err);
-    (void)Signal_Set(SIG_CAN_RX_ERR_CNT, (int32_t)rx_err);
+    (void)Signal_Set(SIG_CAN_TX_ERR_CNT, tx_err);
+    (void)Signal_Set(SIG_CAN_RX_ERR_CNT, rx_err);
 
     switch (eventType) {
         case FLEXCAN_BUS_OFF_ENTER_EVENT: {

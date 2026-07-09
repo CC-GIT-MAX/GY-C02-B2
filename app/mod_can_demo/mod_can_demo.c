@@ -72,9 +72,11 @@ static struct {
  */
 static void prv_emit_sig(u16 db_id, signal_id_t bus_id, const char *name)
 {
-    const int32_t v = Signal_Get(bus_id);
-    LOG_I("  sig %s (db=%u bus=%u) = %d",
-          name, (unsigned)db_id, (unsigned)bus_id, (int)v);
+    /* RAW u32 on the bus; consumer uses CanDb_DecodeSignal for physical. */
+    const u32 raw = Signal_Get(bus_id);
+    (void)db_id;
+    LOG_I("  sig %s (bus=%u) raw=0x%08X",
+          name, (unsigned)bus_id, (unsigned)raw);
 }
 
 static void prv_demo_signals(void)
@@ -99,9 +101,9 @@ static u32 prv_bit_to_can_id(u32 bit);
  * ---------------------------------------------------------------- */
 static void prv_demo_timeouts(void)
 {
-    const int32_t lo  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO);
-    const int32_t hi  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI);
-    const int32_t hi2 = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2);
+    const u32 lo  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO);
+    const u32 hi  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI);
+    const u32 hi2 = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2);
     /* Count set bits in the three words.  Simple popcount. */
     u32 to_cnt = 0u;
     for (u32 i = 0u; i < 32u; i++) {
@@ -116,7 +118,7 @@ static void prv_demo_timeouts(void)
      * mapping; bit-N is stable across DBC reorders). */
     u32 printed = 0u;
     for (u32 bit = 0u; bit < (u32)CAN_BITMAP_MAX && printed < 4u; bit++) {
-        const int32_t word = (bit < 32u) ? lo : (bit < 64u) ? hi : hi2;
+        const u32 word = (bit < 32u) ? lo : (bit < 64u) ? hi : hi2;
         const u32 shift = (bit < 32u) ? bit : (bit < 64u) ? (bit - 32u) : (bit - 64u);
         if (((word >> shift) & 1) == 0) { continue; }
         /* s_bit_to_can_id is emitted by tools/dbc_parse.py into can_db_ipk_gen.c.
@@ -187,6 +189,9 @@ static void prv_demo_tx_signal(u32 sweep)
 {
     /* Modulo 512 keeps the value in range for a length=9, factor=1
      * signal so the encode step does not reject out-of-range values. */
+    /* CanTx_EncodeSignal takes s32 physical; this demo pretends to
+     * emit count-N which is a DBC `+` signal so u32 -> s32 widening
+     * is lossless. */
     const s32 v = (s32)((sweep * 7u) % 512u);
     const c02b2_result_t e = CanTx_EncodeSignal(DEMO_TX_ID_SIGNAL,
                                                 DEMO_TX_SIGNAL_ID, v);

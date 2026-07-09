@@ -7,6 +7,12 @@
  * modules individually testable.
  *
  * Signals are statically enumerated; no dynamic registration.
+ *
+ * Values published via Signal_Set are RAW u32 (unsigned 32-bit).
+ * To get a physical quantity, call CanDb_DecodeSignal(raw, signal_desc)
+ * (see app/drv_api/can/can_db_codec.h). Direct user-code cast to s32 is
+ * acceptable for DBC `+` (unsigned) signals where the raw value already
+ * fits in u32; for DBC `-` (signed) signals you MUST call CanDb_DecodeSignal.
  */
 #ifndef C02B2_SIGNAL_H
 #define C02B2_SIGNAL_H
@@ -869,20 +875,20 @@ typedef enum {
  * @retval  C02B2_OK            Value stored
  * @retval  C02B2_ERR_PARAM     id invalid
  */
-c02b2_result_t Signal_Set(signal_id_t id, int32_t value);
+c02b2_result_t Signal_Set(signal_id_t id, u32 value);
 
 /**
  * @brief   Read the current value of a signal
  * @brief   读取信号的当前值
  *
- * @details Returns 0 for unknown / out-of-range ids. Callers
+ * @details Returns 0 for unknown / out-of-range ids. The value is raw (unsigned); consumers apply DBC factor/offset via CanDb_DecodeSignal when they need a physical quantity. Callers
  *          that care about freshness should use Signal_IsValid().
  *
  * @param[in]  id  Signal id
  *
- * @return  int32_t  Last value set, or 0 if never set / invalid id
+ * @return  u32  Last value set, or 0 if never set / invalid id
  */
-int32_t      Signal_Get(signal_id_t id);
+u32          Signal_Get(signal_id_t id);
 
 /**
  * @brief   Resolve a signal id to its enum string ("SIG_<NAME>").

@@ -13,8 +13,8 @@
 /* Per-signal storage. `valid` is initially false: callers must
  * call Signal_Set() before they can rely on Signal_Get(). */
 static struct {
-    int32_t value;
-    bool    valid;
+    u32 value;
+    bool valid;
 } s_signals[SIG_MAX];
 
 /**
@@ -28,7 +28,7 @@ static struct {
  * @retval  C02B2_OK            Value stored and slot marked valid
  * @retval  C02B2_ERR_PARAM     id invalid (SIG_INVALID or out of range)
  */
-c02b2_result_t Signal_Set(signal_id_t id, int32_t value)
+c02b2_result_t Signal_Set(signal_id_t id, u32 value)
 {
     if (id <= SIG_INVALID || id >= SIG_MAX) {
         return C02B2_ERR_PARAM;
@@ -49,9 +49,9 @@ c02b2_result_t Signal_Set(signal_id_t id, int32_t value)
  *
  * @param[in]  id  Signal id
  *
- * @return  int32_t  Last value set, or 0 if never set / invalid id
+ * @return  u32  Last value set (raw), or 0 if never set / invalid id
  */
-int32_t Signal_Get(signal_id_t id)
+u32 Signal_Get(signal_id_t id)
 {
     if (id <= SIG_INVALID || id >= SIG_MAX) {
         return 0;
