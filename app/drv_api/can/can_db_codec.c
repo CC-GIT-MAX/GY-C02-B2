@@ -214,6 +214,21 @@ u32 CanDb_GetRaw(const u8 *data, const can_sig_desc_t *sig)
 }
 
 
+/**
+ * @brief   Decode one DBC signal from a payload to its physical value
+ * @brief   从 payload 中按 DBC 信号描述符解码, 返回物理量
+ *
+ * @details Honors `sig->is_signed`: signed signals go through
+ *          CanDb_BitExtractSigned() so the raw value is sign-
+ *          extended before factor/offset are applied. The output
+ *          is `raw * factor + offset`, rounded half-away-from-zero
+ *          to fit in s32.
+ *
+ * @param[in]  data  Pointer to at least 8 bytes of payload
+ * @param[in]  sig   Signal descriptor (AUTOGEN, read-only)
+ *
+ * @return  s32  Quantised physical value (raw * factor + offset)
+ */
 s32 CanDb_DecodeSignal(const u8 *data, const can_sig_desc_t *sig)
 {
     s32 raw;

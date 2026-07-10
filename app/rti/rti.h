@@ -80,11 +80,30 @@ void RTI_Init(void);
  *
  * @note    Runs in ISR context; do not block.
  */
+/**
+ * @brief   1 kHz tick callback invoked from the SysTick ISR
+ * @brief   SysTick ISR 调用的 1kHz tick 回调
+ *
+ * @details Must be called from the SysTick ISR (1 kHz). The ISR
+ *          is also responsible for clearing the SysTick interrupt
+ *          flag and (optionally) feeding the watchdog.
+ *
+ * @note    Runs in ISR context; do not block.
+ */
 void RTI_OnTick1ms(void);
 
 /**
  * @brief   Get the current 1 ms tick count
  * @brief   获取当前 1ms tick 计数
+ *
+ * @return  uint32_t  Monotonic 1 ms tick (wraps after ~49 days)
+ */
+/**
+ * @brief   Get the current 1 ms tick count
+ * @brief   获取当前 1ms tick 计数
+ *
+ * @details Thin wrapper over OSIF_GetMilliseconds() so callers
+ *          do not need to know which OSIF backend is in use.
  *
  * @return  uint32_t  Monotonic 1 ms tick (wraps after ~49 days)
  */

@@ -435,6 +435,23 @@ __root static void prv_standby(void)
  *  Indexed lookup.  The cache is updated inside prv_drain(); the read
  *  API is safe to call from any tick (5 ms or slower) or from main().
  * ---------------------------------------------------------------- */
+/**
+ * @brief   Fetch the most recent raw frame for an IPK CAN id
+ * @brief   获取某 IPK CAN id 最近一次的原始帧
+ *
+ * @details The RX tick caches the latest raw 8-byte payload per
+ *          IPK can_id so diag / demo modules can read the full
+ *          frame without re-decoding every signal. Returns the
+ *          last frame seen since boot (cleared on cold reset).
+ *
+ * @param[in]   can_id  Standard 11-bit IPK can_id
+ * @param[out]  out     Populated with the cached frame on success
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Frame returned (may be stale)
+ * @retval  C02B2_ERR_PARAM     out is NULL or can_id not in IPK table
+ * @retval  C02B2_ERR_NOT_FOUND No frame received yet for this can_id
+ */
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 {
     if (out == NULL) {
@@ -453,6 +470,17 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
     return C02B2_ERR_PARAM;   /* unknown can_id */
 }
 
+/**
+ * @brief   Count of cached RX frames currently valid
+ * @brief   当前缓存中有效的 RX 帧数量
+ *
+ * @details Walks the RX-local cache (one slot per IPK RX entry)
+ *          and counts slots whose `valid` flag is set. Useful for
+ *          diag / demo to confirm a sweep saw any traffic without
+ *          enumerating the table.
+ *
+ * @return  u32  Count of cached valid frames (0..CAN_DB_IPK_RX_COUNT)
+ */
 u32 CanRx_GetRawFrameCount(void)
 {
     u32 n = 0u;

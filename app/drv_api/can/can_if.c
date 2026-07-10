@@ -622,6 +622,19 @@ static void prv_do_recovery(can_channel_t ch)
           (unsigned)inst, (unsigned)s_recovery_count[ch]);
 }
 
+/**
+ * @brief   Drain pending soft-recoveries scheduled by the error ISR
+ * @brief   排空错误 ISR 标记的待处理软恢复请求
+ *
+ * @details prv_flexcan_err_cb() sets a per-channel pending flag
+ *          from ISR context; CanIf_RecoverPump() is called from
+ *          the mod_can_rx 5 ms tick to perform the actual
+ *          FLEXCAN_DRV_Deinit + Init + RX-FIFO re-prime cycle
+ *          outside ISR context.
+ *
+ * @return  c02b2_result_t  Always C02B2_OK (per-channel failures
+ *                          are logged but not propagated)
+ */
 c02b2_result_t CanIf_RecoverPump(void)
 {
     for (u32 ch = 0; ch < (u32)CAN_CH_MAX; ch++) {
@@ -632,6 +645,20 @@ c02b2_result_t CanIf_RecoverPump(void)
     return C02B2_OK;
 }
 
+/**
+ * @brief   Reset the application-layer RX ring buffer
+ * @brief   重置应用层接收环
+ *
+ * @details All FlexCAN hardware bring-up (FLEXCAN_DRV_Init, FIFO
+ *          filter configuration, callback installation, FIFO
+ *          priming) lives in Can_Init(). This function only
+ *          zeroes the RX ring indices so the scheduler tick has
+ *          a known-empty queue at boot. Safe to call more than
+ *          once.
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK  Always (ring reset is idempotent)
+ */
 c02b2_result_t CanIf_Init(void)
 {
     /* All FlexCAN hardware bring-up (FLEXCAN_DRV_Init, FIFO filter
@@ -996,26 +1023,95 @@ c02b2_result_t CanTx_Trigger(u32 can_id);
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 u32 CanRx_GetRawFrameCount(void);
 
+/**
+ * @brief   Zero-fill an 8-byte TX payload buffer for an IPK can_id
+ * @brief   按 IPK can_id 清零一个 8 字节 TX payload 缓冲区
+ *
+ * @details Convenience for demo / diag / unit tests that want to
+ *          send a frame with default-zero payload before filling
+ *          in the signals of interest via CanIf_TxEncodeSignal().
+ *
+ * @param[in,out]  data  8-byte buffer to zero (existing contents ignored)
+ * @param[in]      dlc   Data length code (0..8); 0 = 8 bytes
+ * @param[in]      can_id  IPK standard can_id (must be in the TX table)
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Buffer zero-filled
+ * @retval  C02B2_ERR_PARAM     data is NULL or can_id not in TX table
+ */
 c02b2_result_t CanIf_TxPreparePayload(u32 can_id, const u8 *data, u8 dlc)
 {
     return CanTx_PreparePayload(can_id, data, dlc);
 }
 
+/**
+ * @brief   Pack one DBC signal into an already-prepared TX payload
+ * @brief   把一个 DBC 信号原始值写入已准备好的 TX payload
+ *
+ * @details Uses CanDb_BitEncode() to write `raw` into the bits
+ *          described by `sig_id` for `can_id`. Out-of-range
+ *          `raw` values are clamped to the signal's length-bits.
+ *
+ * @param[in]  can_id   IPK can_id (must be in the TX table)
+ * @param[in]  sig_id   CAN_DB_SIG_* enum of the signal to write
+ * @param[in]  raw      Raw bit pattern (will be masked to width)
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Signal written into payload
+ * @retval  C02B2_ERR_PARAM     can_id or sig_id out of range
+ */
 c02b2_result_t CanIf_TxEncodeSignal(u32 can_id, u16 sig_id, u32 raw)
 {
     return CanTx_EncodeSignal(can_id, sig_id, raw);
 }
 
+/**
+ * @brief   Send a TX frame whose payload was prepared by
+ *          CanIf_TxPreparePayload + CanIf_TxEncodeSignal calls
+ * @brief   将已通过 CanIf_TxPreparePayload / EncodeSignal 准备好的
+ *          payload 触发发送
+ *
+ * @details Forwards the prepared payload through CanIf_Send() on
+ *          the channel implied by `can_id`. Used by demo / diag
+ *          to send synthetic frames without owning a can_msg_t.
+ *
+ * @param[in]  can_id  IPK can_id (must be in the TX table)
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Frame accepted by driver
+ * @retval  C02B2_ERR_BUSY      Reserved mailbox busy (frame dropped)
+ * @retval  C02B2_ERR_PARAM     can_id not in TX table
+ */
 c02b2_result_t CanIf_TxTrigger(u32 can_id)
 {
     return CanTx_Trigger(can_id);
 }
 
+/**
+ * @brief   Convenience wrapper around CanRx_GetLastRawFrame
+ * @brief   CanRx_GetLastRawFrame 的便利封装
+ *
+ * @details Returns the most recent 8-byte payload cached for
+ *          `can_id` since boot. Forwarded to the RX-side cache
+ *          so demo / diag / unit tests can inspect the raw frame
+ *          without re-decoding every signal.
+ *
+ * @param[in]   can_id  IPK standard can_id
+ * @param[out]  out     Populated on success
+ *
+ * @return  c02b2_result_t  See CanRx_GetLastRawFrame
+ */
 c02b2_result_t CanIf_RxGetLastRawFrame(u32 can_id, can_msg_t *out)
 {
     return CanRx_GetLastRawFrame(can_id, out);
 }
 
+/**
+ * @brief   Convenience wrapper around CanRx_GetRawFrameCount
+ * @brief   CanRx_GetRawFrameCount 的便利封装
+ *
+ * @return  u32  Count of cached valid RX frames (0..CAN_DB_IPK_RX_COUNT)
+ */
 u32 CanIf_RxGetRawFrameCount(void)
 {
     return CanRx_GetRawFrameCount();

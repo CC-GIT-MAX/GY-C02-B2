@@ -46,10 +46,71 @@ typedef struct mod_desc_s {
     void (*standby)(void);
 } mod_desc_t;
 
+/**
+ * @brief   Run mcu_init() on every registered module
+ * @brief   遍历注册表, 依次调用每个模块的 mcu_init
+ *
+ * @details Iterates g_sched_modules[] in declaration order and
+ *          invokes each non-NULL mcu_init hook once. Called once
+ *          during boot, before any peripheral init that depends
+ *          on a module being ready.
+ *
+ * @param   none
+ * @return  void
+ */
 void Scheduler_Init(void);
+/**
+ * @brief   Run wakeup_init() on every registered module
+ * @brief   遍历注册表, 依次调用每个模块的 wakeup_init
+ *
+ * @details Separate from Scheduler_Init so modules can keep
+ *          cold-boot setup in mcu_init and resume-from-reset
+ *          work (NVIC priority restore, wake source re-arm) in
+ *          wakeup_init. Called once between Scheduler_Init and
+ *          Scheduler_OnIgnOn.
+ *
+ * @param   none
+ * @return  void
+ */
 void Scheduler_WakeupInit(void);
+/**
+ * @brief   Broadcast on_ign_on() to every registered module
+ * @brief   向所有模块广播 on_ign_on
+ *
+ * @details Iterates g_sched_modules[] in declaration order and
+ *          invokes each non-NULL on_ign_on hook. Called once
+ *          after KL15 turns ON (or immediately on cold boot if
+ *          IGN is already on).
+ *
+ * @param   none
+ * @return  void
+ */
 void Scheduler_OnIgnOn(void);
+/**
+ * @brief   One super-loop iteration
+ * @brief   单次 super-loop 循环
+ *
+ * @details Iterates g_sched_modules[] in declaration order and
+ *          invokes each non-NULL tick hook. Modules decide their
+ *          own sub-period via the RTI slot API. Called from the
+ *          main() for(;;) loop, between __WFI() sleep windows.
+ *
+ * @param   none
+ * @return  void
+ */
 void Scheduler_Run(void);
+/**
+ * @brief   Broadcast standby() to every registered module
+ * @brief   向所有模块广播 standby
+ *
+ * @details Iterates g_sched_modules[] in declaration order and
+ *          invokes each non-NULL standby hook before the MCU
+ *          enters low-power mode. Modules release peripherals
+ *          and save any per-cycle context here.
+ *
+ * @param   none
+ * @return  void
+ */
 void Scheduler_Standby(void);
 
 #if defined(__IAR_SYSTEMS_ICC__)
