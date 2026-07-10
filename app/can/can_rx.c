@@ -397,12 +397,25 @@ static void prv_check_timeouts(void)
 /**
  * @brief   mod_desc_t tick hook: drain @ 5 ms, timeouts @ 50 ms.
  * @brief   mod_desc_t tick 钩子: 5 ms 排空接收环, 50 ms 检查超时
+ *
+ * @details Soft-recovery is run BEFORE the 5 ms drain so a freshly
+ *          recovered channel can deliver its first batch in the
+ *          same tick.  Pump is a no-op when no channel is pending,
+ *          so the cost on the healthy path is a single volatile
+ *          read per channel per tick.
  */
 __root static void prv_tick(void)
 {
     if (!s_rx.init_done) { return; }
-    if (RTI_SlotElapsed(&s_slot_5ms))  { prv_drain(); }
-    if (RTI_SlotElapsed(&s_slot_50ms)) { prv_check_timeouts(); }
+    if (RTI_SlotElapsed(&s_slot_5ms))  
+    {
+        (void)CanIf_RecoverPump();
+        prv_drain();
+    }
+    if (RTI_SlotElapsed(&s_slot_50ms)) 
+    {
+         prv_check_timeouts(); 
+    }
 }
 
 /**

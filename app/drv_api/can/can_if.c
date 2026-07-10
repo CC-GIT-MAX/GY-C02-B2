@@ -27,9 +27,23 @@
 #include "osif.h"           /* OSIF_GetMilliseconds for busy-warn dedup */
 
 /* -------------------------------------------------------------------- *
+ *  Compile-time sizing
+ * -------------------------------------------------------------------- */
+#define CAN_RX_RING_SIZE         32u   /* RX ring slots (double of 16 to absorb a full 5 ms tick at 64-ID load) */
+#define CAN_RX_FILTER_ELEMS_PUBLIC  72u   /* RFFN=8 -> 8*9 = 72 */
+#define CAN_RX_FILTER_ELEMS_PRIVATE 56u   /* RFFN=6 -> 8*7 = 56 */
+
+/* Per-channel FlexCAN RX-FIFO ID filter tables.
+ *  - s_rx_filter_public:  public CAN bus (72 entries, RFFN=8)
+ *  - s_rx_filter_private: private CAN bus (56 entries, RFFN=6)
+ * Plain statics (not const) so FLEXCAN_DRV_ConfigRxFifo can iterate
+ * without tripping the volatile qualifier. */
+static flexcan_id_table_t s_rx_filter_public[CAN_RX_FILTER_ELEMS_PUBLIC];
+static flexcan_id_table_t s_rx_filter_private[CAN_RX_FILTER_ELEMS_PRIVATE];
+
+/* -------------------------------------------------------------------- *
  *  Ring buffer of received frames
  * -------------------------------------------------------------------- */
-#define CAN_RX_RING_SIZE  16u
 
 typedef struct {
     can_msg_t slot[CAN_RX_RING_SIZE];
@@ -279,6 +293,18 @@ static void prv_flexcan_cb(u8 instance,
  *  preserved across recoveries). */
 static u32 s_bus_off_count[CAN_CH_MAX] = { 0u, 0u };
 
+/** Per-channel soft-recovery pending flag.
+ *  Set by prv_flexcan_err_cb() in ISR context, drained by
+ *  CanIf_RecoverPump() called from the mod_can_rx 5 ms tick.
+ *  Holding recovery out of ISR context is mandatory because
+ *  FLEXCAN_DRV_Init / ConfigRxFifo are not ISR-safe (they touch
+ *  peripheral RAM, masks, and several NVIC bits). */
+static volatile u8 s_recovery_pending[CAN_CH_MAX] = { 0u, 0u };
+
+/** Per-channel soft-recovery counter (incremented each time we
+ *  successfully re-arm a channel; never cleared, useful for SOC). */
+static u32 s_recovery_count[CAN_CH_MAX] = { 0u, 0u };
+
 /**
  * @brief   Map a flexcan instance index to our logical channel
  * @brief   按 flexcan 实例号映射到逻辑通道
@@ -306,6 +332,16 @@ static can_channel_t prv_inst_to_logical(u8 instance)
  * @param[in]  eventType  which ESR1 bit fired
  * @param[in]  state      Driver state (unused)
  */
+/**
+ * @brief   Mark a channel for soft-recovery (ISR-safe, no peripheral access)
+ * @brief   标记一个通道待软恢复(ISR 安全, 不访问外设)
+ */
+static void prv_mark_recovery(can_channel_t ch)
+{
+    if ((u32)ch >= (u32)CAN_CH_MAX) { return; }
+    s_recovery_pending[ch] = 1u;
+}
+
 static void prv_flexcan_err_cb(u8 instance,
                                flexcan_error_event_type_t eventType,
                                flexcan_state_t *state)
@@ -342,42 +378,65 @@ static void prv_flexcan_err_cb(u8 instance,
         }
         case FLEXCAN_BUS_OFF_DONE_EVENT: {
             /* The controller has recovered from bus-off and is back
-             * on the bus.  Clear the flag - normal TX can resume. */
+             * on the bus.  Clear the flag and queue a soft-recovery
+             * so the Scheduler 5 ms tick re-arms the RX-FIFO and
+             * re-installs callbacks (sticky bus-off state may have
+             * left interrupts masked; re-arm is the only safe path). */
             (void)Signal_Set(SIG_CAN_BUS_OFF, 0);
-            LOG_W("CAN%u BUS_OFF done -> back on bus", (unsigned)instance);
+            prv_mark_recovery(ch);
+            LOG_W("CAN%u BUS_OFF done -> queuing soft-recovery",
+                  (unsigned)instance);
             break;
         }
         case FLEXCAN_TX_WARNING_EVENT: {
             /* TX error counter crossed the warning threshold (96).
-             * Bus is degraded but not yet bus-off. */
+             * Bus is degraded but not yet bus-off.  When the TX
+             * counter reaches 127 (active-error -> passive boundary)
+             * the controller stops driving ACK; queue a soft-recovery
+             * to drop the counter back to 0 and re-arm RX-FIFO. */
             LOG_W("CAN%u TX warning (tx_err=%u)", (unsigned)instance,
                   (unsigned)tx_err);
+            if (tx_err >= 127u) { prv_mark_recovery(ch); }
             break;
         }
         case FLEXCAN_RX_WARNING_EVENT: {
-            /* RX error counter crossed the warning threshold (96). */
+            /* RX error counter crossed the warning threshold (96).
+             * Same rationale as TX warning: at 127 the controller
+             * is passive and will not signal errors; reset to clear
+             * the stuck error counter. */
             LOG_W("CAN%u RX warning (rx_err=%u)", (unsigned)instance,
                   (unsigned)rx_err);
+            if (rx_err >= 127u) { prv_mark_recovery(ch); }
             break;
         }
         case FLEXCAN_BIT_ERROR_EVENT: {
+            /* Bit error during a TX attempt: the controller raised
+             * the error flag but did not leave the bus.  Queue a
+             * soft-recovery so a future BUS_OFF transition starts
+             * from a clean controller state. */
             LOG_W("CAN%u bit error (tx_err=%u rx_err=%u)",
                   (unsigned)instance, (unsigned)tx_err, (unsigned)rx_err);
+            prv_mark_recovery(ch);
             break;
         }
         case FLEXCAN_ERROR_OVERRUN_EVENT: {
             /* RX overrun on a single MB - the MB was overwritten
              * before software read it.  Should not happen with FIFO
-             * mode + 16-frame ring, but log if it does. */
+             * mode + 32-frame ring, but log if it does and queue a
+             * soft-recovery to re-arm the FIFO (a permanent FIFO
+             * lock-up can otherwise block all subsequent RX). */
             LOG_E("CAN%u overrun - frame(s) lost on MB",
                   (unsigned)instance);
+            prv_mark_recovery(ch);
             break;
         }
 #if FEATURE_CAN_HAS_RAM_ECC
         case FLEXCAN_RAM_ECC_ERROR_EVENT: {
-            /* CAN RAM ECC error - hardware fault, log at error level. */
+            /* CAN RAM ECC error - hardware fault.  Log and force a
+             * full controller re-init via soft-recovery. */
             LOG_E("CAN%u RAM ECC error - controller in fault",
                   (unsigned)instance);
+            prv_mark_recovery(ch);
             break;
         }
 #endif
@@ -500,6 +559,74 @@ c02b2_result_t CanIf_ArmRxFifo(void)
         if (r != STATUS_SUCCESS) {
             LOG_E("RxFifo prime failed inst=%u (%d)", (unsigned)inst, (int)r);
             return C02B2_ERR;
+        }
+    }
+    return C02B2_OK;
+}
+
+/**
+ * @brief   Run a single channel through the full re-init sequence.
+ * @brief   对一个通道跑一次完整的重新初始化。
+ *
+ * @details Mirrors Can_Init() but for a single instance.  MUST run
+ *          out of ISR context (FLEXCAN_DRV_Init / ConfigRxFifo /
+ *          InstallEventCallback touch peripheral RAM, masks and
+ *          NVIC bits).  Called from CanIf_RecoverPump() which itself runs in the
+ *          mod_can_rx 5 ms tick (so the scheduler stays CAN-agnostic).
+ *
+ * @param[in]  ch  Logical channel to recover
+ */
+/* Forward decls: prv_fill_filter_public is defined later in the file
+ * but called from prv_do_recovery which runs before it in source
+ * order.  Without these the compiler raises Pe223 (implicit decl)
+ * and Pe020 (s_rx_filter_* undefined) at the recovery call sites. */
+static void prv_fill_filter_public(void);
+
+static void prv_do_recovery(can_channel_t ch)
+{
+    const u8 inst = prv_logical_to_inst(ch);
+    /* 1. Shutdown the controller cleanly: disable all FlexCAN
+     *    IRQs, enter Freeze Mode, then disable the module.  This
+     *    is required BEFORE FLEXCAN_DRV_Init is called a second
+     *    time on the same instance - the SDK does not reset
+     *    its own state-machine and the prior NVIC / RAM contents
+     *    would otherwise leak into the new session. */
+    (void)FLEXCAN_DRV_Deinit(inst);
+    /* 2. Full re-init - clears BUS_OFF, error counters, MB state,
+     *    and any sticky interrupt masks. */
+    if (ch == CAN_CH_PUBLIC) {
+        FLEXCAN_DRV_Init(public_can_INST, &public_can_State, &public_can);
+    } else {
+        FLEXCAN_DRV_Init(private_can_INST, &private_can_State, &private_can);
+    }
+    /* 3. Re-fill ID filter tables - FLEXCAN_DRV_Init clears RAM. */
+    prv_fill_filter_public();
+    (void)FLEXCAN_DRV_ConfigRxFifo(public_can_INST,
+                                   FLEXCAN_RX_FIFO_ID_FORMAT_A,
+                                   s_rx_filter_public);
+    (void)FLEXCAN_DRV_ConfigRxFifo(private_can_INST,
+                                   FLEXCAN_RX_FIFO_ID_FORMAT_A,
+                                   s_rx_filter_private);
+    /* 4. Re-install event + error callbacks (the SDK nulls these
+     *    on Init). */
+    FLEXCAN_DRV_InstallEventCallback(inst, prv_flexcan_cb, NULL);
+    FLEXCAN_DRV_InstallErrorCallback(inst, prv_flexcan_err_cb, NULL);
+    /* 5. Re-arm the RX-FIFO - this is what actually re-enables the
+     *    FRAME_AVAILABLE / WARNING / OVERFLOW interrupts after a
+     *    controller reset. */
+    (void)FLEXCAN_DRV_RxFifo(inst, &s_rx_fifo_start_buf);
+    /* 6. Clear pending flag and bump the cumulative counter. */
+    s_recovery_pending[ch] = 0u;
+    s_recovery_count[ch]++;
+    LOG_W("CAN%u soft-recovery done (total=%u)",
+          (unsigned)inst, (unsigned)s_recovery_count[ch]);
+}
+
+c02b2_result_t CanIf_RecoverPump(void)
+{
+    for (u32 ch = 0; ch < (u32)CAN_CH_MAX; ch++) {
+        if (s_recovery_pending[ch] != 0u) {
+            prv_do_recovery((can_channel_t)ch);
         }
     }
     return C02B2_OK;
@@ -922,12 +1049,6 @@ u32 CanIf_RxGetRawFrameCount(void)
  *
  * Arrays are plain statics (not const) so FLEXCAN_DRV_ConfigRxFifo can
  * iterate without tripping the volatile qualifier. */
-#define CAN_RX_FILTER_ELEMS_PUBLIC   72u   /* RFFN=8 -> 8*9 = 72 */
-#define CAN_RX_FILTER_ELEMS_PRIVATE  56u   /* RFFN=6 -> 8*7 = 56 */
-
-static flexcan_id_table_t s_rx_filter_public[CAN_RX_FILTER_ELEMS_PUBLIC];
-static flexcan_id_table_t s_rx_filter_private[CAN_RX_FILTER_ELEMS_PRIVATE];
-
 /** Populate s_rx_filter_public[] from can_msg_descs_ipk[].
  *  Each non-TX entry is copied into a free slot of the FIFO ID filter
  *  table (FORMAT_A). Standard frames only, RTR=0, IDE=0. Unused slots

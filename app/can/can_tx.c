@@ -245,39 +245,57 @@ static void prv_on_ign_on(void)
 }
 
 /**
- * @brief   mod_desc_t tick hook: send cyclic + pending frames.
- * @brief   mod_desc_t tick 钩子: 发送周期帧 + pending 帧
+ * @brief   Sweep all TX slots once: send cyclic-due + pending frames
+ * @brief   一次性扫所有 TX slot: 发周期到期 + pending 帧
+ *
+ * @details Capped at CAN_TX_BUDGET frames per sweep so the CAN2 bus
+          (which has only 6 TX mailboxes reserved) cannot be overrun
+          and the "all 6 TX MB busy" log stays readable on cold boot.
+          Any slot missed by the cap is picked up on the next 10 ms
+          sweep, so the work eventually drains.
+ *
+ *          Slot 0 in the array is the cyclic sender, slot 1..N are
+          event-driven with cycle_ms = 0 (only fired when CanTx_Trigger
+          sets the pending bit).
  */
-static void prv_tick(void)
+static void prv_sweep(void)
 {
-    if (!s_tx.init_done) return;
-    /* 10 ms sweep gate via caller-private RTI slot (RTI_OpenSlot).
-     * Each module gets its own slot, so other modules' tick()
-     * calls do not interfere with ours. */
-    if (!RTI_SlotElapsed(&s_slot_sweep_10ms)) return;
     const u32 now = RTI_GetTick1ms();
-    /* TX budget guard. The CAN2 bus has only CAN_TX_BUDGET
-     * mailboxes reserved for TX; looping through every slot
-     * and sending all that are due would (a) exceed the MB
-     * pool, and (b) emit a spammy "all 6 TX MB busy" warning
-     * on every cold boot. Cap each sweep at CAN_TX_BUDGET
-     * frames; anything left over is picked up on the next
-     * 10 ms sweep. */
     u8 sent_this_sweep = 0u;
-    for (u16 i = 0; i < s_tx.tx_count; i++) {
+    for (u16 i = 0u; i < s_tx.tx_count; i++) {
         if (sent_this_sweep >= CAN_TX_BUDGET) {
             break;
         }
         const u16 tmo = s_tx.payloads[i].cycle_ms;
         if (tmo == 0u) {
-            /* Event-driven only. */
-            if (s_tx.track[i].pending) { prv_send(i); sent_this_sweep++; }
+            /* Event-driven: only fires when CanTx_Trigger set pending. */
+            if (s_tx.track[i].pending) {
+                prv_send(i);
+                sent_this_sweep++;
+            }
             continue;
         }
-        if ((now - s_tx.track[i].last_send_tick_ms) >= tmo) {
+        if ((now - s_tx.track[i].last_send_tick_ms) >= (u32)tmo) {
             prv_send(i);
             sent_this_sweep++;
         }
+    }
+}
+
+/**
+ * @brief   mod_desc_t tick hook: 10 ms sweep gate -> prv_sweep()
+ * @brief   mod_desc_t tick 钩子: 10 ms 闸门 -> prv_sweep()
+ *
+ * @details Mirrors mod_can_rx.tick() shape: a single init_done guard,
+          then per-period RTI slot checks delegating to a dedicated
+          worker.  Caller-private RTI slot means other modules' ticks
+          do not interfere with ours.
+ */
+__root static void prv_tick(void)
+{
+    if (!s_tx.init_done) { return; }
+    if (RTI_SlotElapsed(&s_slot_sweep_10ms)) {
+        prv_sweep();
     }
 }
 

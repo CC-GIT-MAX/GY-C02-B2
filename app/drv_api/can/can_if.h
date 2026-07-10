@@ -114,6 +114,22 @@ void Can_Init(void);
 c02b2_result_t CanIf_ArmRxFifo(void);
 
 /**
+ * @brief   Drain pending soft-recovery requests (5 ms tick context)
+ * @brief   处理挂起的软恢复请求(5 ms tick 上下文)
+ *
+ * @details prv_flexcan_err_cb() sets a per-channel pending flag from
+ *          ISR context; this function actually performs the
+ *          deinit + init + filter-refill + re-arm-FIFO sequence
+ *          when called from the scheduler 5 ms tick.  Must NOT
+ *          be called from ISR (touches peripheral RAM / NVIC).
+ *
+ * @note    Safe to call when nothing is pending - the per-channel
+ *          flag is the gate.  Always returns C02B2_OK today; the
+ *          status is reserved for future "recovery failed" cases.
+ */
+c02b2_result_t CanIf_RecoverPump(void);
+
+/**
  * @brief   Send a single CAN frame on the chosen channel
  * @brief   在指定通道上发送一帧 CAN 报文
  *
