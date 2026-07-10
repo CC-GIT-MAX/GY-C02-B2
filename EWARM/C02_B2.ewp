@@ -1363,6 +1363,15 @@
         <name>$PROJ_DIR$/../app/mod_can_demo/mod_can_demo.h</name>
       </file>
     </group>
+    <group>
+      <name>mod_rti_demo</name>
+      <file>
+        <name>$PROJ_DIR$/../app/mod_rti_demo/mod_rti_demo.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/mod_rti_demo/mod_rti_demo.h</name>
+      </file>
+    </group>
     <file>
       <name>$PROJ_DIR$/../app/result.h</name>
     </file>

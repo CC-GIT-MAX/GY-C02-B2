@@ -55,13 +55,23 @@ typedef struct mod_desc_s {
 |---|---|---|
 | `init` | MCU 上电 / 复位 | 一次性初始化（KAM 冷热启动分支由此参数区分） |
 | `on_ign_on` | KL15 上电边沿 | 重新加载需要 IGN 状态才能确定的状态 |
-| `tick` | 主循环每周期 | 模块主逻辑；内部用 `RTI_IsElapsed()` 自决子周期 |
+| `tick` | 主循环每周期 | 模块主逻辑；内部用 `RTI_SlotElapsed(&slot)` 自决子周期 |
 | `standby` | 进入低功耗前 | 释放外设、保存恢复上下文 |
 
-**加新模块的标准动作（3 步）**：
+**加新模块的标准动作(3 步)**：
 1. 在 `app/<feature>/` 实现上述 4 个函数 + `extern const mod_desc_t mod_<feature>;`
-2. 在 `app/scheduler/scheduler.c` 的 `g_modules[]` 追加 `&mod_<feature>`
-3. **不要**改 `main.c`
+2. 在 `app/scheduler/scheduler.c` 的 `g_sched_modules[]` 追加 `&mod_<feature>`,并在文件顶部加 `extern const mod_desc_t mod_<feature>;`
+3. 在模块 .c 末尾加 `SCHED_REGISTER(mod_<feature>);`(保留符号 + 防 dead-code 消除)
+4. **不要**改 `main.c`
+
+
+
+### 模块注册(SCHED_REGISTER)
+
+`SCHED_REGISTER(mod_xxx)` 是一个跨编译器的纯 C 宏,作用是在模块 .c 里生成一个 `__root static const mod_desc_t *` 指针(指向该模块描述符),让链接器**保留符号**避免被 dead-code 优化掉。`scheduler.c` 维护一个固定大小的指针表 `g_sched_modules[]`,按表项顺序遍历各模块的 mcu_init / wakeup_init / on_ign_on / tick / standby 五个 hook(NULL 自动跳过)。
+
+模块顺序 = `g_sched_modules[]` 数组里的顺序(不是链接顺序)。需要在特定位置跑的模块,直接调整数组项的顺序即可。
+
 
 ## 4. 跨模块通信
 
