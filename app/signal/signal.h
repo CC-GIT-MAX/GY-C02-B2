@@ -926,6 +926,22 @@ const char * Signal_GetName(signal_id_t id);
  */
 bool         Signal_IsValid(signal_id_t id);
 
+/**
+ * @brief   Mark a single signal as invalid (next Get returns 0)
+ * @brief   将单个信号标记为无效（下次 Get 返回 0）
+ *
+ * @param[in]  id  Signal id
+ */
+/**
+ * @brief   Mark a single signal slot as invalid
+ * @brief   将单个信号槽位标记为无效
+ *
+ * @details After this call Signal_IsValid(id) returns false and
+ *          Signal_Get(id) returns 0 until the next Signal_Set().
+ *          Out-of-range ids are silently ignored.
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ */
 void         Signal_Invalidate(signal_id_t id);
 
 /**

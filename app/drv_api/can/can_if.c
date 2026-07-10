@@ -327,6 +327,21 @@ static void prv_mark_recovery(can_channel_t ch)
     s_recovery_pending[ch] = 1u;
 }
 
+/**
+ * @brief   flexcan error callback (runs in ISR context)
+ * @brief   flexcan 错误回调（运行于 ISR 上下文）
+ *
+ * @details Handles the four events the cluster actually cares about:
+ *   - BUS_OFF_ENTER  -> log error, set SIG_CAN_BUS_OFF=1, bump counter
+ *   - BUS_OFF_DONE   -> log info, clear SIG_CAN_BUS_OFF=0
+ *   - TX_WARNING     -> log warning with current TX error counter
+ *   - RX_WARNING     -> log warning with current RX error counter
+ *   - others         -> log debug
+ *
+ * @param[in]  instance   flexcan instance index
+ * @param[in]  eventType  which ESR1 bit fired
+ * @param[in]  state      Driver state (unused)
+ */
 static void prv_flexcan_err_cb(u8 instance,
                                flexcan_error_event_type_t eventType,
                                flexcan_state_t *state)
