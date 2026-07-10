@@ -862,21 +862,6 @@ typedef enum {
 
 /**
  * @brief   Publish a value on the signal bus
- * @brief   在信号总线上发布一个值
- *
- * @details Stamps the value and marks the slot as valid. The
- *          owner of the signal is responsible for the rate.
- *          Returns C02B2_ERR_PARAM for SIG_INVALID / out-of-range ids.
- *
- * @param[in]  id     Signal id (see signal_id_t)
- * @param[in]  value  32-bit payload; interpretation depends on signal
- *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Value stored
- * @retval  C02B2_ERR_PARAM     id invalid
- */
-/**
- * @brief   Publish a value on the signal bus
  * @brief   在信号总线发布一个值
  *
  * @details Stores `value` into the slot for `id` and marks it
@@ -895,17 +880,6 @@ typedef enum {
 c02b2_result_t Signal_Set(signal_id_t id, u32 value);
 
 /**
- * @brief   Read the current value of a signal
- * @brief   读取信号的当前值
- *
- * @details Returns 0 for unknown / out-of-range ids. The value is raw (unsigned); consumers apply DBC factor/offset via CanDb_DecodeSignal when they need a physical quantity. Callers
- *          that care about freshness should use Signal_IsValid().
- *
- * @param[in]  id  Signal id
- *
- * @return  u32  Last value set, or 0 if never set / invalid id
- */
-/**
  * @brief   Read a signal value
  * @brief   读取一个信号的值
  *
@@ -919,23 +893,6 @@ c02b2_result_t Signal_Set(signal_id_t id, u32 value);
  */
 u32          Signal_Get(signal_id_t id);
 
-/**
- * @brief   Resolve a signal id to its enum string ("SIG_<NAME>").
- * @brief   把信号 id 解析为对应的枚举字符串("SIG_<NAME>")
- *
- * @details Used by SOC decode / diagnostic dumps / logging to
- *          render a human-readable name without forcing every
- *          caller to maintain their own id->name table.
- *
- *          The returned pointer is to a static const string and
- *          must not be freed.  For invalid ids returns
- *          "<invalid>"; for ids the toolchain has not yet
- *          stubbed returns "<unmapped>".
- *
- * @param[in]  id  Signal id (see signal_id_t)
- *
- * @return  const char*  Stable, NUL-terminated string
- */
 /**
  * @brief   Get the human-readable name for a signal id
  * @brief   获取信号 id 的可读名称
@@ -953,16 +910,6 @@ u32          Signal_Get(signal_id_t id);
 const char * Signal_GetName(signal_id_t id);
 
 /**
- * @brief   Check whether the signal slot is currently valid
- * @brief   检查信号槽位当前是否有效
- *
- * @param[in]  id  Signal id
- *
- * @return  bool
- * @retval  true   Signal has been set and not invalidated
- * @retval  false  Never set, explicitly invalidated, or invalid id
- */
-/**
  * @brief   Check whether a signal slot is currently valid
  * @brief   检查信号槽位当前是否有效
  *
@@ -979,31 +926,8 @@ const char * Signal_GetName(signal_id_t id);
  */
 bool         Signal_IsValid(signal_id_t id);
 
-/**
- * @brief   Mark a single signal as invalid (next Get returns 0)
- * @brief   将单个信号标记为无效（下次 Get 返回 0）
- *
- * @param[in]  id  Signal id
- */
-/**
- * @brief   Mark a single signal slot as invalid
- * @brief   将单个信号槽位标记为无效
- *
- * @details After this call Signal_IsValid(id) returns false and
- *          Signal_Get(id) returns 0 until the next Signal_Set().
- *          Out-of-range ids are silently ignored.
- *
- * @param[in]  id  Signal id (see signal_id_t)
- */
 void         Signal_Invalidate(signal_id_t id);
 
-/**
- * @brief   Mark every signal as invalid
- * @brief   将所有信号标记为无效
- *
- * @details Used on power-mode transitions / factory reset to force
- *          all consumers to republish.
- */
 /**
  * @brief   Mark every signal slot as invalid
  * @brief   将全部信号槽位标记为无效

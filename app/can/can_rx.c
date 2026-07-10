@@ -66,18 +66,6 @@ static struct {
  *  every 50 ms; bit idx in SIG_CAN_RX_TIMEOUT_MAP is set when       *
  *  (now - last_rx_tick_ms[idx]) > timeout_ms[idx].                  *
  *                                                                    *
- *  0 = no monitoring.  Indices match can_msg_descs_ipk[]. The DBC   *
- *  itself has no notion of cycle/timeout so this hand-authored      *
- *  table is the source of truth.                                    *
- * ---------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------- *
- *  RX timeout table                                                  *
- *                                                                    *
- *  Per-IPK-message receive timeout.  Read by prv_check_timeouts()   *
- *  every 50 ms; bit idx in SIG_CAN_RX_TIMEOUT_MAP is set when       *
- *  (now - last_rx_tick_ms[idx]) > timeout_ms[idx].                  *
- *                                                                    *
  *  Rule (project convention):                                       *
  *    - cycle <  50 ms : fixed 250 ms (fast loop, allow jitter)      *
  *    - cycle >= 50 ms : cycle * 5  (5 missed cycles = timeout)      *
