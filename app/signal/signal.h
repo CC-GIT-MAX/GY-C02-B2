@@ -34,10 +34,10 @@ typedef enum {
      * ---------------------------------------------------------------- */
     SIG_IGN_ON,            /* bool, 1 = KL15 on                       */
     SIG_ACC_ON,            /* bool, 1 = ACC on                        */
-    SIG_KL30_VOLTAGE_MV,   /* int32, KL30 voltage in mV               */
-    SIG_PWR_MODE,          /* int32, see pwr_mode_t                   */
+    SIG_KL30_VOLTAGE_MV,   /* u32 raw, KL30 voltage in mV               */
+    SIG_PWR_MODE,          /* u32 raw, see pwr_mode_t                   */
     SIG_GC_POWER_ON,       /* bool                                    */
-    SIG_IGN_OFF_COUNTER,   /* int32, ticks since IGN off              */
+    SIG_IGN_OFF_COUNTER,   /* u32 raw, ticks since IGN off              */
     SIG_SLEEP_READY,       /* bool, all modules allow sleep           */
 
     /* ---------------------------------------------------------------- *
@@ -48,14 +48,14 @@ typedef enum {
      *  PedalPosition).  New modules should read SIG_CAN_<Name> below     *
      *  instead of these legacy ids.                                      *
      * ---------------------------------------------------------------- */
-    SIG_VEH_SPEED_KPH_X10, /* int32, 0.1 kph                          */
-    SIG_ENG_RPM,           /* int32, rpm                              */
-    SIG_FUEL_LEVEL_PCT,    /* int32, 0..100                           */
-    SIG_COOLANT_TEMP_C,    /* int32, degC                             */
-    SIG_ODO_TOTAL_M,       /* int32, total odometer in meters         */
-    SIG_ODO_TRIP_A_M,      /* int32, trip A in meters                 */
-    SIG_ODO_TRIP_B_M,      /* int32, trip B in meters                 */
-    SIG_GEAR_POS,          /* int32, see gear_t                       */
+    SIG_VEH_SPEED_KPH_X10, /* u32 raw, 0.1 kph                          */
+    SIG_ENG_RPM,           /* u32 raw, rpm                              */
+    SIG_FUEL_LEVEL_PCT,    /* u32 raw, 0..100                           */
+    SIG_COOLANT_TEMP_C,    /* u32 raw, degC                             */
+    SIG_ODO_TOTAL_M,       /* u32 raw, total odometer in meters         */
+    SIG_ODO_TRIP_A_M,      /* u32 raw, trip A in meters                 */
+    SIG_ODO_TRIP_B_M,      /* u32 raw, trip B in meters                 */
+    SIG_GEAR_POS,          /* u32 raw, see gear_t                       */
 
     /* ---------------------------------------------------------------- *
      *  Telltale / display                                              *
@@ -93,8 +93,8 @@ typedef enum {
      *  LEGACY: brightness / day-night have no CAN source yet.  The      *
      *  IPK_DayNightMode bit in MMI_Safety_Info is the closest match.    *
      * ---------------------------------------------------------------- */
-    SIG_ILLU_LCD_PCT,      /* int32, 0..100, LCD backlight            */
-    SIG_ILLU_KEY_PCT,      /* int32, 0..100, key backlight            */
+    SIG_ILLU_LCD_PCT,      /* u32 raw, 0..100, LCD backlight            */
+    SIG_ILLU_KEY_PCT,      /* u32 raw, 0..100, key backlight            */
     SIG_ILLU_DAY_NIGHT,    /* bool, 1 = night                         */
 
     /* ---------------------------------------------------------------- *
@@ -125,9 +125,9 @@ typedef enum {
      *  adding MAP_HI3 / MAP_HI4 entries below and bump                  *
      *  MAX_RX_TRACKED in app/can/can_rx.c - both must move together.    *
      * ---------------------------------------------------------------- */
-    SIG_CAN_RX_TIMEOUT_MAP_LO,  /* int32, bits  0..31 = rx_msg_idx  0..31 timeout flags */
-    SIG_CAN_RX_TIMEOUT_MAP_HI,  /* int32, bits  0..31 = rx_msg_idx 32..63 timeout flags */
-    SIG_CAN_RX_TIMEOUT_MAP_HI2, /* int32, bits  0..31 = rx_msg_idx 64..95 timeout flags */
+    SIG_CAN_RX_TIMEOUT_MAP_LO,  /* u32 raw, bits  0..31 = rx_msg_idx  0..31 timeout flags */
+    SIG_CAN_RX_TIMEOUT_MAP_HI,  /* u32 raw, bits  0..31 = rx_msg_idx 32..63 timeout flags */
+    SIG_CAN_RX_TIMEOUT_MAP_HI2, /* u32 raw, bits  0..31 = rx_msg_idx 64..95 timeout flags */
 
     /* ---------------------------------------------------------------- *
      *  CAN bus health (error interrupt driven)                         *
@@ -137,15 +137,15 @@ typedef enum {
      *  (diag, NM, meter telltale) can react.                            *
      * ---------------------------------------------------------------- */
     SIG_CAN_BUS_OFF,         /* bool, 1 = instance currently in bus-off */
-    SIG_CAN_BUS_OFF_COUNT,   /* int32, cumulative bus-off enter count   */
-    SIG_CAN_TX_ERR_CNT,      /* int32, last TX error counter (0..255)    */
-    SIG_CAN_RX_ERR_CNT,      /* int32, last RX error counter (0..255)    */
+    SIG_CAN_BUS_OFF_COUNT,   /* u32 raw, cumulative bus-off enter count   */
+    SIG_CAN_TX_ERR_CNT,      /* u32 raw, last TX error counter (0..255)    */
+    SIG_CAN_RX_ERR_CNT,      /* u32 raw, last RX error counter (0..255)    */
 
     /* ---------------------------------------------------------------- *
      *  System                                                          *
      * ---------------------------------------------------------------- */
-    SIG_FW_VERSION,        /* int32, packed MAJOR/MINOR/PATCH          */
-    SIG_BUILD_DATE,        /* int32, packed YYYYMMDD                  */
+    SIG_FW_VERSION,        /* u32 raw, packed MAJOR/MINOR/PATCH          */
+    SIG_BUILD_DATE,        /* u32 raw, packed YYYYMMDD                  */
     SIG_WATCHDOG_KICK,     /* bool, debug: kicked this tick            */
 
     /* ---------------------------------------------------------------- *
@@ -875,6 +875,23 @@ typedef enum {
  * @retval  C02B2_OK            Value stored
  * @retval  C02B2_ERR_PARAM     id invalid
  */
+/**
+ * @brief   Publish a value on the signal bus
+ * @brief   在信号总线发布一个值
+ *
+ * @details Stores `value` into the slot for `id` and marks it
+ *          valid. The value is RAW u32 (DBC bit pattern for
+ *          CAN-derived signals, packed integer for legacy ids).
+ *          Consumers derive physical values themselves via
+ *          CanDb_DecodeSignal() when needed.
+ *
+ * @param[in]  id     Signal id (see signal_id_t)
+ * @param[in]  value  RAW u32 payload
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Value stored and slot marked valid
+ * @retval  C02B2_ERR_PARAM     id invalid (SIG_INVALID or out of range)
+ */
 c02b2_result_t Signal_Set(signal_id_t id, u32 value);
 
 /**
@@ -887,6 +904,18 @@ c02b2_result_t Signal_Set(signal_id_t id, u32 value);
  * @param[in]  id  Signal id
  *
  * @return  u32  Last value set, or 0 if never set / invalid id
+ */
+/**
+ * @brief   Read a signal value
+ * @brief   读取一个信号的值
+ *
+ * @details Returns the stored RAW u32 value. If the slot is
+ *          currently invalid, returns 0. Callers that care
+ *          about freshness should use Signal_IsValid().
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ *
+ * @return  u32  Stored value, or 0 if slot is invalid / id out of range
  */
 u32          Signal_Get(signal_id_t id);
 
@@ -907,6 +936,20 @@ u32          Signal_Get(signal_id_t id);
  *
  * @return  const char*  Stable, NUL-terminated string
  */
+/**
+ * @brief   Get the human-readable name for a signal id
+ * @brief   获取信号 id 的可读名称
+ *
+ * @details Looks up `id` in a hand-maintained table; CAN-derived
+ *          ids (>= SIG_CAN_RX_TIMEOUT_MAP_HI2) return the stable
+ *          placeholder "<can-signal>" since they are generated by
+ *          tools/dbc_parse.py. Returns "<unmapped>" if the id is
+ *          not in the table.
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ *
+ * @return  const char*  Always a valid C string; never NULL
+ */
 const char * Signal_GetName(signal_id_t id);
 
 /**
@@ -919,6 +962,21 @@ const char * Signal_GetName(signal_id_t id);
  * @retval  true   Signal has been set and not invalidated
  * @retval  false  Never set, explicitly invalidated, or invalid id
  */
+/**
+ * @brief   Check whether a signal slot is currently valid
+ * @brief   检查信号槽位当前是否有效
+ *
+ * @details A slot becomes valid when Signal_Set() stores a value
+ *          and invalid again when Signal_Invalidate() (or the
+ *          bulk Signal_InvalidateAll()) is called. Out-of-range
+ *          ids always return false.
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ *
+ * @return  bool
+ * @retval  true   Slot is valid (has a fresh value)
+ * @retval  false  Slot is invalid or id out of range
+ */
 bool         Signal_IsValid(signal_id_t id);
 
 /**
@@ -926,6 +984,16 @@ bool         Signal_IsValid(signal_id_t id);
  * @brief   将单个信号标记为无效（下次 Get 返回 0）
  *
  * @param[in]  id  Signal id
+ */
+/**
+ * @brief   Mark a single signal slot as invalid
+ * @brief   将单个信号槽位标记为无效
+ *
+ * @details After this call Signal_IsValid(id) returns false and
+ *          Signal_Get(id) returns 0 until the next Signal_Set().
+ *          Out-of-range ids are silently ignored.
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
  */
 void         Signal_Invalidate(signal_id_t id);
 
@@ -935,6 +1003,15 @@ void         Signal_Invalidate(signal_id_t id);
  *
  * @details Used on power-mode transitions / factory reset to force
  *          all consumers to republish.
+ */
+/**
+ * @brief   Mark every signal slot as invalid
+ * @brief   将全部信号槽位标记为无效
+ *
+ * @details Used at boot to clear any stale state, or on major
+ *          mode transitions (e.g. KL15 off) to drop everything
+ *          that came from the previous power cycle. Iterates the
+ *          full SIG_MAX range; safe to call from any context.
  */
 void         Signal_InvalidateAll(void);
 
