@@ -1,40 +1,52 @@
 /**
  * @file    rti.c
- * @brief   RTI tick implementation backed by OSIF (SysTick)
+ * @brief   RTI tick implementation backed by OSIF (SysTick) +
+ *          caller-private period slot pool.
  *
  * Tick source:
- *   - Normal operation: SysTick_Handler (in this file) drives the
- *     1 ms RTI tick via RTI_OnTick1ms(), feeds the watchdog, and
- *     calls osif_Tick() so that OSIF_GetMilliseconds() / OSIF_TimeDelay
- *     work too.
- *   - Low-power sleep: LPTMR remains initialised (drv_init) and
- *     could take over the tick source while the core is stopped;
- *     not used here.
+ *   - SysTick_Handler at the bottom of this file drives the 1 ms
+ *     RTI tick via RTI_OnTick1ms(), feeds the watchdog, and
+ *     calls osif_Tick() so that OSIF_GetMilliseconds() works too.
  *
- * RTI_IsElapsed() / RTI_GetTick1ms() now read from OSIF instead of
- * a private counter - there is no double bookkeeping.
+ * Slot pool:
+ *   - s_slots[RTI_SLOT_POOL_SIZE] is a static pool of private
+ *     period slots. RTI_OpenSlot() scans for the first free slot
+ *     and stamps it. RTI_SlotElapsed() compares against the slot's
+ *     own last timestamp - no global flag, no collision.
  */
 #include "rti.h"
 #include "drv_api/rti_defer/rti_defer.h"
-#include "osif.h"           /* OSIF_GetMilliseconds + osif_Tick */
-#include "wdg_hw_access.h"  /* WDG_DRV_Trigger                  */
+#include "osif.h"
+#include "wdg_hw_access.h"
 
 /**
- * @brief   Initialize RTI: start SysTick via OSIF and clear the
- *          one-shot deferred-callback pool.
- * @brief   初始化 RTI：通过 OSIF 启动 SysTick 并清空一次性延迟回调池
- *
- * @details Calling OSIF_TimeDelay(0) is the vendor-documented way to
- *          initialise SysTick without any side effects (it does not
- *          actually wait, but triggers osif_UpdateTickConfig() which
- *          programs SysTick->LOAD/CTRL). After this call the
- *          SysTick_Handler at the bottom of this file starts firing
- *          at 1 kHz.
+ * @brief   Internal slot descriptor
+ * @brief   内部 slot 描述符
+ */
+typedef struct {
+    uint16_t period;    /**< RTI_5MS..RTI_1000MS, 0 = free */
+    uint16_t inited;    /**< 1 = slot acquired and stamped */
+    uint32_t last_ms;   /**< OSIF tick at last fire */
+} rti_slot_desc_t;
+
+/** Static pool - no malloc on the bare-metal target. */
+static rti_slot_desc_t s_slots[RTI_SLOT_POOL_SIZE];
+
+/**
+ * @brief   Initialize RTI: clear the slot pool, start SysTick,
+ *          and clear the deferred-callback pool.
+ * @brief   初始化 RTI:清空 slot 池,启动 SysTick,清空延后回调池
  */
 void RTI_Init(void)
 {
-    /* Start SysTick; the counter inside osif_Tick() is what we read
-     * from RTI_GetTick1ms() below. */
+    /* Clear the slot pool. */
+    for (uint32_t i = 0; i < RTI_SLOT_POOL_SIZE; i++) {
+        s_slots[i].period  = 0u;
+        s_slots[i].inited  = 0u;
+        s_slots[i].last_ms = 0u;
+    }
+    /* Start SysTick; OSIF_TimeDelay(0) primes the tick config
+     * without actually waiting. */
     OSIF_TimeDelay(0);
     /* Clear the one-shot deferred-callback pool. */
     RTI_DeferInit();
@@ -43,24 +55,70 @@ void RTI_Init(void)
 /**
  * @brief   1 kHz tick callback invoked from the SysTick ISR
  * @brief   SysTick ISR 调用的 1kHz tick 回调
+ *
+ * @details Intentionally empty: the SysTick_Handler at the
+ *          bottom of this file is the one true ISR that drives
+ *          osif_Tick() + RTI_OnTick1ms side-effects (watchdog
+ *          feed). Kept as a hook so existing call sites do not
+ *          break.
  */
 void RTI_OnTick1ms(void)
 {
-    /* Intentionally empty: the SysTick_Handler at the bottom of this
-     * file is the one true ISR that drives osif_Tick() + RTI_OnTick1ms
-     * side-effects (watchdog feed). Kept as a hook so existing call
-     * sites do not break. */
+    /* No-op: side effects live in SysTick_Handler. */
 }
 
 /**
  * @brief   Get the current 1 ms tick count
  * @brief   获取当前 1ms tick 计数
- *
- * @return  uint32_t  Monotonic 1 ms tick from OSIF
  */
 uint32_t RTI_GetTick1ms(void)
 {
     return OSIF_GetMilliseconds();
+}
+
+/**
+ * @brief   Acquire a private slot bound to the given period
+ * @brief   获取一个绑定指定周期的私有 slot
+ */
+rti_slot_t RTI_OpenSlot(rti_period_t period)
+{
+    rti_slot_t out = { NULL };
+    for (uint32_t i = 0; i < RTI_SLOT_POOL_SIZE; i++) {
+        if (s_slots[i].inited == 0u) {
+            s_slots[i].period  = (uint16_t)period;
+            s_slots[i].inited  = 1u;
+            s_slots[i].last_ms = OSIF_GetMilliseconds();
+            /* Encode slot index as (i+1) in _priv so that 0 is
+             * unambiguously "invalid handle". */
+            out._priv = (void *)(uintptr_t)(i + 1u);
+            return out;
+        }
+    }
+    return out; /* pool full - returns { NULL } */
+}
+
+/**
+ * @brief   Check whether the slot's period has elapsed
+ * @brief   检查该 slot 的周期是否到期
+ */
+bool RTI_SlotElapsed(rti_slot_t *slot)
+{
+    if (slot == NULL) { return false; }
+    uintptr_t idx_plus1 = (uintptr_t)slot->_priv;
+    if (idx_plus1 == 0u || idx_plus1 > RTI_SLOT_POOL_SIZE) {
+        return false;
+    }
+    uint32_t i = (uint32_t)(idx_plus1 - 1u);
+    rti_slot_desc_t *s = &s_slots[i];
+    if (s->inited == 0u) {
+        return false;
+    }
+    const uint32_t now = OSIF_GetMilliseconds();
+    if ((now - s->last_ms) >= (uint32_t)s->period) {
+        s->last_ms = now;
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -77,48 +135,8 @@ bool RTI_IsFirstCall(void)
 }
 
 /**
- * @brief   Check whether the requested period has elapsed since the last call
- * @brief   检查自上次调用以来指定周期是否已到
- */
-bool RTI_IsElapsed(rti_period_t period)
-{
-    /* 8 static slots, one per supported period. Each slot has a
-     * parallel `inited` flag so the FIRST call stamps the current
-     * OSIF tick and returns false. This avoids the historic edge
-     * case where every slot started at 0 and an early call from a
-     * different period could accidentally over-stamp the wrong slot
-     * (the static was zero-initialised and the `now - 0 >= period`
-     * check always succeeded, then overwrote the wrong index). */
-    static uint32_t s_last[8] = {0,0,0,0,0,0,0,0};
-    static bool     s_inited[8] = {false,false,false,false,false,false,false,false};
-    const uint32_t now = OSIF_GetMilliseconds();
-    uint32_t slot;
-    switch (period) {
-        case RTI_5MS:    slot = 0; break;
-        case RTI_10MS:   slot = 1; break;
-        case RTI_20MS:   slot = 2; break;
-        case RTI_50MS:    slot = 3; break;
-        case RTI_100MS:  slot = 4; break;
-        case RTI_250MS:  slot = 5; break;
-        case RTI_500MS:  slot = 6; break;
-        case RTI_1000MS: slot = 7; break;
-        default:         return false;
-    }
-    if (!s_inited[slot]) {
-        s_last[slot] = now;
-        s_inited[slot] = true;
-        return false;
-    }
-    if (now - s_last[slot] >= (uint32_t)period) {
-        s_last[slot] = now;
-        return true;
-    }
-    return false;
-}
-
-/**
  * @brief   1 ms SysTick ISR: drives OSIF tick, RTI tick, and WDG feed.
- * @brief   1ms SysTick 中断：驱动 OSIF 滴答、RTI 滴答、喂狗
+ * @brief   1ms SysTick 中断:驱动 OSIF 滴答、RTI 滴答、喂狗
  *
  * @details Single authoritative source of all 1 ms side-effects.
  *          Owns three responsibilities:
