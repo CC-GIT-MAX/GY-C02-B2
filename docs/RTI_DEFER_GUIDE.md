@@ -9,7 +9,7 @@
 | 同步阻塞（禁止） | OSIF_TimeDelay / YTM_DELAY_xms | 是，整个 super-loop 卡住 | 硬件握手 ≤ 100us |
 | 同步短延（唯一合法阻塞） | YTM_DELAY_1us（N 个 NOP） | 是，CPU 死等几 us | 等 ADC / I2C / SPI 标志 |
 | 异步延后 | RTI_Defer(ms, cb, ctx) | 否，立刻返回 | N ms 后跑 cb |
-| 周期性 tick | RTI_IsElapsed(RTI_xxMS) | 否 | 5/10/50/100ms 子任务 |
+| 周期性 tick | RTI_OpenSlot + RTI_SlotElapsed | 否 | 5/10/50/100ms 子任务 |
 | 状态机延时 | RTI_GetTick1ms + 差值比较 | 否 | tick 内多步时序 |
 
 **架构硬约束**（docs/ARCHITECTURE.md § 3）：
@@ -194,7 +194,7 @@
 |---|---|
 | 等 ADC EOC（≤ 100us 硬件） | YTM_DELAY_1us 循环 + timeout |
 | 单次延后做某事 | RTI_Defer(ms, cb, ctx) |
-| 周期性 tick | RTI_IsElapsed(RTI_xxMS) |
+| 周期性 tick | RTI_OpenSlot + RTI_SlotElapsed |
 | 多步控制序列（寄存器+GPIO） | 方案 A：tick 内状态机 |
 | 多步控制序列（跨模块协调） | 方案 B：RTI_Defer 链 |
 | 等待外部硬件 > 1ms | 拆状态机 + YTM_DELAY_1us 短延 + 标志位 |
@@ -211,7 +211,7 @@
 
 ### 错 2：ISR 内调 RTI_Defer
 
-    void LPTMR_ISR(void) {
+    void SysTick_Handler(void) {
         RTI_OnTick1ms();
         RTI_Defer(10, cb, ctx);   /* 错 */
     }
@@ -262,7 +262,7 @@ A 和 B 都按绝对时间触发。如果要"A 完后 10ms 做 B"：
     |     -- YTM_DELAY_1us() 循环 + timeout   <- 唯一允许的阻塞
     |
     |-- X = 5/10/50/100ms 且周期性
-    |     -- RTI_IsElapsed(RTI_xxMS)          <- 周期 tick
+    |     -- RTI_OpenSlot + RTI_SlotElapsed  <- 周期 tick
     |
     |-- X 任意 ms 且延后做单件事
     |     -- RTI_Defer(X, cb, ctx)            <- 异步延后 (8-slot)
@@ -275,7 +275,7 @@ A 和 B 都按绝对时间触发。如果要"A 完后 10ms 做 B"：
 
 ## 7. 参见
 
-- pp/rti/rti.h - RTI API 完整定义 (RTI_GetTick1ms / RTI_IsElapsed)
+- pp/rti/rti.h - RTI API 完整定义 (RTI_GetTick1ms / RTI_OpenSlot / RTI_SlotElapsed)
 - pp/rti/rti_defer.h - RTI_Defer API 完整定义
 - pp/can/can_rx.c - 周期 tick 使用范例 (50ms 超时监控)
 - pp/mod_template/mod_template.c - 10ms / 100ms 子任务范例

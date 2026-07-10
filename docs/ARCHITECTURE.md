@@ -37,14 +37,15 @@ tools/              本地脚本
 
 每个业务模块独占一个子目录，目录名即模块名（小写、下划线分隔）。
 
-## 3. 模块四件套
+## 3. 模块五件套
 
-每个业务模块必须实现以下 4 个钩子，通过 `mod_desc_t` 注册到调度器：
+每个业务模块必须实现以下 5 个钩子，通过 `mod_desc_t` 注册到调度器：
 
 ```c
 typedef struct mod_desc_s {
     const char *name;
-    void (*init)(uint8_t cold_boot);
+    void (*mcu_init)(uint8_t cold_boot);
+    void (*wakeup_init)(void);
     void (*on_ign_on)(void);
     void (*tick)(void);
     void (*standby)(void);
@@ -53,16 +54,17 @@ typedef struct mod_desc_s {
 
 | 钩子 | 调用时机 | 用途 |
 |---|---|---|
-| `init` | MCU 上电 / 复位 | 一次性初始化（KAM 冷热启动分支由此参数区分） |
-| `on_ign_on` | KL15 上电边沿 | 重新加载需要 IGN 状态才能确定的状态 |
+| `mcu_init` | MCU 上电 / 复位（Scheduler_Init 阶段） | 一次性硬件初始化（KAM 冷热启动分支由此参数区分）。早于所有外设与 wakeup |
+| `wakeup_init` | Scheduler_WakeupInit 阶段 | 复位后 NVIC 优先级恢复、唤醒源重新 arm。与 mcu_init 解耦 |
+| `on_ign_on` | Scheduler_OnIgnOn 阶段（KL15 上电边沿） | 重新加载需要 IGN 状态才能确定的状态 |
 | `tick` | 主循环每周期 | 模块主逻辑；内部用 `RTI_SlotElapsed(&slot)` 自决子周期 |
 | `standby` | 进入低功耗前 | 释放外设、保存恢复上下文 |
 
-**加新模块的标准动作(3 步)**：
-1. 在 `app/<feature>/` 实现上述 4 个函数 + `extern const mod_desc_t mod_<feature>;`
-2. 在 `app/scheduler/scheduler.c` 的 `g_sched_modules[]` 追加 `&mod_<feature>`,并在文件顶部加 `extern const mod_desc_t mod_<feature>;`
-3. 在模块 .c 末尾加 `SCHED_REGISTER(mod_<feature>);`(保留符号 + 防 dead-code 消除)
-4. **不要**改 `main.c`
+**加新模块的标准动作(4 步)**：
+1. 在 `app/<feature>/` 实现上述 5 个钩子（NULL 自动跳过），并在 `app/<feature>/<feature>.h` 中声明 `extern const mod_desc_t mod_<feature>;`
+2. 在 `app/scheduler/scheduler.c` 顶部加 `extern const mod_desc_t mod_<feature>;`，并把 `&mod_<feature>` 追加到 `g_sched_modules[]`
+3. 在模块 .c 末尾加 `SCHED_REGISTER(mod_<feature>);`（保留符号 + 防 dead-code 消除）
+4. **不要**改 `main.c`（`Scheduler_Init` / `Scheduler_WakeupInit` / `Scheduler_OnIgnOn` 已自动遍历注册表）
 
 
 
@@ -82,8 +84,8 @@ typedef struct mod_desc_s {
 
 ## 5. 错误处理
 
-- 所有公共 API 返回 `lbx_result_t`（`app/result.h`）
-- `LBX_OK = 0`；其他值均为错误
+- 所有公共 API 返回 `c02b2_result_t`（`app/result.h`）
+- `C02B2_OK = 0`；其他值均为错误
 - 错误码按段划分（Power 0x1xxx / CAN 0x2xxx / Storage 0x3xxx / ...）
 - 不要用 `0/-1` 直接做返回值
 
@@ -96,10 +98,10 @@ typedef struct mod_desc_s {
 
 ## 7. 时间管理
 
-- 全局 1ms tick 由 LPTMR 产生，ISR 中调用 `RTI_OnTick1ms()`
-- 模块**不**持有自己的 RTI 标志变量，全部用 `RTI_IsElapsed(period)`
+- 全局 1ms tick 由 `SysTick_Handler`（位于 `app/rti/rti.c`）产生，ISR 内调用 `RTI_OnTick1ms()`，并驱动 OSIF 滴答与 WDG 喂狗
+- 模块**不**持有自己的 RTI 标志变量，全部用 `RTI_OpenSlot(period)` + `RTI_SlotElapsed(&slot)`
 - 周期枚举见 `app/rti/rti.h`：5/10/20/50/100/250/500/1000 ms
-- 新增周期需要修改 `rti.c` 的 `RTI_IsElapsed` slot 表
+- slot 池默认 64 个（`RTI_SLOT_POOL_SIZE`），多模块同 period 互不干扰；超出会 LOG_W 并跳过
 
 ## 8. 编码风格
 
@@ -109,7 +111,7 @@ typedef struct mod_desc_s {
 - 函数命名：`Module_Action()`（下划线分隔，PascalCase 词）
 - 变量命名：`snake_case`
 - 类型命名：`snake_case_t`
-- 宏命名：`LBX_UPPER_SNAKE`
+- 宏命名：`C02B2_UPPER_SNAKE`
 - 详见 `.clang-format`
 
 ## 9. 提交规范
@@ -138,3 +140,8 @@ typedef struct mod_desc_s {
 
 - 当前版本：`v0.0.0-dev`
 - 修订记录：本文件随批次执行逐步完善
+
+
+
+
+

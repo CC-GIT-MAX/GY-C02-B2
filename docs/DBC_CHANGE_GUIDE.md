@@ -187,7 +187,7 @@ DBC diff：
 按 cycle 自动发还是事件触发？
 
   - **周期**（如 `IPK_STS`）：在 `mod_can_tx::prv_tick` 用
-    `RTI_IsElapsed(RTI_xxMS)` 触发；cycle 由
+    `RTI_OpenSlot(period)` + `RTI_SlotElapsed(&slot)` 触发；cycle 由
     `g_can_tx_cycle_table[]` 决定
   - **事件**（如 `IPK_Fuel_Sts` 油耗变化时发）：保留一个 last-sent
     tick 变量，值变化时调 `CanTx_Trigger(can_id, ...)`
