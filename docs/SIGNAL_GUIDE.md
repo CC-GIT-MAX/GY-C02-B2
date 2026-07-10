@@ -32,7 +32,7 @@
 例：
 - `SIG_VEH_SPEED_KPH_X10` 所有者：`mod_can_rx`（从 CAN 解析）
 - `SIG_FUEL_LEVEL_PCT` 所有者：`mod_fuel`（从 ADC 读电阻换算）
-- `SIG_IGN_ON` 所有者：`mod_power`（KL15 IO 中断）
+- `SIG_IGN_ON` 所有者：预留（KL15 IO 中断，待 `mod_power` 落地）
 
 ## 何时新增信号
 

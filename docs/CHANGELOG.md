@@ -14,7 +14,7 @@
 ## 当前架构状态
 
 - **调度**：超级循环 + RTI 1ms 时间片（`app/scheduler` + `app/rti`）
-- **业务接入**：3 步添加新模块（实现 mod_desc_t → 注册到 g_modules → 不动 main.c）
+- **业务接入**：4 步添加新模块（5 钩子 mod_desc_t → 顶部 extern + g_sched_modules → SCHED_REGISTER → 加进 IAR 工程；不动 main.c）
 - **跨模块通信**：信号总线（`app/signal/signal.h`），单一所有者原则
 - **错误处理**：`c02b2_result_t`（`app/result.h`），分段错误码（含 `C02B2_ERR_NOT_FOUND`）
 - **日志**：4 级 LOG_E/W/I/D，模块名标签，编译期零开销
@@ -29,8 +29,9 @@
 
 ## 下一步建议（待业务推进时按需执行）
 
-1. 业务模块首个落地产物（建议 `mod_power`，从 `app/mod_template/` 起步）
-2. ✅ 已完成：IPK 10 RX + 3 TX 132 signals
-3. `version.h` 注入脚本（CI `version-job`）
-4. 状态机框架（`app/fsm/`）
-5. 指示灯查表（`app/telltale/`，参考 LBXA00 旧项目 TEL_LOGIC）
+1. ✅ 已完成：IPK 64 RX + 9 TX（含超时 + Sentinel + factor_cache）
+2. ✅ 已完成：`mod_can_demo` / `mod_rti_demo`（编译开关，待调试接分析仪）
+3. 业务模块落地：`mod_power`（KL30/IGN/低功耗，草案见 `docs/SDD_POWER.md`），`mod_meter`（指针/告警灯）
+4. `version.h` 注入脚本（CI `version-job`）
+5. 状态机框架（`app/fsm/`）
+6. 指示灯查表（`app/telltale/`，参考历史项目 TEL_LOGIC）

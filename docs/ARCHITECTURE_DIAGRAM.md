@@ -19,7 +19,9 @@ flowchart TB
         M_template["mod_template"]
         M_can_rx["mod_can_rx"]
         M_can_tx["mod_can_tx"]
-        M_reserved["... future modules<br/>(mod_power / mod_meter)"]
+        M_can_demo["mod_can_demo"]
+        M_rti_demo["mod_rti_demo"]
+        M_reserved["... future modules"]
     end
 
     subgraph MW["中间件 (app/can app/storage)"]
@@ -37,7 +39,7 @@ flowchart TB
         B_etmr["eTMR / PWM"]
         B_lpuart["LINFlexD"]
         B_i2c["I2C"]
-        B_lptmr["LPTMR (1kHz)"]
+        B_systick["SysTick (1kHz)"]
         B_wdg["WDG"]
         B_pwr["power_manager"]
     end
@@ -69,7 +71,7 @@ flowchart TB
 ```mermaid
 sequenceDiagram
     autonumber
-    participant ISR as LPTMR ISR (1 kHz)
+    participant ISR as SysTick_Handler (1 kHz)
     participant RTI as rti
     participant MAIN as main()
     participant SCH as scheduler
@@ -78,15 +80,15 @@ sequenceDiagram
 
     loop every 1 ms (interrupt)
         ISR->>RTI: RTI_OnTick1ms()
-        RTI->>RTI: s_tick_ms++
+        ISR->>OSIF: osif_Tick()
     end
 
     Note over MAIN: for(;;) Scheduler_Run(); __WFI();
     loop every iteration
         MAIN->>SCH: Scheduler_Run()
-        loop for each module in g_modules[]
+        loop for each module in g_sched_modules[]
             SCH->>MOD: m->tick()
-            MOD->>RTI: RTI_IsElapsed(period)
+            MOD->>RTI: RTI_SlotElapsed(&slot)
             RTI-->>MOD: true / false
             alt period elapsed
                 MOD->>BUS: Signal_Set(...)
@@ -98,8 +100,8 @@ sequenceDiagram
 ```
 
 **关键点：**
-- `__WFI` 让 CPU 在中断前休眠，1 ms 后被 LPTMR 唤醒
-- 每个模块的 `tick()` 内部用 `RTI_IsElapsed()` 自决子周期，**禁止**用全局 flag 变量
+- `__WFI` 让 CPU 在中断前休眠，1 ms 后被 SysTick 唤醒
+- 每个模块的 `tick()` 内部用 `RTI_OpenSlot` + `RTI_SlotElapsed` 自决子周期，**禁止**用全局 flag 变量
 
 ---
 
@@ -110,16 +112,16 @@ graph LR
     SCH["scheduler.c<br/>g_modules[]"]
 
     SCH -- &mod_template --> A["mod_template<br/>(name=template)"]
-    SCH -- &mod_power --> B["mod_power<br/>(name=power)"]
-    SCH -- &mod_meter --> C["mod_meter<br/>(name=meter)"]
-    SCH -- &mod_can_rx --> D["mod_can_rx<br/>(name=can_rx)"]
-    SCH -- &mod_can_tx --> E["mod_can_tx<br/>(name=can_tx)"]
+    SCH -- &mod_can_rx --> B["mod_can_rx<br/>(name=can_rx)"]
+    SCH -- &mod_can_tx --> C["mod_can_tx<br/>(name=can_tx)"]
+    SCH -- &mod_can_demo --> D["mod_can_demo<br/>(name=can_demo)"]
+    SCH -- &mod_rti_demo --> E["mod_rti_demo<br/>(name=rti_demo)"]
 
-    SCH -. "for each module:<br/>init() / on_ign_on() /<br/>tick() / standby()" .-> A
-    SCH -. "for each module:<br/>init() / on_ign_on() /<br/>tick() / standby()" .-> B
-    SCH -. "for each module:<br/>init() / on_ign_on() /<br/>tick() / standby()" .-> C
-    SCH -. "for each module:<br/>init() / on_ign_on() /<br/>tick() / standby()" .-> D
-    SCH -. "for each module:<br/>init() / on_ign_on() /<br/>tick() / standby()" .-> E
+    SCH -. "for each module:<br/>mcu_init / wakeup_init /<br/>on_ign_on / tick / standby()" .-> A
+    SCH -. "for each module:<br/>mcu_init / wakeup_init /<br/>on_ign_on / tick / standby()" .-> B
+    SCH -. "for each module:<br/>mcu_init / wakeup_init /<br/>on_ign_on / tick / standby()" .-> C
+    SCH -. "for each module:<br/>mcu_init / wakeup_init /<br/>on_ign_on / tick / standby()" .-> D
+    SCH -. "for each module:<br/>mcu_init / wakeup_init /<br/>on_ign_on / tick / standby()" .-> E
 ```
 
 **新增模块的步骤：**
@@ -167,36 +169,9 @@ flowchart LR
 
 ---
 
-## 5. 电源状态机 (Power State Machine)
+## 5. 电源管理 (reserved)
 
-```mermaid
-stateDiagram-v2
-    [*] --> INIT
-    INIT --> NORMAL : init_done=1
-    NORMAL --> UV1 : bat < UV1_ENTER (9.0V)
-    UV1 --> NORMAL : bat > UV1_EXIT (9.5V)
-    NORMAL --> OV1 : bat > OV1_ENTER (18.0V)
-    OV1 --> NORMAL : bat < OV1_EXIT (17.5V)
-    UV1 --> UV2 : bat < UV2_ENTER (6.5V)
-    OV1 --> OV2 : bat > OV2_ENTER (20.0V)
-    UV2 --> FAULT : latched
-    OV2 --> FAULT : latched
-    FAULT --> [*] : reset
-
-    note right of NORMAL : SIG_SLEEP_READY=1<br/>when IGN off >= 2s<br/>AND no blockers
-```
-
-阈值定义见 `board/board_power.h`：
-
-| 常量 | 值 | 说明 |
-|------|-----|------|
-| `PWR_UV2_ENTER_MV` | 6500  | 进入 UV2（锁死） |
-| `PWR_UV2_EXIT_MV`  | 7000  | 退出 UV2 |
-| `PWR_UV1_ENTER_MV` | 9000  | 进入 UV1（警告） |
-| `PWR_UV1_EXIT_MV`  | 9500  | 退出 UV1 |
-| `PWR_OV1_ENTER_MV` | 18000 | 进入 OV1（警告） |
-| `PWR_OV1_EXIT_MV`  | 17500 | 退出 OV1 |
-| `PWR_OV2_ENTER_MV` | 20000 | 进入 OV2（锁死） |
+> `mod_power` 尚未实现，电源管理章节预留。设计草案见 `docs/SDD_POWER.md`，待 `app/mod_power/` 落地后补全状态机图与阈值表。
 
 ---
 
@@ -205,47 +180,26 @@ stateDiagram-v2
 ```mermaid
 graph TB
     subgraph OWNER["信号所有者 (writer)"]
-        S_PWR[mod_power]
         S_CR[mod_can_rx]
         S_TX[mod_can_tx]
-        S_BSP[board_power ISR]
+        S_TEMPLATE[mod_template<br/>(reserved)]
     end
 
     subgraph SIG["Signal Bus (signal.c)"]
-        SIG_IGN["SIG_IGN_ON"]
-        SIG_BAT["SIG_KL30_VOLTAGE_MV"]
-        SIG_MODE["SIG_PWR_MODE"]
-        SIG_RDY["SIG_SLEEP_READY"]
-        SIG_SPD["SIG_VEH_SPEED_KPH_X10"]
-        SIG_RPM["SIG_ENG_RPM"]
-        SIG_FUEL["SIG_FUEL_LEVEL_PCT"]
-        SIG_TT["SIG_TT_* (20+ telltales)"]
+        SIG_IGN["SIG_IGN_ON<br/>(reserved)"]
+        SIG_SPD["SIG_CAN_RX_*<br/>(IPK 报文 raw 值)"]
     end
 
     subgraph READER["信号消费者 (reader)"]
-        R_MAIN[main]
-        R_MTR[mod_meter]
-        R_DIAG[mod_diag_if]
         R_TX[mod_can_tx]
+        R_TEMPLATE[mod_template<br/>(reserved)]
     end
 
-    S_PWR --&gt; SIG_IGN
-    S_PWR --&gt; SIG_BAT
-    S_PWR --&gt; SIG_MODE
-    S_PWR --&gt; SIG_RDY
     S_CR --&gt; SIG_SPD
-    S_CR --&gt; SIG_RPM
-    S_CR --&gt; SIG_FUEL
-    S_CR --&gt; SIG_TT
+    S_TX --&gt; SIG_IGN
 
-    SIG_IGN --&gt; R_MAIN
-    SIG_BAT --&gt; R_TX
-    SIG_MODE --&gt; R_TX
-    SIG_RDY --&gt; R_MAIN
-    SIG_SPD --&gt; R_MTR
-    SIG_RPM --&gt; R_MTR
-    SIG_FUEL --&gt; R_MTR
-    SIG_TT --&gt; R_DIAG
+    SIG_SPD --&gt; R_TX
+    SIG_IGN --&gt; R_TEMPLATE
 ```
 
 **约束：**
@@ -267,32 +221,26 @@ sequenceDiagram
     participant RTI as rti
     participant CIF as can_if
     participant SCH as scheduler
-    participant PWR as mod_power
-    participant MTR as mod_meter
     participant CRX as mod_can_rx
     participant CTX as mod_can_tx
 
     VEC->>MAIN: __main() ; reset
     MAIN->>BSP: BSP_Init()
-    BSP->>BSP: CLOCK / PINS / DMA / WDG / POWER
+    BSP->>BSP: CLOCK / PINS / DMA / WDG
     MAIN->>DRV: DRV_Init()
     DRV->>DRV: UART/ADC/eTMR/I2C/FLEXCAN/FLASH
     MAIN->>RTI: RTI_Init()
     MAIN->>CIF: CanIf_Init()
-    CIF->>CIF: FLEXCAN_DRV_Init + InstallEventCallback
+    CIF->>CIF: FLEXCAN_DRV_Init + ConfigRxFifo + InstallEventCallback
     MAIN->>SCH: Scheduler_Init()
-    SCH->>PWR: mod_power.init(1)
-    SCH->>MTR: mod_meter.init(1)
-    SCH->>CRX: mod_can_rx.init(1)
-    SCH->>CTX: mod_can_tx.init(1)
-    MAIN->>PWR: Power_IsIgnOn() ?
-    alt IGN already on
-        MAIN->>SCH: Scheduler_OnIgnOn()
-        SCH->>PWR: mod_power.on_ign_on()
-        SCH->>MTR: mod_meter.on_ign_on()
-        SCH->>CRX: mod_can_rx.on_ign_on()
-        SCH->>CTX: mod_can_tx.on_ign_on()
-    end
+    SCH->>CRX: mod_can_rx.mcu_init(1)
+    SCH->>CTX: mod_can_tx.mcu_init(1)
+    MAIN->>SCH: Scheduler_WakeupInit()
+    SCH->>CRX: mod_can_rx.wakeup_init()
+    SCH->>CTX: mod_can_tx.wakeup_init()
+    MAIN->>SCH: Scheduler_OnIgnOn()
+    SCH->>CRX: mod_can_rx.on_ign_on()
+    SCH->>CTX: mod_can_tx.on_ign_on()
     Note over MAIN: for(;;) { Scheduler_Run(); __WFI(); }
 ```
 
@@ -338,15 +286,13 @@ flowchart LR
 | 文件 / 目录 | 章节 | 说明 |
 |-------------|------|------|
 | `app/main.c` | §7 | 启动顺序 |
-| `app/scheduler/` | §3 | 模块注册表 |
-| `app/rti/` | §2 | 1ms tick + 子周期 |
+| `app/scheduler/` | §3 | 模块注册表 + super-loop |
+| `app/rti/` | §2 | 1ms SysTick + slot 池 |
 | `app/signal/` | §6 | 信号总线 |
-| `app/can/can_if.c` | §4 | CAN RX/TX 唯一接触点 |
+| `app/drv_api/can/can_if.c` | §4 | CAN RX/TX 唯一接触点 |
 | `app/can/can_rx.c` | §4 | RX 派发 + 超时 |
 | `app/can/can_tx.c` | §4 | TX 周期 / 事件 |
-| `app/power/` | §5 | 电源状态机 |
-| `app/meter/` | §6 | 指针表（消费 speed/rpm/fuel/temp） |
 | `app/mod_template/` | §3 | 新模块的复制起点 |
-| `app/diag/diag_if.c` | §6 | UDS 接入点 |
-| `app/storage/kv.c` | §6 | KV 存储（被 diag 间接使用） |
-| `board/board_power.c` | §5 | KL30 / IGN 硬件 |
+| `app/mod_can_demo/` | §4 | CAN demo（编译开关） |
+| `app/mod_rti_demo/` | §2 | RTI slot demo（编译开关） |
+| `app/storage/kv.c` | §6 | KV 存储骨架（待业务接入） |

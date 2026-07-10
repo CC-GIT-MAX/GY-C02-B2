@@ -118,7 +118,7 @@ ls EWARM/FLASH/Exe/C02_B2.out
 
 A handful of public symbols are intentionally exposed even though no
 internal caller exercises them yet. They exist so that forthcoming
-business modules (mod_power, mod_meter, mod_diag, ...) can plug in
+business modules (mod_can_rx, mod_can_tx, mod_can_demo, mod_rti_demo + future mod_power/mod_meter/mod_diag) can plug in
 without touching the existing module headers. None of this is dead
 code; every API is wired and tested at the unit level where it makes
 sense.
@@ -128,7 +128,7 @@ sense.
 | `app/can/can_rx.h`         | `extern const mod_desc_t mod_can_rx;` | `Scheduler_Init()` hook |
 | `app/can/can_tx.h`         | `extern const mod_desc_t mod_can_tx;` <br> `CanTx_EncodeSignal` / `CanTx_PreparePayload` / `CanTx_RebuildFromSignals` / `CanTx_SetCycle` / `CanTx_Trigger` | `Scheduler_Init()` hook <br> Business modules that emit CAN frames |
 | `app/mod_template/mod_template.h` | `extern const mod_desc_t mod_template;` <br> `Template_SetDiagValue` / `Template_GetDiagValue` | `Scheduler_Init()` hook <br> Debug / unit-test injection |
-| `app/storage/kv.h`         | `KV_Init` / `KV_Get` / `KV_Set` / `KV_Delete` / `KV_Commit` / `KV_IsDirty` | mod_storage, mod_diag, configuration |
+| `app/storage/kv.h`         | `KV_Init` / `KV_Get` / `KV_Set` / `KV_Delete` / `KV_Commit` / `KV_IsDirty` | future mod_storage, configuration |
 | `app/signal/signal_test.c` | `Signal_TestRun` | host CI runner (gcc/clang) and on-target debug menu |
 
 **Linker note**: `signal_test.c` is currently included in the

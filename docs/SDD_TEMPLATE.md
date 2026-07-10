@@ -16,7 +16,7 @@
 |----------|------|
 | 模块名   | `mod_<feature>`（如 `mod_power`） |
 | 文件路径 | `app/<feature>/` |
-| 版本     | v0.1.0（与 `LBX_SW_VERSION_*` 对齐） |
+| 版本     | v0.1.0（与 `C02B2_SW_VERSION_*` 对齐） |
 | 作者     | <姓名> |
 | 创建日期 | YYYY-MM-DD |
 | 最后更新 | YYYY-MM-DD |
@@ -57,7 +57,7 @@
 
 ## 3. 设计约束 (Design Constraints)
 
-- **运行环境**：YTM32B1M, Cortex-M0+, 1 kHz LPTMR tick
+- **运行环境**：YTM32B1M, Cortex-M33, 1 kHz SysTick tick
 - **资源预算**：ROM < 4 KB，RAM < 1 KB，CPU < 2%（主循环占比）
 - **周期约束**：<主循环周期，如 10 ms>
 - **错误恢复**：从 KL30 掉电到 MCU 复位的最大允许时间为 X ms
@@ -106,7 +106,7 @@ graph LR
 
 ### 5.1 公开 API（来自 `<feature>.h`）
 
-逐条列出 `lbx_result_t Foo(...)` / `void Bar(...)` 等函数声明，
+逐条列出 `c02b2_result_t Foo(...)` / `void Bar(...)` 等函数声明，
 **直接复制 Doxygen 块**作为表格内容（保持单一信息源）。
 
 | 函数 | 用途 | 调用方 |
@@ -221,9 +221,9 @@ if (sample != last_sample) {
 
 | 错误源 | 检测方式 | 处理动作 | 返回值 |
 |--------|----------|----------|--------|
-| 传感器断路 | ADC == 0xFFF | 进入 FAULT 态 | `LBX_ERR_SENSOR_OPEN` |
-| ADC 超时 | busy-wait > 1 ms | 重试一次 | `LBX_ERR_TIMEOUT` |
-| 参数越界 | `id >= MAX` | 直接拒绝 | `LBX_ERR_PARAM` |
+| 传感器断路 | ADC == 0xFFF | 进入 FAULT 态 | `C02B2_ERR_SENSOR_OPEN` |
+| ADC 超时 | busy-wait > 1 ms | 重试一次 | `C02B2_ERR_TIMEOUT` |
+| 参数越界 | `id >= MAX` | 直接拒绝 | `C02B2_ERR_PARAM` |
 | ... | ... | ... | ... |
 
 ### 9.1 故障安全 (Fail-safe)
@@ -253,7 +253,7 @@ if (sample != last_sample) {
 ### 11.1 单元测试
 
 - [ ] set/get 信号往返
-- [ ] 越界参数返回 `LBX_ERR_PARAM`
+- [ ] 越界参数返回 `C02B2_ERR_PARAM`
 - [ ] 边界值（0、MAX、MAX+1）
 - [ ] 状态机所有转移路径
 
