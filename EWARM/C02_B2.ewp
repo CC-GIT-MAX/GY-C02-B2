@@ -1283,6 +1283,15 @@
         <name>$PROJ_DIR$/../app/drv_api/wdg/wdg.h</name>
       </file>
     </group>
+    <group>
+      <name>drv_api/fpu</name>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/fpu/fpu.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../app/drv_api/fpu/fpu.h</name>
+      </file>
+    </group>
 <name>init</name>
       <file>
         <name>$PROJ_DIR$/../app/init/bsp_init.c</name>

@@ -31,6 +31,7 @@
 #include "drv_api/i2c/i2c.h"       /* I2c_Init (master mode)              */
 #include "drv_api/uart/uart.h"     /* Uart_Init (LINFlexD UART0)          */
 #include "drv_api/can/can_if.h"    /* Can_Init (FlexCAN1 + FlexCAN2)      */
+#include "drv_api/fpu/fpu.h"       /* Fpu_Init (CPACR + IPC + FPUIE)      */
 #include "drv_api/flash/flash.h"   /* Flash_Init (used by app/storage/kv) */
 
 #define LOG_NAME  "DRV"
@@ -50,6 +51,7 @@ c02b2_result_t DRV_Init(void)
      * markers below are visible from the very first one. */
     /* Per-peripheral inits - order is significant for the items
      * noted in each helper's file header. */
+    Fpu_Init();
     Lptmr_Init();
     Adc_Init();
     Etmr_Init();
