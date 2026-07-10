@@ -718,6 +718,14 @@ def main():
         for s in m.signals:
             enum_names.append("CAN_DB_SIG_" + s.name)
 
+    # Compute bitmap table BEFORE emit_source, because emit_source embeds
+    # s_bit_to_can_id[] body directly into the .c file (splice-friendly
+    # shape) and must see a populated _CURRENT_BITMAP_TABLE.
+    global _CURRENT_BITMAP_TABLE
+    prev_bitmap_state = load_bitmap_state(Path(_BITMAP_STATE_FILE))
+    _bitmap_table_96, new_bitmap_state = assign_bitmap(selected, node, prev_bitmap_state)
+    _CURRENT_BITMAP_TABLE = _bitmap_table_96
+
     header = emit_header(node, selected, enum_names)
     source = emit_source(node, selected, enum_names)
 
@@ -732,12 +740,6 @@ def main():
         out = sys.argv[sys.argv.index("--emit-map") + 1]
         Path(out).write_text(emit_map_body(selected), encoding="utf-8")
         print(f"map body -> {out}", file=sys.stderr)
-
-    # Compute bitmap table (always; emit_source needs it).
-    global _CURRENT_BITMAP_TABLE
-    prev_bitmap_state = load_bitmap_state(Path(_BITMAP_STATE_FILE))
-    _bitmap_table_96, new_bitmap_state = assign_bitmap(selected, node, prev_bitmap_state)
-    _CURRENT_BITMAP_TABLE = _bitmap_table_96
 
     if "--emit-tables" in sys.argv:
         i = sys.argv.index("--emit-tables")
