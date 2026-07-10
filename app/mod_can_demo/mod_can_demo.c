@@ -31,6 +31,29 @@
 #define LOG_NAME  "CDEM"
 #include "log.h"
 
+/* Compile-time switch: MOD_CAN_DEMO_EN
+ *   0 (default) - module descriptor registered, but no RTI slot
+ *                 allocated and tick does nothing. The 6 demo
+ *                 functions stay compiled (they reference DBC
+ *                 tables so removing them would break the build
+ *                 when the DBC changes), but they are never
+ *                 invoked.
+ *   1           - full demo on a 1 s tick: signal bus read,
+ *                 timeout bitmap decode, raw frame cache, TX
+ *                 payload, TX signal, raw<->physical round-trip.
+ *
+ * Override on the compiler command line:
+ *   iarbuild ... --define MOD_CAN_DEMO_EN=1
+ *   gcc -DMOD_CAN_DEMO_EN=1 ...
+ */
+#ifndef MOD_CAN_DEMO_EN
+  #define MOD_CAN_DEMO_EN  0
+#endif
+
+#if MOD_CAN_DEMO_EN
+/* Caller-private RTI slot for 1s demo cadence. */
+static rti_slot_t s_slot_demo_1s;
+
 /* ---------------------------------------------------------------- *
  *  Demo configuration
  *
@@ -55,13 +78,10 @@
  */
 #define DEMO_TX_SIGNAL_ID        CAN_DB_SIG_IPK_DayToEngSrv
 
-/* Demo cadence: print once per second so the UART log stays readable. */
-#define DEMO_PERIOD_MS            1000u
 
 /* Private state -------------------------------------------------------- */
 static struct {
     bool     inited;
-    u32      last_tick_ms;
     u32      sweep_count;
 } s_demo;
 
@@ -366,34 +386,45 @@ static u32 prv_bit_to_can_id(u32 bit)
     return (id == 0u) ? 0u : id;
 }
 
+#endif /* MOD_CAN_DEMO_EN */
+
 /* ---------------------------------------------------------------- *
  *  mod_desc_t hooks
  * ---------------------------------------------------------------- */
 static void prv_mcu_init(uint8_t cold_boot)
 {
+#if MOD_CAN_DEMO_EN
     (void)cold_boot;
     s_demo.inited       = true;
-    s_demo.last_tick_ms = 0u;
+    s_slot_demo_1s = RTI_OpenSlot(RTI_1000MS);
     s_demo.sweep_count  = 0u;
-    LOG_I("init (cold_boot=%u)", (unsigned)cold_boot);
+    LOG_I("init (cold_boot=%u, slot opened)", (unsigned)cold_boot);
+#else
+    (void)cold_boot;
+    LOG_I("init (cold_boot=%u, DISABLED: MOD_CAN_DEMO_EN=0)", (unsigned)cold_boot);
+#endif
 }
 
 static void prv_wakeup_init(void)
 {
+#if MOD_CAN_DEMO_EN
     LOG_I("wakeup_init");
+#endif
 }
 
 static void prv_on_ign_on(void)
 {
+#if MOD_CAN_DEMO_EN
     LOG_I("on_ign_on");
+#endif
 }
 
 static void prv_tick(void)
 {
+#if MOD_CAN_DEMO_EN
     if (!s_demo.inited) { return; }
+    if (!RTI_SlotElapsed(&s_slot_demo_1s)) { return; }
     const u32 now = RTI_GetTick1ms();
-    if ((now - s_demo.last_tick_ms) < DEMO_PERIOD_MS) { return; }
-    s_demo.last_tick_ms = now;
     s_demo.sweep_count++;
     const u32 sweep = s_demo.sweep_count;
     #if CAN_DEMO_LOG
@@ -406,11 +437,14 @@ static void prv_tick(void)
     prv_demo_tx_payload(sweep);
     prv_demo_tx_signal(sweep);
     prv_demo_raw_physical(sweep);
+#endif
 }
 
 static void prv_standby(void)
 {
+#if MOD_CAN_DEMO_EN
     LOG_I("standby");
+#endif
 }
 
 /* Module descriptor ---------------------------------------------------- */
@@ -426,3 +460,5 @@ const mod_desc_t mod_can_demo = {
     .tick      = prv_tick,
     .standby   = prv_standby,
 };
+
+SCHED_REGISTER(mod_can_demo);

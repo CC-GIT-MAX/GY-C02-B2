@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @file    mod_template.c
  * @brief   Business module skeleton (copy this file to start a new module)
  *
  * Implements the four mod_desc_t hooks. Demonstrates:
  *   - static state only
- *   - sub-period control via RTI_IsElapsed()
+ *   - sub-period control via RTI slot API (RTI_OpenSlot / RTI_SlotElapsed)
  *   - Signal_* for inter-module communication
  *   - Log_* for leveled diagnostics
  *   - c02b2_result_t for error reporting
@@ -16,6 +16,10 @@
 
 #define LOG_NAME  "TPL"
 #include "log.h"
+
+/* Caller-private RTI slots (replaces shared RTI_IsElapsed via RTI slot API). */
+static rti_slot_t s_slot_10ms;
+static rti_slot_t s_slot_100ms;
 
 /* Private state -------------------------------------------------------- */
 static struct {
@@ -71,6 +75,8 @@ static c02b2_result_t prv_do_100ms_job(void)
 static void prv_mcu_init(uint8_t cold_boot)
 {
     (void)cold_boot;
+    s_slot_10ms  = RTI_OpenSlot(RTI_10MS);
+    s_slot_100ms = RTI_OpenSlot(RTI_100MS);
     s_ctx.init_done    = 1;
     s_ctx.diag_value   = 0;
     s_ctx.tick_count   = 0;
@@ -115,8 +121,8 @@ static void prv_tick(void)
     }
     /* Each sub-period has its own static slot in RTI; calling
      * in this order is intentional (cheap work first). */
-    if (RTI_IsElapsed(RTI_10MS))  (void)prv_do_10ms_job();
-    if (RTI_IsElapsed(RTI_100MS)) (void)prv_do_100ms_job();
+    if (RTI_SlotElapsed(&s_slot_10ms))  { (void)prv_do_10ms_job(); }
+    if (RTI_SlotElapsed(&s_slot_100ms)) { (void)prv_do_100ms_job(); }
 }
 
 /**
@@ -178,3 +184,5 @@ uint32_t Template_GetDiagValue(void)
 {
     return s_ctx.diag_value;
 }
+
+SCHED_REGISTER(mod_template);

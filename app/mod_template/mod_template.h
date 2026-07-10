@@ -3,13 +3,13 @@
  * @brief   Business module skeleton template
  *
  * Copy this directory (rename to <feature>_mod) and implement the
- * four hooks. Then add &mod_<feature> to g_modules[] in scheduler.c.
+ * four hooks. Then add &mod_<feature> to g_sched_modules[] in scheduler.c.
  *
  * Conventions enforced:
  *   - All module state is `static` (no extern globals).
  *   - Cross-module data flows through Signal_* (see signal.h).
  *   - Return c02b2_result_t from every public API.
- *   - Own period control via RTI_IsElapsed(); no global flag variables.
+ *   - Own period control via RTI slot API (RTI_OpenSlot / RTI_SlotElapsed); no global flag variables.
  */
 #ifndef C02B2_MOD_TEMPLATE_H
 #define C02B2_MOD_TEMPLATE_H
