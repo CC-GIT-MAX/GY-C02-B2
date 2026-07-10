@@ -1344,10 +1344,7 @@
       <file>
         <name>$PROJ_DIR$/../app/signal/signal.h</name>
       </file>
-      <file>
-        <name>$PROJ_DIR$/../app/signal/signal_test.c</name>
-      </file>
-    </group>
+</group>
     <group>
       <name>storage</name>
       <file>

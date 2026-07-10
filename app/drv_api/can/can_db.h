@@ -61,14 +61,6 @@ extern const u16             can_db_ipk_tx_idx[];          /**< IPK TX indices (
 void CanDb_DispatchByDb(const can_msg_desc_t *desc, const u8 *data);
 
 /**
- * @brief   One-shot helper used during init to push the IPK test
- *          batch into the signal bus as "invalid".
- * @brief   初始化期间使用的一次性辅助函数, 把 IPK 测试批次的信号全部
- *          标记为无效
- */
-void CanDb_InvalidateAllIpkSignals(void);
-
-/**
  * @brief   Find an IPK message descriptor by can_id.
  * @brief   按 can_id 查找 IPK 报文描述符
  *

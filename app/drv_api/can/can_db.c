@@ -805,22 +805,6 @@ void CanDb_DispatchByDb(const can_msg_desc_t *desc, const u8 *data)
 }
 
 /**
- * @brief   One-shot helper used during init to push the IPK test
- *          batch into the signal bus as "invalid".
- * @brief   初始化期间使用的一次性辅助函数, 把 IPK 测试批次的信号全部
- *          标记为无效
- */
-void CanDb_InvalidateAllIpkSignals(void)
-{
-    const u16 last = (u16)CAN_DB_IPK_SIG_COUNT;
-    for (u16 i = 0; i < last; i++) {
-        const u16 db_sig_id = (u16)(i + 1u);
-        const signal_id_t bus_id = CanDb_DbcSigToBus(db_sig_id);
-        Signal_Invalidate(bus_id);
-    }
-}
-
-/**
  * @brief   Find an IPK message descriptor by can_id.
  * @brief   按 can_id 查找 IPK 报文描述符
  *

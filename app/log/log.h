@@ -106,10 +106,6 @@ void Log_Print(log_level_t lvl, const char *mod, const char *fmt, ...);
   #define SCHED_DEBUG_LOG  0  /* app/scheduler/scheduler.c */
 #endif
 
-#ifndef SIGNAL_TEST_LOG
-  #define SIGNAL_TEST_LOG  0  /* app/signal/signal_test.c 用例详情 */
-#endif
-
 #ifndef STORAGE_DEBUG_LOG
   #define STORAGE_DEBUG_LOG  0  /* app/storage/ (all C files) */
 #endif
