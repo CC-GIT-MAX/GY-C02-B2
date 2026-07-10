@@ -93,3 +93,6 @@ scratch/
 *.local
 .env
 .env.*
+
+# tools/dbc_parse.py 一次性中间产物(由 regen_can_artifacts.py 生成)
+tools/_dbc_scratch/

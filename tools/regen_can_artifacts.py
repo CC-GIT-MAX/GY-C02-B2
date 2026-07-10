@@ -170,12 +170,12 @@ def main():
     )
     splice_table_body(
         arts["cycle"], CAN_TX_C,
-        r"(static const u16 g_can_tx_cycle_table\[CAN_DB_IPK_MSG_COUNT\] = \{\n)",
+        r"(static const u16 g_can_tx_cycle_table\[CAN_DB_IPK_TX_COUNT\] = \{\n)",
         a.dry_run, "can_tx.c g_can_tx_cycle_table",
     )
     splice_table_body(
         arts["timeout"], CAN_RX_C,
-        r"(static const u16 g_can_rx_timeout_table\[CAN_DB_IPK_MSG_COUNT\] = \{\n)",
+        r"(static const u16 g_can_rx_timeout_table\[CAN_DB_IPK_RX_COUNT\] = \{\n)",
         a.dry_run, "can_rx.c g_can_rx_timeout_table",
     )
     splice_table_body(

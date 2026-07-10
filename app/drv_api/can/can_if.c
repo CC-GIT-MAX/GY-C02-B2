@@ -936,7 +936,7 @@ static flexcan_id_table_t s_rx_filter_private[CAN_RX_FILTER_ELEMS_PRIVATE];
 static void prv_fill_filter_public(void)
 {
     u32 n = 0u;
-    for (u32 i = 0u; i < (u32)CAN_DB_IPK_MSG_COUNT; i++) {
+    for (u32 i = 0u; i < (u32)CAN_DB_IPK_RX_COUNT; i++) {
         const can_msg_desc_t *d = &can_msg_descs_ipk[i];
         if (d->is_tx != 0u) { continue; }   /* RX only */
         if (n >= (u32)CAN_RX_FILTER_ELEMS_PUBLIC) { break; }
