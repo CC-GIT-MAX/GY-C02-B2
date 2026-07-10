@@ -24,6 +24,9 @@
 #define LOG_NAME  "CTX "
 #include "log.h"
 
+/* Caller-private RTI slot for 10ms sweep gate. */
+static rti_slot_t s_slot_sweep_10ms;
+
 #define MAX_TX_TRACKED  32u
 
 /* Upper bound on TX frames that can be in flight on a single
@@ -54,7 +57,6 @@ typedef struct {
 
 static struct {
     bool          init_done;
-    u32           sweep_tick_ms;  /* OSIF tick at last successful sweep */
     tx_track_t    track[MAX_TX_TRACKED];
     tx_payload_t  payloads[MAX_TX_TRACKED];
     u16           tx_msg_idx[MAX_TX_TRACKED];   /**< map slot -> ipk index */
@@ -241,8 +243,8 @@ static void prv_mcu_init(u8 cold_boot)
         s_tx.track[i].pending = 0u;
     }
     prv_build_tx_table();
+    s_slot_sweep_10ms = RTI_OpenSlot(RTI_10MS);
     s_tx.init_done = true;
-    s_tx.sweep_tick_ms = OSIF_GetMilliseconds();
     LOG_I("init (cold=%u, tx=%u)", (unsigned)cold_boot, (unsigned)s_tx.tx_count);
 }
 /**
@@ -267,7 +269,6 @@ static void prv_wakeup_init(void)
 static void prv_on_ign_on(void)
 {
     const u32 now = RTI_GetTick1ms();
-    s_tx.sweep_tick_ms = now;
     /* Phase-stagger every TX slot by tmo/tx_count so that
      * messages sharing the same cycle period do not expire
      * on the same 10 ms sweep. With 9 messages and 3 sharing
@@ -313,14 +314,11 @@ static void prv_on_ign_on(void)
 static void prv_tick(void)
 {
     if (!s_tx.init_done) return;
-    /* Self-paced 10 ms sweep gate. Scheduler_Run is high-frequency
-     * (>= 1 ms/tick on this M33 build), so a static RTI_IsElapsed
-     * slot would be re-stamped on every call and never fire.
-     * Owning the sweep cadence here keeps the cyclic rate correct
-     * regardless of super-loop frequency. */
+    /* 10 ms sweep gate via caller-private RTI slot (RTI_OpenSlot).
+     * Each module gets its own slot, so other modules' tick()
+     * calls do not interfere with ours. */
+    if (!RTI_SlotElapsed(&s_slot_sweep_10ms)) return;
     const u32 now = RTI_GetTick1ms();
-    if ((now - s_tx.sweep_tick_ms) < 10u) return;
-    s_tx.sweep_tick_ms = now;
     /* TX budget guard. The CAN2 bus has only CAN_TX_BUDGET
      * mailboxes reserved for TX; looping through every slot
      * and sending all that are due would (a) exceed the MB
@@ -547,3 +545,5 @@ c02b2_result_t CanTx_RebuildFromSignals(u32 can_id)
     }
     return C02B2_OK;
 }
+
+SCHED_REGISTER(mod_can_tx);

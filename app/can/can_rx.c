@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file    can_rx.c
  * @brief   CAN receive dispatcher + timeout monitor
  * @brief   CAN 接收分发 + 超时监控
@@ -21,6 +21,10 @@
 
 #define LOG_NAME  "CRX "
 #include "log.h"
+
+/* Caller-private RTI slots (replaces shared RTI_IsElapsed via RTI slot API). */
+static rti_slot_t s_slot_5ms;
+static rti_slot_t s_slot_50ms;
 
 #define MAX_RX_TRACKED  96u   /**< bitmap width of SIG_CAN_RX_TIMEOUT_MAP (LO+HI+HI2 = 3 slots x 32 bit) */
 
@@ -247,6 +251,8 @@ static void prv_mcu_init(u8 cold_boot)
     for (u32 i = 0; i < MAX_RX_TRACKED; i++) {
         s_rx.track[i].last_rx_tick_ms = 0u;
     }
+    s_slot_5ms  = RTI_OpenSlot(RTI_5MS);
+    s_slot_50ms = RTI_OpenSlot(RTI_50MS);
     s_rx.init_done = true;
     s_rx.seen_unknown_count = 0u;
     s_rx.seen_unknown_next  = 0u;
@@ -396,8 +402,8 @@ static void prv_check_timeouts(void)
 static void prv_tick(void)
 {
     if (!s_rx.init_done) { return; }
-    if (RTI_IsElapsed(RTI_5MS))  { prv_drain(); }
-    if (RTI_IsElapsed(RTI_50MS)) { prv_check_timeouts(); }
+    if (RTI_SlotElapsed(&s_slot_5ms))  { prv_drain(); }
+    if (RTI_SlotElapsed(&s_slot_50ms)) { prv_check_timeouts(); }
 }
 
 /**
@@ -460,3 +466,5 @@ const mod_desc_t mod_can_rx = {
     .tick      = prv_tick,
     .standby   = prv_standby,
 };
+
+SCHED_REGISTER(mod_can_rx);
