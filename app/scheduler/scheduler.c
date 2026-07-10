@@ -1,60 +1,108 @@
 /**
  * @file    scheduler.c
- * @brief   Super-loop scheduler that walks the module registry
+ * @brief   Super-loop scheduler driven by a static module registry
+ * @brief   由静态模块注册表驱动的主循环调度器
+ *
+ * @details Each module .c file calls SCHED_REGISTER(mod_xxx) which
+ *          emits a __root const pointer to its mod_desc_t into the
+ *          .sched_modules section. scheduler.c maintains a fixed
+ *          registry table (g_sched_modules[]) referencing each
+ *          module descriptor; ILINK/ld verifies that every referenced
+ *          descriptor has a matching __root symbol (proving the
+ *          SCHED_REGISTER macro was actually invoked).
+ *
+ *          Order = link order of the module .c files; scheduler.c
+ *          does not reorder.
  */
 #include "scheduler.h"
 #include "rti.h"
 #include "drv_api/rti_defer/rti_defer.h"
-
-#define LOG_NAME  "SCH"
-#include "log.h"
-
-/* Forward declarations of business module descriptors. */
+#if SCHED_BUDGET_EN
+#include "osif.h"
+#endif
+/* Each module .c file defines `const mod_desc_t mod_xxx;`. Forward-declare
+ * them here so the registry table below can take their addresses. The
+ * `extern` declaration matches the definition emitted by SCHED_REGISTER
+ * in the module .c. */
 extern const mod_desc_t mod_template;
 extern const mod_desc_t mod_can_rx;
 extern const mod_desc_t mod_can_tx;
 extern const mod_desc_t mod_can_demo;
+extern const mod_desc_t mod_rti_demo;
+
+#define LOG_NAME  "SCH"
+#include "log.h"
+
+#if SCHED_BUDGET_EN
+/* Cortex-M0+ has no DWT/CYCCNT. Use OSIF_GetMilliseconds() for
+ * tick() duration measurement. Resolution = 1ms, so set
+ * SCHED_BUDGET_US to at least 1000 to avoid noise. */
 
 /**
- * @brief   Module registry (registration order = tick / init order)
- * @brief   模块注册表（注册顺序 = tick / init 顺序）
- *
- * @details The order is significant for two things:
- *   - Log readability (init order printed top-to-bottom)
- *   - Tick data flow: can_rx runs BEFORE can_tx so the RX
- *     dispatcher publishes fresh signals that can_tx can read.
+ * @brief   Snapshot the current 1ms tick
+ * @brief   采样当前 1ms tick
  */
-const mod_desc_t * const g_modules[] = {
-    /* Order is significant for log readability but not for correctness. */
+static inline uint32_t prv_cycle_cnt(void)
+{
+    return OSIF_GetMilliseconds();
+}
+
+/**
+ * @brief   Convert 1ms ticks to microseconds
+ * @brief   1ms tick 转微秒
+ */
+static inline uint32_t prv_cycles_to_us(uint32_t ms)
+{
+    return ms * 1000u;
+}
+#endif
+
+/**
+ * @brief   Module registry
+ * @brief   模块注册表
+ *
+ * @details Each module .c file calls SCHED_REGISTER(mod_xxx) which
+ *          emits a __root const pointer to the module descriptor so
+ *          the linker retains the symbol even though no C code reads
+ *          it (i.e. prevents dead-code elimination). scheduler.c
+ *          maintains a fixed-size pointer table (g_sched_modules[])
+ *          referencing each descriptor by name; this is the source
+ *          of truth for the boot / tick / standby walks.
+ *
+ *          Order = the order of the entries in g_sched_modules[]
+ *          below (not link order of the .c files).
+ *
+ *          Two steps to add a new module:
+ *            1. Add SCHED_REGISTER(mod_xxx); to the module .c
+ *            2. Append &mod_xxx to g_sched_modules[] below.
+ *          No edits to board/yt_linker.icf.
+ */
+static const mod_desc_t * const g_sched_modules[] = {
     &mod_template,
-    &mod_can_rx,    /* pull from ring first */
-    &mod_can_tx,    /* push to bus */
-    &mod_can_demo,  /* bring-up demo: exercises Signal_Get + raw cache + TX */
-    /* &mod_diag, &mod_storage, ... append here */
+    &mod_can_rx,
+    &mod_can_tx,
+    &mod_can_demo,
+    &mod_rti_demo,
 };
 
-/* Compile-time count via sizeof trick. */
-static const uint32_t g_module_cnt = sizeof(g_modules) / sizeof(g_modules[0]);
+static uint32_t prv_module_count(void)
+{
+    return (uint32_t)(sizeof(g_sched_modules) / sizeof(g_sched_modules[0]));
+}
+
+#define SCHED_MODS_PTRS (g_sched_modules)
 
 /**
  * @brief   Initialize the scheduler and run mcu_init on every module
  * @brief   初始化调度器并依次调用所有模块的 mcu_init
- *
- * @details First scheduler phase. Walks g_modules[] in registration
- *          order and calls each module's @c mcu_init(cold_boot=1)
- *          hook.  NULL hooks are silently skipped.  The matching
- *          wakeup phase is Scheduler_WakeupInit() - call it from
- *          main.c after Scheduler_Init() returns.
  */
 void Scheduler_Init(void)
 {
-    LOG_I("init: %u modules", (unsigned)g_module_cnt);
-    /* Walk the registry in order; log each name before mcu_init. */
-    for (uint32_t i = 0; i < g_module_cnt; i++) {
-        const mod_desc_t *m = g_modules[i];
+    const uint32_t n = prv_module_count();
+    LOG_I("init: %u modules", (unsigned)n);
+    for (uint32_t i = 0; i < n; i++) {
+        const mod_desc_t *m = SCHED_MODS_PTRS[i];
         LOG_I("  [%02u] %s", (unsigned)i, m->name);
-        /* mcu_init runs first - hardware power-on setup, RAM zero,
-         * self-test. NULL hook is allowed (module opts out). */
         if (m->mcu_init) m->mcu_init(1u);
     }
 }
@@ -62,22 +110,12 @@ void Scheduler_Init(void)
 /**
  * @brief   Walk the registry and call wakeup_init on every module
  * @brief   遍历注册表, 依次调用所有模块的 wakeup_init
- *
- * @details Second scheduler phase. Runs after Scheduler_Init (so all
- *          mcu_init hooks have completed) and before Scheduler_OnIgnOn
- *          (so KL15 / domain logic has not started yet). Use this
- *          phase to re-arm NVIC priorities, restore wake-source
- *          state, and prime caches that mcu_init left in a known
- *          reset state.
- *
- * @note    Not reentrant; call once per boot, between Scheduler_Init
- *          and Scheduler_OnIgnOn.
  */
 void Scheduler_WakeupInit(void)
 {
-    for (uint32_t i = 0; i < g_module_cnt; i++) {
-        const mod_desc_t *m = g_modules[i];
-        /* wakeup_init is allowed to be NULL (module opts out). */
+    const uint32_t n = prv_module_count();
+    for (uint32_t i = 0; i < n; i++) {
+        const mod_desc_t *m = SCHED_MODS_PTRS[i];
         if (m->wakeup_init) m->wakeup_init();
     }
 }
@@ -88,8 +126,9 @@ void Scheduler_WakeupInit(void)
  */
 void Scheduler_OnIgnOn(void)
 {
-    for (uint32_t i = 0; i < g_module_cnt; i++) {
-        const mod_desc_t *m = g_modules[i];
+    const uint32_t n = prv_module_count();
+    for (uint32_t i = 0; i < n; i++) {
+        const mod_desc_t *m = SCHED_MODS_PTRS[i];
         if (m->on_ign_on) m->on_ign_on();
     }
 }
@@ -97,16 +136,33 @@ void Scheduler_OnIgnOn(void)
 /**
  * @brief   Run one super-loop tick over all modules
  * @brief   在所有模块上执行一次主循环 tick
+ *
+ * @details Fire any RTI_Defer callbacks whose deadline has passed
+ *          BEFORE walking the module registry, so a callback can
+ *          re-enter scheduler-visible state in the same tick.
  */
 void Scheduler_Run(void)
 {
-    /* Fire any RTI_Defer callbacks whose deadline has passed BEFORE
-     * walking the module registry, so a callback can re-enter the
-     * scheduler-visible state in the same tick. */
     RTI_DeferTick();
-    for (uint32_t i = 0; i < g_module_cnt; i++) {
-        const mod_desc_t *m = g_modules[i];
-        if (m->tick) m->tick();
+    const uint32_t n = prv_module_count();
+    for (uint32_t i = 0; i < n; i++) {
+        const mod_desc_t *m = SCHED_MODS_PTRS[i];
+        if (m->tick == NULL) { continue; }
+#if SCHED_BUDGET_EN
+        /* OSIF_GetMilliseconds is monotonic; elapsed = now - start. */
+        const uint32_t start = prv_cycle_cnt();
+        m->tick();
+        const uint32_t dur_us = prv_cycles_to_us(prv_cycle_cnt() - start);
+        m->_budget_last_dur_us = dur_us;
+        if (dur_us > SCHED_BUDGET_US) {
+            m->_budget_overrun_cnt++;
+            LOG_W("[SCH] %s tick overrun: %u us (budget %u us, count=%u)",
+                  m->name, (unsigned)dur_us, (unsigned)SCHED_BUDGET_US,
+                  (unsigned)m->_budget_overrun_cnt);
+        }
+#else
+        m->tick();
+#endif
     }
 }
 
@@ -116,8 +172,9 @@ void Scheduler_Run(void)
  */
 void Scheduler_Standby(void)
 {
-    for (uint32_t i = 0; i < g_module_cnt; i++) {
-        const mod_desc_t *m = g_modules[i];
+    const uint32_t n = prv_module_count();
+    for (uint32_t i = 0; i < n; i++) {
+        const mod_desc_t *m = SCHED_MODS_PTRS[i];
         if (m->standby) m->standby();
     }
 }
