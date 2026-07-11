@@ -20,7 +20,7 @@ flexcan_state_t public_can_State;
 
 const flexcan_user_config_t public_can = {
     .max_num_mb = 32UL,
-    .num_id_filters = FLEXCAN_RX_FIFO_ID_FILTERS_128,
+    .num_id_filters = FLEXCAN_RX_FIFO_ID_FILTERS_72,
     .is_rx_fifo_needed = true,
     .flexcanMode = FLEXCAN_NORMAL_MODE,
     .payload = FLEXCAN_PAYLOAD_SIZE_8,

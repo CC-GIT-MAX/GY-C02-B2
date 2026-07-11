@@ -83,6 +83,15 @@ void OSIF_TimeDelay(const uint32_t delay);
 uint32_t OSIF_GetMilliseconds(void);
 
 /*!
+ * @brief Increment the internal OSIF millisecond tick counter.
+ *
+ * Called from the SysTick_Handler in app/rti/rti.c so that
+ * OSIF_GetMilliseconds() / OSIF_TimeDelay() reflect real elapsed
+ * time. Defined in rtos/osif/osif_baremetal.c.
+ */
+void osif_Tick(void);
+
+/*!
  * @brief Waits for a mutex and locks it.
  *
  * @param[in] pMutex reference to the mutex object

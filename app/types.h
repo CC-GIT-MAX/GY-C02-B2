@@ -9,8 +9,8 @@
  *
  * Do NOT redefine the underlying types here; rely on the standard headers.
  */
-#ifndef LBX_TYPES_H
-#define LBX_TYPES_H
+#ifndef C02B2_TYPES_H
+#define C02B2_TYPES_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -41,4 +41,4 @@ typedef uint8_t  byte;
 typedef uint16_t word;
 typedef uint32_t dword;
 
-#endif /* LBX_TYPES_H */
+#endif /* C02B2_TYPES_H */

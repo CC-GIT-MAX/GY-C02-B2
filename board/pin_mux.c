@@ -167,7 +167,7 @@ const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0] = 
         .direction = GPIO_INPUT_DIRECTION,
         .initValue = 0,
     },
-    /* PTC_17-27-GPIO- */
+    /* PTC_17-27-CAN2_TX- */
     {
         .base = PCTRLC,
         .pinPortIdx = 17U,
@@ -175,7 +175,7 @@ const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0] = 
         .rateSelect = PCTRL_FAST_SLEW_RATE,
         .passiveFilter = false,
         .driveSelect = PCTRL_LOW_DRIVE_STRENGTH,
-        .mux = PCTRL_MUX_AS_GPIO,
+        .mux = PCTRL_MUX_ALT3,
         .intConfig = PCTRL_DMA_INT_DISABLED,
         .clearIntFlag = false,
         .digitalFilter = false,
@@ -186,7 +186,7 @@ const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0] = 
         .direction = GPIO_INPUT_DIRECTION,
         .initValue = 0,
     },
-    /* PTC_16-28-GPIO- */
+    /* PTC_16-28-CAN2_RX- */
     {
         .base = PCTRLC,
         .pinPortIdx = 16U,
@@ -194,7 +194,7 @@ const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0] = 
         .rateSelect = PCTRL_FAST_SLEW_RATE,
         .passiveFilter = false,
         .driveSelect = PCTRL_LOW_DRIVE_STRENGTH,
-        .mux = PCTRL_MUX_AS_GPIO,
+        .mux = PCTRL_MUX_ALT3,
         .intConfig = PCTRL_DMA_INT_DISABLED,
         .clearIntFlag = false,
         .digitalFilter = false,
@@ -221,7 +221,7 @@ const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0] = 
             .width = 0U,
         },
         .gpioBase = GPIOC,
-        .direction = GPIO_INPUT_DIRECTION,
+        .direction = GPIO_OUTPUT_DIRECTION,
         .initValue = 0,
     },
     /* PTB_1-33-GPIO- */
@@ -354,44 +354,6 @@ const pin_settings_config_t g_pin_mux_InitConfigArr0[NUM_OF_CONFIGURED_PINS0] = 
             .width = 0U,
         },
         .gpioBase = GPIOE,
-        .direction = GPIO_INPUT_DIRECTION,
-        .initValue = 0,
-    },
-    /* PTB_13-42-CAN2_TX- */
-    {
-        .base = PCTRLB,
-        .pinPortIdx = 13U,
-        .pullConfig = PCTRL_INTERNAL_PULL_NOT_ENABLED,
-        .rateSelect = PCTRL_FAST_SLEW_RATE,
-        .passiveFilter = false,
-        .driveSelect = PCTRL_LOW_DRIVE_STRENGTH,
-        .mux = PCTRL_MUX_ALT4,
-        .intConfig = PCTRL_DMA_INT_DISABLED,
-        .clearIntFlag = false,
-        .digitalFilter = false,
-        .filterConfig ={
-            .width = 0U,
-        },
-        .gpioBase = GPIOB,
-        .direction = GPIO_INPUT_DIRECTION,
-        .initValue = 0,
-    },
-    /* PTB_12-43-CAN2_RX- */
-    {
-        .base = PCTRLB,
-        .pinPortIdx = 12U,
-        .pullConfig = PCTRL_INTERNAL_PULL_NOT_ENABLED,
-        .rateSelect = PCTRL_FAST_SLEW_RATE,
-        .passiveFilter = false,
-        .driveSelect = PCTRL_LOW_DRIVE_STRENGTH,
-        .mux = PCTRL_MUX_ALT4,
-        .intConfig = PCTRL_DMA_INT_DISABLED,
-        .clearIntFlag = false,
-        .digitalFilter = false,
-        .filterConfig ={
-            .width = 0U,
-        },
-        .gpioBase = GPIOB,
         .direction = GPIO_INPUT_DIRECTION,
         .initValue = 0,
     },
