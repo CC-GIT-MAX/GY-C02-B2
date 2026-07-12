@@ -35,7 +35,7 @@
 
 #define MOD_NAME  "DRV"
 #include "log.h"
-/* REVIEW: C10 WDG 在 RTI 启动前已启用 (Phase 4 重排启动顺序) */
+/* Phase 4 / C10: 决议保留现状。BSP_Init 末尾启用 WDG 是有意的早期 hang 保护 —— 捕获 BSP / DRV_Init 阶段死循环（flash_init 等待、I2C 总线卡死等），RTI 启动延迟期间的窗口也由 WDG 兜底。WDG 喂狗窗口（SDK 配置见 board/wdg_config.c）宽到覆盖最坏 RTI 启动路径。若未来需要严格"先 RTI 后 WDG"，把 Wdg_Init() 移到 main.c 中 RTI_Init() 之后即可。Marker closed. */
 /* REVIEW: A2 CanIf_Init 时序契约较脆弱 (Phase 4 紧随 C10 处理) */
 
 /**
