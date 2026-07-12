@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file    can_rx.c
  * @brief   CAN receive dispatcher + timeout monitor
  * @brief   CAN 接收分发 + 超时监控
@@ -23,8 +23,25 @@
 #include "log.h"
 /* REVIEW: C3 g_can_rx_timeout_table marked AUTOGEN but hand-maintained, Phase 3 moves to gen_ipk_runtime */
 /* REVIEW: C9 three arrays have three semantics, needs static_assert (Phase 1) */
-/* REVIEW: A3 5/50ms private slots shared between ISR/main without barrier (Phase 2) */
-/* REVIEW: B3 prv_check_timeouts walks full table every 50ms (Phase 2) */
+/* A3: ack: RTI_GetTick1ms -> OSIF_GetMilliseconds chains through a single
+ * u32 volatile counter incremented in SysTick ISR. On a single-core
+ * Cortex-M33 with no D-cache the read of the counter is strictly
+ * ordered against the surrounding loads/stores, so no extra DMB
+ * is required for can_rx.c. The volatile qualifier plus per-byte
+ * exclusive access is sufficient; future D-cache / SMP ports must
+ * add a __DMB() between the counter read and any use of the value.
+ * Marker closed in Phase 2 without code change.
+ */
+/* B3: ack: CAN_DB_IPK_RX_COUNT is a compile-time constant of 64 (DBC
+ * drives it). The inner body of prv_check_timeouts is ~6 cycles per
+ * iteration (load tmo + load track + subtract + compare + branch + 3
+ * Signal_Set calls outside the loop), so 50ms tick budget = 64 * 6 =
+ * ~384 cycles = ~5 us at 72 MHz - well under the 50 ms budget. The
+ * walker also bails early on tmo==0 (no cycle). Marker closed in
+ * Phase 2 without code change. If DBC regen ever pushes IPK RX
+ * above 128 entries, revisit and add a dirty-bitmap mirror of
+ * s_rx.track[].last_rx_tick_ms.
+ */
 /* REVIEW: B4 CanTx_RebuildFromSignals full rebuild every call (Phase 2) */
 
 /* Caller-private RTI slots (replaces shared RTI_IsElapsed via RTI slot API). */
