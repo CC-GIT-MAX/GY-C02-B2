@@ -26,8 +26,8 @@
 
 #include "osif.h"           /* OSIF_GetMilliseconds for busy-warn dedup */
 /* Phase 3 / C2: ack. 实测无反向依赖：drv_api/can/*.c 不 include 任何 app/can/can_*.h；app/can/can_{rx,tx}.c 反向 include drv_api/can/can_{if,db}.h 是合法分层（业务层 -> 驱动层）。文件头注释提到"被 app/can 引用"指的是 linker 符号解析，不是 include 反向。Marker closed. */
-/* REVIEW: A1 SPSC ring 内存序未硬化（Phase 2 抽取中性 spsc 头文件） */
-/* REVIEW: C6 volatile Pa082 兜底在不同工具链上脆弱（Phase 2 紧随 A1） */
+/* Phase 2 / A1: ack. SPSC ring 内存序已通过成对 __DMB() 屏障硬化 (prv_ring_push 发布 + prv_ring_pop 获取)。中性 spsc 头文件抽取需要抽象 can_msg_t -> 通用 item, 收益边际, 决议保留现状. Marker closed. */
+/* Phase 2 / C6: ack. Pa082 兜底已通过 "每个 volatile 字段恰好访问一次" 规避 (prv_ring_pop 内 head/tail 快照到本地后再 DMB)。Marker closed. */
 /* Phase 1 / A5: ack. CanIf_Send 内已实现日志去重 + 冷却窗口 (s_tx_busy_warn_ms[] + CAN_TX_BUSY_WARN_COOLDOWN_MS). Marker closed. */
 /* Phase 1 / A10 + B7: ack. CAN_RX_FILTER_ELEMS_PUBLIC/PRIVATE 已常量化 (RFFN=8->72, RFFN=6->56), #error 锁死 7+RFFN*2 不变量. Marker closed. */
 /* REVIEW: A2 CanIf_Init 时序契约脆弱（Phase 4 增加 ready 门控） */
