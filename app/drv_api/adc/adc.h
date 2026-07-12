@@ -3,10 +3,9 @@
  * @brief   ADC peripheral driver API
  * @brief   ADC 外设驱动接口
  *
- * Single header that exposes both the module-level bring-up
- * (Adc_Init()) and any future common-use helpers.  This file
- * replaces the older app/drv_api/adc/adc_init.c + (missing .h)
- * layout.
+ * 该单头文件同时暴露模块级初始化（Adc_Init()）
+ * 与未来可能新增的公共辅助函数。本文件取代了较早的
+ * app/drv_api/adc/adc_init.c + 缺失 .h 的布局。
  */
 #ifndef C02B2_DRV_API_ADC_H
 #define C02B2_DRV_API_ADC_H
@@ -17,8 +16,8 @@
  * @brief   Initialize the ADC peripheral
  * @brief   初始化 ADC 外设
  *
- * @details Pulls the ADC configuration from board/adc_config.c
- *          and applies it through the vendor SDK driver.
+ * @details 从 board/adc_config.c 取出 ADC 配置，
+ *          并通过厂商 SDK 驱动应用之。
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Initialization succeeded
