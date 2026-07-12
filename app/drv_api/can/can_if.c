@@ -107,8 +107,16 @@ static bool prv_ring_push(const can_msg_t *m)
     if (next == s_rx_ring.tail) {
         return false;  /* full - silently drop, ISR cannot block */
     }
-    /* Write the frame BEFORE publishing head (release semantics). */
+    /* Write the frame BEFORE publishing head. (Release barrier comes
+     * below.)
+     *
+     * Volatile sequencing alone is not enough on Cortex-M33 with
+     * future-D-cache or SMP ports: pair every slot publish with a
+     * __DMB() so the consumer (running in a lower priority tick or
+     * another core) cannot observe the head++ before the slot bytes.
+     */
     s_rx_ring.slot[s_rx_ring.head] = *m;
+    __DMB();  /* Phase 2 / A1: release barrier between slot publish and head. */
     /* Publish to consumer: head now points to the next free slot. */
     s_rx_ring.head = next;
     return true;
@@ -129,11 +137,16 @@ static bool prv_ring_push(const can_msg_t *m)
  */
 static bool prv_ring_pop(can_msg_t *m)
 {
-    /* Snapshot both volatile indices into locals to avoid Pa082
-     * ("order of volatile accesses undefined") when comparing them
-     * in the same expression. Each field is touched exactly once. */
+    /* Snapshot both volatile indices into locals, then issue an
+     * acquire barrier. We cannot rely on volatile-only ordering once
+     * a D-cache or SMP port is added; __DMB() ensures the slot read
+     * on the next line sees the slot bytes the producer wrote before
+     * its __DMB() + head++. Each field is touched exactly once to
+     * silence Pa082 (independent volatile reads).
+     */
     u8 head = s_rx_ring.head;
     u8 tail = s_rx_ring.tail;
+    __DMB();  /* Phase 2 / A1: acquire barrier before consuming slot bytes. */
     /* Empty check: head equals tail when all slots consumed. */
     if (head == tail) {
         return false;  /* empty */
