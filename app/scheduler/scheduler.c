@@ -89,10 +89,13 @@ static const mod_desc_t * const g_sched_modules[] = {
     &mod_rti_demo,
 };
 
-static uint32_t prv_module_count(void)
-{
-    return (uint32_t)(sizeof(g_sched_modules) / sizeof(g_sched_modules[0]));
-}
+/* Phase 2 / B2: cache the module count at file scope. Since
+ * g_sched_modules[] is `static const` the size is invariant;
+ * keeping it in a `static const` (instead of a function call)
+ * lets the compiler fold it into a 32-bit immediate at every call
+ * site and removes one branch (sizeof/divide) from each walk.
+ */
+static const uint32_t k_module_count = (uint32_t)(sizeof(g_sched_modules) / sizeof(g_sched_modules[0]));
 
 /**
  * @brief   Scheduler reentry guard (Phase 1 / A6)
@@ -116,7 +119,7 @@ static volatile uint8_t s_sched_depth = 0u;
  */
 void Scheduler_Init(void)
 {
-    const uint32_t n = prv_module_count();
+    const uint32_t n = k_module_count;
     LOG_I("init: %u modules", (unsigned)n);
     for (uint32_t i = 0; i < n; i++) {
         const mod_desc_t *m = SCHED_MODS_PTRS[i];
@@ -131,7 +134,7 @@ void Scheduler_Init(void)
  */
 void Scheduler_WakeupInit(void)
 {
-    const uint32_t n = prv_module_count();
+    const uint32_t n = k_module_count;
     for (uint32_t i = 0; i < n; i++) {
         const mod_desc_t *m = SCHED_MODS_PTRS[i];
         if (m->wakeup_init) m->wakeup_init();
@@ -144,7 +147,7 @@ void Scheduler_WakeupInit(void)
  */
 void Scheduler_OnIgnOn(void)
 {
-    const uint32_t n = prv_module_count();
+    const uint32_t n = k_module_count;
     for (uint32_t i = 0; i < n; i++) {
         const mod_desc_t *m = SCHED_MODS_PTRS[i];
         if (m->on_ign_on) m->on_ign_on();
@@ -168,7 +171,7 @@ void Scheduler_Run(void)
     s_sched_depth = 1u;
 
     RTI_DeferTick();
-    const uint32_t n = prv_module_count();
+    const uint32_t n = k_module_count;
     for (uint32_t i = 0; i < n; i++) {
         const mod_desc_t *m = SCHED_MODS_PTRS[i];
         if (m->tick == NULL) { continue; }
@@ -197,7 +200,7 @@ void Scheduler_Run(void)
  */
 void Scheduler_Standby(void)
 {
-    const uint32_t n = prv_module_count();
+    const uint32_t n = k_module_count;
     for (uint32_t i = 0; i < n; i++) {
         const mod_desc_t *m = SCHED_MODS_PTRS[i];
         if (m->standby) m->standby();
