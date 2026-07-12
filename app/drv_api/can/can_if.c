@@ -779,7 +779,14 @@ c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
      * call is required for one-shot sends. */
     status_t r = FLEXCAN_DRV_Send(inst, mb_idx, &info, msg->id, msg->data);
     if (r != STATUS_SUCCESS) {
-        LOG_W("send id=0x%X failed (%d)", (unsigned)msg->id, (int)r);
+        /* Phase 1 / A5: dedup this warning to avoid bus-off storm flooding. */
+        const u32 _now_ms = OSIF_GetMilliseconds();
+        if ((_now_ms - s_tx_busy_warn_ms[ch]) >= CAN_TX_BUSY_WARN_COOLDOWN_MS) {
+            s_tx_busy_warn_ms[ch] = _now_ms;
+            LOG_W("send id=0x%X failed (%d) (suppressed %ums)",
+                  (unsigned)msg->id, (int)r,
+                  (unsigned)CAN_TX_BUSY_WARN_COOLDOWN_MS);
+        }
         return C02B2_ERR_BUSY;
     }
     return C02B2_OK;
