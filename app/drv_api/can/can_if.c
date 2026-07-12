@@ -37,7 +37,20 @@
  * -------------------------------------------------------------------- */
 #define CAN_RX_RING_SIZE         32u   /* RX ring slots (double of 16 to absorb a full 5 ms tick at 64-ID load) */
 #define CAN_RX_FILTER_ELEMS_PUBLIC  72u   /* RFFN=8 -> 8*9 = 72 */
+/* Phase 1 / A10: pin the filter-table sizing.
+ * The vendor SDK does not export a compile-time constant for RFFN -> table
+ * size; FLEXCAN_DRV_ConfigRxFifo uses 7 + RFFN*2 entries at runtime.
+ * The project FlexCAN config hard-codes RFFN=8 (CTRL2.RFFN) for the public
+ * bus and RFFN=6 for the private bus; each table element holds up to 8 IDs.
+ * If the SDK ever ships a constant, swap the literal here for that macro.
+ */
+#if (CAN_RX_FILTER_ELEMS_PUBLIC != 72u)
+#  error "A10: CAN_RX_FILTER_ELEMS_PUBLIC must match the RFFN=8 sizing (72 entries)"
+#endif
 #define CAN_RX_FILTER_ELEMS_PRIVATE 56u   /* RFFN=6 -> 8*7 = 56 */
+#if (CAN_RX_FILTER_ELEMS_PRIVATE != 56u)
+#  error "A10: CAN_RX_FILTER_ELEMS_PRIVATE must match the RFFN=6 sizing (56 entries)"
+#endif
 
 /* Per-channel FlexCAN RX-FIFO ID filter tables.
  *  - s_rx_filter_public:  public CAN bus (72 entries, RFFN=8)
@@ -664,6 +677,13 @@ c02b2_result_t CanIf_RecoverPump(void)
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Always (ring reset is idempotent)
+ *
+ * @note    Phase 1 / A8: boot-time order matters. The vendor SDK
+ *          patches CanIf_Init() AFTER BSP_Init() (clocks + pins + DMA) and
+ *          Can_Init() (FlexCAN controller + filter bring-up). CanIf_Init()
+ *          itself only resets the app-layer RX ring; running it before
+ *          Can_Init() leaks reception into an un-primed FIFO. Keep this
+ *          ordering contract documented; do not "optimize" it away.
  */
 c02b2_result_t CanIf_Init(void)
 {
