@@ -35,12 +35,12 @@
 | A2 | `app/can/can_if.c` | `CanIf_Init` 时序契约脆 | 4 |
 | A3 | `app/can/can_rx.c` | 5/50ms 私有 slot 在 ISR/main 共享无屏障 | 2 |
 | A4 | `app/can/can_tx.c` | `s_tx.send_lock` 占位无真锁 | 2 |
-| A5 | `app/can/can_if.c` | `CanIf_Send` 错误日志未去重,bus-off 风暴刷屏 | 1 |
-| A6 | `app/scheduler/scheduler.c` | 调度器无重入断言 | 1 |
-| A7 | `app/rti/rti.c` | `RTI_SlotElapsed` wrap-around 未注释 | 1 |
-| A8 | `app/can/can_if.c` | callback 安装时机无文档契约 | 1(只更文档) |
+| A5 | `app/can/can_if.c` | `CanIf_Send` 错误日志未去重,bus-off 风暴刷屏 | 1 | `[x]` Phase 1 / A-2.5: `CanIf_Send()` 内已实现日志去重 + 冷却窗口 |
+| A6 | `app/scheduler/scheduler.c` | 调度器无重入断言 | 1 | `[x]` Phase 1 / A-2.5: `Scheduler_Run()` 入口 `s_sched_depth` 自旋 + WDG 重启守卫 |
+| A7 | `app/rti/rti.c` | `RTI_SlotElapsed` wrap-around 未注释 | 1 | `[x]` Phase 1 / A-2.5: rti.c @note 已说明 u32 wrap-around 语义 (`RTI_SlotElapsed` @note 段) |
+| A8 | `app/can/can_if.c` | callback 安装时机无文档契约 | 1(只更文档) | `[x]` Phase 1 / A-2.5: `CanIf_InstallFlexcanCallbacks()` @details 明确"由 Can_Init() 内部调用一次" |
 | A9 | `app/can/can_db_codec.c` | half-away-from-zero 负值边界 0/-1 抖动 | 3(随 codec 改) |
-| A10 | `app/can/can_if.c` | `CAN_RX_FILTER_ELEMS_*` 硬编码 | 1 |
+| A10 | `app/can/can_if.c` | `CAN_RX_FILTER_ELEMS_*` 硬编码 | 1 | `[x]` Phase 1 / A-2.5: 常量化 RFFN=8->72, RFFN=6->56, #error 锁死不变量 |
 
 ### B. 性能 / 资源
 
@@ -51,8 +51,8 @@
 | B3 | `app/can/can_rx.c` | `prv_check_timeouts` 50ms 全表扫 | 2 |
 | B4 | `app/can/can_tx.c` | `CanTx_RebuildFromSignals` 全量重建 | 2 |
 | B5 | `app/signal/signal.c` | `Signal_InvalidateAll` int 循环 | 2(微优化) |
-| B6 | `app/log/log.c` | 160B 栈 buf 截断无标记 | 1 |
-| B7 | `app/can/can_if.c` | RFFN 启动两表 | 1(随 A10) |
+| B6 | `app/log/log.c` | 160B 栈 buf 截断无标记 | 1 | `[x]` Phase 1 / A-2.5: 缓冲 160->192B + 截断时追加 `~` 标记 |
+| B7 | `app/can/can_if.c` | RFFN 启动两表 | 1(随 A10) | `[x]` Phase 1 / A-2.5: 随 A10 关闭 |
 
 ### C. 代码质量 / 可维护性
 
@@ -66,7 +66,7 @@
 | C6 | `app/can/can_if.c` | volatile Pa082 workaround 跨工具链脆 | 2(随 A1) |
 | C7 | `app/log/log.h` | `MOD_NAME` vs `LOG_NAME` 命名检查 | 1(只验证) |
 | C8 | 跨模块 | commit emoji 风格 | 不动 |
-| C9 | `app/can/can_rx.c` | 三数组三种语义无 `static_assert` | 1 |
+| C9 | `app/can/can_rx.c` | 三数组三种语义无 `static_assert` | 1 | [x] Phase 1 / A-2.5
 | C10 | `app/init/bsp_init.c` + `main.c` | WDG 在 RTI 之前使能 | 4 |
 
 ## 3. Phase 计划
