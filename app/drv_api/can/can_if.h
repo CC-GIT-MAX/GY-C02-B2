@@ -79,7 +79,9 @@ c02b2_result_t CanIf_Init(void);
  *
  * @details 薄封装，为两个实例注册 prv_flexcan_cb（RX/TX 事件）
  *          与 prv_flexcan_err_cb（bus-off / warning / bit-error）。
- *          由 Can_Init() 调用，使初始化序列集中在一处。
+ *          由 Can_Init() 在内部调用一次（不要从应用层直接调用），
+ *          使初始化序列集中在一处。重复安装回调会与 prv_flexcan_cb
+ *          内部 s_if_inited 状态冲突，应避免。
  */
 void CanIf_InstallFlexcanCallbacks(void);
 
