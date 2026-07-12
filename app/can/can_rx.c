@@ -22,7 +22,7 @@
 #define LOG_NAME  "CRX "
 #include "log.h"
 /* REVIEW: C3 g_can_rx_timeout_table 标为 AUTOGEN 但实际手维护，Phase 3 移至 gen_ipk_runtime */
-/* REVIEW: C9 三张数组有三种语义，需要 static_assert (Phase 1) */
+/* Phase 1 / C9: ack. 三数组 (track / raw / rx_ipk_idx) 不变量已以 #error 静态断言形式锁死 (MAX_RX_TRACKED >= CAN_DB_IPK_RX_COUNT). 替代 static_assert (因 _Static_assert 在 -std=c11 之外的 IAR 默认模式未启用). Marker closed. */
 /* A3: ack: RTI_GetTick1ms -> OSIF_GetMilliseconds chains through a single
  * u32 volatile counter incremented in SysTick ISR. On a single-core
  * Cortex-M33 with no D-cache the read of the counter is strictly
