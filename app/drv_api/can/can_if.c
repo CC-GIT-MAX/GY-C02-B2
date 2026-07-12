@@ -25,7 +25,7 @@
 #include "can_db_ipk_gen.h"   /* CAN_DB_IPK_MSG_COUNT / _RX_COUNT etc.       */
 
 #include "osif.h"           /* OSIF_GetMilliseconds for busy-warn dedup */
-/* REVIEW: C2 drv_api 包含 app/can 反向依赖（Phase 3 拆分） */
+/* Phase 3 / C2: ack. 实测无反向依赖：drv_api/can/*.c 不 include 任何 app/can/can_*.h；app/can/can_{rx,tx}.c 反向 include drv_api/can/can_{if,db}.h 是合法分层（业务层 -> 驱动层）。文件头注释提到"被 app/can 引用"指的是 linker 符号解析，不是 include 反向。Marker closed. */
 /* REVIEW: A1 SPSC ring 内存序未硬化（Phase 2 抽取中性 spsc 头文件） */
 /* REVIEW: C6 volatile Pa082 兜底在不同工具链上脆弱（Phase 2 紧随 A1） */
 /* Phase 1 / A5: ack. CanIf_Send 内已实现日志去重 + 冷却窗口 (s_tx_busy_warn_ms[] + CAN_TX_BUSY_WARN_COOLDOWN_MS). Marker closed. */
