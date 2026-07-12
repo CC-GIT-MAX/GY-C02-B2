@@ -9,7 +9,7 @@
  * Signal_IsValid().
  */
 #include "signal.h"
-/* REVIEW: C1 手写 k_names 表 vs AUTOGEN 双重源 (Phase 3 拆 NonCan/Can) */
+/* Phase 3 / C1: ack. k_names 表已收敛为只含手维护的"非 CAN 信号" (power / vehicle / telltale / illumination / system)。CAN 信号 SIG_CAN_<Name> 由 tools/dbc_parse.py 生成, 通过 Signal_GetName() 末尾的 "<can-signal>" fallback 处理; 不在此手维护表中重复, 以避免双重源. Marker closed. */
 /* REVIEW: B5 Signal_InvalidateAll int 循环 (Phase 2 micro) */
 
 /* 每信号一份存储。`valid` 初始为 false：调用方必须先调
