@@ -5,6 +5,7 @@
  */
 #include "io.h"
 #include "pins_driver.h"
+/* REVIEW: Baseline 1 violation: drv_api directly eats pins_driver.h (Phase 3 split io abstraction) */
 
 void Io_WritePin(void *base, u32 pin, u32 level)
 {

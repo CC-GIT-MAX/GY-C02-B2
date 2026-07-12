@@ -9,6 +9,8 @@
  * Signal_IsValid().
  */
 #include "signal.h"
+/* REVIEW: C1 hand-written k_names table vs AUTOGEN double source (Phase 3 split NonCan/Can) */
+/* REVIEW: B5 Signal_InvalidateAll int loop (Phase 2 micro) */
 
 /* Per-signal storage. `valid` is initially false: callers must
  * call Signal_Set() before they can rely on Signal_Get(). */

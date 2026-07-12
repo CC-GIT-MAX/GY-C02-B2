@@ -25,6 +25,12 @@
 #include "can_db_ipk_gen.h"   /* CAN_DB_IPK_MSG_COUNT / _RX_COUNT etc.       */
 
 #include "osif.h"           /* OSIF_GetMilliseconds for busy-warn dedup */
+/* REVIEW: C2 drv_api includes app/can reverse dep (Phase 3 split) */
+/* REVIEW: A1 SPSC ring memory order not hardened (Phase 2 extract neutral spsc header) */
+/* REVIEW: C6 volatile Pa082 workaround brittle across toolchains (Phase 2 follows A1) */
+/* REVIEW: A5 CanIf_Send error log has no dedup, bus-off storm floods log (Phase 1) */
+/* REVIEW: A10 CAN_RX_FILTER_ELEMS_* hard-coded against SDK macros (Phase 1) */
+/* REVIEW: A2 CanIf_Init timing contract fragile (Phase 4 add ready gate) */
 
 /* -------------------------------------------------------------------- *
  *  Compile-time sizing

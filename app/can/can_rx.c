@@ -21,6 +21,11 @@
 
 #define LOG_NAME  "CRX "
 #include "log.h"
+/* REVIEW: C3 g_can_rx_timeout_table marked AUTOGEN but hand-maintained, Phase 3 moves to gen_ipk_runtime */
+/* REVIEW: C9 three arrays have three semantics, needs static_assert (Phase 1) */
+/* REVIEW: A3 5/50ms private slots shared between ISR/main without barrier (Phase 2) */
+/* REVIEW: B3 prv_check_timeouts walks full table every 50ms (Phase 2) */
+/* REVIEW: B4 CanTx_RebuildFromSignals full rebuild every call (Phase 2) */
 
 /* Caller-private RTI slots (replaces shared RTI_IsElapsed via RTI slot API). */
 static rti_slot_t s_slot_5ms;

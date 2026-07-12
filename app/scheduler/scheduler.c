@@ -32,6 +32,10 @@ extern const mod_desc_t mod_rti_demo;
 
 #define LOG_NAME  "SCH"
 #include "log.h"
+/* REVIEW: C5 g_sched_modules[] + 5 extern declarations double source (Phase 3 switch to __sched_modules section) */
+/* REVIEW: A6 Scheduler_Run has no reentry assert (Phase 1) */
+/* REVIEW: A8 callback install timing contract undocumented (Phase 1 docs only) */
+/* REVIEW: B2 prv_module_count recomputes every walk (Phase 2 micro) */
 
 #if SCHED_BUDGET_EN
 /* Cortex-M0+ has no DWT/CYCCNT. Use OSIF_GetMilliseconds() for

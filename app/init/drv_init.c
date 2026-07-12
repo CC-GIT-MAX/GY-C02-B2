@@ -36,6 +36,8 @@
 
 #define LOG_NAME  "DRV"
 #include "log.h"
+/* REVIEW: C10 WDG enabled before RTI starts (Phase 4 reorder boot) */
+/* REVIEW: A2 CanIf_Init timing contract fragile (Phase 4 follows C10) */
 
 /**
  * @brief   Initialize every peripheral driver

@@ -16,6 +16,8 @@
 #include "log.h"
 
 #include "can_db_ipk_gen.h"
+/* REVIEW: C4 s_dbc_to_bus marked generated but hand-maintained (Phase 3 moves to gen_ipk_runtime) */
+/* REVIEW: A9 half-away-from-zero negative edge case (Phase 3 follows codec) */
 
 /* ---------------------------------------------------------------- *
  *  Reverse maps for fast lookup                                     *

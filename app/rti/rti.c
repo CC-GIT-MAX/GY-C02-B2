@@ -18,6 +18,8 @@
 #include "drv_api/rti_defer/rti_defer.h"
 #include "osif.h"
 #include "wdg_hw_access.h"
+/* REVIEW: A7 RTI_SlotElapsed wrap-around not documented (Phase 1) */
+/* REVIEW: C7 LOG_NAME vs MOD_NAME naming consistency (Phase 1 verify only) */
 
 /**
  * @brief   Internal slot descriptor

@@ -23,6 +23,8 @@
 
 #define LOG_NAME  "CTX "
 #include "log.h"
+/* REVIEW: A4 s_tx.send_lock is a placeholder without real lock (Phase 2 add ISR reentry assert) */
+/* REVIEW: B4 CanTx_RebuildFromSignals full rebuild every call (Phase 2) */
 
 /* Caller-private RTI slot for 10ms sweep gate. */
 static rti_slot_t s_slot_sweep_10ms;

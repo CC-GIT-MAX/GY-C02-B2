@@ -5,6 +5,7 @@
 #include "log.h"
 #include <stdarg.h>
 #include <stdio.h>
+/* REVIEW: B6 160B stack buf truncation has no marker (Phase 1 grow to 192B + ~ marker) */
 
 /** @brief  Single-letter level tag table indexed by log_level_t. */
 static const char *const k_lvl_str[] = {
