@@ -28,8 +28,8 @@
 /* REVIEW: C2 drv_api 包含 app/can 反向依赖（Phase 3 拆分） */
 /* REVIEW: A1 SPSC ring 内存序未硬化（Phase 2 抽取中性 spsc 头文件） */
 /* REVIEW: C6 volatile Pa082 兜底在不同工具链上脆弱（Phase 2 紧随 A1） */
-/* REVIEW: A5 CanIf_Send 错误日志未去重，bus-off 风暴时日志刷屏（Phase 1） */
-/* REVIEW: A10 CAN_RX_FILTER_ELEMS_* 硬编码与 SDK 宏不一致（Phase 1） */
+/* Phase 1 / A5: ack. CanIf_Send 内已实现日志去重 + 冷却窗口 (s_tx_busy_warn_ms[] + CAN_TX_BUSY_WARN_COOLDOWN_MS). Marker closed. */
+/* Phase 1 / A10 + B7: ack. CAN_RX_FILTER_ELEMS_PUBLIC/PRIVATE 已常量化 (RFFN=8->72, RFFN=6->56), #error 锁死 7+RFFN*2 不变量. Marker closed. */
 /* REVIEW: A2 CanIf_Init 时序契约脆弱（Phase 4 增加 ready 门控） */
 
 /* -------------------------------------------------------------------- *
