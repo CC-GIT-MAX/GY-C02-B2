@@ -3,10 +3,9 @@
  * @brief   LPTMR peripheral driver API
  * @brief   LPTMR 外设驱动接口
  *
- * Single header that exposes both the module-level bring-up
- * (Lptmr_Init()) and any future common-use helpers.  This file
- * replaces the older app/drv_api/lptmr/lptmr_init.c + (missing .h)
- * layout.
+ * 该单头文件同时暴露模块级初始化（Lptmr_Init()）
+ * 与未来可能新增的公共辅助函数。本文件取代了较早的
+ * app/drv_api/lptmr/lptmr_init.c + 缺失 .h 的布局。
  */
 #ifndef C02B2_DRV_API_LPTMR_H
 #define C02B2_DRV_API_LPTMR_H
@@ -17,8 +16,8 @@
  * @brief   Initialize the LPTMR peripheral
  * @brief   初始化 LPTMR 外设
  *
- * @details Pulls the LPTMR configuration from board/lptmr_config.c
- *          and applies it through the vendor SDK driver.
+ * @details 从 board/lptmr_config.c 取出 LPTMR 配置，
+ *          并通过厂商 SDK 驱动应用之。
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Initialization succeeded

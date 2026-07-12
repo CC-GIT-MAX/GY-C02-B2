@@ -13,7 +13,7 @@
  * @brief   Bring up the board support package (clocks, pins, DMA, WDG, power)
  * @brief   初始化 BSP（时钟、引脚、DMA、看门狗、电源管理）
  *
- * @details Performs:
+ * @details 按以下顺序初始化：
  *          - CLOCK_SYS_Init + UpdateConfiguration
  *          - PINS_DRV_Init
  *          - DMA_DRV_Init

@@ -18,10 +18,10 @@ typedef struct {
     uint32_t        deadline_ms; /**< RTI tick at which to fire      */
 } rti_defer_slot_t;
 
-/** Static pool - no malloc on the bare-metal target. */
+/** 静态池 —— bare-metal 目标上无 malloc。 */
 static rti_defer_slot_t s_slots[RTI_DEFER_SLOTS];
 
-/** Set to 1 by RTI_DeferInit(); guards against use-before-init. */
+/** 由 RTI_DeferInit() 置 1；防止未初始化即被使用。 */
 static uint8_t s_inited = 0u;
 
 /**
@@ -60,8 +60,8 @@ c02b2_result_t RTI_Defer(uint32_t delay_ms, rti_defer_cb_t cb, void *ctx)
     if (!s_inited) { return C02B2_ERR_NOT_READY; }
     if (cb == NULL) { return C02B2_ERR_PARAM; }
 
-    /* 1. Try to replace an existing slot for the same (cb, ctx) - debounce
-     *    pattern. This is O(n) but n=8, so cheap. */
+    /* 1. 尝试替换相同 (cb, ctx) 的现有槽位 —— 去抖模式。
+     *    时间复杂度 O(n)，但 n=8，开销可忽略。 */
     for (uint32_t i = 0; i < RTI_DEFER_SLOTS; i++) {
         if (s_slots[i].cb == cb && s_slots[i].ctx == ctx) {
             s_slots[i].deadline_ms = RTI_GetTick1ms() + delay_ms;
@@ -69,7 +69,7 @@ c02b2_result_t RTI_Defer(uint32_t delay_ms, rti_defer_cb_t cb, void *ctx)
         }
     }
 
-    /* 2. Otherwise pick the first free slot. */
+    /* 2. 否则选取第一个空闲槽位。 */
     for (uint32_t i = 0; i < RTI_DEFER_SLOTS; i++) {
         if (s_slots[i].cb == NULL) {
             s_slots[i].cb          = cb;
@@ -79,7 +79,7 @@ c02b2_result_t RTI_Defer(uint32_t delay_ms, rti_defer_cb_t cb, void *ctx)
         }
     }
 
-    /* 3. Pool exhausted. */
+    /* 3. 池已耗尽。 */
     return C02B2_ERR_OVERFLOW;
 }
 
@@ -105,10 +105,9 @@ c02b2_result_t RTI_DeferCancel(rti_defer_cb_t cb, void *ctx)
  * @brief   Dispatch any expired callbacks
  * @brief   分发所有已到期的回调
  *
- * @details Two-pass design to allow re-entrant RTI_Defer() from inside
- *          a callback: the slot is freed BEFORE the callback runs, so
- *          the callback can arm a fresh one in the same slot if it
- *          wants to. Unsigned subtraction handles tick wrap.
+ * @details 两阶段设计允许从回调内重入 RTI_Defer()：
+ *          槽位在回调执行前释放，因此回调可在同一槽位
+ *          中重新注册。无符号减法处理 tick 环绕。
  */
 void RTI_DeferTick(void)
 {
@@ -119,15 +118,13 @@ void RTI_DeferTick(void)
         rti_defer_cb_t cb  = s_slots[i].cb;
         void           *ctx = s_slots[i].ctx;
         if (cb == NULL) { continue; }
-        /* Unsigned subtraction + cast-to-signed comparison is the
-         * classic monotonic-deadline idiom: "elapsed" means the
-         * difference is non-negative. Tick wrap (every ~49 days) is
-         * handled naturally because the same wrap applied to both
-         * `now` and `deadline_ms` cancels out. */
+        /* 无符号减法 + cast 成有符号再比较是经典的
+         * 单调 deadline 惯用法："已流逝"即差值非负。
+         * tick 环绕（每约 49 天）天然得到处理，因为
+         * `now` 和 `deadline_ms` 应用相同的环绕后会抵消。 */
         if ((int32_t)(now - s_slots[i].deadline_ms) >= 0) {
-            /* Free the slot BEFORE running the callback so a
-             * re-entrant RTI_Defer() in the callback body gets
-             * a free slot. */
+            /* 在执行回调之前释放槽位，使得回调体中
+             * 重入的 RTI_Defer() 能获得空闲槽位。 */
             s_slots[i].cb          = NULL;
             s_slots[i].ctx         = NULL;
             s_slots[i].deadline_ms = 0u;

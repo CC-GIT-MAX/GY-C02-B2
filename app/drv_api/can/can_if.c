@@ -25,24 +25,24 @@
 #include "can_db_ipk_gen.h"   /* CAN_DB_IPK_MSG_COUNT / _RX_COUNT etc.       */
 
 #include "osif.h"           /* OSIF_GetMilliseconds for busy-warn dedup */
-/* REVIEW: C2 drv_api includes app/can reverse dep (Phase 3 split) */
-/* REVIEW: A1 SPSC ring memory order not hardened (Phase 2 extract neutral spsc header) */
-/* REVIEW: C6 volatile Pa082 workaround brittle across toolchains (Phase 2 follows A1) */
-/* REVIEW: A5 CanIf_Send error log has no dedup, bus-off storm floods log (Phase 1) */
-/* REVIEW: A10 CAN_RX_FILTER_ELEMS_* hard-coded against SDK macros (Phase 1) */
-/* REVIEW: A2 CanIf_Init timing contract fragile (Phase 4 add ready gate) */
+/* REVIEW: C2 drv_api 包含 app/can 反向依赖（Phase 3 拆分） */
+/* REVIEW: A1 SPSC ring 内存序未硬化（Phase 2 抽取中性 spsc 头文件） */
+/* REVIEW: C6 volatile Pa082 兜底在不同工具链上脆弱（Phase 2 紧随 A1） */
+/* REVIEW: A5 CanIf_Send 错误日志未去重，bus-off 风暴时日志刷屏（Phase 1） */
+/* REVIEW: A10 CAN_RX_FILTER_ELEMS_* 硬编码与 SDK 宏不一致（Phase 1） */
+/* REVIEW: A2 CanIf_Init 时序契约脆弱（Phase 4 增加 ready 门控） */
 
 /* -------------------------------------------------------------------- *
  *  Compile-time sizing
  * -------------------------------------------------------------------- */
 #define CAN_RX_RING_SIZE         32u   /* RX ring slots (double of 16 to absorb a full 5 ms tick at 64-ID load) */
 #define CAN_RX_FILTER_ELEMS_PUBLIC  72u   /* RFFN=8 -> 8*9 = 72 */
-/* Phase 1 / A10: pin the filter-table sizing.
- * The vendor SDK does not export a compile-time constant for RFFN -> table
- * size; FLEXCAN_DRV_ConfigRxFifo uses 7 + RFFN*2 entries at runtime.
- * The project FlexCAN config hard-codes RFFN=8 (CTRL2.RFFN) for the public
- * bus and RFFN=6 for the private bus; each table element holds up to 8 IDs.
- * If the SDK ever ships a constant, swap the literal here for that macro.
+/* Phase 1 / A10：钉死过滤表尺寸。
+ * 厂商 SDK 未导出 RFFN -> 表大小的编译期常量；
+ * FLEXCAN_DRV_ConfigRxFifo 运行期按 7 + RFFN*2 项使用。
+ * 本工程 FlexCAN 配置硬编码 public 总线 RFFN=8（CTRL2.RFFN），
+ * private 总线 RFFN=6；每个表项最多容纳 8 个 ID。
+ * 若 SDK 后续提供常量，请把此处的字面量替换为对应宏。
  */
 #if (CAN_RX_FILTER_ELEMS_PUBLIC != 72u)
 #  error "A10: CAN_RX_FILTER_ELEMS_PUBLIC must match the RFFN=8 sizing (72 entries)"
@@ -52,11 +52,11 @@
 #  error "A10: CAN_RX_FILTER_ELEMS_PRIVATE must match the RFFN=6 sizing (56 entries)"
 #endif
 
-/* Per-channel FlexCAN RX-FIFO ID filter tables.
- *  - s_rx_filter_public:  public CAN bus (72 entries, RFFN=8)
- *  - s_rx_filter_private: private CAN bus (56 entries, RFFN=6)
- * Plain statics (not const) so FLEXCAN_DRV_ConfigRxFifo can iterate
- * without tripping the volatile qualifier. */
+/* 各通道 FlexCAN RX-FIFO ID 过滤表。
+ *  - s_rx_filter_public：  public CAN 总线（72 项，RFFN=8）
+ *  - s_rx_filter_private：private CAN 总线（56 项，RFFN=6）
+ * 用普通 static（而非 const），以便 FLEXCAN_DRV_ConfigRxFifo 遍历时
+ * 不会受 volatile 修饰影响。 */
 static flexcan_id_table_t s_rx_filter_public[CAN_RX_FILTER_ELEMS_PUBLIC];
 static flexcan_id_table_t s_rx_filter_private[CAN_RX_FILTER_ELEMS_PRIVATE];
 
@@ -89,9 +89,9 @@ static bool s_if_inited = false;
  * @brief   Lock-free single-producer push; drops frame on overflow.
  * @brief   无锁单生产者入队；环满时丢弃最新帧
  *
- * @details Producer (ISR) increments `head` after writing.
- *          When `head + 1 == tail` the ring is full (we keep one
- *          slot empty to distinguish full vs empty).
+ * @details 生产者（ISR）写入后递增 `head`。
+ *          当 `head + 1 == tail` 时缓冲区为满（保留一个空位
+ *          以区分满与空）。
  *
  * @param[in]  m  Frame to push
  *
@@ -101,23 +101,22 @@ static bool s_if_inited = false;
  */
 static bool prv_ring_push(const can_msg_t *m)
 {
-    /* Calculate next write position, wrap around. */
+    /* 计算下一个写入位置，环绕处理。 */
     u8 next = (u8)((s_rx_ring.head + 1u) % CAN_RX_RING_SIZE);
-    /* Full check: leaving one slot empty to distinguish from empty. */
+    /* 满检查：保留一个空位以区分满与空。 */
     if (next == s_rx_ring.tail) {
         return false;  /* full - silently drop, ISR cannot block */
     }
-    /* Write the frame BEFORE publishing head. (Release barrier comes
-     * below.)
+    /* 在发布 head 之前写入帧。（release barrier 见下文）
      *
-     * Volatile sequencing alone is not enough on Cortex-M33 with
-     * future-D-cache or SMP ports: pair every slot publish with a
-     * __DMB() so the consumer (running in a lower priority tick or
-     * another core) cannot observe the head++ before the slot bytes.
+     * 仅靠 volatile 顺序约束在带未来 D-cache 或 SMP 的 Cortex-M33 上
+     * 并不足够：每次发布槽位都要配对 __DMB()，以确保消费者
+     * （运行在更低优先级的 tick 或另一核上）不会先看到 head++
+     * 再看到槽位字节。
      */
     s_rx_ring.slot[s_rx_ring.head] = *m;
     __DMB();  /* Phase 2 / A1: release barrier between slot publish and head. */
-    /* Publish to consumer: head now points to the next free slot. */
+    /* 向消费者发布：head 现指向下一个空闲槽位。 */
     s_rx_ring.head = next;
     return true;
 }
@@ -126,8 +125,8 @@ static bool prv_ring_push(const can_msg_t *m)
  * @brief   Lock-free single-consumer pop.
  * @brief   无锁单消费者出队
  *
- * @details Consumer (tick) increments `tail` after reading.
- *          `head == tail` means empty.
+ * @details 消费者（tick）读取后递增 `tail`。
+ *          `head == tail` 表示空。
  *
  * @param[out]  m  Populated on success
  *
@@ -137,21 +136,20 @@ static bool prv_ring_push(const can_msg_t *m)
  */
 static bool prv_ring_pop(can_msg_t *m)
 {
-    /* Snapshot both volatile indices into locals, then issue an
-     * acquire barrier. We cannot rely on volatile-only ordering once
-     * a D-cache or SMP port is added; __DMB() ensures the slot read
-     * on the next line sees the slot bytes the producer wrote before
-     * its __DMB() + head++. Each field is touched exactly once to
-     * silence Pa082 (independent volatile reads).
+    /* 将两个 volatile 下标快照到本地，再发出 acquire barrier。
+     * 一旦加入 D-cache 或 SMP 移植，仅靠 volatile 的顺序
+     * 已不足以保证：__DMB() 保证下一行的槽位读取能看见生产者
+     * 在 __DMB() + head++ 之前写入的字节。每个字段恰好访问一次，
+     * 以规避 Pa082（独立 volatile 读取）。
      */
     u8 head = s_rx_ring.head;
     u8 tail = s_rx_ring.tail;
     __DMB();  /* Phase 2 / A1: acquire barrier before consuming slot bytes. */
-    /* Empty check: head equals tail when all slots consumed. */
+    /* 空检查：所有槽位消费完时 head 等于 tail。 */
     if (head == tail) {
         return false;  /* empty */
     }
-    /* Read frame, then advance tail (acquire on next iteration). */
+    /* 读取帧，然后推进 tail（下一次迭代触发 acquire）。 */
     *m = s_rx_ring.slot[tail];
     s_rx_ring.tail = (u8)((tail + 1u) % CAN_RX_RING_SIZE);
     return true;
@@ -165,12 +163,12 @@ static bool prv_ring_pop(can_msg_t *m)
  * @brief   Convert a vendor flexcan_msgbuff_t into a portable can_msg_t.
  * @brief   将 vendor 的 flexcan_msgbuff_t 转换为平台无关的 can_msg_t
  *
- * @details The YTM32B1M flexcan driver populates mb->msgId, mb->dataLen
- *          and mb->data[] directly when FLEXCAN_DRV_Receive returns. The
- *          hardware CS word is driver-internal and not meant to be parsed
- *          by application code. We therefore ignore mb->cs and trust the
- *          SDK-filled fields. ide/rtr are reported as 0 (STD + data) which
- *          is the only frame type the IPK DBC uses today.
+ * @details YTM32B1M flexcan 驱动在 FLEXCAN_DRV_Receive 返回时
+ *          直接填充 mb->msgId、mb->dataLen 与 mb->data[]。
+ *          硬件 CS 字为驱动内部使用，不应由应用层解析，
+ *          故此处忽略 mb->cs，直接信任 SDK 填充字段。
+ *          ide/rtr 报告为 0（标准帧 + 数据帧），这也是
+ *          当前 IPK DBC 唯一使用的帧类型。
  *
  * @param[in]  mb   Vendor mailbox descriptor (filled by FLEXCAN_DRV_Receive)
  * @param[out] out  Portable frame descriptor to fill
@@ -180,10 +178,10 @@ static void prv_extract_msg(const flexcan_msgbuff_t *mb, can_msg_t *out)
     out->id  = mb->msgId;
     out->ide = 0u;            /* IPK DBC uses 11-bit STD only */
     out->rtr = 0u;            /* IPK DBC uses data frames only */
-    /* Clamp DLC to the portable frame size (8 bytes classic CAN). */
+    /* 将 DLC 钳制到可移植帧大小（经典 CAN 8 字节）。 */
     u32 dlc = (mb->dataLen <= 8u) ? mb->dataLen : 8u;
     out->dlc = (u8)dlc;
-    /* Copy payload bytes [0..dlc), zero-pad the rest. */
+    /* 复制 payload 字节 [0..dlc)，其余部分填零。 */
     for (u32 i = 0; i < dlc; i++) {
         out->data[i] = mb->data[i];
     }
@@ -196,12 +194,12 @@ static void prv_extract_msg(const flexcan_msgbuff_t *mb, can_msg_t *out)
  * @brief   Map a logical channel to its flexcan instance index.
  * @brief   逻辑通道到 flexcan 实例编号的映射
  *
- * @details The board/can_config.h defines instance numbers via
- *          private_can_INST / public_can_INST macros.
+ * @details board/can_config.h 通过 private_can_INST /
+ *          public_can_INST 宏定义实例编号。
  */
 static u8 prv_logical_to_inst(can_channel_t ch)
 {
-    /* Match board/can_config.h naming. */
+    /* 与 board/can_config.h 的命名保持一致。 */
     return (ch == CAN_CH_PUBLIC) ? public_can_INST : private_can_INST;
 }
 
@@ -209,9 +207,9 @@ static u8 prv_logical_to_inst(can_channel_t ch)
  * @brief   flexcan driver callback (runs in ISR context)
  * @brief   flexcan 驱动回调（运行于 ISR 上下文）
  *
- * @details On RX-FIFO complete, the frame is copied out and
- *          pushed to the lock-free ring. Overflows are silently
- *          dropped because the ISR cannot block.
+ * @details RX-FIFO 接收完成时，将帧复制出来并推入无锁
+ *          环形缓冲区。溢出时静默丢弃，
+ *          因为 ISR 不能阻塞。
  *
  * @param[in]  instance  flexcan instance index
  * @param[in]  ev        Event type (RX/TX/error)
@@ -226,41 +224,40 @@ static void prv_flexcan_cb(u8 instance,
     (void)state;
     switch (ev) {
         case FLEXCAN_EVENT_RXFIFO_COMPLETE: {
-            /* RX-FIFO completion.
+            /* RX-FIFO 接收完成。
              *
-             * By the time we get here:
-             *   1. SDK ISR has called FLEXCAN_ReadRxFifo() into
-             *      state->mbs[RXFIFO].mb_message, which is still
-             *      &s_rx_fifo_start_buf (we re-arm with the SAME pointer).
-             *      So the new frame is sitting in s_rx_fifo_start_buf.
-             *   2. SDK has set state->mbs[RXFIFO].state = IDLE.
-             *   3. SDK will, on return, check the state again: if it is
-             *      still IDLE it calls FLEXCAN_CompleteRxMessageFifoData()
-             *      which DISABLES the FRAME_AVAILABLE interrupt -- and then
-             *      we never receive another frame.
+             * 走到这里时：
+             *   1. SDK ISR 已调用 FLEXCAN_ReadRxFifo()，将数据读入
+             *      state->mbs[RXFIFO].mb_message（仍指向
+             *      &s_rx_fifo_start_buf，因为我们用同一指针再启动）。
+             *      因此新帧就放在 s_rx_fifo_start_buf 里。
+             *   2. SDK 已将 state->mbs[RXFIFO].state 设为 IDLE。
+             *   3. SDK 返回时会再次检查状态；若仍为 IDLE，
+             *      它会调用 FLEXCAN_CompleteRxMessageFifoData()，
+             *      该函数会关闭 FRAME_AVAILABLE 中断，此后
+             *      不会再收到任何帧。
              *
-             * So we MUST call FLEXCAN_DRV_RxFifo() before returning to flip
-             * the state back to RX_BUSY.  Crucially, we pass the SAME buffer
-             * (&s_rx_fifo_start_buf), not a stack-local: the SDK would
-             * otherwise rewrite mb_message to the stack address and the next
-             * ISR would write the next frame there.
+             * 因此必须在返回前调用 FLEXCAN_DRV_RxFifo() 将状态
+             * 翻回 RX_BUSY。关键是要传入同一缓冲区
+             * (&s_rx_fifo_start_buf)，而非栈上局部：否则 SDK
+             * 会把 mb_message 改写为栈地址，下一次 ISR 会把
+             * 下一帧写到那里。
              *
-             * Reading s_rx_fifo_start_buf AFTER FLEXCAN_DRV_RxFifo() is OK
-             * because the SDK only writes the buffer inside ISR (FLEXCAN_
-             * ReadRxFifo); the arm call just flips state and re-enables
-             * IRQs without touching the buffer contents.
+             * 在 FLEXCAN_DRV_RxFifo() 之后再读 s_rx_fifo_start_buf
+             * 是安全的，因为 SDK 只在 ISR 内（FLEXCAN_ReadRxFifo）
+             * 写缓冲区；arm 调用仅翻状态并重新开中断，
+             * 不会动缓冲区内容。
              */
             {
                 can_msg_t m;
                 prv_extract_msg(&s_rx_fifo_start_buf, &m);
-                /* Re-arm with the SAME buffer so the SDK keeps writing
-                 * new frames here on subsequent IRQs.  This also flips
-                 * state back to RX_BUSY so the SDK does NOT call
-                 * FLEXCAN_CompleteRxMessageFifoData() (which would mask
-                 * the FRAME_AVAILABLE interrupt and stop further RX). */
+                /* 用同一缓冲区再启动，使 SDK 在后续 IRQ 中继续
+                 * 将新帧写入此处。同时将状态翻回 RX_BUSY，
+                 * 避免 SDK 调用 FLEXCAN_CompleteRxMessageFifoData()
+                 * （该调用会屏蔽 FRAME_AVAILABLE 中断并停止 RX）。 */
                 (void)FLEXCAN_DRV_RxFifo(instance, &s_rx_fifo_start_buf);
                 if (!prv_ring_push(&m)) {
-                    /* Ring full - drop and let the drain count surface it. */
+                    /* 环形缓冲已满 —— 丢弃帧，让 drain 计数自然体现。 */
                     LOG_W("rx ring full (inst=%u id=0x%X dropped)",
                           (unsigned)instance, (unsigned)m.id);
                 }
@@ -268,23 +265,21 @@ static void prv_flexcan_cb(u8 instance,
             break;
         }
         case FLEXCAN_EVENT_RXFIFO_WARNING: {
-            /* 5+ frames waiting - either bus is busy or consumer (tick)
-             * is starved.  Log once per warning event so the operator can
-             * correlate. */
+            /* 等待中的帧 >= 5 —— 可能总线忙或消费者（tick）
+             * 饿死。每次警告事件记一次日志，便于操作员关联分析。 */
             LOG_W("rx fifo warning (inst=%u) - consumer slow?", (unsigned)instance);
             break;
         }
         case FLEXCAN_EVENT_RXFIFO_OVERFLOW: {
-            /* At least one frame was overwritten by the hardware before
-             * we drained it.  This is a hard error: a real-world frame
-             * is lost.  Log + bump an internal counter (future patch:
-             * publish to signal bus). */
+            /* 至少有一帧在我们读取前被硬件覆盖。这是严重错误：
+             * 真实帧丢失。记日志并递增内部计数（后续补丁：
+             * 发布到信号总线）。 */
             LOG_E("rx fifo OVERFLOW (inst=%u) - frame(s) lost!", (unsigned)instance);
             break;
         }
         case FLEXCAN_EVENT_RX_COMPLETE: {
-            /* Single-MB RX (a Mailbox configured via CanIf_ConfigRxMb).
-             * buffIdx is the MB index; pull the frame from it. */
+            /* 单 MB RX（通过 CanIf_ConfigRxMb 配置的邮箱）。
+             * buffIdx 即邮箱下标，从中取出帧。 */
             flexcan_msgbuff_t mb;
             if (FLEXCAN_DRV_Receive(instance, (u8)buffIdx, &mb) == STATUS_SUCCESS) {
                 can_msg_t m;
@@ -294,18 +289,18 @@ static void prv_flexcan_cb(u8 instance,
                           (unsigned)instance, (unsigned)buffIdx,
                           (unsigned)m.id);
                 }
-                /* Re-arm the MB so the next match writes into it again. */
+                /* 再启动 MB，使下一次匹配继续写入此邮箱。 */
                 (void)FLEXCAN_DRV_Receive(instance, (u8)buffIdx, &mb);
             }
             break;
         }
         case FLEXCAN_EVENT_TX_COMPLETE: {
-            /* Round-robin TX MB finished - no action needed, the next
-             * CanIf_Send call will pick an idle MB via prv_pick_tx_mb(). */
+            /* 轮询 TX MB 完成 —— 无需动作，下一次 CanIf_Send
+             * 调用会通过 prv_pick_tx_mb() 选出一个空闲 MB。 */
             break;
         }
         default:
-            /* Errors / wakeup handled by separate error callback. */
+            /* 错误 / 唤醒由独立错误回调处理。 */
             break;
     }
 }
@@ -343,8 +338,8 @@ static u32 s_recovery_count[CAN_CH_MAX] = { 0u, 0u };
  */
 static can_channel_t prv_inst_to_logical(u8 instance)
 {
-    /* public_can_INST=2, private_can_INST=1; everything else maps to PUBLIC
-     * (defensive default for future instances). */
+    /* public_can_INST=2，private_can_INST=1；其它情况全部映射到 PUBLIC
+     * （为未来实例预留的防御式默认值）。 */
     if (instance == private_can_INST) return CAN_CH_PRIVATE;
     return CAN_CH_PUBLIC;
 }
@@ -363,12 +358,12 @@ static void prv_mark_recovery(can_channel_t ch)
  * @brief   flexcan error callback (runs in ISR context)
  * @brief   flexcan 错误回调（运行于 ISR 上下文）
  *
- * @details Handles the four events the cluster actually cares about:
- *   - BUS_OFF_ENTER  -> log error, set SIG_CAN_BUS_OFF=1, bump counter
- *   - BUS_OFF_DONE   -> log info, clear SIG_CAN_BUS_OFF=0
- *   - TX_WARNING     -> log warning with current TX error counter
- *   - RX_WARNING     -> log warning with current RX error counter
- *   - others         -> log debug
+ * @details 处理本集群实际关心的四类事件：
+ *   - BUS_OFF_ENTER  -> 记错误日志，置 SIG_CAN_BUS_OFF=1，计数加一
+ *   - BUS_OFF_DONE   -> 记信息日志，清 SIG_CAN_BUS_OFF=0
+ *   - TX_WARNING     -> 记警告日志并附当前 TX 错误计数
+ *   - RX_WARNING     -> 记警告日志并附当前 RX 错误计数
+ *   - 其它           -> 记调试日志
  *
  * @param[in]  instance   flexcan instance index
  * @param[in]  eventType  which ESR1 bit fired
@@ -381,9 +376,9 @@ static void prv_flexcan_err_cb(u8 instance,
     (void)state;
     const can_channel_t ch = prv_inst_to_logical(instance);
 
-    /* Read ESR1 once: it carries TX/RX error counters and the live
-     * status bits.  Per YTM32B1M ref manual, [TXERRCNT:24-31] and
-     * [RXERRCNT:16-23]. */
+    /* 一次性读取 ESR1：含 TX/RX 错误计数及活动状态位。
+     * 依据 YTM32B1M 参考手册，[TXERRCNT:24-31]，
+     * [RXERRCNT:16-23]。 */
     const u32 esr1 = FLEXCAN_DRV_GetErrorStatus(instance);
     const u32 tx_err = (esr1 >> 24) & 0xFFu;
     const u32 rx_err = (esr1 >> 16) & 0xFFu;
@@ -392,12 +387,10 @@ static void prv_flexcan_err_cb(u8 instance,
 
     switch (eventType) {
         case FLEXCAN_BUS_OFF_ENTER_EVENT: {
-            /* The controller has gone bus-off: it has stopped
-             * participating in the bus.  Per CAN ISO 11898 the
-             * controller stays in this state for at least 128
-             * occurrences of 11 consecutive recessive bits before
-             * BUS_OFF_DONE fires.  We cannot recover from here in
-             * software - just flag it. */
+            /* 控制器进入 bus-off：已停止参与总线活动。
+             * 依据 CAN ISO 11898，控制器在此状态至少停留
+             * 128 次连续 11 个隐性位出现后才会触发 BUS_OFF_DONE。
+             * 软件无法在此处直接恢复，只能置标志。 */
             s_bus_off_count[ch]++;
             (void)Signal_Set(SIG_CAN_BUS_OFF, 1);
             (void)Signal_Set(SIG_CAN_BUS_OFF_COUNT,
@@ -409,11 +402,10 @@ static void prv_flexcan_err_cb(u8 instance,
             break;
         }
         case FLEXCAN_BUS_OFF_DONE_EVENT: {
-            /* The controller has recovered from bus-off and is back
-             * on the bus.  Clear the flag and queue a soft-recovery
-             * so the Scheduler 5 ms tick re-arms the RX-FIFO and
-             * re-installs callbacks (sticky bus-off state may have
-             * left interrupts masked; re-arm is the only safe path). */
+            /* 控制器已从 bus-off 恢复并回到总线。清除标志并排队
+             * 一次软恢复，由 Scheduler 5 ms tick 重新启动 RX-FIFO
+             * 并重装回调（bus-off 残留状态可能导致中断被屏蔽，
+             * 重新启动是唯一安全路径）。 */
             (void)Signal_Set(SIG_CAN_BUS_OFF, 0);
             prv_mark_recovery(ch);
             LOG_W("CAN%u BUS_OFF done -> queuing soft-recovery",
@@ -421,42 +413,38 @@ static void prv_flexcan_err_cb(u8 instance,
             break;
         }
         case FLEXCAN_TX_WARNING_EVENT: {
-            /* TX error counter crossed the warning threshold (96).
-             * Bus is degraded but not yet bus-off.  When the TX
-             * counter reaches 127 (active-error -> passive boundary)
-             * the controller stops driving ACK; queue a soft-recovery
-             * to drop the counter back to 0 and re-arm RX-FIFO. */
+            /* TX 错误计数越过警告阈值（96）。总线质量已下降
+             * 但尚未进入 bus-off。当 TX 计数达到 127
+             * （active-error 与 passive 边界），控制器停止发出 ACK；
+             * 排队软恢复，将计数清零并重新启动 RX-FIFO。 */
             LOG_W("CAN%u TX warning (tx_err=%u)", (unsigned)instance,
                   (unsigned)tx_err);
             if (tx_err >= 127u) { prv_mark_recovery(ch); }
             break;
         }
         case FLEXCAN_RX_WARNING_EVENT: {
-            /* RX error counter crossed the warning threshold (96).
-             * Same rationale as TX warning: at 127 the controller
-             * is passive and will not signal errors; reset to clear
-             * the stuck error counter. */
+            /* RX 错误计数越过警告阈值（96）。原因同 TX warning：
+             * 达到 127 时控制器进入 passive 状态，不会再上报错误；
+             * 复位以清除卡住的错误计数。 */
             LOG_W("CAN%u RX warning (rx_err=%u)", (unsigned)instance,
                   (unsigned)rx_err);
             if (rx_err >= 127u) { prv_mark_recovery(ch); }
             break;
         }
         case FLEXCAN_BIT_ERROR_EVENT: {
-            /* Bit error during a TX attempt: the controller raised
-             * the error flag but did not leave the bus.  Queue a
-             * soft-recovery so a future BUS_OFF transition starts
-             * from a clean controller state. */
+            /* 一次 TX 尝试期间的位错误：控制器置位错误标志但
+             * 未离开总线。排队软恢复，以便后续 BUS_OFF 转换时
+             * 控制器处于干净状态。 */
             LOG_W("CAN%u bit error (tx_err=%u rx_err=%u)",
                   (unsigned)instance, (unsigned)tx_err, (unsigned)rx_err);
             prv_mark_recovery(ch);
             break;
         }
         case FLEXCAN_ERROR_OVERRUN_EVENT: {
-            /* RX overrun on a single MB - the MB was overwritten
-             * before software read it.  Should not happen with FIFO
-             * mode + 32-frame ring, but log if it does and queue a
-             * soft-recovery to re-arm the FIFO (a permanent FIFO
-             * lock-up can otherwise block all subsequent RX). */
+            /* 单 MB 的 RX 溢出 —— MB 在软件读取前被覆盖。
+             * 在 FIFO 模式 + 32 帧环形缓冲下不应发生，若发生则
+             * 记日志并排队软恢复以重启 FIFO（否则 FIFO 永久
+             * 锁死会阻塞后续 RX）。 */
             LOG_E("CAN%u overrun - frame(s) lost on MB",
                   (unsigned)instance);
             prv_mark_recovery(ch);
@@ -464,8 +452,8 @@ static void prv_flexcan_err_cb(u8 instance,
         }
 #if FEATURE_CAN_HAS_RAM_ECC
         case FLEXCAN_RAM_ECC_ERROR_EVENT: {
-            /* CAN RAM ECC error - hardware fault.  Log and force a
-             * full controller re-init via soft-recovery. */
+            /* CAN RAM ECC 错误 —— 硬件故障。记日志并触发
+             * 通过软恢复执行完整控制器重新初始化。 */
             LOG_E("CAN%u RAM ECC error - controller in fault",
                   (unsigned)instance);
             prv_mark_recovery(ch);
@@ -473,7 +461,7 @@ static void prv_flexcan_err_cb(u8 instance,
         }
 #endif
         case FLEXCAN_WAKEUP_EVENT: {
-            /* Wake-up from low-power - log at info. */
+            /* 从低功耗唤醒 —— 记 info 日志。 */
             LOG_I("CAN%u wakeup event", (unsigned)instance);
             break;
         }
@@ -503,10 +491,9 @@ static void prv_flexcan_err_cb(u8 instance,
 /** Per-channel round-robin cursor into the 26..31 TX mailbox window. */
 static u8 s_tx_cursor[CAN_CH_MAX] = { CAN_TX_MB_FIRST, CAN_TX_MB_FIRST };
 
-/* Cooldown for the "all 6 TX MB busy" warning. The can_tx sweep
- * can legitimately hit the mailbox ceiling on cold boot while
- * draining a backlog of due frames; warn at most once per window
- * to keep the log readable. */
+/* "6 个 TX MB 全忙" 警告的冷却。can_tx 轮询在冷启动排
+ * 出积压帧时可能触及邮箱上限；每个时间窗内最多告警一次，
+ * 保持日志可读。 */
 #define CAN_TX_BUSY_WARN_COOLDOWN_MS  200u
 static u32 s_tx_busy_warn_ms[CAN_CH_MAX] = { 0u, 0u };
 
@@ -514,15 +501,13 @@ static u32 s_tx_busy_warn_ms[CAN_CH_MAX] = { 0u, 0u };
  * @brief   Pick the next TX mailbox via round-robin
  * @brief   通过轮询选取下一个发送邮箱
  *
- * @details Walks MB 26..31 in order and returns the first one whose
- *          driver state is FLEXCAN_MB_IDLE (i.e. not currently
- *          transmitting).  When all six are busy the function
- *          returns 0xFFu so the caller can report ERR_BUSY.
+ * @details 按顺序遍历 MB 26..31，返回首个驱动状态为
+ *          FLEXCAN_MB_IDLE（即当前未在发送）的邮箱。
+ *          六个邮箱都忙时返回 0xFFu，由调用方上报 ERR_BUSY。
  *
- *          The start cursor is the channel's last successful TX
- *          mailbox (s_tx_cursor[ch]) so that load spreads evenly
- *          and a mailbox that just finished is preferred for the
- *          next frame.
+ *          起始游标为该通道最近一次成功 TX 的邮箱
+ *          （s_tx_cursor[ch]），保证负载均匀分布，
+ *          并优先选择刚发送完成的邮箱用于下一帧。
  *
  * @param[in]  inst  flexcan instance index (for status query)
  * @param[in]  ch    Logical channel (advances its cursor on success)
@@ -554,11 +539,10 @@ static u8 prv_pick_tx_mb(u8 inst, can_channel_t ch)
  * @brief   Initialize both CAN channels and the RX ring buffer
  * @brief   初始化两条 CAN 通道及接收环形缓冲
  *
- * @details Initializes the ring buffer to empty, then calls
- *          FLEXCAN_DRV_Init + InstallEventCallback for each
- *          channel. On any failure the function returns early
- *          with C02B2_ERR and the partially-initialized channel
- *          is left in an undefined state.
+ * @details 将环形缓冲区初始化为空，然后对每个通道调用
+ *          FLEXCAN_DRV_Init + InstallEventCallback。
+ *          任何一步失败时立即返回 C02B2_ERR，
+ *          部分初始化的通道将处于未定义状态。
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Both channels up
@@ -575,16 +559,14 @@ void CanIf_InstallFlexcanCallbacks(void)
 
 c02b2_result_t CanIf_ArmRxFifo(void)
 {
-    /* CRITICAL: in RX-FIFO mode, the SDK does NOT enable the
-     * FRAME_AVAILABLE / WARNING / OVERFLOW interrupts during
-     * FLEXCAN_DRV_Init.  The interrupts are enabled inside
-     * FLEXCAN_StartRxMessageFifoData -- the function behind
-     * FLEXCAN_DRV_RxFifo().  The first call therefore arms the
-     * FIFO; subsequent calls inside the event callback re-arm it
-     * for the next frame.  A missing first call leaves the
-     * controller alive on the bus but with all 3 RX-FIFO interrupts
-     * masked, which manifests as "the bus is up, the analyzer sends
-     * frames, but the application never sees an RX callback". */
+    /* 关键：RX-FIFO 模式下，SDK 不会在 FLEXCAN_DRV_Init 期间
+     * 启用 FRAME_AVAILABLE / WARNING / OVERFLOW 中断，
+     * 真正的开启在 FLEXCAN_StartRxMessageFifoData 内（即
+     * FLEXCAN_DRV_RxFifo 背后的实现）。因此首次调用负责启动
+     * FIFO；事件回调中的后续调用则重新启动以接收下一帧。
+     * 缺少首次调用会让控制器保持在线但 3 个 RX-FIFO 中断
+     * 全部屏蔽，表现为"总线已起，分析仪在发帧，
+     * 但应用层始终不见 RX 回调"。 */
     for (u32 ch = 0; ch < CAN_CH_MAX; ch++) {
         const u8 inst = prv_logical_to_inst((can_channel_t)ch);
         const status_t r = FLEXCAN_DRV_RxFifo(inst, &s_rx_fifo_start_buf);
@@ -600,38 +582,37 @@ c02b2_result_t CanIf_ArmRxFifo(void)
  * @brief   Run a single channel through the full re-init sequence.
  * @brief   对一个通道跑一次完整的重新初始化。
  *
- * @details Mirrors Can_Init() but for a single instance.  MUST run
- *          out of ISR context (FLEXCAN_DRV_Init / ConfigRxFifo /
- *          InstallEventCallback touch peripheral RAM, masks and
- *          NVIC bits).  Called from CanIf_RecoverPump() which itself runs in the
- *          mod_can_rx 5 ms tick (so the scheduler stays CAN-agnostic).
+ * @details 与 Can_Init() 对应，但只针对单个实例。必须
+ *          在 ISR 上下文外执行（FLEXCAN_DRV_Init / ConfigRxFifo /
+ *          InstallEventCallback 会访问外设 RAM、屏蔽位
+ *          与 NVIC 位）。由 CanIf_RecoverPump() 调用，后者
+ *          运行在 mod_can_rx 5 ms tick 中（调度器因此保持 CAN 无关）。
  *
  * @param[in]  ch  Logical channel to recover
  */
-/* Forward decls: prv_fill_filter_public is defined later in the file
- * but called from prv_do_recovery which runs before it in source
- * order.  Without these the compiler raises Pe223 (implicit decl)
- * and Pe020 (s_rx_filter_* undefined) at the recovery call sites. */
+/* 前向声明：prv_fill_filter_public 在文件中靠后定义，
+ * 但 prv_do_recovery 会调用它，且源码顺序更靠前。
+ * 缺少这些声明会在恢复调用点触发 Pe223（隐式声明）
+ * 与 Pe020（s_rx_filter_* 未定义）。 */
 static void prv_fill_filter_public(void);
 
 static void prv_do_recovery(can_channel_t ch)
 {
     const u8 inst = prv_logical_to_inst(ch);
-    /* 1. Shutdown the controller cleanly: disable all FlexCAN
-     *    IRQs, enter Freeze Mode, then disable the module.  This
-     *    is required BEFORE FLEXCAN_DRV_Init is called a second
-     *    time on the same instance - the SDK does not reset
-     *    its own state-machine and the prior NVIC / RAM contents
-     *    would otherwise leak into the new session. */
+    /* 1. 干净关闭控制器：禁用所有 FlexCAN 中断，
+     *    进入 Freeze 模式，再关闭模块。在同一实例上第二次
+     *    调用 FLEXCAN_DRV_Init 之前必须完成此步骤 —— SDK
+     *    不会重置自身状态机，前一次的 NVIC / RAM 内容会
+     *    泄漏到新会话。 */
     (void)FLEXCAN_DRV_Deinit(inst);
-    /* 2. Full re-init - clears BUS_OFF, error counters, MB state,
-     *    and any sticky interrupt masks. */
+    /* 2. 完整重新初始化 —— 清除 BUS_OFF、错误计数、邮箱状态
+     *    以及残留的中断屏蔽。 */
     if (ch == CAN_CH_PUBLIC) {
         FLEXCAN_DRV_Init(public_can_INST, &public_can_State, &public_can);
     } else {
         FLEXCAN_DRV_Init(private_can_INST, &private_can_State, &private_can);
     }
-    /* 3. Re-fill ID filter tables - FLEXCAN_DRV_Init clears RAM. */
+    /* 3. 重新填充 ID 过滤表 —— FLEXCAN_DRV_Init 会清空 RAM。 */
     prv_fill_filter_public();
     (void)FLEXCAN_DRV_ConfigRxFifo(public_can_INST,
                                    FLEXCAN_RX_FIFO_ID_FORMAT_A,
@@ -639,15 +620,13 @@ static void prv_do_recovery(can_channel_t ch)
     (void)FLEXCAN_DRV_ConfigRxFifo(private_can_INST,
                                    FLEXCAN_RX_FIFO_ID_FORMAT_A,
                                    s_rx_filter_private);
-    /* 4. Re-install event + error callbacks (the SDK nulls these
-     *    on Init). */
+    /* 4. 重新安装事件与错误回调（Init 时 SDK 会清空）。 */
     FLEXCAN_DRV_InstallEventCallback(inst, prv_flexcan_cb, NULL);
     FLEXCAN_DRV_InstallErrorCallback(inst, prv_flexcan_err_cb, NULL);
-    /* 5. Re-arm the RX-FIFO - this is what actually re-enables the
-     *    FRAME_AVAILABLE / WARNING / OVERFLOW interrupts after a
-     *    controller reset. */
+    /* 5. 重新启动 RX-FIFO —— 控制器复位后，
+     *    FRAME_AVAILABLE / WARNING / OVERFLOW 中断由此真正重启。 */
     (void)FLEXCAN_DRV_RxFifo(inst, &s_rx_fifo_start_buf);
-    /* 6. Clear pending flag and bump the cumulative counter. */
+    /* 6. 清除 pending 标志并递增累计计数。 */
     s_recovery_pending[ch] = 0u;
     s_recovery_count[ch]++;
     LOG_W("CAN%u soft-recovery done (total=%u)",
@@ -658,11 +637,10 @@ static void prv_do_recovery(can_channel_t ch)
  * @brief   Drain pending soft-recoveries scheduled by the error ISR
  * @brief   排空错误 ISR 标记的待处理软恢复请求
  *
- * @details prv_flexcan_err_cb() sets a per-channel pending flag
- *          from ISR context; CanIf_RecoverPump() is called from
- *          the mod_can_rx 5 ms tick to perform the actual
- *          FLEXCAN_DRV_Deinit + Init + RX-FIFO re-prime cycle
- *          outside ISR context.
+ * @details prv_flexcan_err_cb() 在 ISR 中置位各通道的 pending 标志；
+ *          CanIf_RecoverPump() 在 mod_can_rx 5 ms tick 中调用，
+ *          在 ISR 上下文外执行实际的
+ *          FLEXCAN_DRV_Deinit + Init + RX-FIFO 重新预启动流程。
  *
  * @return  c02b2_result_t  Always C02B2_OK (per-channel failures
  *                          are logged but not propagated)
@@ -681,12 +659,11 @@ c02b2_result_t CanIf_RecoverPump(void)
  * @brief   Reset the application-layer RX ring buffer
  * @brief   重置应用层接收环
  *
- * @details All FlexCAN hardware bring-up (FLEXCAN_DRV_Init, FIFO
- *          filter configuration, callback installation, FIFO
- *          priming) lives in Can_Init(). This function only
- *          zeroes the RX ring indices so the scheduler tick has
- *          a known-empty queue at boot. Safe to call more than
- *          once.
+ * @details 所有 FlexCAN 硬件初始化（FLEXCAN_DRV_Init、
+ *          FIFO 过滤配置、回调安装、FIFO 预启动）
+ *          均在 Can_Init() 中完成。本函数仅清零 RX 环形
+ *          索引，保证调度器 tick 启动时队列已知为空。
+ *          可重复调用。
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Always (ring reset is idempotent)
@@ -700,12 +677,11 @@ c02b2_result_t CanIf_RecoverPump(void)
  */
 c02b2_result_t CanIf_Init(void)
 {
-    /* All FlexCAN hardware bring-up (FLEXCAN_DRV_Init, FIFO filter
-     * configuration, callback installation, FIFO priming) lives in
-     * Can_Init().  This function is intentionally lightweight:
-     * it just resets the application-layer RX ring buffer so the
-     * scheduler tick has a known-empty queue at boot.  It is safe
-     * to call more than once. */
+    /* 所有 FlexCAN 硬件初始化（FLEXCAN_DRV_Init、FIFO 过滤
+     * 配置、回调安装、FIFO 预启动）均在 Can_Init() 中完成。
+     * 本函数刻意保持轻量：仅复位应用层 RX 环形缓冲区，
+     * 使调度器 tick 启动时队列已知为空。
+     * 可重复调用。 */
     s_rx_ring.head = 0u;
     s_rx_ring.tail = 0u;
     if (s_if_inited) {
@@ -721,8 +697,8 @@ c02b2_result_t CanIf_Init(void)
  * @brief   Register an RX callback (legacy stub)
  * @brief   注册一个 RX 回调（保留旧 API，无实际操作）
  *
- * @details No-op retained for source compatibility. The real
- *          routing table lives in can_db.
+ * @details 空操作，保留仅为源代码兼容性。
+ *          实际路由表位于 can_db。
  *
  * @param[in]  ch     Logical channel
  * @param[in]  can_id CAN id (unused)
@@ -733,11 +709,11 @@ c02b2_result_t CanIf_Init(void)
  */
 c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_t cb)
 {
-    /* DEPRECATED stub. Retained for source compatibility with the
-     * pre-DBC API; has no runtime effect. RX routing is driven by
-     * can_db.c (CanDb_DispatchByDb) walking can_msg_descs_ipk[] on
-     * the ring buffer the ISR fills. Future per-id filtering should
-     * be expressed in the DBC + can_db_ipk_gen, not in this hook. */
+    /* 已废弃的桩函数。仅保留以兼容 pre-DBC API；
+     * 无运行时效果。RX 路由由 can_db.c（CanDb_DispatchByDb）
+     * 在 ISR 填充的环形缓冲上遍历 can_msg_descs_ipk[] 完成。
+     * 后续按 id 的过滤应在 DBC + can_db_ipk_gen 中表达，
+     * 而非此钩子。 */
     (void)ch; (void)can_id; (void)ide; (void)cb;
     return C02B2_OK;
 }
@@ -746,11 +722,11 @@ c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_
  * @brief   Send a single CAN frame on the chosen channel
  * @brief   在指定通道上发送一帧 CAN 报文
  *
- * @details Pack the portable can_msg_t into the vendor flexcan_msgbuff_t,
- *          then ask the driver to transmit on a reserved mailbox
- *          (MB 30 for PUBLIC, MB 31 for PRIVATE). If the MB is busy
- *          the frame is dropped (not queued) to keep the call
- *          non-blocking from the tick context.
+ * @details 将可移植的 can_msg_t 打包到厂商 flexcan_msgbuff_t，
+ *          然后请求驱动通过保留邮箱发送
+ *          （PUBLIC 用 MB 30，PRIVATE 用 MB 31）。
+ *          若邮箱忙则丢弃该帧（不排队），
+          以保持 tick 上下文调用非阻塞。
  *
  * @param[in]  ch   Logical channel
  * @param[in]  msg  Frame to transmit (id/ide/rtr/dlc/data)
@@ -762,15 +738,14 @@ c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_
 c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
 {
     u8 inst = prv_logical_to_inst(ch);
-    /* Zero-init every field up front; we then overwrite only the
-     * fields the driver actually needs for classic CAN.  Without
-     * this, fd_enable / fd_padding / enable_brs pick up stack
-     * garbage and the driver puts CAN-FD frames on a classic-CAN
-     * bus -- the analyzer sees nothing, the driver counts bit
-     * errors, and we end up in a BUS_OFF / recover loop.
-     * Designated-initializer used so the enum-typed fields stay
-     * enum-typed (silences Pe188 that plain = { 0 } would
-     * trigger: 0 is int, fields are flexcan_msg_id_type_t). */
+    /* 先将所有字段清零，再仅覆盖经典 CAN 实际需要的字段。
+     * 若不清零，fd_enable / fd_padding / enable_brs 将携带
+     * 栈上垃圾，使驱动把 CAN-FD 帧放到经典 CAN 总线上：
+     * 分析仪看不到任何东西，驱动累计位错误，
+     * 最终陷入 BUS_OFF / 恢复循环。
+     * 使用 designated initializer，让枚举字段保持枚举类型
+     * （规避 Pe188 —— 普通 = { 0 } 会触发该告警：
+     * 0 是 int，字段类型为 flexcan_msg_id_type_t）。 */
     flexcan_data_info_t info = {
         .msg_id_type = FLEXCAN_MSG_ID_STD,
         .data_length = 0u,
@@ -780,24 +755,22 @@ c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
         .is_remote   = false,
     };
 
-    /* Select 11-bit / 29-bit id format. msg->ide is u8 to stay portable;
-     * the comparison is wrapped in a conditional to silence Pe188 (enum
-     * mixed with other type). The result is then assigned to the enum
-     * field of info. */
+    /* 选择 11-bit / 29-bit id 格式。msg->ide 为 u8 以保持可移植性；
+     * 比较用条件表达式包裹以规避 Pe188（枚举与其它类型混合）。
+     * 结果再赋给 info 的枚举字段。 */
     info.msg_id_type = (msg->ide != 0u) ? FLEXCAN_MSG_ID_EXT
                                         : FLEXCAN_MSG_ID_STD;
     info.data_length = msg->dlc;
     info.is_remote   = (msg->rtr != 0u);
 
-    /* Round-robin pick from MB 26..31. prv_pick_tx_mb() returns
-     * 0xFFu when all six are busy, in which case we report
-     * C02B2_ERR_BUSY and let the caller retry next tick. */
+    /* 从 MB 26..31 轮询选取。prv_pick_tx_mb() 在六个邮箱都忙时
+     * 返回 0xFFu；此时上报 C02B2_ERR_BUSY，
+     * 由调用方在下一次 tick 重试。 */
     u8 mb_idx = prv_pick_tx_mb(inst, ch);
     if (mb_idx == 0xFFu) {
-        /* Mailbox pool exhausted (cold-boot backlog, transient
-         * bus saturation). Log at most once per cooldown window
-         * per channel; can_tx will retry the deferred frame on
-         * the next sweep. */
+        /* 邮箱池耗尽（冷启动积压、瞬时总线饱和）。
+         * 每个通道在冷却窗口内最多记一次日志；can_tx 在下一轮
+         * 重试该延迟帧。 */
         const u32 now_ms = OSIF_GetMilliseconds();
         if ((now_ms - s_tx_busy_warn_ms[ch]) >= CAN_TX_BUSY_WARN_COOLDOWN_MS) {
             s_tx_busy_warn_ms[ch] = now_ms;
@@ -806,13 +779,12 @@ c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
         }
         return C02B2_ERR_BUSY;
     }
-    /* FLEXCAN_DRV_Send takes (inst, mb_idx, &info, msg_id, mb_data):
-     * the driver fills the MB CS word (id type, dlc, remote bit)
-     * from tx_info internally; no separate FLEXCAN_DRV_ConfigTxMb
-     * call is required for one-shot sends. */
+    /* FLEXCAN_DRV_Send 签名为 (inst, mb_idx, &info, msg_id, mb_data)：
+     * 驱动从 tx_info 内部填写 MB CS 字（id 类型、dlc、remote 位）；
+     * 一次性发送无需单独调用 FLEXCAN_DRV_ConfigTxMb。 */
     status_t r = FLEXCAN_DRV_Send(inst, mb_idx, &info, msg->id, msg->data);
     if (r != STATUS_SUCCESS) {
-        /* Phase 1 / A5: dedup this warning to avoid bus-off storm flooding. */
+        /* Phase 1 / A5：对本警告去重，避免 bus-off 风暴时日志刷屏。 */
         const u32 _now_ms = OSIF_GetMilliseconds();
         if ((_now_ms - s_tx_busy_warn_ms[ch]) >= CAN_TX_BUSY_WARN_COOLDOWN_MS) {
             s_tx_busy_warn_ms[ch] = _now_ms;
@@ -837,7 +809,7 @@ c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
 c02b2_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en)
 {
     (void)ch; (void)en;
-    /* For now TX is always enabled. Hook to CAN silence / NM later. */
+    /* 当前 TX 始终启用。后续接入 CAN 静默 / 网络管理。 */
     return C02B2_OK;
 }
 
@@ -852,7 +824,7 @@ c02b2_result_t CanIf_SetTxEnabled(can_channel_t ch, bool en)
 c02b2_result_t CanIf_GoToSleep(can_channel_t ch)
 {
     (void)ch;
-    /* TODO: enter freeze mode + transceiver STBY pin. */
+    /* TODO：进入 freeze 模式 + 收发器 STBY 引脚。 */
     return C02B2_OK;
 }
 
@@ -867,7 +839,7 @@ c02b2_result_t CanIf_GoToSleep(can_channel_t ch)
 c02b2_result_t CanIf_WakeUp(can_channel_t ch)
 {
     (void)ch;
-    /* TODO: exit freeze, mark wakeup event. */
+    /* TODO：退出 freeze，标记唤醒事件。 */
     return C02B2_OK;
 }
 
@@ -884,7 +856,7 @@ c02b2_result_t CanIf_WakeUp(can_channel_t ch)
 bool CanIf_IsBusOff(can_channel_t ch)
 {
     (void)ch;
-    /* TODO: read CAN->ECR register (Error Counter Register). */
+    /* TODO：读取 CAN->ECR（错误计数寄存器）。 */
     return false;
 }
 
@@ -921,19 +893,19 @@ bool CanIf_PopRx(can_msg_t *out)
  * @brief   Number of frames currently waiting in the RX ring
  * @brief   接收环中当前等待的报文数量
  *
- * @details Modulo arithmetic gives correct wrap-around for both
- *          head >= tail (normal) and head < tail (wrapped) cases.
- *          Adding CAN_RX_RING_SIZE before the modulo prevents
- *          underflow when head < tail.
+ * @details 取模运算可正确处理 head >= tail（正常）
+ *          与 head < tail（已环绕）两种情况。
+ *          在取模前加 CAN_RX_RING_SIZE 可防止
+ *          head < tail 时下溢。
  *
  * @return  u32  Count of pending frames
  */
 u32 CanIf_RxPending(void)
 {
-    /* Snapshot both volatile indices to avoid Pa082. */
+    /* 快照两个 volatile 下标以规避 Pa082。 */
     u8 head = s_rx_ring.head;
     u8 tail = s_rx_ring.tail;
-    /* +CAN_RX_RING_SIZE guards against negative intermediate when head < tail. */
+    /* 在取模前加 CAN_RX_RING_SIZE，防止 head < tail 时中间值为负。 */
     return (u32)((head + CAN_RX_RING_SIZE - tail) % CAN_RX_RING_SIZE);
 }
 
@@ -942,9 +914,9 @@ u32 CanIf_RxPending(void)
  * @brief   Return the post-FIFO mailbox layout for a channel
  * @brief   返回某通道 FIFO 配置之后的邮箱布局
  *
- * @details Hard-coded from board/can_config.c:
- *          - public_can  : FIFO 0..23 (72 filters),  RX 24..25,  TX 26..31
- *          - private_can : FIFO 0..19 (56 filters),  RX 20..25,  TX 26..31
+ * @details 从 board/can_config.c 硬编码而来：
+ *          - public_can  : FIFO 0..23（72 个过滤器），RX 24..25，TX 26..31
+ *          - private_can : FIFO 0..19（56 个过滤器），RX 20..25，TX 26..31
  *
  * @param[in]  ch  Logical channel
  *
@@ -954,13 +926,13 @@ can_mb_layout_t CanIf_GetMbLayout(can_channel_t ch)
 {
     can_mb_layout_t lay;
     if (ch == CAN_CH_PUBLIC) {
-        /* public_can:  RFFN=8 (72 filters) -> FIFO MB 0..23 */
+        /* public_can：RFFN=8（72 个过滤器）-> FIFO MB 0..23 */
         lay.rx_mb_first = 24u;
         lay.rx_mb_last  = 25u;
         lay.tx_mb_first = CAN_TX_MB_FIRST;
         lay.tx_mb_last  = CAN_TX_MB_LAST;
     } else {
-        /* private_can: RFFN=6 (56 filters) -> FIFO MB 0..19 */
+        /* private_can：RFFN=6（56 个过滤器）-> FIFO MB 0..19 */
         lay.rx_mb_first = 20u;
         lay.rx_mb_last  = 25u;
         lay.tx_mb_first = CAN_TX_MB_FIRST;
@@ -973,12 +945,11 @@ can_mb_layout_t CanIf_GetMbLayout(can_channel_t ch)
  * @brief   Configure a single RX mailbox with an exact CAN id
  * @brief   把单个接收邮箱配置为精确匹配某个 CAN id
  *
- * @details Wraps FLEXCAN_DRV_ConfigRxMb so application code does not
- *          have to know the post-FIFO mailbox window.  The mailbox
- *          index must be inside the channel's rx_mb_first..rx_mb_last
- *          range returned by CanIf_GetMbLayout(); anything else is
- *          rejected to avoid stomping on the FIFO ID filter table
- *          or the TX round-robin pool.
+ * @details 封装 FLEXCAN_DRV_ConfigRxMb，使应用层无需了解
+ *          FIFO 之后的邮箱窗口。邮箱下标必须位于
+ *          CanIf_GetMbLayout() 返回的 rx_mb_first..rx_mb_last
+ *          范围内；越界将被拒绝，以避免破坏
+ *          FIFO ID 过滤表或 TX 轮询池。
  *
  * @param[in]  ch      Logical channel
  * @param[in]  mb_idx  Mailbox index
@@ -1002,10 +973,9 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
         return C02B2_ERR_PARAM;
     }
     const u8 inst = prv_logical_to_inst(ch);
-    /* Designated-init to silence Pe188 (0-as-int into enum fields)
-     * while keeping every boolean field explicitly false.  Same
-     * defensive style as CanIf_Send: never trust stack garbage
-     * on boolean driver flags. */
+    /* 使用 designated initializer 规避 Pe188（int 0 赋给枚举字段），
+     * 同时显式将所有 boolean 字段置 false。与 CanIf_Send
+     * 同样防御式：绝不信任 boolean 驱动标志上的栈垃圾。 */
     flexcan_data_info_t info = {
         .msg_id_type = FLEXCAN_MSG_ID_STD,
         .data_length = 8u,
@@ -1020,16 +990,15 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
               (unsigned)inst, (unsigned)mb_idx, (unsigned)can_id);
         return C02B2_ERR;
     }
-    /* Per YTM32B1M init flow: FLEXCAN_EnableRxFifo writes RXIMR[i] = 0
-     * for every MB outside the FIFO table.  That zeroes the per-MB ID
-     * mask, so any frame reaching this MB is filtered out before the
-     * CS-word ID compare runs.  ConfigRxMb itself does NOT touch
-     * RXIMR - we have to open the mask explicitly.  Use "all-ones" for
-     * exact-match (every ID bit must match the CS-word ID).  Set
-     * SetRxMaskType stays at the default GLOBAL: all MB indices
-     * 20..25 are >= 14 so they always consult RXIMR regardless of MRP,
-     * and SetRxIndividualMask correctly distinguishes STD vs EXT in
-     * the bit positions the compare logic cares about. */
+    /* 依据 YTM32B1M 初始化流程：FLEXCAN_EnableRxFifo 会将
+     * FIFO 表外每个 MB 的 RXIMR[i] 写为 0。这会将每个 MB 的
+     * ID 屏蔽位清零，使到达该 MB 的任何帧在 CS 字 ID 比较
+     * 之前就被过滤掉。ConfigRxMb 本身不会动 RXIMR，
+     * 必须显式打开屏蔽位。对精确匹配使用"全 1"（每个 ID 位
+     * 都必须与 CS 字 ID 匹配）。SetRxMaskType 保持默认 GLOBAL：
+     * MB 下标 20..25 均 >= 14，无论 MRP 如何都会查询 RXIMR；
+     * SetRxIndividualMask 在比较逻辑关注的位上能正确区分
+     * STD 与 EXT。 */
     const flexcan_msgbuff_id_type_t id_type = (ide != 0u) ? FLEXCAN_MSG_ID_EXT
                                                           : FLEXCAN_MSG_ID_STD;
     const uint32_t all_ones = (ide != 0u) ? 0x1FFFFFFFu : 0x7FFu;
@@ -1039,7 +1008,7 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
               (unsigned)inst, (unsigned)mb_idx);
         return C02B2_ERR;
     }
-    /* Arm the MB so the driver writes into it on the next match. */
+    /* 启动 MB，使驱动在下次匹配时写入。 */
     if (FLEXCAN_DRV_Receive(inst, mb_idx, &s_rx_arm_buf) != STATUS_SUCCESS) {
         LOG_W("ConfigRxMb arm failed inst=%u mb=%u", (unsigned)inst, (unsigned)mb_idx);
     }
@@ -1073,9 +1042,9 @@ u32 CanRx_GetRawFrameCount(void);
  * @brief   Zero-fill an 8-byte TX payload buffer for an IPK can_id
  * @brief   按 IPK can_id 清零一个 8 字节 TX payload 缓冲区
  *
- * @details Convenience for demo / diag / unit tests that want to
- *          send a frame with default-zero payload before filling
- *          in the signals of interest via CanIf_TxEncodeSignal().
+ * @details 为 demo / diag / 单元测试提供便利，
+ *          先以全零 payload 发送一帧，
+ *          随后通过 CanIf_TxEncodeSignal() 填充关注的信号。
  *
  * @param[in,out]  data  8-byte buffer to zero (existing contents ignored)
  * @param[in]      dlc   Data length code (0..8); 0 = 8 bytes
@@ -1094,9 +1063,9 @@ c02b2_result_t CanIf_TxPreparePayload(u32 can_id, const u8 *data, u8 dlc)
  * @brief   Pack one DBC signal into an already-prepared TX payload
  * @brief   把一个 DBC 信号原始值写入已准备好的 TX payload
  *
- * @details Uses CanDb_BitEncode() to write `raw` into the bits
- *          described by `sig_id` for `can_id`. Out-of-range
- *          `raw` values are clamped to the signal's length-bits.
+ * @details 通过 CanDb_BitEncode() 将 `raw` 写入
+ *          `can_id` 对应报文内 `sig_id` 所描述的位段。
+ *          超出范围的 `raw` 值会被钳制到信号 length 位以内。
  *
  * @param[in]  can_id   IPK can_id (must be in the TX table)
  * @param[in]  sig_id   CAN_DB_SIG_* enum of the signal to write
@@ -1117,9 +1086,9 @@ c02b2_result_t CanIf_TxEncodeSignal(u32 can_id, u16 sig_id, u32 raw)
  * @brief   将已通过 CanIf_TxPreparePayload / EncodeSignal 准备好的
  *          payload 触发发送
  *
- * @details Forwards the prepared payload through CanIf_Send() on
- *          the channel implied by `can_id`. Used by demo / diag
- *          to send synthetic frames without owning a can_msg_t.
+ * @details 将已准备的 payload 通过 CanIf_Send()
+ *          在 `can_id` 隐含的通道上发出。供 demo / diag
+ *          用来发送合成帧而无需持有 can_msg_t。
  *
  * @param[in]  can_id  IPK can_id (must be in the TX table)
  *
@@ -1137,10 +1106,10 @@ c02b2_result_t CanIf_TxTrigger(u32 can_id)
  * @brief   Convenience wrapper around CanRx_GetLastRawFrame
  * @brief   CanRx_GetLastRawFrame 的便利封装
  *
- * @details Returns the most recent 8-byte payload cached for
- *          `can_id` since boot. Forwarded to the RX-side cache
- *          so demo / diag / unit tests can inspect the raw frame
- *          without re-decoding every signal.
+ * @details 返回自启动以来为 `can_id` 缓存的最新
+ *          8 字节 payload。转发至 RX 侧缓存，
+ *          便于 demo / diag / 单元测试直接查看原始帧，
+ *          无需逐信号重新解码。
  *
  * @param[in]   can_id  IPK standard can_id
  * @param[out]  out     Populated on success
@@ -1178,19 +1147,18 @@ u32 CanIf_RxGetRawFrameCount(void)
  *                                       OVERFLOW IRQs, arm first RX
  * ---------------------------------------------------------------- */
 
-/* Legacy FIFO ID filter table lives in FlexCAN RAM at offset 0x18
- * (RxFifoFilterTableOffset). Each element is 8 bytes; the table has
- * `RxFifoFilterElementNum(RFFN) = (RFFN + 1) * 8` elements, which is
- * exactly num_id_filters from board/can_config.c.
+/* Legacy FIFO ID 过滤表位于 FlexCAN RAM 偏移 0x18 处
+ *（RxFifoFilterTableOffset）。每个元素 8 字节；
+ * 表项数为 `RxFifoFilterElementNum(RFFN) = (RFFN + 1) * 8`，
+ * 与 board/can_config.c 中的 num_id_filters 完全一致。
  *
- * Format A is used (one full 29-bit ID + RTR + IDE flags per element).
- * Combined with the default RXFGMASK = 0xFFFFFFFF and RXIMR[i] = 0xFFFFFFFF
- * (set by FLEXCAN_Init), the FIFO performs a strict-match accept
- * against the table IDs (mask all ones -> incoming ID must equal the
- * table ID).
+ * 使用 Format A（每个元素含完整 29-bit ID + RTR + IDE 标志）。
+ * 结合默认 RXFGMASK = 0xFFFFFFFF 和 RXIMR[i] = 0xFFFFFFFF
+ *（由 FLEXCAN_Init 设置），FIFO 执行严格匹配接收：
+ * 入站 ID 必须等于表项 ID（屏蔽位全 1）。
  *
- * Arrays are plain statics (not const) so FLEXCAN_DRV_ConfigRxFifo can
- * iterate without tripping the volatile qualifier. */
+ * 数组使用普通 static（而非 const），以便 FLEXCAN_DRV_ConfigRxFifo
+ * 遍历时不会触发 volatile 限定符检查。 */
 /** Populate s_rx_filter_public[] from can_msg_descs_ipk[].
  *  Each non-TX entry is copied into a free slot of the FIFO ID filter
  *  table (FORMAT_A). Standard frames only, RTR=0, IDE=0. Unused slots
@@ -1214,35 +1182,33 @@ static void prv_fill_filter_public(void)
  * @brief   Initialize both FlexCAN instances
  * @brief   初始化两个 FlexCAN 实例
  *
- * @details Two CAN channels are wired on this board:
- *   - instance 1 = private bus (body / chassis domain, off-board sensors)
- *   - instance 2 = public bus  (powertrain / infotainment, OBD link)
+ * @details 本板连接两条 CAN 通道：
+ *   - 实例 1 = private 总线（车身 / 底盘域，板外传感器）
+ *   - 实例 2 = public  总线（动力总成 / 信息娱乐，OBD 链路）
  *
- *          Both stay in FLEXCAN_NORMAL_MODE (no loopback) so the
- *          cluster can really talk to the rest of the car.
+ *          两者均保持 FLEXCAN_NORMAL_MODE（不回环），
+ *          以便集群真正与整车其余部分通信。
  */
 void Can_Init(void)
 {
-    /* 1. Controller init -- resets MCR / RAM / masks, sets RFFN. */
+    /* 1. 控制器初始化 —— 复位 MCR / RAM / 屏蔽位，设置 RFFN。 */
     FLEXCAN_DRV_Init(1, &private_can_State, &private_can);
     FLEXCAN_DRV_Init(2, &public_can_State,  &public_can);
 
-    /* 2. Write ID filter tables. Without this step the Legacy FIFO
-     * filter table sits at boot-time residual values and incoming
-     * frames that do not match are silently dropped (IFLAG1 never
-     * sets, no RX callback fires). */
+    /* 2. 写入 ID 过滤表。若不执行此步，Legacy FIFO 过滤表
+     * 将保持启动时的残留值，不匹配的入站帧会被静默丢弃
+     * （IFLAG1 永不置位，RX 回调不会触发）。 */
     prv_fill_filter_public();
     (void)FLEXCAN_DRV_ConfigRxFifo(1u, FLEXCAN_RX_FIFO_ID_FORMAT_A,
                                    s_rx_filter_private);
     (void)FLEXCAN_DRV_ConfigRxFifo(2u, FLEXCAN_RX_FIFO_ID_FORMAT_A,
                                    s_rx_filter_public);
 
-    /* 3. Subscribe to driver events (RX / TX / error callbacks). */
+    /* 3. 订阅驱动事件（RX / TX / 错误回调）。 */
     CanIf_InstallFlexcanCallbacks();
 
-    /* 4. Prime the RX FIFO -- this is the call that actually enables
-     * the FRAME_AVAILABLE / WARNING / OVERFLOW interrupts in RX-FIFO
-     * mode. Without it, even a perfectly configured filter produces
-     * no IRQs. */
+    /* 4. 启动 RX FIFO —— 该调用真正开启 RX-FIFO 模式下的
+     * FRAME_AVAILABLE / WARNING / OVERFLOW 中断。
+     * 若不调用，即使过滤表配置完美，也不会产生 IRQ。 */
     (void)CanIf_ArmRxFifo();
 }

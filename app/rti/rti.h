@@ -37,14 +37,12 @@ typedef enum {
  * @brief   Caller-private period slot handle
  * @brief   调用者私有的周期 slot 句柄
  *
- * @details Opaque handle. Modules typically declare one as a
- *          file-scope static: `static rti_slot_t s_my_100ms;`
- *          and acquire it once in mcu_init().
- *
- *          A NULL `_priv` indicates an invalid handle (e.g. pool
- *          was full at RTI_OpenSlot time); RTI_SlotElapsed on
- *          such a handle returns false and emits no log (callers
- *          may check `_priv == NULL` explicitly).
+ * @details 不透明句柄。模块通常在文件作用域以 static 声明一个：
+ *          `static rti_slot_t s_my_100ms;`，并由 mcu_init() 一次性获取。
+
+ *          `_priv == NULL` 表示无效句柄（例如 RTI_OpenSlot 时池已满）；
+ *          对该句柄调用 RTI_SlotElapsed 直接返回 false 且不记日志
+ *          （调用方也可显式判断 `_priv == NULL`）。
  */
 typedef struct {
     void *_priv;
@@ -54,8 +52,7 @@ typedef struct {
  * @brief   Total number of concurrent period slots supported
  * @brief   支持的并发 period slot 总数
  *
- * @details Default 64. Increase if a module pool-test reports
- *          pool-full warning. Each slot consumes ~12 bytes RAM.
+ * @details 默认 64。模块池满测试出现 warning 时增大。每个 slot
  */
 #ifndef RTI_SLOT_POOL_SIZE
   #define RTI_SLOT_POOL_SIZE  64u
@@ -74,10 +71,9 @@ void RTI_Init(void);
  * @brief   1 kHz tick callback invoked from the SysTick ISR
  * @brief   SysTick ISR 调用的 1kHz tick 回调
  *
- * @details Must be called from the SysTick ISR (1 kHz). The ISR
- *          is also responsible for clearing the SysTick interrupt
- *          flag and (optionally) feeding the watchdog.
- *
+ * @details 必须在 SysTick ISR（1kHz）中调用。ISR 还负责清除 SysTick
+
+ *          中断标志位，以及（可选）喂狗。
  * @note    Runs in ISR context; do not block.
  */
 void RTI_OnTick1ms(void);
@@ -86,9 +82,8 @@ void RTI_OnTick1ms(void);
  * @brief   Get the current 1 ms tick count
  * @brief   获取当前 1ms tick 计数
  *
- * @details Thin wrapper over OSIF_GetMilliseconds() so callers
- *          do not need to know which OSIF backend is in use.
- *
+ * @details 对 OSIF_GetMilliseconds() 的轻量封装，调用者无需
+ *          关心当前用的是哪一种 OSIF 后端。
  * @return  uint32_t  Monotonic 1 ms tick (wraps after ~49 days)
  */
 uint32_t RTI_GetTick1ms(void);
@@ -97,15 +92,13 @@ uint32_t RTI_GetTick1ms(void);
  * @brief   Acquire a private slot bound to the given period
  * @brief   获取一个绑定指定周期的私有 slot
  *
- * @details The slot is reserved for the caller until the system
- *          resets. RTI_OpenSlot must be called from mcu_init or
- *          earlier - calling it from tick() works too but wastes
- *          the slot's first stamp.
- *
- *          The pool has RTI_SLOT_POOL_SIZE entries. When full,
- *          the returned handle has `_priv == NULL` and
- *          RTI_SlotElapsed() on it returns false silently.
- *
+ * @details 该 slot 被调用者独占，直到系统复位；0 = "上次从未见过"，
+ *          冷/热复位后复用此语义。RTI_OpenSlot 必须在 mcu_init 或更早
+ *          调用——若放到 tick() 里调用虽然能工作，但首次 stamp 被浪费。
+
+ *          池共有 RTI_SLOT_POOL_SIZE 个槽位。池满时返回的句柄
+ *          `_priv == NULL`，并对该句柄调用 RTI_SlotElapsed() 安静返回
+ *          false。
  * @param[in]  period  One of RTI_5MS..RTI_1000MS
  *
  * @return  rti_slot_t  Opaque handle; `_priv==NULL` if pool is full.
@@ -116,10 +109,9 @@ rti_slot_t RTI_OpenSlot(rti_period_t period);
  * @brief   Check whether the slot's period has elapsed
  * @brief   检查该 slot 的周期是否到期
  *
- * @details Each call updates the slot's last-fire timestamp
- *          independently. Multiple modules with the same period
- *          each get their own slot and never overwrite each other.
+ * @details 每次调用都会更新该 slot 的 last-fire 时间戳，
  *
+ *          多个模块用同一 period 会各自分到独立 slot，互不覆盖。
  * @param[in,out]  slot  Handle obtained from RTI_OpenSlot.
  *                        NULL or invalid handles return false.
  *
@@ -133,9 +125,9 @@ bool RTI_SlotElapsed(rti_slot_t *slot);
  * @brief   Detect the first call after power-on or RTI_Init
  * @brief   检测上电或 RTI_Init 之后的第一次调用
  *
- * @details Useful for one-shot initialization inside a tick body
- *          without needing a separate `init_done` flag.
+ * @details 在 tick 体内用 `last_ms == 0` 同时承担"上电/复位后的
  *
+ *          首次调用"标记，可省去额外的 `init_done` 标志位。
  * @return  bool
  * @retval  true   First call (run the init branch)
  * @retval  false  Subsequent calls

@@ -17,13 +17,12 @@
 
 #include "sdk_project_config.h"
 
-/* Per-peripheral init helpers - one per app/drv_api/<periph>/.   *
- * Each is declared in drv_api/<periph>/<periph>.h and defined in    *
- * drv_api/<periph>/<periph>.c (the older <periph>_init.c files     *
- * were merged into those .c/.h pairs). */
+/* 每外设 init helper —— 每个对应一个 app/drv_api/<periph>/。
+ * 在 drv_api/<periph>/<periph>.h 中声明，在 drv_api/<periph>/<periph>.c
+ * 中定义（旧的 <periph>_init.c 已合并进这些 .c/.h 配对）。*/
 
-/* Drivers not used in the current build are still listed here so    *
- * that adding a new module only touches this dispatcher. */
+/* 当前构建未用到的驱动也保留在此列表里，
+ * 新增模块只需修改本分发器即可。*/
 
 #include "drv_api/lptmr/lptmr.h"   /* Lptmr_Init (1 kHz RTI tick source)  */
 #include "drv_api/adc/adc.h"       /* Adc_Init (converter config)         */
@@ -36,8 +35,8 @@
 
 #define LOG_NAME  "DRV"
 #include "log.h"
-/* REVIEW: C10 WDG enabled before RTI starts (Phase 4 reorder boot) */
-/* REVIEW: A2 CanIf_Init timing contract fragile (Phase 4 follows C10) */
+/* REVIEW: C10 WDG 在 RTI 启动前已启用 (Phase 4 重排启动顺序) */
+/* REVIEW: A2 CanIf_Init 时序契约较脆弱 (Phase 4 紧随 C10 处理) */
 
 /**
  * @brief   Initialize every peripheral driver
@@ -48,11 +47,9 @@
  */
 c02b2_result_t DRV_Init(void)
 {
-    /* UTILITY_PRINT_Init() is intentionally NOT called here - it
-     * lives in main.c right after BSP_Init so that the LOG_*
-     * markers below are visible from the very first one. */
-    /* Per-peripheral inits - order is significant for the items
-     * noted in each helper's file header. */
+    /* UTILITY_PRINT_Init() 故意不在这里调用 —— 它在 main.c 中紧跟
+     * BSP_Init 之后调用，这样下面第一条 LOG_* 标记就能从最开始可见。*/
+    /* 各外设 init —— 顺序对各项 helper 文件头中标注的依赖关系敏感。*/
     Fpu_Init();
     Lptmr_Init();
     Adc_Init();
