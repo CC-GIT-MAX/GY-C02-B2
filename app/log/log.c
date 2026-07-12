@@ -5,7 +5,7 @@
 #include "log.h"
 #include <stdarg.h>
 #include <stdio.h>
-/* REVIEW: B6 160B 栈缓冲截断无标记（Phase 1 扩展至 192B + ~ 标记） */
+/* Phase 1 / B6: ack. 缓冲 160B->192B + 截断时末尾追加 ~ 标记 (vsnprintf 返回值 >= sizeof(buf) 判定). Marker closed. */
 
 /** @brief  按 log_level_t 索引的单字母级别标签表。 */
 static const char *const k_lvl_str[] = {
