@@ -57,6 +57,16 @@ typedef struct {
 
 static struct {
     bool       init_done;
+    /* Phase 1 / C9: pin the three-array invariant. The RX-local
+     * cache and the ipk->slot map are sized CAN_DB_IPK_RX_COUNT;
+     * the timeout bitmap is sized MAX_RX_TRACKED which must be
+     * at least CAN_DB_IPK_RX_COUNT (the timeout table walks a u8
+     * index that is also a CAN_DB_IPK_RX_COUNT slot). Lock it
+     * here so a future DBC regen that grows RX cannot silently
+     * make the bitmap the bottleneck. */
+#if (MAX_RX_TRACKED < CAN_DB_IPK_RX_COUNT)
+#  error "C9: MAX_RX_TRACKED (96) must be >= CAN_DB_IPK_RX_COUNT; the timeout bitmap indexes by RX slot"
+#endif
     rx_track_t track[MAX_RX_TRACKED];
     rx_raw_cache_t raw[CAN_DB_IPK_RX_COUNT];  /**< most-recent raw frame, RX-local slot */
     u16        rx_ipk_idx[CAN_DB_IPK_RX_COUNT];  /**< map RX-local slot -> ipk index (built in mcu_init) */
@@ -497,3 +507,4 @@ const mod_desc_t mod_can_rx = {
 };
 
 SCHED_REGISTER(mod_can_rx);
+
