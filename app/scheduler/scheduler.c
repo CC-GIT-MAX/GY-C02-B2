@@ -94,6 +94,20 @@ static uint32_t prv_module_count(void)
     return (uint32_t)(sizeof(g_sched_modules) / sizeof(g_sched_modules[0]));
 }
 
+/**
+ * @brief   Scheduler reentry guard (Phase 1 / A6)
+ *
+ * @details Increments on Scheduler_Run entry, decrements on exit.
+ *          A module tick() that calls back into the scheduler (or a
+ *          defer callback that does so) trips the guard. The guard
+ *          hangs in a tight loop so the watchdog fires and resets the
+ *          MCU - a partial walk is worse than a clean reset.
+ *
+ * @note    Baremetal / super-loop: the guard is a plain u8, not a
+ *          counted semaphore. ISR context never calls Scheduler_Run.
+ */
+static volatile uint8_t s_sched_depth = 0u;
+
 #define SCHED_MODS_PTRS (g_sched_modules)
 
 /**
@@ -147,6 +161,12 @@ void Scheduler_OnIgnOn(void)
  */
 void Scheduler_Run(void)
 {
+    /* Phase 1 / A6: reentry guard. */
+    if (s_sched_depth != 0u) {
+        for (;;) { /* WDG will reset */ }
+    }
+    s_sched_depth = 1u;
+
     RTI_DeferTick();
     const uint32_t n = prv_module_count();
     for (uint32_t i = 0; i < n; i++) {
@@ -168,6 +188,7 @@ void Scheduler_Run(void)
         m->tick();
 #endif
     }
+    s_sched_depth = 0u;
 }
 
 /**
