@@ -40,13 +40,20 @@ void Log_Print(log_level_t lvl, const char *mod, const char *fmt, ...)
     LOG_PRINTF("[%s][%s] ", k_lvl_str[lvl], mod);
     va_list ap;
     va_start(ap, fmt);
-    /* Format into a small stack buffer to keep us printf-clean.
-     * 160 bytes is enough for typical cluster log lines. */
+    /* Format into a stack buffer to keep us printf-clean.
+     * Phase 1 / B6: grew from 160 to 192 B (well within the ISR-friendly
+     * stack budget of a Cortex-M33 with 8 KB main stack). vsnprintf
+     * returns the FULL would-be length even when the destination is too
+     * small, so detect truncation as (n >= sizeof(buf)) and append a
+     * trailing "~" so a UART reader can tell the line was clipped. */
     {
-        char buf[160];
+        char buf[192];
         int n = vsnprintf(buf, sizeof(buf), fmt, ap);
         if (n > 0) {
             LOG_PRINTF("%s", buf);
+            if (n >= (int)sizeof(buf)) {
+                LOG_PRINTF("~");
+            }
         }
     }
     va_end(ap);
