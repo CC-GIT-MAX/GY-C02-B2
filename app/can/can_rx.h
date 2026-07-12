@@ -19,11 +19,10 @@ extern const mod_desc_t mod_can_rx;
  * @brief   Copy the most recent raw 8-byte payload of a CAN frame
  * @brief   复制指定 CAN id 最近收到的 8 字节原始 payload
  *
- * @details The RX tick caches the most recent raw frame per IPK CAN id
-          (8-byte payload + dlc, ide/rtr are always 0 in IPK). This API
-          exposes that cache so diag / demo modules can read full bytes
-          without re-decoding every signal.
- *
+ * @details RX tick 按 IPK CAN id 缓存最近收到的原始帧
+          (8 字节 payload + dlc，IPK 中 ide/rtr 始终为 0)。
+          此 API 把缓存暴露出来，使 diag / demo 模块能在不重解
+          每个信号的前提下读取完整字节。 *
  * @param[in]   can_id  IPK RX can_id (11-bit standard)
  * @param[out]  out     Filled on success
  *
