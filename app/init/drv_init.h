@@ -11,10 +11,8 @@
  * @brief   Initialize peripheral drivers (UART, ADC, eTMR, I2C, FLEXCAN, FLASH)
  * @brief   初始化外设驱动（UART、ADC、eTMR、I2C、FLEXCAN、FLASH）
  *
- * @details Must be called after BSP_Init(). The actual driver
- *          handles and configurations are picked up from
- *          board/<driver>_config.c.
- *
+ * @details 必须在 BSP_Init() 之后调用。实际驱动句柄与配置
+ *          从 board/<driver>_config.c 中读取。 *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  All drivers initialized
  */
