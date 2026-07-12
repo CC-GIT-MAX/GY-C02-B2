@@ -23,8 +23,27 @@
 
 #define LOG_NAME  "CTX "
 #include "log.h"
-/* REVIEW: A4 s_tx.send_lock is a placeholder without real lock (Phase 2 add ISR reentry assert) */
-/* REVIEW: B4 CanTx_RebuildFromSignals full rebuild every call (Phase 2) */
+/* A4: ack: s_tx.send_lock is no longer present in the struct - it was
+ * removed when the TX path switched to CanTx_EncodeSignal (per-signal)
+ * + s_tx.track[].pending flag (per-cycle gating). With those two the
+ * only writers of s_tx.payloads[] are main-context CanTx_PreparePayload,
+ * CanTx_EncodeSignal, CanTx_ResetPayload, CanTx_SetCycle and the cyclic
+ * prv_send_cyclic() sweep - none of which runs in ISR. If a future port
+ * tries to shove any of them into ISR, add a __disable_irq() / __set_PRIMASK
+ * guard here and re-enable A4 with a real locking primitive.
+ * Marker closed in Phase 2 without code change.
+ */
+/* B4: ack: CanTx_RebuildFromSignals has no hot-path caller today. The
+ * only declared users are demo / unit tests; business modules (mod_power,
+ * mod_meter, ...) write through the per-signal CanTx_EncodeSignal()
+ * which avoids the full reset. Keep "reset + repack" as the documented
+ * semantic ("snapshot of every signal in this message at call time"),
+ * but treat the 8-byte zero + sig-by-sig repack as a one-shot rebuild
+ * cost (O(msg->sig_count) <= 30 on the IPK DBC today). If a future driver
+ * ever wants to call RebuildFromSignals from a 5 ms tick, replace the
+ * body with a "mark all bits dirty + lazy repack at next trigger"
+ * scheduler. Marker closed in Phase 2 without code change.
+ */
 
 /* Caller-private RTI slot for 10ms sweep gate. */
 static rti_slot_t s_slot_sweep_10ms;
