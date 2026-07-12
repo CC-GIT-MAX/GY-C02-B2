@@ -63,8 +63,7 @@ c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
 c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw);
 
 /**
- * @brief   Rebuild a TX payload from every signal of that message,
- *          reading current signal-bus values via Signal_Get().
+ * @brief   Rebuild a TX payload from every signal via Signal_Get()
  * @brief   从 signal bus 重新读所有信号, 全量重建一条 TX 报文的 payload
  *
  * @details 对 payload 完全由 bus 状态派生的循环帧很方便
