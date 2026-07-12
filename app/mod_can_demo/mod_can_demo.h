@@ -3,25 +3,22 @@
  * @brief   Demo / bring-up module that exercises the full CAN stack
  * @brief   演练完整 CAN 栈的 demo / 联调模块
  *
- * @details Exercises every layer end-to-end on a 1 s cadence:
-          - signal-bus read   (Signal_Get on a few IPK signals)
-          - timeout-bitmap    (decode SIG_CAN_RX_TIMEOUT_MAP bits back to CAN id)
-          - raw frame cache   (CanRx_GetLastRawFrame for a chosen ID)
-          - TX whole payload  (CanTx_PreparePayload + CanTx_Trigger)
-          - TX one signal     (CanTx_EncodeSignal + CanTx_Trigger)
-          - raw <-> physical  (CanDb_PackSignal / DecodeSignal /
-                               EncodeSignalValue on EMS_EngineSpeedRPM
-                               and ESC_VehicleSpeed)
+ * @details 每秒一个周期，端到端跑遍所有层：
+          - 信号总线读    (在几个 IPK 信号上调用 Signal_Get)
+          - 超时位图      (将 SIG_CAN_RX_TIMEOUT_MAP 的位反向解码为 CAN id)
+          - 原始帧缓存    (对指定 ID 调用 CanRx_GetLastRawFrame)
+          - 整帧 TX      (CanTx_PreparePayload + CanTx_Trigger)
+          - 单信号 TX    (CanTx_EncodeSignal + CanTx_Trigger)
+          - raw 与物理量互转 (CanDb_PackSignal / DecodeSignal /
+                               EncodeSignalValue，作用于 EMS_EngineSpeedRPM
+                               和 ESC_VehicleSpeed)
  *
- * The TX ids are from the IPK DBC only (CAN_DB_IPK_TX_COUNT entries);
- * the raw read is one of the IPK RX ids.  No full DBC import is needed
- * to run this.
+ * TX id 仅取自 IPK DBC (CAN_DB_IPK_TX_COUNT 项)；
+ * raw 读是 IPK 的一个 RX id。运行此 demo 不需要导入完整 DBC。
  *
- * Compile-time switch (see mod_can_demo.c):
- *   MOD_CAN_DEMO_EN = 0 (default) - module descriptor registered but
- *                                  tick is a no-op.
- *   MOD_CAN_DEMO_EN = 1            - all six demos fire every 1 s.
- */
+ * 编译期开关（详见 mod_can_demo.c）：
+ *   MOD_CAN_DEMO_EN = 0（默认）——模块描述符已注册，tick 为 no-op。
+ *   MOD_CAN_DEMO_EN = 1         ——六个 demo 每秒全部触发。 */
 #ifndef C02B2_MOD_CAN_DEMO_H
 #define C02B2_MOD_CAN_DEMO_H
 
