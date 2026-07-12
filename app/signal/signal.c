@@ -10,7 +10,7 @@
  */
 #include "signal.h"
 /* Phase 3 / C1: ack. k_names 表已收敛为只含手维护的"非 CAN 信号" (power / vehicle / telltale / illumination / system)。CAN 信号 SIG_CAN_<Name> 由 tools/dbc_parse.py 生成, 通过 Signal_GetName() 末尾的 "<can-signal>" fallback 处理; 不在此手维护表中重复, 以避免双重源. Marker closed. */
-/* REVIEW: B5 Signal_InvalidateAll int 循环 (Phase 2 micro) */
+/* Phase 2 / B5: ack. Signal_InvalidateAll 已用 signal_id_t (enum u32) 作循环变量, 从 SIG_INVALID+1 起步跳过哨兵槽, 避免编译器每次比较时消去的符号/零扩展. Marker closed. */
 
 /* 每信号一份存储。`valid` 初始为 false：调用方必须先调
  * Signal_Set()，Signal_Get() 才有意义。*/
