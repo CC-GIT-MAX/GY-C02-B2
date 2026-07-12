@@ -9,7 +9,7 @@
 #include "uart.h"
 #include "sdk_project_config.h"
 
-#define LOG_NAME  "UAR"
+#define MOD_NAME  "UAR"
 #include "log.h"
 
 c02b2_result_t Uart_Init(void)

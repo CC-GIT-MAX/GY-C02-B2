@@ -26,7 +26,7 @@ extern const mod_desc_t mod_can_tx;
 extern const mod_desc_t mod_can_demo;
 extern const mod_desc_t mod_rti_demo;
 
-#define LOG_NAME  "SCH"
+#define MOD_NAME  "SCH"
 #include "log.h"
 /* REVIEW: C5 g_sched_modules[] + 5 个 extern 声明双重源 (Phase 3 改用 __sched_modules section) */
 /* Phase 1 / A6: ack. Scheduler_Run 入口 s_sched_depth != 0 自旋 + WDG 重启守卫已在实现. Marker closed. */

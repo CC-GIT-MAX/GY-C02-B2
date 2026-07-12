@@ -9,7 +9,7 @@
 #include "etmr.h"
 #include "sdk_project_config.h"
 
-#define LOG_NAME  "ETM"
+#define MOD_NAME  "ETM"
 #include "log.h"
 
 c02b2_result_t Etmr_Init(void)

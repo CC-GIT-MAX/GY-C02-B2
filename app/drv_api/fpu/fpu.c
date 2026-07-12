@@ -18,7 +18,7 @@
 #include "fpu.h"
 #include "sdk_project_config.h"  /* CIM, IPC, SCB via device_registers.h; NVIC via core_cm33.h */
 
-#define LOG_NAME  "FPU"
+#define MOD_NAME  "FPU"
 #include "log.h"
 
 /* 累计异常计数器 —— 在 FPU ISR 内递增，

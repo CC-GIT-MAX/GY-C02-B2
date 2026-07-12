@@ -14,7 +14,7 @@
 #include "rti.h"
 #include "signal.h"
 
-#define LOG_NAME  "TPL"
+#define MOD_NAME  "TPL"
 #include "log.h"
 
 /* Caller-private RTI slots (replaces shared RTI_IsElapsed via RTI slot API). */

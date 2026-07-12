@@ -33,7 +33,7 @@
 #include "drv_api/fpu/fpu.h"       /* Fpu_Init (CPACR + IPC + FPUIE)      */
 #include "drv_api/flash/flash.h"   /* Flash_Init (used by app/storage/kv) */
 
-#define LOG_NAME  "DRV"
+#define MOD_NAME  "DRV"
 #include "log.h"
 /* REVIEW: C10 WDG 在 RTI 启动前已启用 (Phase 4 重排启动顺序) */
 /* REVIEW: A2 CanIf_Init 时序契约较脆弱 (Phase 4 紧随 C10 处理) */

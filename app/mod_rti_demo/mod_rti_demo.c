@@ -14,7 +14,7 @@
 #include "mod_rti_demo.h"
 #include "rti.h"
 
-#define LOG_NAME  "RTID"
+#define MOD_NAME  "RTID"
 #include "log.h"
 
 /* 编译期开关：MOD_RTI_DEMO_EN

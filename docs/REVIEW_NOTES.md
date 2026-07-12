@@ -64,7 +64,7 @@
 | C4 | `app/can/can_db.c` | `s_dbc_to_bus` 标生成但实手维护 | 3 |
 | C5 | `app/scheduler/scheduler.c` | `g_sched_modules[]` + 5 extern 双重源 | 3 |
 | C6 | `app/can/can_if.c` | volatile Pa082 workaround 跨工具链脆 | 2(随 A1) |
-| C7 | `app/log/log.h` | `MOD_NAME` vs `LOG_NAME` 命名检查 | 1(只验证) |
+| C7 | `app/log/log.h` | `MOD_NAME` vs `LOG_NAME` 命名检查 | 1(只验证) | `[x]` Phase 1 / A-2.5: 21 .c 文件 `#define LOG_NAME` -> `#define MOD_NAME`; log.h 兼容 LOG_NAME 作遗留别名 |
 | C8 | 跨模块 | commit emoji 风格 | 不动 |
 | C9 | `app/can/can_rx.c` | 三数组三种语义无 `static_assert` | 1 | [x] Phase 1 / A-2.5
 | C10 | `app/init/bsp_init.c` + `main.c` | WDG 在 RTI 之前使能 | 4 |

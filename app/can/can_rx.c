@@ -19,7 +19,7 @@
 #include "rti.h"
 #include "signal.h"
 
-#define LOG_NAME  "CRX "
+#define MOD_NAME  "CRX "
 #include "log.h"
 /* REVIEW: C3 g_can_rx_timeout_table 标为 AUTOGEN 但实际手维护，Phase 3 移至 gen_ipk_runtime */
 /* Phase 1 / C9: ack. 三数组 (track / raw / rx_ipk_idx) 不变量已以 #error 静态断言形式锁死 (MAX_RX_TRACKED >= CAN_DB_IPK_RX_COUNT). 替代 static_assert (因 _Static_assert 在 -std=c11 之外的 IAR 默认模式未启用). Marker closed. */

@@ -6,7 +6,7 @@
 #include "wdg.h"
 #include "sdk_project_config.h"
 
-#define LOG_NAME  "WDG"
+#define MOD_NAME  "WDG"
 #include "log.h"
 
 c02b2_result_t Wdg_Init(void)

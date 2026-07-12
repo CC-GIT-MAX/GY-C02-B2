@@ -18,7 +18,7 @@
 #include "flexcan_driver.h"
 #include "interrupt_manager.h"
 
-#define LOG_NAME  "CIF "
+#define MOD_NAME  "CIF "
 #include "log.h"
 #include "signal.h"
 #include "can_db.h"           /* extern can_msg_descs_ipk[]                   */

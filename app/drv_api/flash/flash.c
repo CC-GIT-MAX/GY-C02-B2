@@ -9,7 +9,7 @@
 #include "flash.h"
 #include "sdk_project_config.h"
 
-#define LOG_NAME  "FLA"
+#define MOD_NAME  "FLA"
 #include "log.h"
 
 c02b2_result_t Flash_Init(void)

@@ -23,7 +23,7 @@
  */
 #include "can_db_codec.h"
 
-#define LOG_NAME  "CDBC"
+#define MOD_NAME  "CDBC"
 #include "log.h"
 
 /* ---------------------------------------------------------------- *

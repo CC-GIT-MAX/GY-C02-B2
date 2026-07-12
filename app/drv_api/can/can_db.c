@@ -12,7 +12,7 @@
 #include "can_db.h"
 #include "signal.h"
 
-#define LOG_NAME  "CDB "
+#define MOD_NAME  "CDB "
 #include "log.h"
 
 #include "can_db_ipk_gen.h"

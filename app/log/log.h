@@ -32,8 +32,15 @@ typedef enum {
   #define LOG_LEVEL  LOG_LVL_INFO
 #endif
 
+/* MOD_NAME is the canonical module tag. The legacy LOG_NAME alias
+ * is accepted for backward compatibility but only honored when
+ * MOD_NAME is not defined by the including translation unit. */
 #ifndef MOD_NAME
-  #define MOD_NAME  "APP"
+  #ifdef LOG_NAME
+    #define MOD_NAME  LOG_NAME
+  #else
+    #define MOD_NAME  "APP"
+  #endif
 #endif
 
 #ifndef LOG_PRINTF

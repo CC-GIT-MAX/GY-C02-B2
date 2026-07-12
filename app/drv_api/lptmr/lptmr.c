@@ -9,7 +9,7 @@
 #include "lptmr.h"
 #include "sdk_project_config.h"
 
-#define LOG_NAME  "LPT"
+#define MOD_NAME  "LPT"
 #include "log.h"
 
 c02b2_result_t Lptmr_Init(void)

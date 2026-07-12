@@ -6,7 +6,7 @@
 
 #include "sdk_project_config.h"
 
-#define LOG_NAME  "BSP"
+#define MOD_NAME  "BSP"
 #include "log.h"
 
 /**

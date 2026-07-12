@@ -18,8 +18,8 @@
 #include "drv_api/rti_defer/rti_defer.h"
 #include "osif.h"
 #include "wdg_hw_access.h"
-/* 审查: A7 RTI_SlotElapsed wrap-around 未文档化(Phase 1) */
-/* 审查: C7 LOG_NAME vs MOD_NAME 命名一致性(Phase 1 仅校验) */
+/* A7 ack: 见 RTI_SlotElapsed() @note 段。Marker closed. */
+/* Phase 1 / C7: ack. 所有 .c 文件已迁移到 #define MOD_NAME 命名; log.h 仍兼容 LOG_NAME 作为遗留别名 (仅当 MOD_NAME 未定义时生效). Marker closed. */
 
 /**
  * @brief   Internal slot descriptor

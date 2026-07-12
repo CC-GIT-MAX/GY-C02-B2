@@ -9,7 +9,7 @@
 #include "adc.h"
 #include "sdk_project_config.h"
 
-#define LOG_NAME  "ADC"
+#define MOD_NAME  "ADC"
 #include "log.h"
 
 c02b2_result_t Adc_Init(void)

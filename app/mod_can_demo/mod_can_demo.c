@@ -27,7 +27,7 @@
 #include "can_db_ipk_gen.h"    /* CAN_DB_IPK_*_COUNT, signal enum            */
 #include "drv_api/can/can_if.h"/* can_msg_t                                  */
 
-#define LOG_NAME  "CDEM"
+#define MOD_NAME  "CDEM"
 #include "log.h"
 
 /* 编译期开关：MOD_CAN_DEMO_EN

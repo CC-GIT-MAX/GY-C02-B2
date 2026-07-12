@@ -21,7 +21,7 @@
 #include "osif.h"
 #include "signal.h"
 
-#define LOG_NAME  "CTX "
+#define MOD_NAME  "CTX "
 #include "log.h"
 /* A4: ack: s_tx.send_lock is no longer present in the struct - it was
  * removed when the TX path switched to CanTx_EncodeSignal (per-signal)

@@ -7,7 +7,7 @@
  */
 #include "kv.h"
 
-#define LOG_NAME  "KV "
+#define MOD_NAME  "KV "
 #include "log.h"
 
 /**
