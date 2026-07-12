@@ -68,6 +68,11 @@ typedef void (*can_rx_cb_t)(const can_msg_t *msg);
  *          本函数刻意保持轻量，可重复调用而无需重新
  *          启动控制器。
  *
+ * @note    Phase 4 / A2 时序契约：可从 BSP / DRV / RTI / Scheduler_Init
+ *          任何阶段调用（包括 main.c 主循环之前）；多次调用仅
+ *          重置 RX ring。s_if_inited 标记保证幂等。不依赖 FlexCAN
+ *          硬件启动顺序 —— Can_Init() 之后调或之前调都不破坏状态。
+ *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Ring buffer reset (always succeeds)
  */

@@ -30,7 +30,7 @@
 /* Phase 2 / C6: ack. Pa082 兜底已通过 "每个 volatile 字段恰好访问一次" 规避 (prv_ring_pop 内 head/tail 快照到本地后再 DMB)。Marker closed. */
 /* Phase 1 / A5: ack. CanIf_Send 内已实现日志去重 + 冷却窗口 (s_tx_busy_warn_ms[] + CAN_TX_BUSY_WARN_COOLDOWN_MS). Marker closed. */
 /* Phase 1 / A10 + B7: ack. CAN_RX_FILTER_ELEMS_PUBLIC/PRIVATE 已常量化 (RFFN=8->72, RFFN=6->56), #error 锁死 7+RFFN*2 不变量. Marker closed. */
-/* REVIEW: A2 CanIf_Init 时序契约脆弱（Phase 4 增加 ready 门控） */
+/* Phase 4 / A2: CanIf_Init 时序契约 — s_if_inited flag + 可重复调用语义已实现。可在 BSP/DRV/RTI/Scheduler_Init 任何阶段调用；多次调用仅重置 RX ring。详见 CanIf_Init() @note. Marker closed. */
 
 /* -------------------------------------------------------------------- *
  *  Compile-time sizing
