@@ -34,7 +34,7 @@
 | ID | 位置 | 摘要 | Phase |
 |---|---|---|---|
 | A1 | `app/can/can_if.c` | SPSC ring 内存序未强化,跨核会破 | 2 | `[x]` Phase 2 / A-2: 成对 __DMB() 屏障已在 prv_ring_push/pop 实现。中性 spsc 头抽取决议保留现状 |
-| A2 | `app/can/can_if.c` | `CanIf_Init` 时序契约脆 | 4 |
+| A2 | `app/can/can_if.c` | `CanIf_Init` 时序契约脆 | 4 | `[x]` Phase 4 / A-4: s_if_inited flag + 可重复调用语义已落地；can_if.h CanIf_Init() @note 段明确时序契约 |
 | A3 | `app/can/can_rx.c` | 5/50ms 私有 slot 在 ISR/main 共享无屏障 | 2 | `[x]` Phase 2 / A-2: 单一 u32 volatile counter + 单核无 D-cache 下已足够；future D-cache / SMP 移植补 __DMB() (can_rx.c 内嵌注释说明) |
 | A4 | `app/can/can_tx.c` | `s_tx.send_lock` 占位无真锁 | 2 | `[x]` Phase 2 / A-2: s_tx.send_lock 字段已从 struct 中移除，TX 路径切到 per-signal CanTx_EncodeSignal (can_tx.c 内嵌 A4 ack 注释) |
 | A5 | `app/can/can_if.c` | `CanIf_Send` 错误日志未去重,bus-off 风暴刷屏 | 1 | `[x]` Phase 1 / A-2.5: `CanIf_Send()` 内已实现日志去重 + 冷却窗口 |
@@ -69,7 +69,7 @@
 | C7 | `app/log/log.h` | `MOD_NAME` vs `LOG_NAME` 命名检查 | 1(只验证) | `[x]` Phase 1 / A-2.5: 21 .c 文件 `#define LOG_NAME` -> `#define MOD_NAME`; log.h 兼容 LOG_NAME 作遗留别名 |
 | C8 | 跨模块 | commit emoji 风格 | 不动 |
 | C9 | `app/can/can_rx.c` | 三数组三种语义无 `static_assert` | 1 | [x] Phase 1 / A-2.5
-| C10 | `app/init/bsp_init.c` + `main.c` | WDG 在 RTI 之前使能 | 4 |
+| C10 | `app/init/bsp_init.c` + `main.c` | WDG 在 RTI 之前使能 | 4 | `[~]` Phase 4 / A-4: 决议保留 BSP 阶段早启用（设计意图：早期 hang 保护）。WDG 喂狗窗口宽到覆盖 RTI 启动路径 |
 
 ## 3. Phase 计划
 
