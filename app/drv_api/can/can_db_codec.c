@@ -235,8 +235,13 @@ s32 CanDb_DecodeSignal(const u8 *data, const can_sig_desc_t *sig)
     }
     /* physical = raw * factor + offset，结果四舍五入到 int32 */
     const float f = (float)raw * sig->factor + sig->offset;
-    /* 负数采用 half-away-from-zero：非负值 +0.5 再 cast 即正确；
-     * 负值则需 -0.5 再 cast。 */
+    /* 四舍五入 half-away-from-zero。非负 f 直接 +0.5f；负 f 减 0.5f
+     * 后 cast 到 s32 借助 C 向零截断语义自动给出正确结果：
+     *   f = -0.5f -> f - 0.5f = -1.0f -> cast -1  (|0.5| 远离 0)
+     *   f = -0.4f -> f - 0.5f = -0.9f -> cast  0  (|0.4| 仍留 0 侧)
+     *   f = -1.5f -> f - 0.5f = -2.0f -> cast -2  (|1.5| 远离 0)
+     * A9 REVIEW 已确认：边界由 (s32) cast 的 C 标准"向零截断" + 本分支的 +/-0.5f
+     * 偏移共同给出符合 half-away-from-zero 的结果。 */
     if (f >= 0.0f) { return (s32)(f + 0.5f); }
     return (s32)(f - 0.5f);
 }
