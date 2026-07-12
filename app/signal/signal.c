@@ -214,8 +214,14 @@ void Signal_Invalidate(signal_id_t id)
  */
 void Signal_InvalidateAll(void)
 {
-    /* Linear walk is fine: SIG_MAX is small (< 100). */
-    for (int i = 0; i < SIG_MAX; i++) {
+    /* Phase 2 / B5: walk with signal_id_t (enum u32) to remove the
+     * int-vs-unsigned promotion on every iteration; the explicit
+     * start at SIG_INVALID+1 skips the SIG_INVALID sentinel slot.
+     * Cost is the same (still N stores) but the loop counter is
+     * sized to the underlying enum, avoiding a sign/zero-extend
+     * in each comparison the compiler has to elide otherwise.
+     */
+    for (signal_id_t i = (signal_id_t)(SIG_INVALID + 1); i < SIG_MAX; i = (signal_id_t)(i + 1u)) {
         s_signals[i].valid = false;
     }
 }
