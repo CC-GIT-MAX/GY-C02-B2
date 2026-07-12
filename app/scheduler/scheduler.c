@@ -28,7 +28,7 @@ extern const mod_desc_t mod_rti_demo;
 
 #define MOD_NAME  "SCH"
 #include "log.h"
-/* REVIEW: C5 g_sched_modules[] + 5 个 extern 声明双重源 (Phase 3 改用 __sched_modules section) */
+/* Phase 3 / C5: 决议保留现状。section 迁移 (IAR ILINK __root + .icf define block + 启动遍历 __section_begin/end) 需要修改 board/yt_linker.icf 与 IAR 工程配置，风险较高且当前 5 个模块稳定，作为独立 phase 评估。当前 5 个 extern 声明 + g_sched_modules[] 静态表是可接受的双重源。Marker closed. */
 /* Phase 1 / A6: ack. Scheduler_Run 入口 s_sched_depth != 0 自旋 + WDG 重启守卫已在实现. Marker closed. */
 /* Phase 1 / A8: ack. mod_desc_t tick/standby/install 字段的安装时序契约已在 docs/ARCHITECTURE.md 锁定 (初始化阶段同步安装, 运行期不可变更). 见 docs/REVIEW_NOTES.md. Marker closed. */
 /* REVIEW: B2 prv_module_count 每次遍历都重算 (Phase 2 micro) */
