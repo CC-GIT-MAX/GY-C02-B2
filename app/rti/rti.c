@@ -102,6 +102,12 @@ rti_slot_t RTI_OpenSlot(rti_period_t period)
 /**
  * @brief   Check whether the slot's period has elapsed
  * @brief   检查该 slot 的周期是否到期
+ * @note    Phase 1 / A7: 32-bit wrap-around. OSIF_GetMilliseconds
+ *          is a u32 counter that wraps at ~49.7 days. The
+ *          (now - s->last_ms) >= s->period test relies on unsigned
+ *          wrap to stay correct across the boundary, so no special
+ *          case is needed. This note exists so reviewers do not
+ *          'fix' it later by switching to signed subtraction.
  */
 bool RTI_SlotElapsed(rti_slot_t *slot)
 {
