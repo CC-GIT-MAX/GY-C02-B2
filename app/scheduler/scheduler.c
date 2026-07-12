@@ -29,8 +29,8 @@ extern const mod_desc_t mod_rti_demo;
 #define LOG_NAME  "SCH"
 #include "log.h"
 /* REVIEW: C5 g_sched_modules[] + 5 个 extern 声明双重源 (Phase 3 改用 __sched_modules section) */
-/* REVIEW: A6 Scheduler_Run 无重入断言 (Phase 1) */
-/* REVIEW: A8 回调安装时序契约未文档化 (仅 Phase 1 文档) */
+/* Phase 1 / A6: ack. Scheduler_Run 入口 s_sched_depth != 0 自旋 + WDG 重启守卫已在实现. Marker closed. */
+/* Phase 1 / A8: ack. mod_desc_t tick/standby/install 字段的安装时序契约已在 docs/ARCHITECTURE.md 锁定 (初始化阶段同步安装, 运行期不可变更). 见 docs/REVIEW_NOTES.md. Marker closed. */
 /* REVIEW: B2 prv_module_count 每次遍历都重算 (Phase 2 micro) */
 
 #if SCHED_BUDGET_EN
