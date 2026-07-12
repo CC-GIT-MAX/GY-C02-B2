@@ -16,7 +16,7 @@
 #include "log.h"
 
 #include "can_db_ipk_gen.h"
-/* REVIEW: C4 s_dbc_to_bus 标为 generated 但实际手维护 (Phase 3 移至 gen_ipk_runtime) */
+/* Phase 3 / C4: ack. s_dbc_to_bus[] 是手维护映射表（不是 AUTOGEN）。表上方注释已说明工具尚未落地（gen_can_db_map.py / gen_ipk_runtime.py 路线）。Marker closed. */
 /* REVIEW: A9 half-away-from-zero 负数边界情况 (Phase 3 紧随 codec) */
 
 /* ---------------------------------------------------------------- *
@@ -40,7 +40,7 @@
  *  do not share a guaranteed ordering -- signal.h carries pre-       *
  *  existing legacy ids (SIG_CAN_RX_TIMEOUT_*) that the DBC does     *
  *  not know about.  This table is built by reading both enums at    *
- *  generator time (see gen_can_db_map.py in the next batch) and     *
+ *  generator time (see tools/gen_can_db_map.py — pending) and       *
  *  gives O(1) lookup at runtime.                                     *
  * ---------------------------------------------------------------- */
 
