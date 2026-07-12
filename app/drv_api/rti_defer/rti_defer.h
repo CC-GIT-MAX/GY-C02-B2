@@ -2,17 +2,15 @@
  * @file    rti_defer.h
  * @brief   One-shot deferred execution on the RTI tick
  *
- * Modules that need to run a piece of code "N milliseconds from
- * now" without busy-waiting use this API:
+ * 需要在"N 毫秒后"执行一段代码而又不想忙等的模块使用本 API：
  *
- *   - RTI_Defer(ms, cb, ctx)  registers a one-shot callback
- *   - RTI_DeferCancel(cb, ctx) cancels a still-pending slot
- *   - RTI_DeferTick() is invoked once per super-loop iteration
- *     (Scheduler_Run() does this) and dispatches any slot whose
- *     deadline has been reached.
+ *   - RTI_Defer(ms, cb, ctx)  注册一次性回调
+ *   - RTI_DeferCancel(cb, ctx) 取消尚未触发的槽位
+ *   - RTI_DeferTick() 在每次超循环迭代中调用一次
+ *     （Scheduler_Run() 负责调用），分发所有已到期的槽位。
  *
- * The implementation owns a fixed pool of 8 slots - no malloc,
- * no ISR context, no priority inheritance. Good enough for
+ * 实现内部固定拥有 8 个槽位 —— 无 malloc、不在 ISR 上下文、
+ * 无优先级继承。 Good enough for
  * ignition debouncing, "send then check ACK 50 ms later",
  * power-mode cool-down, etc.
  *
@@ -46,14 +44,13 @@ typedef void (*rti_defer_cb_t)(void *ctx);
  * @brief   Register a one-shot callback to fire `delay_ms` from now
  * @brief   注册一个延后 `delay_ms` 毫秒后触发的一次性回调
  *
- * @details The slot is occupied from the call until the callback
- *          fires (or it is explicitly cancelled). A subsequent
- *          call with the same (cb, ctx) tuple REPLACES the
- *          deadline - useful for "debounce by re-arming".
+ * @details 槽位从调用起被占用，直到回调触发
+ *          （或被显式取消）为止。使用相同 (cb, ctx)
+ *          元组的连续调用会替换 deadline ——
+ *          便于"通过再注册实现去抖"。
  *
- *          delay_ms is interpreted as a u32 monotonic delta
- *          against RTI_GetTick1ms(); values that would overflow
- *          the u32 are clamped to 0xFFFFFFFF.
+ *          delay_ms 被解读为相对 RTI_GetTick1ms() 的
+ *          u32 单调增量；可能溢出 u32 的值会被钳制为 0xFFFFFFFF。
  *
  * @param[in]  delay_ms  Milliseconds from now (0 = fire on the
  *                       next RTI_DeferTick())
@@ -74,8 +71,8 @@ c02b2_result_t RTI_Defer(uint32_t delay_ms, rti_defer_cb_t cb, void *ctx);
  * @brief   Cancel a pending callback
  * @brief   取消一个尚未触发的回调
  *
- * @details Scans the pool for a slot whose (cb, ctx) matches and
- *          marks it free. No-op if nothing matches.
+ * @details 在池中查找 (cb, ctx) 匹配的槽位并置为空。
+ *          无匹配时为 no-op。
  *
  * @param[in]  cb   Callback that was passed to RTI_Defer
  * @param[in]  ctx  Context that was passed to RTI_Defer
@@ -91,14 +88,13 @@ c02b2_result_t RTI_DeferCancel(rti_defer_cb_t cb, void *ctx);
  * @brief   Dispatch any callbacks whose deadline has elapsed
  * @brief   分发所有已到期的回调
  *
- * @details Called from Scheduler_Run() once per super-loop tick.
- *          For each fired slot: the slot is marked free BEFORE
- *          the callback runs, so a re-entrant RTI_Defer() call
- *          from inside the callback gets a free slot and the new
- *          deadline is observed in the same tick.
+ * @details 由 Scheduler_Run() 在每次超循环 tick 中调用一次。
+ *          对每个触发的槽位：在回调执行前将其置为空，
+ *          这样回调内部重入的 RTI_Defer() 调用即可获得空闲槽位，
+ *          新 deadline 将在同一 tick 内被观察到。
  *
- *          CB execution order is slot index order (lowest first).
- *          No callback is called from ISR context.
+ *          回调执行顺序为槽位下标升序（下标最小者先执行）。
+ *          不会在 ISR 上下文调用任何回调。
  */
 void RTI_DeferTick(void);
 
@@ -106,9 +102,8 @@ void RTI_DeferTick(void);
  * @brief   Reset the deferred-callback pool (cold-boot helper)
  * @brief   重置延后回调池（冷启动辅助）
  *
- * @details Called from RTI_Init() to clear any stale entries
- *          left over from a warm boot. Safe to call when the
- *          pool is already empty.
+ * @details 由 RTI_Init() 调用，用于清空热启动后遗留的
+ *          陈旧条目。池为空时调用也是安全的。
  */
 void RTI_DeferInit(void);
 
