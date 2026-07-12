@@ -3,8 +3,8 @@
  * @brief   I2C peripheral driver implementation
  * @brief   I2C 外设驱动实现
  *
- * Module-level bring-up + (future) common-use helpers live here.
- * Replaces the older app/drv_api/i2c/i2c_init.c.
+ * 模块级初始化以及（未来可能新增的）公共辅助函数均在本文件实现。
+ * 取代了较早的 app/drv_api/i2c/i2c_init.c。
  */
 #include "i2c.h"
 #include "sdk_project_config.h"
