@@ -1,18 +1,31 @@
 /**
  * @file    signal.h
- * @brief   Central signal bus for inter-module communication
+ * @brief   CAN signal bus: storage and accessors for CAN-derived values
+ * @brief   CAN 信号总线：CAN 报文解码值的存储与访问
  *
- * Modules do NOT exchange data via extern globals. They publish/consume
- * through Signal_Set / Signal_Get. This keeps ownership clear and makes
- * modules individually testable.
+ * @details v0.3 refactor: signal 总线**只**承担 CAN 相关数据的传递，三件套接口
+ *          (Signal_Get / Signal_GetStored / Signal_IsValid) 区分两种语义：
+ *   1. Signal_Set / Signal_Get
+ *        写入并按 valid 标志返回；超时 / 未收 / 越界一律回 0；
+ *   2. Signal_GetStored
+ *        强制返回最后一次 Signal_Set 写入的存储值（不看 valid），
+ *        用于仪表降级显示或首屏兜底；
+ *   3. Signal_IsValid
+ *        true 当且仅当 槽位 valid 置位 且曾经被 Signal_Set 过一次；
+ *   4. Signal_Invalidate / Signal_InvalidateAll
+ *        超时驱动路径：app/can/can_rx.c 50ms tick 在 OK→TIMED_OUT 边沿逐个
+ *        把该消息携带的 signal 设为无效。
  *
- * Signals are statically enumerated; no dynamic registration.
+ * bus 仅承载 CAN 派生数据；任何业务数据（结构体 / 数组 / 标量）请直接使用
+ * 模块自有或共享的 extern 全局变量，不再有必须走 signal 的硬性要求。
  *
  * Values published via Signal_Set are RAW u32 (unsigned 32-bit).
  * To get a physical quantity, call CanDb_DecodeSignal(raw, signal_desc)
  * (see app/drv_api/can/can_db_codec.h). Direct user-code cast to s32 is
  * acceptable for DBC `+` (unsigned) signals where the raw value already
  * fits in u32; for DBC `-` (signed) signals you MUST call CanDb_DecodeSignal.
+ *
+ * Signals are statically enumerated; no dynamic registration.
  */
 #ifndef C02B2_SIGNAL_H
 #define C02B2_SIGNAL_H
@@ -24,106 +37,17 @@ typedef enum {
     SIG_INVALID = 0,
 
     /* ---------------------------------------------------------------- *
-     *  Power / ignition                                                *
+     *  CAN RX timeout bitmap (per message index, 96 slots / 3 words)   *
      *                                                                    *
-     *  LEGACY: kept for ABI/source compatibility with the hand-written  *
-     *  CAN samples from earlier iterations.  The current DBC (IPK node) *
-     *  does NOT publish any power-domain signal on CAN; if power         *
-     *  management ever needs CAN-driven hints, prefer adding new        *
-     *  SIG_PWR_CAN_* ids rather than overloading these.                  *
-     * ---------------------------------------------------------------- */
-    SIG_IGN_ON,            /* bool, 1 = KL15 on                       */
-    SIG_ACC_ON,            /* bool, 1 = ACC on                        */
-    SIG_KL30_VOLTAGE_MV,   /* u32 raw, KL30 voltage in mV               */
-    SIG_PWR_MODE,          /* u32 raw, see pwr_mode_t                   */
-    SIG_GC_POWER_ON,       /* bool                                    */
-    SIG_IGN_OFF_COUNTER,   /* u32 raw, ticks since IGN off              */
-    SIG_SLEEP_READY,       /* bool, all modules allow sleep           */
-
-    /* ---------------------------------------------------------------- *
-     *  Vehicle                                                         *
+     *  Published by app/can/can_rx.c::prv_check_timeouts() at 50 ms    *
+     *  ticks.  bit-N is per-CAN-ID via the Sentinel strategy           *
+     *  (s_bit_to_can_id[]). Use app/can/can_rx.c public helpers         *
+     *  (CanRx_IsMsgTimedOut / CanRx_GetMsgFreshness) for per-id reads  *
+     *  rather than poking these bits directly.                         *
      *                                                                    *
-     *  LEGACY: names and units here do not match the IPK DBC (which      *
-     *  uses e.g. ESC_VehicleSpeed, EMS_EngineSpeedRPM, EMS_Real_         *
-     *  PedalPosition).  New modules should read SIG_CAN_<Name> below     *
-     *  instead of these legacy ids.                                      *
-     * ---------------------------------------------------------------- */
-    SIG_VEH_SPEED_KPH_X10, /* u32 raw, 0.1 kph                          */
-    SIG_ENG_RPM,           /* u32 raw, rpm                              */
-    SIG_FUEL_LEVEL_PCT,    /* u32 raw, 0..100                           */
-    SIG_COOLANT_TEMP_C,    /* u32 raw, degC                             */
-    SIG_ODO_TOTAL_M,       /* u32 raw, total odometer in meters         */
-    SIG_ODO_TRIP_A_M,      /* u32 raw, trip A in meters                 */
-    SIG_ODO_TRIP_B_M,      /* u32 raw, trip B in meters                 */
-    SIG_GEAR_POS,          /* u32 raw, see gear_t                       */
-
-    /* ---------------------------------------------------------------- *
-     *  Telltale / display                                              *
-     *                                                                    *
-     *  LEGACY: the DBC drives these via bitfields in dedicated          *
-     *  IPK_STS / IPK_SettingRequest frames.  The SIG_TT_* ids are        *
-     *  retained for the meter module that already subscribes to them;   *
-     *  future work should derive SIG_TT_* from SIG_CAN_<Source>_<Field>.*
-     * ---------------------------------------------------------------- */
-    SIG_TT_LEFT_TURN,      /* bool                                    */
-    SIG_TT_RIGHT_TURN,     /* bool                                    */
-    SIG_TT_HIGH_BEAM,      /* bool                                    */
-    SIG_TT_LOW_BEAM,       /* bool                                    */
-    SIG_TT_FRONT_FOG,      /* bool                                    */
-    SIG_TT_REAR_FOG,       /* bool                                    */
-    SIG_TT_POSITION_LAMP,  /* bool                                    */
-    SIG_TT_SEAT_BELT,      /* bool                                    */
-    SIG_TT_BRAKE_FAULT,    /* bool                                    */
-    SIG_TT_OIL_PRESS,      /* bool                                    */
-    SIG_TT_ABS_FAULT,      /* bool                                    */
-    SIG_TT_AIRBAG_FAULT,   /* bool                                    */
-    SIG_TT_ENGINE_FAULT,   /* bool                                    */
-    SIG_TT_BATTERY_FAULT,  /* bool                                    */
-    SIG_TT_FUEL_LOW,       /* bool                                    */
-    SIG_TT_CRUISE,         /* bool                                    */
-    SIG_TT_EPB,            /* bool                                    */
-    SIG_TT_AUTOHOLD,       /* bool                                    */
-    SIG_TT_ESP_FAULT,      /* bool                                    */
-    SIG_TT_TPMS_FAULT,     /* bool                                    */
-    /* ... append new telltale signals here ... */
-
-    /* ---------------------------------------------------------------- *
-     *  Illumination                                                    *
-     *                                                                    *
-     *  LEGACY: brightness / day-night have no CAN source yet.  The      *
-     *  IPK_DayNightMode bit in MMI_Safety_Info is the closest match.    *
-     * ---------------------------------------------------------------- */
-    SIG_ILLU_LCD_PCT,      /* u32 raw, 0..100, LCD backlight            */
-    SIG_ILLU_KEY_PCT,      /* u32 raw, 0..100, key backlight            */
-    SIG_ILLU_DAY_NIGHT,    /* bool, 1 = night                         */
-
-    /* ---------------------------------------------------------------- *
-     *  CAN receive status (timeout flags)                              *
-     *                                                                    *
-     *  Three int32 bitfields cover 96 RX-bit slots (Sentinel strategy).*
-     *  bit-N is per-CAN-ID (see s_bit_to_can_id[] in can_db_ipk_gen.c) *
-     *  so DBC message reorders DO NOT shift bit numbers.               *
-     *    SIG_CAN_RX_TIMEOUT_MAP_LO:   bits  0..31 -> bit  0..31         *
-     *    SIG_CAN_RX_TIMEOUT_MAP_HI:   bits  0..31 -> bit 32..63         *
-     *    SIG_CAN_RX_TIMEOUT_MAP_HI2:  bits  0..31 -> bit 64..95         *
-     *                                                                    *
-     *  Bit set means "no frame for s_bit_to_can_id[bit] received within *
-     *  g_can_rx_timeout_table[idx] ms".  Updated by                    *
-     *  mod_can_rx::prv_check_timeouts() every 50 ms.  Consumers read    *
-     *  individual flags via                                            *
-     *    bit < 32  ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO)  >> bit)     & 1*
-     *    32..63   ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI)  >> (bit-32)) & 1*
-     *    64..95   ->  (Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2) >> (bit-64)) & 1*
-     *                                                                    *
-     *  Sentinel policy:                                                  *
-     *  - bit-N is assigned to a CAN ID by the DBC parser (.bitmap_state *
-     *    sidecar).  Once allocated, bit-N stays stable across DBC revs. *
-     *  - If the DBC removes the message, bit-N becomes sentinel_unused  *
-     *    (s_bit_to_can_id[bit] == 0) and is permanently 0 in the bitmap. *
-     *  - bit 64..95 is a reserved pool for future RX additions.         *
-     *  When the cluster crosses 96 RX bits, extend the bitmap by        *
-     *  adding MAP_HI3 / MAP_HI4 entries below and bump                  *
-     *  MAX_RX_TRACKED in app/can/can_rx.c - both must move together.    *
+     *    bit  0..31  -> SIG_CAN_RX_TIMEOUT_MAP_LO  >> bit              *
+     *    bit 32..63  -> SIG_CAN_RX_TIMEOUT_MAP_HI  >> (bit - 32)       *
+     *    bit 64..95  -> SIG_CAN_RX_TIMEOUT_MAP_HI2 >> (bit - 64)       *
      * ---------------------------------------------------------------- */
     SIG_CAN_RX_TIMEOUT_MAP_LO,  /* u32 raw, bits  0..31 = rx_msg_idx  0..31 timeout flags */
     SIG_CAN_RX_TIMEOUT_MAP_HI,  /* u32 raw, bits  0..31 = rx_msg_idx 32..63 timeout flags */
@@ -142,21 +66,14 @@ typedef enum {
     SIG_CAN_RX_ERR_CNT,      /* u32 raw, last RX error counter (0..255)    */
 
     /* ---------------------------------------------------------------- *
-     *  System                                                          *
-     * ---------------------------------------------------------------- */
-    SIG_FW_VERSION,        /* u32 raw, packed MAJOR/MINOR/PATCH          */
-    SIG_BUILD_DATE,        /* u32 raw, packed YYYYMMDD                  */
-    SIG_WATCHDOG_KICK,     /* bool, debug: kicked this tick            */
-
-    /* ---------------------------------------------------------------- *
-     *  CAN signals (test batch -- IPK node, 13 messages, 132 signals)  *
+     *  CAN signals (test batch -- IPK node, 13 messages, 207 signals)  *
      *  Source: C02-A1_J7_DHU_MMI_IntergrateTBOX_IPK_20250506_CAN.dbc   *
      *                                                                   *
      *  Each SIG_CAN_<Name> maps 1:1 to CAN_DB_SIG_<Name> in            *
-     *  app/can/can_db_ipk_gen.h. Physical value is stored quantized     *
-     *  to int32 using (raw * factor + offset); see can_db.c for the    *
-     *  inverse on publish. Signal ID assignment is stable: never        *
-     *  reorder existing entries, only append.                           *
+     *  app/drv_api/can/can_db_ipk_gen.h. Physical value is stored     *
+     *  quantized to int32 using (raw * factor + offset); see          *
+     *  can_db.c for the inverse on publish. Signal ID assignment is   *
+     *  stable: never reorder existing entries, only append.            *
      * ---------------------------------------------------------------- */
 
 /* 0x2AF MMI_DateTime_Msg (RX)  dlc=8 */
@@ -857,8 +774,11 @@ typedef enum {
     SIG_CAN_IPK_Wakeup_reasons,/* 8bit unsigned raw*1 [0..255] */
     SIG_CAN_IPK_NMSts,/* 1bit unsigned raw*1 [0..1] */
     SIG_CAN_IPK_Stayawake_reasons,/* 32bit unsigned raw*1 [0..4294967295] */
+    
+
     SIG_MAX
 } signal_id_t;
+
 
 /**
  * @brief   Publish a value on the signal bus
@@ -877,15 +797,34 @@ typedef enum {
 c02b2_result_t Signal_Set(signal_id_t id, u32 value);
 
 /**
- * @brief   Read a signal value
- * @brief   读取一个信号的值
+ * @brief   Read a signal value with valid-fallback semantics
+ * @brief   读取一个信号的值（具备 valid-fallback 语义）
  *
- * @details 返回存储的 RAW u32 值。若槽位当前无效，
- *          返回 0。在意新鲜度的调用方应使用 Signal_IsValid()。 *
+ * @details v0.3: 仅当槽位 valid 时返回最近一次 Signal_Set 写入的
+ *          RAW u32 值；超时 / 未收 / 被 Invalidate / 越界 一律回 0。
+ *          需要保留超时前最后一次有效帧请改用 Signal_GetStored()。
+ *
  * @param[in]  id  Signal id (see signal_id_t)
  *
- * @return  u32  Stored value, or 0 if slot is invalid / id out of range
+ * @return  u32  Last stored value (only when slot is valid), or 0
+ *               if slot is invalid / id out of range.
  */
+
+/**
+ * @brief   Force-read the most recent stored value (ignores valid flag)
+ * @brief   强制读取最近一次写入的存储值（忽略 valid 标志）
+ *
+ * @details v0.3: 强制返回最后一次 Signal_Set 的 RAW u32 值，不看 valid 标志。
+ *          适用于仪表降级显示、超时前最后一次有效帧、首屏兜底等场景。
+ *          越界 id 同样返回 0（与 Signal_Get 一致）。
+ *
+ * @param[in]   id  Signal id (see signal_id_t)
+ *
+ * @return  u32  Last value written via Signal_Set (even if slot is currently
+ *               invalid), or 0 if id is out of range.
+ */
+u32          Signal_GetStored(signal_id_t id);
+
 u32          Signal_Get(signal_id_t id);
 
 /**
@@ -903,17 +842,18 @@ u32          Signal_Get(signal_id_t id);
 const char * Signal_GetName(signal_id_t id);
 
 /**
- * @brief   Check whether a signal slot is currently valid
- * @brief   检查信号槽位当前是否有效
+ * @brief   Check whether a signal slot currently holds a trustworthy value
+ * @brief   检查信号槽位当前是否持有可信任的值
  *
- * @details 槽位在 Signal_Set() 写入值后变为有效，
- *          调用 Signal_Invalidate()（或批量 Signal_InvalidateAll()）
- *          后再次失效。越界 id 始终返回 false。 *
+ * @details v0.3: 返回 true 当且仅当 槽位 valid 标志置位 且 曾经被
+ *          Signal_Set 写过至少一次。 超时 / 未写过 / 越界 一律回 false。
+ *          与 Signal_Get 行为对齐 (IsValid=true ⇒ Get 返回真值)。
+ *
  * @param[in]  id  Signal id (see signal_id_t)
  *
  * @return  bool
- * @retval  true   Slot is valid (has a fresh value)
- * @retval  false  Slot is invalid or id out of range
+ * @retval  true   Slot is currently valid (ever-set and not invalidated)
+ * @retval  false  Slot is invalid / never-set / id out of range
  */
 bool         Signal_IsValid(signal_id_t id);
 
@@ -940,7 +880,22 @@ void         Signal_Invalidate(signal_id_t id);
  *
  * @details 在启动时用于清理任何残留状态，或在重大模式
  *          切换（如 KL15 关闭）时丢弃上一电源周期的所有数据。
- *          遍历整个 SIG_MAX 区间；在任何上下文调用都安全。 */
+ *          遍历整个 SIG_MAX 区间 (v0.3 含 207 个 SIG_CAN_*, 大小为 enum 上限)；在任何上下文调用都安全。 */
 void         Signal_InvalidateAll(void);
+
+/**
+ * @brief   Reset a single signal slot to its cold-boot default (zero + invalid)
+ * @brief   把单个信号槽位重置为冷启动默认状态 (value=0, valid=false, ever_set=false)
+ *
+ * @details v0.3 F-step: 与 Signal_Invalidate 的区别在于同时清 value 与 ever_set，
+ *          让 Signal_IsValid/Get/GetStored 全部回到冷启动语义。
+ *          仅给各模块 prv_mcu_init 使用，运行时业务方不应主动调用。
+ *          越界 id 被静默忽略。
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ */
+void         Signal_Reset(signal_id_t id);
+
+
 
 #endif /* C02B2_SIGNAL_H */

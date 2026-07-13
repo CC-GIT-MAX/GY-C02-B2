@@ -21,6 +21,24 @@
 #include "can_db_ipk_gen.h"   /* CAN_DB_IPK_*_COUNT macros + signal/message enums */
 #include "signal.h"           /* signal_id_t for CanDb_DbcSigToBus */
 
+
+
+/**
+ * @brief   Mark every signal of an IPK message as invalid (timeout-driven)
+ * @brief   把某条 IPK 报文的所有 signal 标记为无效（超时驱动）
+ *
+ * @details v0.3: 给 IPK message index，回溯它的 sig_index/sig_count
+ *          把 s_dbc_to_bus[] 翻译为对应 signal_id_t 并逐个 Signal_Invalidate。
+ *          由 app/can/can_rx.c 50ms tick 在 OK→TIMED_OUT 边沿调用，
+ *          业务方不应主动调用（除非手工触发降级）。
+ *
+ * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            All signals of the message marked invalid
+ * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
+ */
+c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index);
 #ifdef __cplusplus
 extern "C" {
 #endif

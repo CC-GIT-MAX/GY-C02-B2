@@ -839,3 +839,37 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id)
     }
     return &can_sig_descs_ipk[SIG_ID_TO_INDEX(sig_id)];
 }
+
+/**
+ * @brief   Mark every signal of an IPK message as invalid (timeout-driven)
+ * @brief   把某条 IPK 报文的所有 signal 标记为无效（超时驱动）
+ *
+ * @details v0.3: 给 IPK message index，走 sig_index/sig_count 得到该消息
+ *          携带的所有 DBC signal，回查 s_dbc_to_bus[] 得到 signal_id_t，
+ *          逐个 Signal_Invalidate()。 调用方 app/can/can_rx.c::prv_check_timeouts
+ *          在 OK→TIMED_OUT 边沿触发；运行时业务方不应主动调用。
+ *
+ * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            All signals of the message marked invalid
+ * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
+ */
+c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
+{
+    if (ipk_msg_index >= (u16)CAN_DB_IPK_MSG_COUNT) {
+        return C02B2_ERR_PARAM;
+    }
+    const can_msg_desc_t *md = &can_msg_descs_ipk[ipk_msg_index];
+    for (u16 k = 0u; k < md->sig_count; k++) {
+        const u16 db_sig_index = (u16)(md->sig_index + k);
+        const signal_id_t bus_id =
+            (db_sig_index < (u16)CAN_DB_IPK_SIG_COUNT)
+                ? s_dbc_to_bus[db_sig_index]
+                : SIG_INVALID;
+        if (bus_id != SIG_INVALID) {
+            Signal_Invalidate(bus_id);
+        }
+    }
+    return C02B2_OK;
+}

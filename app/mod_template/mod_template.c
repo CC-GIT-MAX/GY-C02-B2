@@ -58,9 +58,17 @@ static c02b2_result_t prv_do_10ms_job(void)
  */
 static c02b2_result_t prv_do_100ms_job(void)
 {
-    /* Example: read a signal, compute, publish back. */
-    u32 ign = Signal_Get(SIG_IGN_ON);
-    LOG_D("ign=%u, diag=%u", (unsigned)ign, (unsigned)s_ctx.diag_value);
+    /* v0.3 example: 三件套用法。
+     *   - 业务路径           → Signal_Get   (valid 时拿最新值, 否则 0 fallback)
+     *   - 仪表降级 / TX loopback → Signal_GetStored (强制取最近一次值, 保留超时前帧)
+     *   - 门控逻辑           → Signal_IsValid (valid && ever_set)
+     * 实际开发中按需要组合使用即可。*/
+    const u32 rpm        = Signal_Get(SIG_CAN_EMS_EngineSpeedRPM);
+    const u32 rpm_stored = Signal_GetStored(SIG_CAN_EMS_EngineSpeedRPM);
+    const bool rpm_ok    = Signal_IsValid(SIG_CAN_EMS_EngineSpeedRPM);
+    LOG_D("rpm=%u stored=%u valid=%u diag=%u",
+          (unsigned)rpm, (unsigned)rpm_stored,
+          (unsigned)rpm_ok, (unsigned)s_ctx.diag_value);
     return C02B2_OK;
 }
 
