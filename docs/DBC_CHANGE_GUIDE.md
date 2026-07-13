@@ -1,5 +1,7 @@
 # DBC 变更操作指南
 
+
+
 > 本指南面向后续 CAN 业务模块开发者：当你拿到一份新版本 DBC
 > （新增信号、整条报文、删除报文、修改 signal 布局）时，怎么把
 > 它合进工程、跑通编译 + 测试、最后干净提交。
@@ -85,7 +87,7 @@ DBC diff：
     3. python tools/regen_can_artifacts.py --dbc path/to/new.dbc
     4. 检查输出："all 6 artefacts refreshed"
     5. python tests/test_can_ipk.py
-       -- [1] mapping 应该 132/132 + 1；[2] round-trip +1
+       -- [1] mapping 应该 207/207 + 1；[2] round-trip +1
     6. & "D:\IAR_AND_JLINK\IAR_IDE\common\bin\iarbuild.exe" `
          "EWARM\C02_B2.ewp" -build FLASH
     7. git diff --stat
@@ -292,7 +294,7 @@ DBC 改 BO_ 名字 或 SG_ 名字 = 改 DBC 字符串字段。
     3. IAR 编译 → 失败，所有引用旧名的地方都报错
     4. 在 IAR 输出里 grep 旧名，全局替换为新名（建议 IDE
        "Rename Symbol" 一次性搞完）
-    5. python tests/test_can_ipk.py —— [1] mapping 必须 132/132 + N
+    5. python tests/test_can_ipk.py —— [1] mapping 必须 207/207 + N
        都过（splice 后新名都映射到了）
     6. 编译 + commit
 

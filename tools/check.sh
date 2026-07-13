@@ -2,10 +2,10 @@
 #
 # check.sh - 提交前自检
 #
-# 检查项：
-#   1. 业务代码 .c 中禁止出现 extern 变量声明（scheduler.c 例外）
+# 检查项（v0.2）：
+#   1. extern 已开放（业务模块间允许，SDK/平台/中间件层仍禁止，见 ARCHITECTURE §4 / §10）
 #   2. 业务代码禁止直接 include 厂商驱动头
-#      例外：app/can/can_if.c 是允许唯一接触 flexcan_driver 的层
+#      例外：app/drv_api/can/can_if.c 是允许唯一接触 flexcan_driver 的层
 #            app/init/bsp_init.c 和 drv_init.c 在 BSP 阶段使用
 #   3. 业务代码禁止直接调用 printf（必须用 LOG_*）
 #   4. .clang-format 干跑
@@ -27,12 +27,8 @@ report() {
     fi
 }
 
-# 1. extern 在 app/ 的 .c 中（排除 scheduler.c）
-cnt=$(grep -rEn "^[[:space:]]*extern[[:space:]]+[A-Za-z_]" \
-        --include="*.c" "$APP_DIR" 2>/dev/null \
-        | grep -v "app/scheduler/scheduler.c" | wc -l | tr -d " ")
-report "$cnt" "extern in app/**/*.c (excluding scheduler.c)"
-
+# 1. extern in app/ .c (v0.3: no restriction; ARCHITECTURE §4 全面取消硬约束)
+echo "[SKIP] extern in app/ .c is unconditionally allowed (v0.3+). See ARCHITECTURE §4."
 # 2. 业务代码 include 驱动头（排除白名单）
 cnt=$(grep -rEn "#include[[:space:]]+\"(flexcan_driver|adc_driver|spi_driver|i2c_driver|linflexd_uart_driver|dma_driver|etmr_pwm_driver|pins_driver|interrupt_manager|power_manager|clock_manager|wdg_driver|flash_driver|lptmr_driver)\.h\"" \
         --include="*.c" --include="*.h" "$APP_DIR" 2>/dev/null \

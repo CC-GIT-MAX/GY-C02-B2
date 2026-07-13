@@ -112,7 +112,7 @@ static u16 prv_filter_bat_mv(u16 raw_mv);
 `tools/check_doxygen.sh` 扫描：
 - 头文件中所有函数声明必须带 `/** @brief`
 - `.c` 文件中的非 `static` 函数必须带 `/** @brief`
-- 每个文件至少出现 1 次英文 `@brief` + 1 次中文 `@brief`（双 @brief 检查，**v0.2 新增**）
+- 每个文件至少出现 1 次英文 `@brief` + 1 次中文 `@brief`（双 @brief 检查）
 - 内部 `static` 函数**至少** 1 行 `/** @brief ... */`
 
 CI 失败示例：
