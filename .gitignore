@@ -90,6 +90,8 @@ __pycache__/
 # 本地草稿
 tmp_*
 scratch/
+_*_scratch/
+_*_test/
 *.local
 .env
 .env.*
