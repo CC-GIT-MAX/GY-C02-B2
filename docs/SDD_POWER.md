@@ -1,5 +1,7 @@
 # 软件详细设计文档：mod_power
 
+
+
 > Software Detailed Design Document — Power Management Module
 >
 > **本文件是 `docs/SDD_TEMPLATE.md` 的一个完整填充示例。**
@@ -230,7 +232,7 @@ stateDiagram-v2
 | UV2/OV2 | latched | FAULT | 清 sleep_ready，触发 shutdown |
 
 > 滞回（hysteresis）由 `board/board_power.h` 中 `_ENTER_MV` / `_EXIT_MV` 体现；
-> 当前实现用 `prv_classify_voltage` 简化分级，不在状态机内做滞回（待 v0.2）。
+> 当前实现用 `prv_classify_voltage` 简化分级，不在状态机内做滞回 (跟随产品需求补做)。
 
 ---
 

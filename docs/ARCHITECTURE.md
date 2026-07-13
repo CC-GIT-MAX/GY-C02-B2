@@ -77,10 +77,56 @@ typedef struct mod_desc_s {
 
 ## 4. 跨模块通信
 
-- **禁止** `extern` 全局变量出现在 `.c` 文件中
-- 跨模块可变状态走 `Signal_*`（`app/signal/signal.h`）
-- 一次性事件走 `Event_Post()`（后续批次添加）
-- 模块私有常量放在 `.h` 中以 `static const` 或宏定义
+跨模块业务数据可直接 extern 全局变量，或由所有方模块暴露 getter/setter。
+按需选择（参数校验 / 原子拷贝 / 跨上下文稳定读取），不设单一所有者。
+
+### 4.1 数据传递通道选择
+
+| 通道 | API | 适用 |
+|---|---|---|
+| **CAN 信号** | Signal_Set / Signal_Get / Signal_GetStored / Signal_IsValid / Signal_Invalidate / Signal_Reset | 207 个 SIG_CAN_* + 3 个 timeout bitmap + 4 个 bus health |
+| **业务数据** | extern 全局变量 | 跨模块业务数据可直接读写 |
+| **模块 getter/setter** | Module_GetFoo(...) | 需要做参数校验、原子拷贝、跨上下文稳定读取时 |
+| **只读查找表 / 校准** | static const in .h | 编译期常量 |
+| **持久化配置** | KV_* (pp/storage/kv.h) | 掉电保存的标定 / 用户偏好 |
+| **事件** | Event_Post() (后续批次) | 一次性、不需要载荷的信号 |
+
+### 4.2 业务数据走 extern 全局
+
+- 业务模块可以直接使用 extern 全局变量 (结构体、数组、标量), 具体职责由模块自己决定。
+- 写入责任可在多个模块之间分担, 由调用方负责保证跨上下文访问的时序安全。
+
+### 4.3 Signal 总线职责
+
+Signal 总线**只**承担 CAN 相关数据:
+
+1. 207 个 SIG_CAN_* (DBC 自动生成);
+2. 3 个 SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2} (接收超时 bitmap, **启动期全 1 = 全部超时**);
+3. 4 个 SIG_CAN_BUS_OFF / _COUNT / TX_ERR_CNT / RX_ERR_CNT (总线健康, 由 can_if ISR 写入)。
+
+三件套接口定义:
+
+| API | 语义 | 适用 |
+|---|---|---|
+| Signal_Set(id, raw) | 写入并置 valid=true / ever_set=true | RX 序列内部使用; 业务方不应调用 |
+| Signal_Get(id) | valid 时返回 raw; **超时 / 未收 / 越界 → 0 fallback** | 常规使用 |
+| Signal_GetStored(id) | **强制**返回最近一次 Set 写入值, 不看 valid | 仪表降级显示、首屏兜底、TX loopback |
+| Signal_IsValid(id) | valid && ever_set → true | 门控逻辑 (仅在业务需要「该信号现在可信任」时用) |
+| Signal_Invalidate(id) / Signal_InvalidateAll() | 清 valid (保留 value + ever_set) | can_rx 50ms tick 边沿使用 |
+| Signal_Reset(id) | 三位全清: value=0 / valid=false / ever_set=false | **仅**给各模块 prv_mcu_init 使用 |
+
+超时状态查询走 pp/can/can_rx.h::CanRx_IsMsgedOut(can_id) / CanRx_GetMsgFreshness(can_id, &out), 不需要直接读 bitmap。
+
+### 4.4 启动期 signal 清零分工
+
+冷启动期不依赖 Signal_InvalidateAll 广播, 而是由各信号的实际写者在自己的 prv_mcu_init 中调 Signal_Reset 专项清零:
+
+| 模块 | 调 Signal_Reset 的 signal | 备注 |
+|---|---|---|
+| mod_can_rx | 3 个 timeout map + 207 个 SIG_CAN_* | 启动期: timeout map 写 Signal_Set(0xFFFFFFFFu) 全 1 (默认全部超时); SIG_CAN_* 由 Signal_Reset 清零 |
+| mod_can_tx | 4 个 SIG_CAN_BUS_OFF_* | 因 can_if 无 mod_desc 注册, 由 can_tx::mcu_init 代为清零 (走 Signal_Reset) |
+
+详细设计及调用参见 docs/SIGNAL_GUIDE.md §2 / §8。
 
 ## 5. 错误处理
 
@@ -130,18 +176,14 @@ typedef struct mod_desc_s {
 
 ## 10. 禁止事项
 
-- ❌ 业务代码中 `#include "flexcan_driver.h"` 等具体驱动头——走 `can/can_if.h`
-- ❌ `.c` 文件中 `extern` 任何变量
-- ❌ `printf` / `sprintf` 出现在业务代码（只能用于日志）
-- ❌ 在 `tick()` 中做阻塞延时（`OSIF_TimeDelay` 不允许）
-- ❌ 修改 `platform/` 或 `CMSIS/` 下的厂商文件
+- ❌ 业务代码中 `#include "flexcan_driver.h"` 等具体驱动头 — 走 `can/can_if.h`
 
-## 11. 版本与变更记录
-
-- 当前版本：`v0.0.0-dev`
-- 修订记录：本文件随批次执行逐步完善
+- ❌ printf / sprintf 出现在业务代码 (只能用于日志)
+- ❌ 在 tick() 中做阻塞延时 (OSIF_TimeDelay 不允许)
+- ❌ 修改 platform/ 或 CMSIS/ 下的厂商文件
 
 
 
-
-
+## 11. 版本
+- 当前版本：`v0.3`
+- 历史变更：见 docs/CHANGELOG.md

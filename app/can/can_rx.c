@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file    can_rx.c
  * @brief   CAN receive dispatcher + timeout monitor
  * @brief   CAN 接收分发 + 超时监控
@@ -60,6 +60,15 @@ typedef struct {
     u32 last_rx_tick_ms;  /**< RTI tick at last successful rx (0 = never) */
 } rx_track_t;
 
+/* v0.3: per-CAN-id timeout edge tracker.
+ *      The 50ms timeout walker flips a slot from OK to TIMED_OUT only on
+ *      the rising edge of (now-last) > timeout_ms, so we can do
+ *      Signal_Invalidate once per edge instead of every tick. */
+typedef enum {
+    MSG_STATE_OK        = 0,
+    MSG_STATE_TIMED_OUT = 1,
+} per_msg_state_t;
+
 /** Per-IPK-message raw frame cache.
  *  Indexed by can_msg_descs_ipk[] (NOT by can_id directly, because two
  *  messages cannot share an id but the table is the SoT for "which ids
@@ -87,6 +96,7 @@ static struct {
     rx_track_t track[MAX_RX_TRACKED];
     rx_raw_cache_t raw[CAN_DB_IPK_RX_COUNT];  /**< most-recent raw frame, RX-local slot */
     u16        rx_ipk_idx[CAN_DB_IPK_RX_COUNT];  /**< map RX-local slot -> ipk index (built in mcu_init) */
+    per_msg_state_t msg_state[MAX_RX_TRACKED]; /**< v0.3: bit-N per CAN-ID timeout edge state */
     u32        seen_unknown_ids[MAX_RX_UNKNOWN_LOG];  /**< FIFO of announced unknown ids */
     u8         seen_unknown_count;                    /**< 0..MAX_RX_UNKNOWN_LOG */
     u8         seen_unknown_next;                     /**< next FIFO write index */
@@ -243,10 +253,29 @@ __root static void prv_mcu_init(u8 cold_boot)
     (void)cold_boot;
     for (u32 i = 0; i < MAX_RX_TRACKED; i++) {
         s_rx.track[i].last_rx_tick_ms = 0u;
+        s_rx.msg_state[i]             = MSG_STATE_OK; /* v0.3: 刚启动视作 OK；首帧超时即可边沿化 */
     }
     s_slot_5ms  = RTI_OpenSlot(RTI_5MS);
     s_slot_50ms = RTI_OpenSlot(RTI_50MS);
     s_rx.init_done = true;
+    /* v0.3 F1: 清零 can_rx 负责的所有 signal 槽位。
+     * 启动期调一次，让 Signal_Get 返回 0 (fallback) 且 Signal_IsValid 返回 false。
+     * 用 Signal_Reset (不是 Signal_Set) — 因为我们要的是冷启动默认 (valid=false),
+     * 而 Signal_Set 会置 valid=true。*/
+    /* v0.3 F3: 启动期全部置位为『超时』。 Signal_Get / Signal_IsValid
+     * 已经各自携带 fallback 语义，但 SIG_CAN_RX_TIMEOUT_MAP_* 只看位——
+     * 默认全 1 可以让任何模块在 50ms tick 第一次跑前都看到
+     * 一致的超时视图，避免冷启动后短暂窗口读出『未超时但 IsValid=false』
+     * 这种隐式不一致。 */
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0xFFFFFFFFu);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0xFFFFFFFFu);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0xFFFFFFFFu);
+    for (u32 i = 0u; i < (u32)CAN_DB_IPK_SIG_COUNT; i++) {
+        const signal_id_t bus_id = CanDb_DbcSigToBus((u16)(i + 1u));
+        if (bus_id != SIG_INVALID) {
+            Signal_Reset(bus_id);
+        }
+    }
     s_rx.seen_unknown_count = 0u;
     s_rx.seen_unknown_next  = 0u;
     /* Build ipk idx -> RX-local slot map (sized CAN_DB_IPK_RX_COUNT). */
@@ -282,9 +311,13 @@ __root static void prv_wakeup_init(void)
  */
 __root static void prv_on_ign_on(void)
 {
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0);
+    /* v0.3 standby: 把 bitmap 全部置 1 (== 全部超时), 与 mcu_init (F3) 一致。
+     *   原因: 进入 standby 后 CAN 收发已经停, 此时任何读取 bitmap 的代码
+     *   都应该得到一致的『全部超时』状态, 而不是混着些奇怪的『未超时』残留。
+     *   wakeup 后 50ms tick 会用实测值覆盖这些位。 */
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0xFFFFFFFFu);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0xFFFFFFFFu);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0xFFFFFFFFu);
 }
 /**
  * @brief   Drain pending frames from the RX ring and dispatch via
@@ -381,6 +414,10 @@ static void prv_drain(void)
  *          can_id 的位也跳过。 */
 static void prv_check_timeouts(void)
 {
+    /* v0.3: 边沿检测版 — 每个 bit-N 上的 OK → TIMED_OUT 跳变瞬间,
+     *      把该消息携带的所有 signal 一次性 Invalidate；写 bitmap 的同时
+     *      也走 CanDb_InvalidateSignalsOnMsgTimeout()。回到 OK 的边沿不做事：
+     *      下一次正常 Signal_Set 自动恢复。*/
     const u32 now = RTI_GetTick1ms();
     u32 map_lo  = 0u;
     u32 map_hi  = 0u;
@@ -393,13 +430,24 @@ static void prv_check_timeouts(void)
         const u8  bit     = prv_bit_for_can_id(can_id);
         if (bit >= (u8)CAN_BITMAP_MAX) continue;
         const u32 last = s_rx.track[bit].last_rx_tick_ms;
-        if ((now - last) <= (u32)tmo) continue;
-        if (bit < 32u) {
-            map_lo |= ((u32)1u << bit);
-        } else if (bit < 64u) {
-            map_hi |= ((u32)1u << (bit - 32u));
-        } else {
-            map_hi2 |= ((u32)1u << (bit - 64u));
+        /* from-never-received 视为不超时；只有收到过的报文才计超时 */
+        const bool now_timed_out = (last != 0u) && ((now - last) > (u32)tmo);
+        if (now_timed_out) {
+            if (bit < 32u) {
+                map_lo |= ((u32)1u << bit);
+            } else if (bit < 64u) {
+                map_hi |= ((u32)1u << (bit - 32u));
+            } else {
+                map_hi2 |= ((u32)1u << (bit - 64u));
+            }
+        }
+        /* v0.3 边沿：仅在 OK → TIMED_OUT 跳变时调一次 Invalidate。*/
+        if (now_timed_out && s_rx.msg_state[bit] == MSG_STATE_OK) {
+            s_rx.msg_state[bit] = MSG_STATE_TIMED_OUT;
+            (void)CanDb_InvalidateSignalsOnMsgTimeout(ipk_idx);
+        } else if (!now_timed_out && s_rx.msg_state[bit] == MSG_STATE_TIMED_OUT) {
+            /* OK 边沿：下次正常 Signal_Set 自动恢复 valid，无需此处动作。*/
+            s_rx.msg_state[bit] = MSG_STATE_OK;
         }
     }
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  map_lo);
@@ -430,8 +478,13 @@ __root static void prv_tick(void)
 }
 
 /**
- * @brief   mod_desc_t standby hook: clear all timeout flags.
- * @brief   mod_desc_t standby 钩子: 清零所有超时标志
+ * @brief   mod_desc_t standby hook: mark all messages as timed-out.
+ * @brief   mod_desc_t standby 钩子: 标记所有报文为超时
+ *
+ * @details v0.3: 进入低功耗前把所有 timeout bitmap 置全 1 (= 全部超时),
+ *          与 prv_mcu_init 一致; wakeup 后 50ms tick 会用实测值覆盖。
+ *          其它 signal 槽位 (SIG_CAN_*) 不动 — 仪表下一次启动时 mcu_init
+ *          会重新 Signal_Reset 冷启。
  */
 __root static void prv_standby(void)
 {
@@ -497,6 +550,74 @@ u32 CanRx_GetRawFrameCount(void)
     return n;
 }
 
+
+
+/* ---------------------------------------------------------------- *
+ *  Public API: per-id timeout / freshness
+ *
+ *  Exposes the 50 ms timeout walker state per IPK CAN id. Backed by
+ *  s_rx.track[].last_rx_tick_ms and the three SIG_CAN_RX_TIMEOUT_MAP_*
+ *  bitmaps published by prv_check_timeouts(). The bitmaps are
+ *  consulted as the single source of truth: if the bit is set there
+ *  the message is currently in timeout (the cached signal value is
+ *  preserved untouched, so consumers can keep using it).
+ * ---------------------------------------------------------------- */
+
+/**
+ * @brief   Check whether a given IPK CAN id is currently in timeout
+ * @brief   查询某 IPK CAN id 当前是否超时
+ *
+ * @details Resolves can_id -> Sentinel bit-N via prv_bit_for_can_id,
+ *          then reads the matching SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}
+ *          word. Out-of-table or never-mapped ids return false.
+ *
+ * @param[in]  can_id  IPK standard 11-bit can_id
+ *
+ * @return  bool
+ * @retval  true   bit-N is set in the timeout bitmap (currently in timeout)
+ * @retval  false  not in timeout, or can_id not in IPK table
+ */
+bool CanRx_IsMsgTimedOut(u32 can_id)
+{
+    const u8 bit = prv_bit_for_can_id(can_id);
+    if (bit >= (u8)CAN_BITMAP_MAX) { return false; }
+    const u32 map = (bit < 32u)  ? Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO)
+                  : (bit < 64u)  ? Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI)
+                  :                 Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2);
+    return ((map >> (bit & 31u)) & 1u) != 0u;
+}
+
+/**
+ * @brief   Resolve the freshness of a given IPK CAN id
+ * @brief   查询某 IPK CAN id 的接收状态枚举
+ *
+ * @details Distinguishes three states that Signal_Get alone cannot:
+ *          NEVER  - last_rx_tick_ms == 0 (boot-time sentinel)
+ *          OK     - timeout bit clear (within tolerance)
+ *          TIMED_OUT - timeout bit set (signal value still cached)
+ *
+ * @param[in]   can_id  IPK standard 11-bit can_id
+ * @param[out]  out     filled with the freshness enum
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            success
+ * @retval  C02B2_ERR_PARAM     out NULL or can_id not in IPK table
+ */
+c02b2_result_t CanRx_GetMsgFreshness(u32 can_id, can_rx_freshness_t *out)
+{
+    if (out == NULL) { return C02B2_ERR_PARAM; }
+    const u8 bit = prv_bit_for_can_id(can_id);
+    if (bit >= (u8)CAN_BITMAP_MAX) { return C02B2_ERR_PARAM; }
+    const u32 last = s_rx.track[bit].last_rx_tick_ms;
+    if (last == 0u) {
+        *out = CAN_RX_FRESH_NEVER;
+    } else if (CanRx_IsMsgTimedOut(can_id)) {
+        *out = CAN_RX_FRESH_TIMED_OUT;
+    } else {
+        *out = CAN_RX_FRESH_OK;
+    }
+    return C02B2_OK;
+}
 /**
  * @brief   Module descriptor registered in scheduler.c
  * @brief   在 scheduler.c 中注册的模块描述符

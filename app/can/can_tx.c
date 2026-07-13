@@ -200,6 +200,13 @@ static void prv_mcu_init(u8 cold_boot)
     prv_build_tx_table();
     s_slot_sweep_10ms = RTI_OpenSlot(RTI_10MS);
     s_tx.init_done = true;
+    /* v0.3 F2: 清零 can_if.c::prv_flexcan_err_cb (在 ISR 上下文)
+     * 写入的 4 个 CAN bus-health signal。启动期 50ms tick 之前不会有
+     * ISR error callback 触发，所以这里写 0 与 ISR 后写实值不会冲突。*/
+    Signal_Reset(SIG_CAN_BUS_OFF);
+    Signal_Reset(SIG_CAN_BUS_OFF_COUNT);
+    Signal_Reset(SIG_CAN_TX_ERR_CNT);
+    Signal_Reset(SIG_CAN_RX_ERR_CNT);
     LOG_I("init (cold=%u, tx=%u)", (unsigned)cold_boot, (unsigned)s_tx.tx_count);
 }
 /**
@@ -497,8 +504,10 @@ c02b2_result_t CanTx_RebuildFromSignals(u32 can_id)
         const can_sig_desc_t *sig = &can_sig_descs_ipk[i];
         const u16 db_sig_id       = (u16)(i + 1u);
         const signal_id_t bus_id  = CanDb_DbcSigToBus(db_sig_id);
-        /* raw loopback */
-        const u32 raw              = Signal_Get(bus_id);
+        /* v0.3: TX loopback 用 Signal_GetStored 保留超时前最后一次有效值，
+         * 不走 Signal_Get 的 valid-fallback 语义。业务侧期望：
+         * loopback 报文携带最近一次成功帧，而非超时后的 0。 */
+        const u32 raw              = Signal_GetStored(bus_id);
         /* The bus now carries RAW; pack raw directly (no factor math). */
     CanDb_PackSignal(s_tx.payloads[slot].data, sig, raw);
     }

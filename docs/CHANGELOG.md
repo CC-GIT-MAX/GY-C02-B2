@@ -10,6 +10,8 @@
 | 5 | CI / 静态扫描 / 提交规范 | ✅ | `ci+docs+tools(batch5): CI pipeline, pre-commit check, commit convention` |
 | 6 | Doxygen 注释规范 + 自动化检查 + SDD 模板 + 架构图 | ✅ | docs(tooling): doxygen style + check_doxygen + SDD template + arch diagram |
 | 7 | LBX->C02B2 重命名 + diag/meter/power 清理 + 完整 IAR 本地编译 + 文档同步 | ✅ | `99fa39a` / `0a263d1` / `a4f92c8` |
+| 8 | **Signal v0.3 重构**: Signal_Get 改为 valid-fallback 语义、新增 Signal_GetStored / Signal_IsValid 改方案 1 (valid && ever_set)、Signal_Reset 给 mcu_init 用、bitmap 启动期全 1、超时用 can_rx 边沿检测调 CanDb_InvalidateSignalsOnMsgTimeout。ARCHITECTURE §4 v0.3 (去掉 owner 原则) + §10 同步、4 篇 SDD/DBC banner 改为 v0.3、CHANGELOG 加 8 行。 | ✅ | 本会话 (待 commit) |
+| 8.1 | Signal v0.3.1 修复: 恢复 5 个 MMI 报文 (0x2AF/0x3E0/0x2A4/0x2A8/0x2A6) 共 75 个被误删 SIG_CAN_MMI_*. 启动期 bitmap 改为全 1 (mod_can_rx mcu_init + prv_standby 一致). docs (ARCHITECTURE / SIGNAL_GUIDE / DBC_CHANGE_GUIDE) 132 -> 207 同步. 取消 ARCHITECTURE §10 关于 owner / extern / Signal_Reset / Signal_InvalidateAll 的限制. | ✅ | 本会话 (待 commit) |
 
 ## 当前架构状态
 

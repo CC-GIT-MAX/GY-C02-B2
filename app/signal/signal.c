@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file    signal.c
  * @brief   Signal bus storage and accessors
  *
@@ -9,14 +9,18 @@
  * Signal_IsValid().
  */
 #include "signal.h"
-/* Phase 3 / C1: ack. k_names 表已收敛为只含手维护的"非 CAN 信号" (power / vehicle / telltale / illumination / system)。CAN 信号 SIG_CAN_<Name> 由 tools/dbc_parse.py 生成, 通过 Signal_GetName() 末尾的 "<can-signal>" fallback 处理; 不在此手维护表中重复, 以避免双重源. Marker closed. */
+/* Phase 3 / C1 / v0.2: ack. k_names 表已收敛为只含 8 个手工 enum 元素 (SIG_INVALID + 3 个 timeout bitmap + 4 个 bus health)。所有 SIG_CAN_<DbcSignal> 仍由 tools/dbc_parse.py 生成, 通过 Signal_GetName() 末尾的 "<can-signal>" fallback 处理; 不在此手维护表中重复, 以避免双重源. Marker closed. */
 /* Phase 2 / B5: ack. Signal_InvalidateAll 已用 signal_id_t (enum u32) 作循环变量, 从 SIG_INVALID+1 起步跳过哨兵槽, 避免编译器每次比较时消去的符号/零扩展. Marker closed. */
 
-/* 每信号一份存储。`valid` 初始为 false：调用方必须先调
- * Signal_Set()，Signal_Get() 才有意义。*/
+/* 每信号一份存储。v0.3 起增加 ever_set 位：
+ *   valid    = 是否当前可信任 (OK + 未超时)
+ *   ever_set = 是否曾被 Signal_Set() 至少写过一次
+ * 二者都为 true ⇒ Signal_IsValid 返回 true；
+ * 否则 Get 返回 0 (fallback)。Signal_GetStored 不看这两个位。*/
 static struct {
-    u32 value;
+    u32  value;
     bool valid;
+    bool ever_set;
 } s_signals[SIG_MAX];
 
 /**
@@ -35,9 +39,12 @@ c02b2_result_t Signal_Set(signal_id_t id, u32 value)
     if (id <= SIG_INVALID || id >= SIG_MAX) {
         return C02B2_ERR_PARAM;
     }
-    s_signals[id].value = value;
+    s_signals[id].value    = value;
     /* 置为 valid，使消费方能区分新数据和从未设置状态。*/
-    s_signals[id].valid = true;
+    s_signals[id].valid    = true;
+    /* v0.3: 标记 ever_set，让 Signal_IsValid 区分
+     * 写过但已 Invalidate vs 从没写过。*/
+    s_signals[id].ever_set = true;
     return C02B2_OK;
 }
 
@@ -56,6 +63,37 @@ u32 Signal_Get(signal_id_t id)
     if (id <= SIG_INVALID || id >= SIG_MAX) {
         return 0;
     }
+    /* v0.3: valid=0 (超时/被 Invalidate) 一律回 0，
+     * 由调用方通过 Signal_IsValid() 判断是否信任。
+     * 需要保留超时前最后一次值的请改用 Signal_GetStored()。*/
+    if (!s_signals[id].valid) {
+        return 0;
+    }
+    return s_signals[id].value;
+}
+
+
+
+/**
+ * @brief   Force-read last stored value regardless of valid flag
+ * @brief   强制读取最近一次写入的存储值（忽略 valid 标志）
+ *
+ * @details v0.3: 与 Signal_Get 的区别在于不看 valid 标志——
+ *          即使当前已超时，也返回最后一次 Signal_Set 写入的
+ *          RAW u32 值。用于仪表降级显示、超时前最后有效帧、
+ *          首屏兜底。 越界 id 同样返回 0。
+ *
+ * @param[in]   id  Signal id (see signal_id_t)
+ *
+ * @return  u32  Last stored value (even if currently invalid),
+ *               or 0 if id is out of range.
+ */
+u32 Signal_GetStored(signal_id_t id)
+{
+    if (id <= SIG_INVALID || id >= SIG_MAX) {
+        return 0;
+    }
+    /* 强制取值 — 仪表降级显示/首屏兑底场景使用。*/
     return s_signals[id].value;
 }
 
@@ -66,9 +104,10 @@ u32 Signal_Get(signal_id_t id)
  * @brief   把信号 id 解析为对应的枚举字符串
  *
  * @details 契约见 app/signal/signal.h::Signal_GetName()。
- *          这份手维护的表用于调试 / SOC dump 已足够。
- *          未知 / 未维护 id 回退到 "<can-N>"，调用方仍可由此
- *          判断该 id 是否来自 CAN。 */
+ *          v0.2 refactor 后此表只覆盖 8 个手工 enum 元素
+ *          (SIG_INVALID + 3 个 timeout bitmap + 4 个 bus health)。
+ *          其它 id (全部 SIG_CAN_<DbcSignal>) 回退到函数末尾的
+ *          "<can-signal>" 占位符。 */
 const char * Signal_GetName(signal_id_t id)
 {
     if (id <= SIG_INVALID || id >= SIG_MAX) {
@@ -77,52 +116,6 @@ const char * Signal_GetName(signal_id_t id)
 
     static const char * const k_names[SIG_MAX] = {
         [SIG_INVALID]                     = "SIG_INVALID",
-
-        /* --- Power / ignition --- */
-        [SIG_IGN_ON]                    = "SIG_IGN_ON",
-        [SIG_ACC_ON]                    = "SIG_ACC_ON",
-        [SIG_KL30_VOLTAGE_MV]           = "SIG_KL30_VOLTAGE_MV",
-        [SIG_PWR_MODE]                  = "SIG_PWR_MODE",
-        [SIG_GC_POWER_ON]               = "SIG_GC_POWER_ON",
-        [SIG_IGN_OFF_COUNTER]           = "SIG_IGN_OFF_COUNTER",
-        [SIG_SLEEP_READY]               = "SIG_SLEEP_READY",
-
-        /* --- Vehicle (legacy) --- */
-        [SIG_VEH_SPEED_KPH_X10]         = "SIG_VEH_SPEED_KPH_X10",
-        [SIG_ENG_RPM]                   = "SIG_ENG_RPM",
-        [SIG_FUEL_LEVEL_PCT]            = "SIG_FUEL_LEVEL_PCT",
-        [SIG_COOLANT_TEMP_C]            = "SIG_COOLANT_TEMP_C",
-        [SIG_ODO_TOTAL_M]               = "SIG_ODO_TOTAL_M",
-        [SIG_ODO_TRIP_A_M]              = "SIG_ODO_TRIP_A_M",
-        [SIG_ODO_TRIP_B_M]              = "SIG_ODO_TRIP_B_M",
-        [SIG_GEAR_POS]                  = "SIG_GEAR_POS",
-
-        /* --- Telltale / display --- */
-        [SIG_TT_LEFT_TURN]              = "SIG_TT_LEFT_TURN",
-        [SIG_TT_RIGHT_TURN]             = "SIG_TT_RIGHT_TURN",
-        [SIG_TT_HIGH_BEAM]              = "SIG_TT_HIGH_BEAM",
-        [SIG_TT_LOW_BEAM]               = "SIG_TT_LOW_BEAM",
-        [SIG_TT_FRONT_FOG]              = "SIG_TT_FRONT_FOG",
-        [SIG_TT_REAR_FOG]               = "SIG_TT_REAR_FOG",
-        [SIG_TT_POSITION_LAMP]          = "SIG_TT_POSITION_LAMP",
-        [SIG_TT_SEAT_BELT]              = "SIG_TT_SEAT_BELT",
-        [SIG_TT_BRAKE_FAULT]            = "SIG_TT_BRAKE_FAULT",
-        [SIG_TT_OIL_PRESS]              = "SIG_TT_OIL_PRESS",
-        [SIG_TT_ABS_FAULT]              = "SIG_TT_ABS_FAULT",
-        [SIG_TT_AIRBAG_FAULT]           = "SIG_TT_AIRBAG_FAULT",
-        [SIG_TT_ENGINE_FAULT]           = "SIG_TT_ENGINE_FAULT",
-        [SIG_TT_BATTERY_FAULT]          = "SIG_TT_BATTERY_FAULT",
-        [SIG_TT_FUEL_LOW]               = "SIG_TT_FUEL_LOW",
-        [SIG_TT_CRUISE]                 = "SIG_TT_CRUISE",
-        [SIG_TT_EPB]                    = "SIG_TT_EPB",
-        [SIG_TT_AUTOHOLD]               = "SIG_TT_AUTOHOLD",
-        [SIG_TT_ESP_FAULT]              = "SIG_TT_ESP_FAULT",
-        [SIG_TT_TPMS_FAULT]             = "SIG_TT_TPMS_FAULT",
-
-        /* --- Illumination --- */
-        [SIG_ILLU_LCD_PCT]              = "SIG_ILLU_LCD_PCT",
-        [SIG_ILLU_KEY_PCT]              = "SIG_ILLU_KEY_PCT",
-        [SIG_ILLU_DAY_NIGHT]            = "SIG_ILLU_DAY_NIGHT",
 
         /* --- CAN RX timeout bitmap --- */
         [SIG_CAN_RX_TIMEOUT_MAP_LO]     = "SIG_CAN_RX_TIMEOUT_MAP_LO",
@@ -135,15 +128,11 @@ const char * Signal_GetName(signal_id_t id)
         [SIG_CAN_TX_ERR_CNT]            = "SIG_CAN_TX_ERR_CNT",
         [SIG_CAN_RX_ERR_CNT]            = "SIG_CAN_RX_ERR_CNT",
 
-        /* --- System --- */
-        [SIG_FW_VERSION]                = "SIG_FW_VERSION",
-        [SIG_BUILD_DATE]                = "SIG_BUILD_DATE",
-        [SIG_WATCHDOG_KICK]             = "SIG_WATCHDOG_KICK",
-/* NOTE: 由 tools/dbc_parse.py 生成的 SIG_CAN_<DbcSignal> 条目
- * （位于 app/drv_api/can/can_db_ipk_gen.h）不在此手维护表中重复；
- * 那些 id 由 Signal_GetName() 回退到函数末尾的 "<can-signal>"。
- * 从 autogen 头再生本表理论上可行，但没有功能收益（源码中
- * SIG_CAN_<Name> 已让日志可读）。*/
+        /* NOTE: 由 tools/dbc_parse.py 生成的 SIG_CAN_<DbcSignal> 条目
+         * （位于 app/drv_api/can/can_db_ipk_gen.h）不在此手维护表中重复；
+         * 那些 id 由 Signal_GetName() 回退到函数末尾的 "<can-signal>"。
+         * 从 autogen 头再生本表理论上可行，但没有功能收益（源码中
+         * SIG_CAN_<Name> 已让日志可读）。*/
     };
 
     /* CAN 派生的 id 位于 SIG_MAX 边界-1 之上的 autoblock，
@@ -176,7 +165,9 @@ bool Signal_IsValid(signal_id_t id)
     if (id <= SIG_INVALID || id >= SIG_MAX) {
         return false;
     }
-    return s_signals[id].valid;
+    /* v0.3: 方案 1 — 有效 且 曾经被 Set 过一次。
+     * 是当前可信任信号的唯一表示。*/
+    return s_signals[id].valid && s_signals[id].ever_set;
 }
 
 /**
@@ -202,6 +193,30 @@ void Signal_Invalidate(signal_id_t id)
  *
  * @details 在电源模式切换 / 出厂复位时使用，
  *          强制所有消费方重新发布各自的数据。 */
+/**
+ * @brief   Reset a single slot to cold-boot defaults.
+ * @brief   把单个槽位重置为冷启动默认值。
+ *
+ * @details v0.3 F-step: 比 Signal_Invalidate 更彻底，把 value 也清 0、
+ *          ever_set 也清 false。仅给各模块 prv_mcu_init 清零用。
+ */
+void Signal_Reset(signal_id_t id)
+{
+    if (id <= SIG_INVALID || id >= SIG_MAX) {
+        return;
+    }
+    s_signals[id].value    = 0u;
+    s_signals[id].valid    = false;
+    s_signals[id].ever_set = false;
+}
+
+
+/**
+ * @brief   Mark every signal slot as invalid
+ * @brief   将全部信号槽位标记为无效
+ *
+ * @details v0.3: 同时清 ever_set 用于重大模式切换或出
+ *          厂复位。 运行时业务方不应主动调用。 */
 void Signal_InvalidateAll(void)
 {
     /* Phase 2 / B5：用 signal_id_t（enum u32）作为循环变量，
@@ -209,7 +224,9 @@ void Signal_InvalidateAll(void)
      * 显式起步可跳过 SIG_INVALID 哨兵槽。
      * 成本不变（仍是 N 次 store），但循环计数器按底层 enum 宽度，
      * 避免编译器要在每次比较时消去的符号/零扩展。*/
+    /* v0.3: 同时清 ever_set，用于 KL15 off / 重大模式切换后丢弃上一电源周期的所有信号。*/
     for (signal_id_t i = (signal_id_t)(SIG_INVALID + 1); i < SIG_MAX; i = (signal_id_t)(i + 1u)) {
-        s_signals[i].valid = false;
+        s_signals[i].valid    = false;
+        s_signals[i].ever_set = false;
     }
 }

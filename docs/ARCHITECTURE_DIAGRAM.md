@@ -1,5 +1,7 @@
 # 架构图 (Architecture Diagrams)
 
+
+
 > 本文档以 Mermaid 形式给出 C02-B2 仪表 MCU 软件的整体架构与关键数据流。
 > 在 GitHub / GitLab / VSCode 中可直接渲染；CI 中可用 `mmdc` 导出 PNG/SVG。
 

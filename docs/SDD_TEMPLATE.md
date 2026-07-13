@@ -1,5 +1,7 @@
 # 软件详细设计文档 (SDD) 模板
 
+
+
 > Software Detailed Design Document
 >
 > 本模板适用于 C02-B2 仪表 MCU 上**业务模块**的详细设计。
