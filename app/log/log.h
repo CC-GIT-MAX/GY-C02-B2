@@ -2,14 +2,14 @@
  * @file    log.h
  * @brief   Lightweight leveled logging macros
  *
- * Usage in a .c file:
+ * 在 .c 文件中的用法：
  *   #define MOD_NAME  "PWR"
  *   #include "log.h"
  *   LOG_I("bat=%u mv", mv);
  *   LOG_E("uv2 latch");
  *
- * The output is dispatched via Log_Print() which by default writes to
- * the project printf. Override by defining LOG_PRINTF to your own sink.
+ * 输出经 Log_Print() 分发，默认写入工程 printf。
+ * 可通过自行定义 LOG_PRINTF 指向自定义 sink 来覆盖。
  */
 #ifndef C02B2_LOG_H
 #define C02B2_LOG_H
@@ -32,18 +32,24 @@ typedef enum {
   #define LOG_LEVEL  LOG_LVL_INFO
 #endif
 
+/* MOD_NAME is the canonical module tag. The legacy LOG_NAME alias
+ * is accepted for backward compatibility but only honored when
+ * MOD_NAME is not defined by the including translation unit. */
 #ifndef MOD_NAME
-  #define MOD_NAME  "APP"
+  #ifdef LOG_NAME
+    #define MOD_NAME  LOG_NAME
+  #else
+    #define MOD_NAME  "APP"
+  #endif
 #endif
 
 #ifndef LOG_PRINTF
-  /* Vendor printf.h defines `#define PRINTF printf_` and the tiny
-   * printf_() implementation calls printf_char() which we wired
-   * to LINFlexD UART2 in board/utility_print_config.c.
-   * We deliberately use PRINTF (uppercase) instead of plain
-   * printf - the bare printf() resolves to IAR DLib stdio
-   * which routes through semihosting / stdout and never reaches
-   * the UART. */
+  /* 厂商 printf.h 定义 `#define PRINTF printf_`，微型
+   * printf_() 实现会调用 printf_char()，我们在
+   * board/utility_print_config.c 中将其接到 LINFlexD UART2。
+   * 故此处刻意使用 PRINTF（大写）而非普通 printf ——
+   * 裸 printf() 会解析到 IAR DLib stdio，
+   * 经 semihosting / stdout 路由，永远到不了 UART。 */
   #include "printf.h"
   #define LOG_PRINTF(...)  PRINTF(__VA_ARGS__)
 #endif
@@ -52,10 +58,9 @@ typedef enum {
  * @brief   Print a leveled log line
  * @brief   输出一条带等级与模块名的日志
  *
- * @details Wraps the user format in `[LEVEL][MOD] ...` and writes
- *          through LOG_PRINTF. The level filter is also applied
- *          at compile time inside LOG_* macros, so calls with
- *          level > LOG_LEVEL become no-ops.
+ * @details 将用户格式包裹为 `[LEVEL][MOD] ...` 并通过 LOG_PRINTF
+ *          输出。级别过滤在 LOG_* 宏的编译期也会执行，
+ *          因此 level > LOG_LEVEL 的调用会变为 no-op。
  *
  * @param[in]  lvl  Severity (LOG_LVL_*)
  * @param[in]  mod  Short module tag (e.g. "PWR", "CAN")

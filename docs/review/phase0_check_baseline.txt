@@ -1,0 +1,8 @@
+[ OK ] extern in app/**/*.c (excluding scheduler.c)
+[FAIL] driver headers included by app/ (except allowlist) (1)
+[ OK ] raw printf() in app/
+[SKIP] clang-format not installed
+
+FAILED: 1 category violation(s)
+Pre-existing violation (deferred to Phase 3):
+  app/drv_api/io/io.c:7: #include "pins_driver.h"

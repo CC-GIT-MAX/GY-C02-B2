@@ -12,7 +12,7 @@
 #include "osif.h"
 #include "scheduler.h"
 
-#define LOG_NAME  "MAIN"
+#define MOD_NAME  "MAIN"
 #include "log.h"
 
 /**

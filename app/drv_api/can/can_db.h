@@ -52,8 +52,8 @@ extern const u16             can_db_ipk_tx_idx[];          /**< IPK TX indices (
  * @brief   从 `data` 中按 `desc` 拆出每个信号, 并通过 Signal_Set
  *          发布到 int32 信号总线
  *
- * @details Called from the RX tick for every received frame whose
- *          can_id matches an entry in `can_msg_descs_ipk`.
+ * @details 由 RX tick 在每帧接收且 can_id 命中
+ *          `can_msg_descs_ipk` 中的某项时调用。
  *
  * @param[in]  desc  Message descriptor (AUTOGEN, read-only)
  * @param[in]  data  8-byte payload (Intel or Motorola)
@@ -85,9 +85,9 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id);
  *          signal-bus id (SIG_CAN_<Name> in app/signal/signal.h).
  * @brief   把 DBC 信号枚举 id 转换为 signal bus 上的对应 id
  *
- * @details Inverse of the s_dbc_to_bus[] table in can_db.c.  The
- *          table is generated from the relative order of the two
- *          enums; this is the public read-only accessor.
+ * @details 为 can_db.c 中 s_dbc_to_bus[] 表的反向查找。
+ *          该表由两个枚举的相对顺序自动生成；
+ *          本函数为其对外只读访问入口。
  *
  * @param[in]  db_sig_id  CAN_DB_SIG_* enum value (>0)
  *

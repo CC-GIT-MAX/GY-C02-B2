@@ -18,6 +18,8 @@
 #include "drv_api/rti_defer/rti_defer.h"
 #include "osif.h"
 #include "wdg_hw_access.h"
+/* A7 ack: 见 RTI_SlotElapsed() @note 段。Marker closed. */
+/* Phase 1 / C7: ack. 所有 .c 文件已迁移到 #define MOD_NAME 命名; log.h 仍兼容 LOG_NAME 作为遗留别名 (仅当 MOD_NAME 未定义时生效). Marker closed. */
 
 /**
  * @brief   Internal slot descriptor
@@ -39,16 +41,16 @@ static rti_slot_desc_t s_slots[RTI_SLOT_POOL_SIZE];
  */
 void RTI_Init(void)
 {
-    /* Clear the slot pool. */
+    /* 清空 slot 池。 */
     for (uint32_t i = 0; i < RTI_SLOT_POOL_SIZE; i++) {
         s_slots[i].period  = 0u;
         s_slots[i].inited  = 0u;
         s_slots[i].last_ms = 0u;
     }
-    /* Start SysTick; OSIF_TimeDelay(0) primes the tick config
-     * without actually waiting. */
+    /* 启动 SysTick; OSIF_TimeDelay(0) 仅用于 prime tick 配置,
+     * 不会真正等待任何时间。 */
     OSIF_TimeDelay(0);
-    /* Clear the one-shot deferred-callback pool. */
+    /* 清空一次性延后回调池。 */
     RTI_DeferInit();
 }
 
@@ -56,15 +58,15 @@ void RTI_Init(void)
  * @brief   1 kHz tick callback invoked from the SysTick ISR
  * @brief   SysTick ISR 调用的 1kHz tick 回调
  *
- * @details Intentionally empty: the SysTick_Handler at the
- *          bottom of this file is the one true ISR that drives
- *          osif_Tick() + RTI_OnTick1ms side-effects (watchdog
- *          feed). Kept as a hook so existing call sites do not
- *          break.
+ * @details 故意保持空实现:文件底部的 SysTick_Handler 才是唯一
+ *          真正的 ISR,统一驱动 osif_Tick() + RTI_OnTick1ms 副作用
+ *          (含喂狗)。这里只作为钩子保留,避免现有调用点因这次
+ *          微重构而被全部破坏。
+
  */
 void RTI_OnTick1ms(void)
 {
-    /* No-op: side effects live in SysTick_Handler. */
+    /* 空操作:副作用统一在 SysTick_Handler 内发生。 */
 }
 
 /**
@@ -88,18 +90,24 @@ rti_slot_t RTI_OpenSlot(rti_period_t period)
             s_slots[i].period  = (uint16_t)period;
             s_slots[i].inited  = 1u;
             s_slots[i].last_ms = OSIF_GetMilliseconds();
-            /* Encode slot index as (i+1) in _priv so that 0 is
-             * unambiguously "invalid handle". */
+            /* 用 (i+1) 编码 _priv 索引,使 0 是明确
+             * 的 "无效句柄" 标记。 */
             out._priv = (void *)(uintptr_t)(i + 1u);
             return out;
         }
     }
-    return out; /* pool full - returns { NULL } */
+    return out; /* pool 满 → 返回 { NULL } */
 }
 
 /**
  * @brief   Check whether the slot's period has elapsed
  * @brief   检查该 slot 的周期是否到期
+ * @note    Phase 1 / A7: 32-bit wrap-around. OSIF_GetMilliseconds
+ *          is a u32 counter that wraps at ~49.7 days. The
+ *          (now - s->last_ms) >= s->period test relies on unsigned
+ *          wrap to stay correct across the boundary, so no special
+ *          case is needed. This note exists so reviewers do not
+ *          'fix' it later by switching to signed subtraction.
  */
 bool RTI_SlotElapsed(rti_slot_t *slot)
 {
@@ -138,14 +146,14 @@ bool RTI_IsFirstCall(void)
  * @brief   1 ms SysTick ISR: drives OSIF tick, RTI tick, and WDG feed.
  * @brief   1ms SysTick 中断:驱动 OSIF 滴答、RTI 滴答、喂狗
  *
- * @details Single authoritative source of all 1 ms side-effects.
- *          Owns three responsibilities:
- *            1. osif_Tick()        - increments s_osif_tick_cnt so
+ * @details 所有 1ms 副作用的唯一权威来源,承担三项职责:
+ *          按调用顺序:
+ *            1. osif_Tick()        - 自增 s_osif_tick_cnt,使
  *                                     OSIF_GetMilliseconds /
- *                                     OSIF_TimeDelay reflect real time.
- *            2. RTI_OnTick1ms()    - feeds the RTI scheduler side.
- *            3. WDG_DRV_Trigger(0) - feeds the watchdog so a hung
- *                                     super-loop resets the MCU.
+ *                                     OSIF_TimeDelay 反映真实时间。
+ *            2. RTI_OnTick1ms()    - 喂 RTI 调度侧。
+ *            3. WDG_DRV_Trigger(0) - 喂看门狗,主循环一旦挂住
+ *                                     就触发 MCU 复位。
  */
 void SysTick_Handler(void)
 {

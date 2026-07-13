@@ -62,11 +62,16 @@ typedef void (*can_rx_cb_t)(const can_msg_t *msg);
  * @brief   Initialize both CAN channels and the RX ring buffer
  * @brief   初始化两条 CAN 通道及接收环形缓冲
  *
- * @details Reset the RX ring buffer only.  All FlexCAN hardware bring-up
-          (FLEXCAN_DRV_Init, FIFO filter configuration, event / error
-          callback installation and FIFO priming) is done in Can_Init().
-          This function is intentionally lightweight so it can be called
-          repeatedly without re-arming the controller.
+ * @details 仅复位 RX 环形缓冲区。所有 FlexCAN 硬件初始化
+ *          （FLEXCAN_DRV_Init、FIFO 过滤配置、事件 / 错误
+ *          回调安装及 FIFO 预启动）均由 Can_Init() 完成。
+ *          本函数刻意保持轻量，可重复调用而无需重新
+ *          启动控制器。
+ *
+ * @note    Phase 4 / A2 时序契约：可从 BSP / DRV / RTI / Scheduler_Init
+ *          任何阶段调用（包括 main.c 主循环之前）；多次调用仅
+ *          重置 RX ring。s_if_inited 标记保证幂等。不依赖 FlexCAN
+ *          硬件启动顺序 —— Can_Init() 之后调或之前调都不破坏状态。
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Ring buffer reset (always succeeds)
@@ -77,10 +82,11 @@ c02b2_result_t CanIf_Init(void);
  * @brief   Install the FlexCAN event + error callbacks for both instances
  * @brief   为两个 FlexCAN 实例安装事件 / 错误回调
  *
- * @details Thin wrapper that registers prv_flexcan_cb (RX/TX events) and
-          prv_flexcan_err_cb (bus-off / warning / bit-error) for both
-          instances.  Called from Can_Init() so the bring-up sequence
-          stays in one place.
+ * @details 薄封装，为两个实例注册 prv_flexcan_cb（RX/TX 事件）
+ *          与 prv_flexcan_err_cb（bus-off / warning / bit-error）。
+ *          由 Can_Init() 在内部调用一次（不要从应用层直接调用），
+ *          使初始化序列集中在一处。重复安装回调会与 prv_flexcan_cb
+ *          内部 s_if_inited 状态冲突，应避免。
  */
 void CanIf_InstallFlexcanCallbacks(void);
 
@@ -88,12 +94,12 @@ void CanIf_InstallFlexcanCallbacks(void);
  * @brief   Initialize both FlexCAN instances (driver-level bring-up)
  * @brief   初始化两个 FlexCAN 实例（驱动级初始化）
  *
- * @details Single entry point that runs the full FlexCAN bring-up
- *          sequence (Init -> ConfigRxFifo -> InstallCallbacks ->
- *          ArmRxFifo).  Called once from app/init/drv_init.c.
- *          Lives in this header because it operates on the same
- *          hardware state as the rest of can_if; the legacy
- *          app/drv_api/can/can_init.c was merged into can_if.c.
+ * @details 单一入口，依次执行完整的 FlexCAN 初始化序列
+ *          （Init -> ConfigRxFifo -> InstallCallbacks ->
+ *          ArmRxFifo）。由 app/init/drv_init.c 调用一次。
+ *          由于与 can_if 其余部分操作同一硬件状态，
+ *          本声明放在此头文件；原 app/drv_api/can/can_init.c
+ *          已合并入 can_if.c。
  */
 void Can_Init(void);
 
@@ -101,11 +107,11 @@ void Can_Init(void);
  * @brief   Prime the RX FIFO for both instances (arm first receive)
  * @brief   启动两个实例的 RX FIFO（首帧接收预热）
  *
- * @details Calls FLEXCAN_DRV_RxFifo(inst, &s_rx_fifo_start_buf) for both
-          instances.  This is what enables the FRAME_AVAILABLE /
-          WARNING / OVERFLOW interrupts in RX-FIFO mode -- the SDK does
-          NOT enable them inside FLEXCAN_DRV_Init, so without this call
-          no RX callback will ever fire.
+ * @details 对两个实例分别调用 FLEXCAN_DRV_RxFifo(inst,
+ *          &s_rx_fifo_start_buf)。该调用会开启 RX-FIFO 模式
+ *          下的 FRAME_AVAILABLE / WARNING / OVERFLOW 中断，
+ *          SDK 不会在 FLEXCAN_DRV_Init 内部启用，
+ *          若不调用此函数则永远不会有 RX 回调触发。
  *
  * @return  c02b2_result_t
  * @retval  C02B2_OK   Both FIFOs primed
@@ -117,11 +123,10 @@ c02b2_result_t CanIf_ArmRxFifo(void);
  * @brief   Drain pending soft-recovery requests (5 ms tick context)
  * @brief   处理挂起的软恢复请求(5 ms tick 上下文)
  *
- * @details prv_flexcan_err_cb() sets a per-channel pending flag from
- *          ISR context; this function actually performs the
- *          deinit + init + filter-refill + re-arm-FIFO sequence
- *          when called from the scheduler 5 ms tick.  Must NOT
- *          be called from ISR (touches peripheral RAM / NVIC).
+ * @details prv_flexcan_err_cb() 在 ISR 中置位各通道的 pending 标志；
+ *          本函数在调度器 5 ms tick 中实际执行
+ *          deinit + init + filter-refill + re-arm-FIFO 流程。
+ *          禁止在 ISR 中调用（会访问外设 RAM / NVIC）。
  *
  * @note    Safe to call when nothing is pending - the per-channel
  *          flag is the gate.  Always returns C02B2_OK today; the
@@ -146,14 +151,14 @@ c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg);
  * @brief   Mailbox layout per channel (after RFFN is applied)
  * @brief   每个通道的邮箱布局（FIFO 配置后）
  *
- * @details Per YTM32B1M Table 18.20:
- *          - public_can  RFFN=8 (72 filters) -> FIFO occupies MB 0..23
- *          - private_can RFFN=6 (56 filters) -> FIFO occupies MB 0..19
+ * @details 依据 YTM32B1M 表 18.20：
+ *          - public_can  RFFN=8（72 个过滤器）-> FIFO 占用 MB 0..23
+ *          - private_can RFFN=6（56 个过滤器）-> FIFO 占用 MB 0..19
  *
- *          The MB windows below are reserved for the caller's use
- *          (single-MB ID-mask RX + TX round-robin).  The constants
- *          are channel-aware because the private bus has 6 extra
- *          MB available for single-MB RX.
+ *          下方 MB 窗口保留给调用方使用
+ *          （单 MB ID-mask RX + TX 轮询）。
+ *          各通道下常量不同，因为 private 总线多出 6 个 MB
+ *          可用于单 MB RX。
  */
 typedef struct {
     u8 rx_mb_first;   /**< First single-MB ID-mask RX mailbox (inclusive) */
@@ -176,9 +181,9 @@ can_mb_layout_t CanIf_GetMbLayout(can_channel_t ch);
  * @brief   Configure a single RX mailbox with an exact CAN id
  * @brief   把单个接收邮箱配置为精确匹配某个 CAN id
  *
- * @details Uses one of the post-FIFO single-MB slots (24..25 on
- *          public, 20..25 on private) so it does NOT collide with
- *          the FIFO ID filter table or the TX round-robin pool.
+ * @details 使用 FIFO 之后的单 MB 槽位
+ *          （public 上 24..25，private 上 20..25），
+ *          避免与 FIFO ID 过滤表及 TX 轮询池冲突。
  *
  * @param[in]  ch      Logical channel
  * @param[in]  mb_idx  Mailbox index (must be inside the layout's
@@ -298,8 +303,8 @@ u32 CanIf_RxPending(void);
  * @brief   Fill a TX message payload (whole-buffer)
  * @brief   填充一条 TX 报文 payload（整报文）
  *
- * @details Forwards to CanTx_PreparePayload().  See app/can/can_tx.h
- *          for full semantics.
+ * @details 转发至 CanTx_PreparePayload()。完整语义
+ *          见 app/can/can_tx.h。
  *
  * @param[in]  can_id  IPK TX message can_id (11-bit standard)
  * @param[in]  data    Source buffer (at least `dlc` bytes)
@@ -313,8 +318,8 @@ c02b2_result_t CanIf_TxPreparePayload(u32 can_id, const u8 *data, u8 dlc);
  * @brief   Update a single signal inside an existing TX payload
  * @brief   在已有 TX payload 中更新单个信号
  *
- * @details Forwards to CanTx_EncodeSignal().  Other signals in the
- *          same message keep their previous values.
+ * @details 转发至 CanTx_EncodeSignal()。同报文中的
+ *          其他信号保持原值。
  *
  * @param[in]  can_id  IPK TX message can_id
  * @param[in]  sig_id  CAN_DB_SIG_* signal id belonging to that message
@@ -329,9 +334,9 @@ c02b2_result_t CanIf_TxEncodeSignal(u32 can_id, u16 sig_id, u32 raw);
  * @brief   Force immediate send of a single TX frame (event-driven)
  * @brief   强制立即发送一帧（事件驱动）
  *
- * @details Forwards to CanTx_Trigger().  The frame payload must already
- *          have been prepared via CanIf_TxPreparePayload() or
- *          CanIf_TxEncodeSignal().
+ * @details 转发至 CanTx_Trigger()。调用前需已通过
+ *          CanIf_TxPreparePayload() 或 CanIf_TxEncodeSignal()
+ *          完成 payload 准备。
  *
  * @param[in]  can_id  11-bit CAN identifier (must match a TX db entry)
  *
@@ -343,8 +348,8 @@ c02b2_result_t CanIf_TxTrigger(u32 can_id);
  * @brief   Copy the most recent raw 8-byte payload of a CAN frame
  * @brief   复制指定 CAN id 最近收到的 8 字节原始 payload
  *
- * @details Forwards to CanRx_GetLastRawFrame().  The RX tick caches
- *          one frame per IPK CAN id (8-byte payload + dlc).
+ * @details 转发至 CanRx_GetLastRawFrame()。RX tick 按
+ *          IPK CAN id 缓存一帧（8 字节 payload + dlc）。
  *
  * @param[in]   can_id  IPK RX can_id (11-bit standard)
  * @param[out]  out     Filled on success
@@ -357,7 +362,7 @@ c02b2_result_t CanIf_RxGetLastRawFrame(u32 can_id, can_msg_t *out);
  * @brief   Number of distinct IPK RX messages whose cache holds a frame
  * @brief   已缓存最近一帧的 IPK RX 报文数量
  *
- * @details Forwards to CanRx_GetRawFrameCount().
+ * @details 转发至 CanRx_GetRawFrameCount()。
  *
  * @return  u32  Count of cached entries (0 .. CAN_DB_IPK_RX_COUNT)
  */

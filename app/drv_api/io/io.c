@@ -5,6 +5,7 @@
  */
 #include "io.h"
 #include "pins_driver.h"
+/* REVIEW: Baseline 1 违例：drv_api 直接包含 pins_driver.h（Phase 3 拆分 IO 抽象） */
 
 void Io_WritePin(void *base, u32 pin, u32 level)
 {

@@ -3,22 +3,21 @@
  * @brief   Demo / bring-up module that exercises the full CAN stack
  * @brief   演练完整 CAN 栈的 demo / 联调模块
  *
- * @details Six things are demonstrated on a 1 s tick:
+ * @details 在 1 秒 tick 上演示六件事：
  *
- *   1. signal-bus read       -> Signal_Get(SIG_CAN_*) + LOG_I
- *   2. timeout-bitmap decode -> walk s_bit_to_can_id[] and the three
- *                              SIG_CAN_RX_TIMEOUT_MAP_LO/HI/HI2 slots
- *   3. raw frame cache       -> CanIf_RxGetLastRawFrame on a chosen IPK id
- *   4. TX whole payload      -> CanIf_TxPreparePayload + CanIf_TxTrigger
- *   5. TX one signal         -> CanIf_TxEncodeSignal + CanIf_TxTrigger
- *   6. raw <-> physical      -> CanDb_PackSignal / CanDb_GetRaw /
- *                              CanDb_DecodeSignal / CanDb_EncodeSignalValue
- *                              on EMS_EngineSpeedRPM (0x85) and
- *                              ESC_VehicleSpeed (0x125); live RX
- *                              Signal_Get + phys printed each tick
+ *   1. 信号总线读      -> Signal_Get(SIG_CAN_*) + LOG_I
+ *   2. 超时位图解码    -> 遍历 s_bit_to_can_id[] 以及三个
+ *                          SIG_CAN_RX_TIMEOUT_MAP_LO/HI/HI2 槽位
+ *   3. 原始帧缓存      -> 在选定的 IPK id 上调用 CanIf_RxGetLastRawFrame
+ *   4. 整帧 TX         -> CanIf_TxPreparePayload + CanIf_TxTrigger
+ *   5. 单信号 TX      -> CanIf_TxEncodeSignal + CanIf_TxTrigger
+ *   6. raw 与物理量互转 -> CanDb_PackSignal / CanDb_GetRaw /
+ *                          CanDb_DecodeSignal / CanDb_EncodeSignalValue
+ *                          作用于 EMS_EngineSpeedRPM (0x85) 和
+ *                          ESC_VehicleSpeed (0x125)；每次 tick
+ *                          同时打印 Signal_Get + 物理量
  *
- * All demo work targets the IPK test batch (CAN_DB_IPK_*) only.
- */
+ * 所有 demo 仅面向 IPK 测试批次 (CAN_DB_IPK_*)。 */
 #include "mod_can_demo.h"
 
 #include "types.h"
@@ -28,21 +27,17 @@
 #include "can_db_ipk_gen.h"    /* CAN_DB_IPK_*_COUNT, signal enum            */
 #include "drv_api/can/can_if.h"/* can_msg_t                                  */
 
-#define LOG_NAME  "CDEM"
+#define MOD_NAME  "CDEM"
 #include "log.h"
 
-/* Compile-time switch: MOD_CAN_DEMO_EN
- *   0 (default) - module descriptor registered, but no RTI slot
- *                 allocated and tick does nothing. The 6 demo
- *                 functions stay compiled (they reference DBC
- *                 tables so removing them would break the build
- *                 when the DBC changes), but they are never
- *                 invoked.
- *   1           - full demo on a 1 s tick: signal bus read,
- *                 timeout bitmap decode, raw frame cache, TX
- *                 payload, TX signal, raw<->physical round-trip.
+/* 编译期开关：MOD_CAN_DEMO_EN
+ *   0（默认）——模块描述符已注册但不分配 RTI slot，tick 不做任何事。
+ *               六个 demo 函数仍会被编译（它们引用了 DBC 表，删掉会在
+ *               DBC 变更时破坏构建），但永远不会被调用。
+ *   1           ——完整 demo，1 秒 tick：信号总线读、超时位图解码、
+ *                 原始帧缓存、TX 整帧、TX 单信号、raw<->physical 来回。
  *
- * Override on the compiler command line:
+ * 在编译命令行上覆盖：
  *   iarbuild ... --define MOD_CAN_DEMO_EN=1
  *   gcc -DMOD_CAN_DEMO_EN=1 ...
  */
@@ -51,42 +46,41 @@
 #endif
 
 #if MOD_CAN_DEMO_EN
-/* Caller-private RTI slot for 1s demo cadence. */
+/* 调用方私有的 RTI slot，1 秒 demo 节奏。*/
 static rti_slot_t s_slot_demo_1s;
 
 /* ---------------------------------------------------------------- *
  *  Demo configuration
  *
- *  Targets are pinned to specific IPK IDs / signal IDs so the log is
- *  deterministic and matches the DBC.  Change here only.
+ *  目标 ID/信号 ID 固定到具体的 IPK 上，以保证日志可复现且与 DBC 对齐。
+ *  如需修改，只改这里。
  * ---------------------------------------------------------------- */
 
-/* RX id used by demo #3 (raw frame cache read).  Pick an IPK RX
- * id that the bring-up rig is likely to feed.  0x0286 is
- * BCM_RDoorWindowState (RX, dlc=8) in the IPK DBC.
+/* Demo #3（原始帧缓存读）使用的 RX id。挑选联调台大概率会注入的
+ * IPK RX id。0x0286 在 IPK DBC 中是 BCM_RDoorWindowState（RX, dlc=8）。
  */
 #define DEMO_RX_ID_RAW           0x0286u
 
-/* TX id used by demo #4 (whole payload).  IPK_STS_Tx = 0x026D (IPK_STS). */
+/* Demo #4（整帧 TX）使用的 TX id。IPK_STS_Tx = 0x026D (IPK_STS)。*/
 #define DEMO_TX_ID_PAYLOAD       0x026Du
 
-/* TX id used by demo #5 (single signal).  IPK_EngineService = 0x03E9. */
+/* Demo #5（单信号 TX）使用的 TX id。IPK_EngineService = 0x03E9。*/
 #define DEMO_TX_ID_SIGNAL        0x03E9u
 
-/* Signal id within IPK_EngineService for demo #5.
- * IPK_DayToEngSrv (U16, length 9, factor 1) -> 0..511.
+/* Demo #5 在 IPK_EngineService 内的信号 id。
+ * IPK_DayToEngSrv (U16, length 9, factor 1) -> 0..511。
  */
 #define DEMO_TX_SIGNAL_ID        CAN_DB_SIG_IPK_DayToEngSrv
 
 
-/* Private state -------------------------------------------------------- */
+/* 私有状态 -------------------------------------------------------- */
 static struct {
     bool     inited;
     u32      sweep_count;
 } s_demo;
 
 /* ---------------------------------------------------------------- *
- *  Demo #1: signal-bus read
+ *  Demo #1: 信号总线读
  * ---------------------------------------------------------------- */
 
 /**
@@ -95,9 +89,8 @@ static struct {
  */
 static void prv_emit_sig(u16 db_id, signal_id_t bus_id, const char *name)
 {
-    /* RAW u32 on the signal bus (already the raw bit pattern of the
-     * field).  Consumer modules that need the physical value call
-     * CanDb_DecodeSignal() on top of it. */
+    /* 信号总线上的 RAW u32（已经是字段的原始比特位型）。
+     * 需要物理值的消费模块在其之上调用 CanDb_DecodeSignal()。*/
     const u32 raw = Signal_Get(bus_id);
     (void)db_id;
     #if CAN_DEMO_LOG
@@ -110,9 +103,8 @@ static void prv_demo_signals(void)
     #if CAN_DEMO_LOG
     LOG_I("[1/6] signals (live Signal_Get):");
     #endif
-    /* All demo signals are pulled from IPK RX messages that already
-     * exist in the IPK DBC (signal.h -> SIG_CAN_* already populated
-     * by app/can/can_rx.c). */
+    /* 所有 demo 信号都取自已存在于 IPK DBC 中的 IPK RX 消息
+     * （signal.h 中的 SIG_CAN_* 已经由 app/can/can_rx.c 填充好）。*/
     prv_emit_sig((u16)CAN_DB_SIG_EMS_EngineSpeedRPM,
                  SIG_CAN_EMS_EngineSpeedRPM,   "EMS_EngineSpeedRPM");
     prv_emit_sig((u16)CAN_DB_SIG_ESC_VehicleSpeed,
@@ -121,18 +113,18 @@ static void prv_demo_signals(void)
                  SIG_CAN_BMSH_BattSOCDisp,     "BMSH_BattSOCDisp");
 }
 
-/* Forward declarations of file-local helpers (defined later). */
+/* 文件内辅助函数的前向声明（稍后定义）。*/
 static u32 prv_bit_to_can_id(u32 bit);
 
 /* ---------------------------------------------------------------- *
- *  Demo #2: timeout-bitmap decode
+ *  Demo #2: 超时位图解码
  * ---------------------------------------------------------------- */
 static void prv_demo_timeouts(void)
 {
     const u32 lo  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO);
     const u32 hi  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI);
     const u32 hi2 = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2);
-    /* Count set bits in the three words.  Simple popcount. */
+    /* 统计三个 word 中置 1 的位数。简单 popcount。*/
     u32 to_cnt = 0u;
     for (u32 i = 0u; i < 32u; i++) {
         if ((lo  >> i) & 1) { to_cnt++; }
@@ -144,15 +136,15 @@ static void prv_demo_timeouts(void)
           (unsigned)lo, (unsigned)hi, (unsigned)hi2, (unsigned)to_cnt);
     #endif
 
-    /* Enumerate the first few set bits back to CAN id (Sentinel
-     * mapping; bit-N is stable across DBC reorders). */
+    /* 把前几个置 1 的位反向枚举回 CAN id（Sentinel 映射；
+     * DBC 顺序变动时 bit-N 保持稳定）。*/
     u32 printed = 0u;
     for (u32 bit = 0u; bit < (u32)CAN_BITMAP_MAX && printed < 4u; bit++) {
         const u32 word = (bit < 32u) ? lo : (bit < 64u) ? hi : hi2;
         const u32 shift = (bit < 32u) ? bit : (bit < 64u) ? (bit - 32u) : (bit - 64u);
         if (((word >> shift) & 1) == 0) { continue; }
-        /* s_bit_to_can_id is emitted by tools/dbc_parse.py into can_db_ipk_gen.c.
-         * Use the runtime helper CanDb_FindIpkById when a name is wanted. */
+        /* s_bit_to_can_id 由 tools/dbc_parse.py 生成到 can_db_ipk_gen.c。
+         * 需要名字时用运行时辅助 CanDb_FindIpkById。*/
         const u32 can_id = prv_bit_to_can_id(bit);
         const char *name = (can_id != 0u)
             ? CanDb_FindIpkById(can_id)->name : "unused";
@@ -165,7 +157,7 @@ static void prv_demo_timeouts(void)
 }
 
 /* ---------------------------------------------------------------- *
- *  Demo #3: raw frame cache (last 8-byte payload per IPK id)
+ *  Demo #3: 原始帧缓存（每个 IPK id 最近一帧的 8 字节负载）
  * ---------------------------------------------------------------- */
 static void prv_demo_raw_frame(void)
 {
@@ -193,12 +185,11 @@ static void prv_demo_raw_frame(void)
 }
 
 /* ---------------------------------------------------------------- *
- *  Demo #4: TX whole payload (8 raw bytes)
+ *  Demo #4: 整帧 TX（8 字节原始数据）
  * ---------------------------------------------------------------- */
 static void prv_demo_tx_payload(u32 sweep)
 {
-    /* A simple rotating byte pattern makes the test easy to spot on
-     * the CANalyzer trace. */
+    /* 简单的循环字节模式让测试点在 CANalyzer 波形上一眼可辨。*/
     u8 buf[8];
     for (u32 i = 0u; i < 8u; i++) { buf[i] = (u8)((sweep + i) & 0xFFu); }
     const c02b2_result_t r = CanIf_TxPreparePayload(DEMO_TX_ID_PAYLOAD,
@@ -221,15 +212,15 @@ static void prv_demo_tx_payload(u32 sweep)
 }
 
 /* ---------------------------------------------------------------- *
- *  Demo #5: TX single signal (rebuild + trigger)
+ *  Demo #5: 单信号 TX（rebuild + trigger）
  * ---------------------------------------------------------------- */
 static void prv_demo_tx_signal(u32 sweep)
 {
-    /* Modulo 512 keeps the value in range for a length=9, factor=1
-     * signal so the encode step does not reject out-of-range values. */
-    /* The bus carries RAW; demo emits a raw value that
-     * IPK_DayToEngSrv (length=9, factor=1, offset=0) accepts.
-     * For a DBC `+` (unsigned) signal raw range is 0..511. */
+    /* 模 512 保持数值在 length=9、factor=1 的信号量程内，
+     * 防止 encode 步骤因超量程拒绝。*/
+    /* 总线上传输的是 RAW；demo 发出的 raw 值会被
+     * IPK_DayToEngSrv (length=9, factor=1, offset=0) 接受。
+     * DBC 中 `+`（无符号）信号的 raw 范围是 0..511。*/
     const u32 v = (sweep * 7u) % 512u;
     const c02b2_result_t e = CanIf_TxEncodeSignal(DEMO_TX_ID_SIGNAL,
                                                 DEMO_TX_SIGNAL_ID, v);
@@ -252,37 +243,35 @@ static void prv_demo_tx_signal(u32 sweep)
 }
 
 /* ---------------------------------------------------------------- *
- *  Demo #6: raw <-> physical round-trip on RX signals (SOC bring-up)
+ *  Demo #6: raw 与物理量在 RX 信号上的往返（SOC 联调）
  *
- *  Two Motorola signals are exercised on a 1 s tick:
+ *  在 1 秒 tick 上跑两个 Motorola 信号：
  *    - EMS_EngineSpeedRPM  (CAN ID 0x85,  start=23, len=16, factor=0.25)
  *    - ESC_VehicleSpeed    (CAN ID 0x125, start=15, len=13, factor=0.05625)
  *
- *  Three independent round-trips are reported per signal so a CANalyzer
- *  sweep can verify the codec against SOC ground truth:
+ *  每个信号给出三轮独立往返，便于 CANalyzer sweep 与 SOC 真值核对编解码：
  *
- *  [A] raw   -> pack    -> GetRaw                  (must equal raw)
- *  [B] raw   -> decode  -> phys (s32 integer)     (raw * factor + offset, rounded)
- *  [C] phys  -> encode  -> pack -> decode -> phys  (must equal phys)
- *  [D] RX side (live): Signal_Get + CanDb_DecodeSignal on the
- *      last frame received from CANalyzer.
+ *  [A] raw   -> pack    -> GetRaw                  (必须等于 raw)
+ *  [B] raw   -> decode  -> phys (s32 整数)         (raw * factor + offset，四舍五入)
+ *  [C] phys  -> encode  -> pack -> decode -> phys  (必须等于 phys)
+ *  [D] RX 端（实时）: Signal_Get + CanDb_DecodeSignal 作用于
+ *      CANalyzer 最近发出的一帧。
  *
- *  For non-power-of-two factors (0.05625) the [B] phys is a quantised
- *  s32 -- one phys step covers `factor` raw steps.  Round-tripping
- *  raw -> phys -> raw may shift by one raw step; this is expected and
- *  matches how every other CAN toolchain reports the signal.
+ *  对非 2 的幂因子（如 0.05625），[B] 的 phys 是量化后的 s32 ——
+ *  一个 phys 步长覆盖 factor 个 raw 步。raw -> phys -> raw 往返可能
+ *  偏移一个 raw 步，这是预期行为，与其它 CAN 工具链对该信号的处理一致。
  * ---------------------------------------------------------------- */
 
-/* Sweep raw through the signal range so each tick prints a fresh
- * value to compare against CANalyzer.  LCG keeps the value deterministic. */
+/* 在信号量程内扫 raw，使每个 tick 都能打印一个与 CANalyzer 对照的新值。
+ * LCG 保证值的确定性。*/
 static u32 prv_demo_raw_step(u32 sweep, u32 mask)
 {
     u32 v = (sweep * 2654435761u) + 1u;
     return v & mask;
 }
 
-/* Pretty-print one signal across paths A / B / C and the live RX path D.
- * Designed to be line-parsable by hand while CANalyzer logs the bus. */
+/* 跨路径 A / B / C 以及实时 RX 路径 D 漂亮地打印一个信号。
+ * 设计上每行都便于在 CANalyzer 录总线时手工解析。*/
 static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
 {
     const can_sig_desc_t *sig = CanDb_FindIpkSig(sig_id);
@@ -297,7 +286,7 @@ static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
     CanDb_PackSignal(payload, sig, raw_in);
     const u32 raw_a = CanDb_GetRaw(payload, sig);
 
-    /* [B] raw -> decode -> phys (s32 integer) */
+    /* [B] raw -> decode -> phys (s32 整数) */
     const s32 phys_b = CanDb_DecodeSignal(payload, sig);
 
     /* [C] phys -> encode -> pack -> decode -> phys */
@@ -324,22 +313,21 @@ static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
     #endif
 }
 
-/* Print the live RX side: Signal_Get returns the raw bit pattern from
- * the last payload the RX path drained.  Pair with CANalyzer -- if
- * CANalyzer sends a 16-bit raw value to 0x85 and you see the same raw
- * here, the Motorola decode is correct.  `phys` shows the s32 quantised
- * value (raw * factor + offset, rounded); use this for SOC cross-check. */
+/* 打印实时 RX 端：Signal_Get 返回 RX 路径最近处理的一帧负载的 raw 位型。
+ * 与 CANalyzer 配对使用 —— 如果 CANalyzer 向 0x85 发出一个 16-bit raw
+ * 并在这里看到同样的 raw，说明 Motorola 解码正确。
+ * `phys` 显示量化后的 s32 值（raw * factor + offset，四舍五入），
+ * 用于 SOC 交叉核对。*/
 static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
 {
     const u32 raw_live = Signal_Get(bus_id);
     const can_sig_desc_t *sig = CanDb_FindIpkSig(sig_id);
     s32 phys_live = 0;
     if (sig != NULL) {
-        /* Reuse the last-frame cache to drive a synthetic decode that
-         * matches what a consumer module would do.  We cannot call
-         * CanDb_DecodeSignal() directly on Signal_Get() -- the bus
-         * holds raw, the decode needs the original 8-byte payload.
-         * Instead just compute phys = raw * factor + offset inline. */
+        /* 复用最近一帧缓存驱动一次合成解码，模拟消费模块的
+         * 行为。不能直接对 Signal_Get() 调 CanDb_DecodeSignal() ——
+         * 总线上是 raw，解码需要原始 8 字节负载。这里改为
+         * 直接 inline 计算 phys = raw * factor + offset。*/
         phys_live = (s32)(((float)raw_live * sig->factor) + sig->offset + 0.5f);
     }
     (void)phys_live;
@@ -351,8 +339,8 @@ static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
 
 static void prv_demo_raw_physical(u32 sweep)
 {
-    /* Sweep raw through the full length-bit range so CANalyzer sees
-     * the physical value transition across the full scale. */
+    /* 在完整 length 位宽内扫 raw，使 CANalyzer 能看到
+     * 物理量跨越全量程的过渡。*/
     const u32 rpm_mask   = (1u << 16) - 1u;  /* EMS_EngineSpeedRPM len=16 */
     const u32 speed_mask = (1u << 13) - 1u;  /* ESC_VehicleSpeed   len=13 */
 
@@ -364,7 +352,7 @@ static void prv_demo_raw_physical(u32 sweep)
     prv_demo_roundtrip((u16)CAN_DB_SIG_ESC_VehicleSpeed,
                        "ESC_VehicleSpeed",   speed_raw);
 
-    /* Live RX: what the codec actually extracted from the last frame. */
+    /* 实时 RX：编解码从最近一帧实际抽出的值。*/
     prv_demo_live_rx((u16)CAN_DB_SIG_EMS_EngineSpeedRPM,
                      SIG_CAN_EMS_EngineSpeedRPM, "EMS_EngineSpeedRPM");
     prv_demo_live_rx((u16)CAN_DB_SIG_ESC_VehicleSpeed,
@@ -372,13 +360,13 @@ static void prv_demo_raw_physical(u32 sweep)
 }
 
 /* ---------------------------------------------------------------- *
- *  Helpers
+ *  辅助函数
  * ---------------------------------------------------------------- */
 
-/* Per-bit CAN id lookup table (Sentinel).  Declarared in can_db_ipk_gen.h
- * and defined in can_db_ipk_gen.c.  CAN_BITMAP_MAX is the bitmap width
- * (96 entries, one per SIG_CAN_RX_TIMEOUT_MAP_* bit); sentinel_unused
- * is 0 so an id of 0 means "bit reserved / deleted". */
+/* 每位 CAN id 查表（Sentinel）。在 can_db_ipk_gen.h 中声明，
+ * 在 can_db_ipk_gen.c 中定义。CAN_BITMAP_MAX 是位图宽度
+ * （96 项，每位对应 SIG_CAN_RX_TIMEOUT_MAP_* 一个位）；
+ * sentinel_unused 为 0，因此 id=0 表示该位保留或已删除。*/
 static u32 prv_bit_to_can_id(u32 bit)
 {
     if (bit >= (u32)CAN_BITMAP_MAX) { return 0u; }
@@ -389,7 +377,7 @@ static u32 prv_bit_to_can_id(u32 bit)
 #endif /* MOD_CAN_DEMO_EN */
 
 /* ---------------------------------------------------------------- *
- *  mod_desc_t hooks
+ *  mod_desc_t 钩子
  * ---------------------------------------------------------------- */
 static void prv_mcu_init(uint8_t cold_boot)
 {
@@ -447,7 +435,7 @@ static void prv_standby(void)
 #endif
 }
 
-/* Module descriptor ---------------------------------------------------- */
+/* 模块描述符 ---------------------------------------------------- */
 /**
  * @brief   Module descriptor registered in scheduler.c
  * @brief   在 scheduler.c 中注册的模块描述符

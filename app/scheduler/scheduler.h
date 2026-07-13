@@ -50,11 +50,10 @@ typedef struct mod_desc_s {
  * @brief   Run mcu_init() on every registered module
  * @brief   遍历注册表, 依次调用每个模块的 mcu_init
  *
- * @details Iterates g_sched_modules[] in declaration order and
- *          invokes each non-NULL mcu_init hook once. Called once
- *          during boot, before any peripheral init that depends
- *          on a module being ready.
- *
+ * @details 按声明顺序遍历 g_sched_modules[]，对每个非 NULL 的
+ *          mcu_init 钩子调用一次。引导时调用一次，位于任何依赖
+
+ *          "模块已就绪" 状态的外设初始化之前。
  * @param   none
  * @return  void
  */
@@ -63,12 +62,10 @@ void Scheduler_Init(void);
  * @brief   Run wakeup_init() on every registered module
  * @brief   遍历注册表, 依次调用每个模块的 wakeup_init
  *
- * @details Separate from Scheduler_Init so modules can keep
- *          cold-boot setup in mcu_init and resume-from-reset
- *          work (NVIC priority restore, wake source re-arm) in
- *          wakeup_init. Called once between Scheduler_Init and
- *          Scheduler_OnIgnOn.
- *
+ * @details 与 Scheduler_Init 分开，让模块能把冷启动相关的设置
+ *          放在 mcu_init，把复位恢复相关的工作(NVIC 优先级复位、
+ *          唤醒源重新使能)放在 wakeup_init。
+ *          在 Scheduler_Init 与 Scheduler_OnIgnOn 之间调用一次。
  * @param   none
  * @return  void
  */
@@ -77,11 +74,9 @@ void Scheduler_WakeupInit(void);
  * @brief   Broadcast on_ign_on() to every registered module
  * @brief   向所有模块广播 on_ign_on
  *
- * @details Iterates g_sched_modules[] in declaration order and
- *          invokes each non-NULL on_ign_on hook. Called once
- *          after KL15 turns ON (or immediately on cold boot if
- *          IGN is already on).
- *
+ * @details 按声明顺序遍历 g_sched_modules[]，对每个非 NULL 的
+ *          on_ign_on 钩子调用一次。在 KL15 上电之后调用一次
+ *          (冷启动时若 IGN 已接通则立即调用)。
  * @param   none
  * @return  void
  */
@@ -90,11 +85,9 @@ void Scheduler_OnIgnOn(void);
  * @brief   One super-loop iteration
  * @brief   单次 super-loop 循环
  *
- * @details Iterates g_sched_modules[] in declaration order and
- *          invokes each non-NULL tick hook. Modules decide their
- *          own sub-period via the RTI slot API. Called from the
- *          main() for(;;) loop, between __WFI() sleep windows.
- *
+ * @details 按声明顺序遍历 g_sched_modules[]，对每个非 NULL 的
+ *          tick 钩子调用一次。各模块通过 RTI slot API 各自决定子周期。
+ *          由 main() 的 for(;;) 循环在 __WFI() 休眠窗口之间调用。
  * @param   none
  * @return  void
  */
@@ -103,11 +96,9 @@ void Scheduler_Run(void);
  * @brief   Broadcast standby() to every registered module
  * @brief   向所有模块广播 standby
  *
- * @details Iterates g_sched_modules[] in declaration order and
- *          invokes each non-NULL standby hook before the MCU
- *          enters low-power mode. Modules release peripherals
- *          and save any per-cycle context here.
- *
+ * @details MCU 进入低功耗模式前，按声明顺序遍历 g_sched_modules[]，
+ *          对每个非 NULL 的 standby 钩子调用一次：模块在此释放外设
+ *          并保存各自的周期上下文。
  * @param   none
  * @return  void
  */

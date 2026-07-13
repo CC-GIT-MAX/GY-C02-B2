@@ -3,14 +3,13 @@
  * @brief   GPIO / pin wrapper API
  * @brief   GPIO / 引脚封装接口
  *
- * Thin wrappers around the vendor pins_driver so business modules
- * do not include the SDK headers directly.  Common-use helpers
- * (set output, read input, configure pin mux) land here.
+ * 对厂商 pins_driver 的薄封装，让业务模块无需直接包含 SDK
+ * 头文件。通用辅助函数（设置输出、读取输入、配置 pin mux）
+ * 均放在本头文件中。
  *
- * Note: PINS_DRV_Init() is intentionally NOT exposed -- the
- * pin-mux + GPIO init is performed once during DRV_Init() from
- * board/pin_mux.c.  Calling it twice would re-program every pin
- * and clobber any in-flight peripheral configuration.
+ * 注：PINS_DRV_Init() 故意不导出 —— pin-mux + GPIO 初始化
+ * 仅由 board/pin_mux.c 在 DRV_Init() 中执行一次。重复调用会
+ * 重新配置所有引脚，破坏进行中的外设配置。
  */
 #ifndef C02B2_DRV_API_IO_H
 #define C02B2_DRV_API_IO_H

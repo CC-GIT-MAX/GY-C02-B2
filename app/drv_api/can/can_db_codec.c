@@ -23,7 +23,7 @@
  */
 #include "can_db_codec.h"
 
-#define LOG_NAME  "CDBC"
+#define MOD_NAME  "CDBC"
 #include "log.h"
 
 /* ---------------------------------------------------------------- *
@@ -94,26 +94,24 @@ can_raw_t CanDb_BitExtract(const u8 *data, u16 start_bit, u8 length, u8 byte_ord
     can_raw_t value = 0u;
     if (length == 0u) { return 0u; }
 
-    /* Walk MSB-first within the field so the read order does not
-     * matter for endianness: each step contributes the next bit
-     * of the result shifted into the high end. */
+    /* 在字段内按 MSB 在前遍历，使读取顺序与字节序无关：
+     * 每步都将下一位移入结果的高位。 */
     if (byte_order == 1u) {
-        /* Intel: start_bit is the network position of the LSB; the
-         * MSB of the field sits at network position (start_bit +
-         * length - 1).  Within each byte the field's bit ordering
-         * is LSB-up, so we read with prv_get_bit_lsb(). */
+        /* Intel：start_bit 为字段 LSB 在网络位序中的位置，
+         * 字段的 MSB 位于网络位 (start_bit + length - 1)。
+         * 每个字节内按 LSB 升序读取，故调用 prv_get_bit_lsb()。 */
         for (u8 i = 0u; i < length; i++) {
             const u16 n = (u16)(start_bit + length - 1u - i);
             const u8  b = prv_get_bit_lsb(data, (u8)n);
             value = (can_raw_t)((value << 1) | (can_raw_t)b);
         }
     } else {
-        /* Motorola: start_bit is the sawtooth index of the MSB of
-         * the field.  Convert it to the network bit position where
-         * the MSB actually lives, then read `length` bits MSB-first
-         * (network 0 = byte 0 MSB, network 7 = byte 0 LSB,
-         *  network 8 = byte 1 MSB, ...).  Reading MSB-first means
-         * the per-byte bit index decreases by one each step. */
+        /* Motorola：start_bit 为字段 MSB 的锯齿下标。
+         * 先换算为 MSB 实际所在的网络位位置，
+         * 再按 MSB 在前读取 `length` 个位
+         * （网络 0 = byte 0 MSB，网络 7 = byte 0 LSB，
+         *  网络 8 = byte 1 MSB，依此类推）。按 MSB 在前读取时，
+         * 每字节内位下标每步递减一。 */
         const u16 msb_net = (u16)((u16)(start_bit & 0xFFF8u)
                                  + (u16)(7u - (start_bit & 0x7u)));
         for (u8 i = 0u; i < length; i++) {
@@ -139,13 +137,13 @@ can_raw_s_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 
 {
     const can_raw_t raw = CanDb_BitExtract(data, start_bit, length, byte_order);
     if (length == 0u || length >= 32u) {
-        /* Sign bit is bit (length-1); for length==32 it already fits in s32. */
+        /* 符号位为 bit (length-1)；当 length==32 时已在 s32 内。 */
         return (can_raw_s_t)raw;
     }
     const can_raw_t sign_mask = (can_raw_t)1u << (length - 1u);
     if ((raw & sign_mask) != 0u) {
-        /* Negative: set all bits above `length`. */
-        const can_raw_t extend = ~(sign_mask) + 1u;  /* arithmetic -1 << length not portable */
+        /* 负数：将 `length` 之上的所有位置 1。 */
+        const can_raw_t extend = ~(sign_mask) + 1u;  /* 算术 -1 << length 不具备可移植性 */
         const can_raw_t fill   = ~((can_raw_t)1u << length) + 1u;
         (void)extend;
         return (can_raw_s_t)(raw | fill);
@@ -167,19 +165,18 @@ void CanDb_BitEncode(u8 *data, u16 start_bit, u8 length, u8 byte_order, can_raw_
 {
     if (length == 0u) { return; }
     if (byte_order == 1u) {
-        /* Intel: write the LSB of `value` into start_bit and walk
-         * upward.  Per-byte ordering is LSB-up. */
+        /* Intel：将 `value` 的 LSB 写入 start_bit，再向高位递增。
+         * 每个字节内按 LSB 升序写入。 */
         for (u8 i = 0u; i < length; i++) {
             const u16 n = (u16)(start_bit + i);
             const u8  b = (u8)((value >> i) & 0x1u);
             prv_set_bit_lsb(data, (u8)n, b);
         }
     } else {
-        /* Motorola: convert sawtooth start_bit to network MSB and
-         * walk forward.  Each subsequent bit lives at the next
-         * network position, which is the next byte's MSB after the
-         * byte boundary is crossed.  The MSB of `value` lands at
-         * the network MSB position. */
+        /* Motorola：先将锯齿 start_bit 换算为网络 MSB 位置，
+         * 再向前逐位写入。后续位位于下一网络位置，
+         * 跨字节时落到下一字节的 MSB。
+         * `value` 的 MSB 落在该网络 MSB 位置上。 */
         const u16 msb_net = (u16)((u16)(start_bit & 0xFFF8u)
                                  + (u16)(7u - (start_bit & 0x7u)));
         for (u8 i = 0u; i < length; i++) {
@@ -206,7 +203,7 @@ void CanDb_BitEncode(u8 *data, u16 start_bit, u8 length, u8 byte_order, can_raw_
 u32 CanDb_GetRaw(const u8 *data, const can_sig_desc_t *sig)
 {
     if (sig->is_signed) {
-        /* DBC `-`: sign-extend; cast to u32 preserves bit pattern. */
+        /* DBC `-`：符号扩展；cast 到 u32 保留位模式。 */
         const s32 raw_s = (s32)CanDb_BitExtractSigned(data, sig->start_bit, sig->length, sig->byte_order);
         return (u32)raw_s;
     }
@@ -218,11 +215,10 @@ u32 CanDb_GetRaw(const u8 *data, const can_sig_desc_t *sig)
  * @brief   Decode one DBC signal from a payload to its physical value
  * @brief   从 payload 中按 DBC 信号描述符解码, 返回物理量
  *
- * @details Honors `sig->is_signed`: signed signals go through
- *          CanDb_BitExtractSigned() so the raw value is sign-
- *          extended before factor/offset are applied. The output
- *          is `raw * factor + offset`, rounded half-away-from-zero
- *          to fit in s32.
+* @details 遵循 `sig->is_signed`：有符号信号走
+*          CanDb_BitExtractSigned()，先符号扩展原始位再
+*          施加 factor/offset。输出为 `raw * factor + offset`，
+*          四舍五入（half-away-from-zero）后截断到 s32。
  *
  * @param[in]  data  Pointer to at least 8 bytes of payload
  * @param[in]  sig   Signal descriptor (AUTOGEN, read-only)
@@ -237,10 +233,15 @@ s32 CanDb_DecodeSignal(const u8 *data, const can_sig_desc_t *sig)
     } else {
         raw = (s32)CanDb_BitExtract(data, sig->start_bit, sig->length, sig->byte_order);
     }
-    /* physical = raw * factor + offset, rounded to nearest int32 */
+    /* physical = raw * factor + offset，结果四舍五入到 int32 */
     const float f = (float)raw * sig->factor + sig->offset;
-    /* round-half-away-from-zero for negative values: add 0.5 and cast
-     * works correctly for non-negative; for negative we need -0.5 + cast. */
+    /* 四舍五入 half-away-from-zero。非负 f 直接 +0.5f；负 f 减 0.5f
+     * 后 cast 到 s32 借助 C 向零截断语义自动给出正确结果：
+     *   f = -0.5f -> f - 0.5f = -1.0f -> cast -1  (|0.5| 远离 0)
+     *   f = -0.4f -> f - 0.5f = -0.9f -> cast  0  (|0.4| 仍留 0 侧)
+     *   f = -1.5f -> f - 0.5f = -2.0f -> cast -2  (|1.5| 远离 0)
+     * A9 REVIEW 已确认：边界由 (s32) cast 的 C 标准"向零截断" + 本分支的 +/-0.5f
+     * 偏移共同给出符合 half-away-from-zero 的结果。 */
     if (f >= 0.0f) { return (s32)(f + 0.5f); }
     return (s32)(f - 0.5f);
 }
@@ -257,11 +258,11 @@ s32 CanDb_DecodeSignal(const u8 *data, const can_sig_desc_t *sig)
  */
 can_raw_t CanDb_EncodeSignalValue(s32 value, const can_sig_desc_t *sig)
 {
-    /* raw = (value - offset) / factor, rounded */
+    /* raw = (value - offset) / factor，四舍五入 */
     float f;
     if (sig->factor == 0.0f) {
-        /* Degenerate factor -- emit the integer value directly so we
-         * never divide by zero (some sloppy DBCs do this). */
+        /* factor 退化为 0 —— 直接输出整型值，避免除零
+         * （某些粗制 DBC 会出现这种情况）。 */
         f = (float)value;
     } else {
         f = ((float)value - sig->offset) / sig->factor;
@@ -270,7 +271,7 @@ can_raw_t CanDb_EncodeSignalValue(s32 value, const can_sig_desc_t *sig)
     if (f >= 0.0f) { raw = (s32)(f + 0.5f); }
     else            { raw = (s32)(f - 0.5f); }
 
-    /* Saturate to the representable range for this length. */
+    /* 将结果饱和截断到当前 length 可表示的范围内。 */
     if (sig->is_signed) {
         if (sig->length == 0u || sig->length >= 32u) {
             return (can_raw_t)raw;

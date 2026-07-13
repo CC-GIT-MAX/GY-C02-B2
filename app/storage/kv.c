@@ -7,19 +7,17 @@
  */
 #include "kv.h"
 
-#define LOG_NAME  "KV "
+#define MOD_NAME  "KV "
 #include "log.h"
 
 /**
  * @brief   Initialize the KV storage layer
  * @brief   初始化 KV 存储层
  *
- * @details Real implementation will:
- *   1. Read partition headers, validate CRC.
- *   2. Select the newer of the two partitions.
- *   3. Build the in-RAM index from the active partition.
- *
- * @return  c02b2_result_t  Always C02B2_OK (skeleton)
+ * @details 真实实现计划如下：
+ *   1. 读出两个分区的头，校验 CRC。
+ *   2. 选择两份中较新的那份。
+ *   3. 用活跃分区构建内存中的索引。
  */
 c02b2_result_t KV_Init(void)
 {
@@ -48,26 +46,17 @@ c02b2_result_t KV_Get(u16 key, void *buf, u8 *inout_len)
  * @brief   Write a key to the RAM cache
  * @brief   将一个键写入 RAM 缓存
  *
- * @details Skeleton only validates the length. Real implementation
- *          stores the value in a RAM cache and marks the partition
- *          dirty; the next KV_Commit() flushes to flash.
- *
- * @param[in]  key   16-bit key ID
- * @param[in]  buf   Payload
- * @param[in]  len   Payload length
- *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Value accepted
- * @retval  C02B2_ERR_OVERFLOW  len > KV_MAX_VALUE_LEN
+ * @details 骨架实现只校验长度。真实实现把值写入 RAM 缓存，并标记该
+ *          分区为 dirty；下次 KV_Commit() 时落盘。
  */
 c02b2_result_t KV_Set(u16 key, const void *buf, u8 len)
 {
-    /* Length validation happens before the empty body. */
+    /* 长度校验在进入函数体之前完成。*/
     if (len > KV_MAX_VALUE_LEN) {
         return C02B2_ERR_OVERFLOW;
     }
     (void)key; (void)buf;
-    /* TODO: 写入 RAM cache，KV_Commit() 时落盘. */
+    /* TODO: 写入 RAM cache，KV_Commit() 时落盘。*/
     return C02B2_OK;
 }
 

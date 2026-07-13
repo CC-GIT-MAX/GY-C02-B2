@@ -148,15 +148,14 @@ typedef struct {
  * @brief   Extract a raw unsigned value from a CAN payload
  * @brief   从 CAN 报文 payload 中提取原始无符号值
  *
- * @details Walks `length` bits starting at `start_bit` in the
- *          direction implied by `byte_order`. Always returns an
- *          unsigned value; use `CanDb_BitExtractSigned` if the
- *          signal is two's-complement.
+ * @details 从 `start_bit` 起沿 `byte_order` 隐含的方向遍历 `length` 个位。
+ *          始终返回无符号值；若信号为二进制补码，
+ *          请改用 `CanDb_BitExtractSigned`。
  *
- *          `length` must be 1..32. `start_bit` follows the Vector
- *          DBC convention:
- *            Motorola: sawtooth index of the MSB of the field
- *            Intel:    network bit position of the LSB of the field
+ *          `length` 必须为 1..32。`start_bit` 遵循 Vector
+ *          DBC 约定：
+ *            Motorola：字段 MSB 的锯齿下标
+ *            Intel：    字段 LSB 的网络位位置
  *
  * @param[in]  data        Pointer to at least 8 bytes of payload
  * @param[in]  start_bit   DBC start_bit (see above)
@@ -184,8 +183,8 @@ can_raw_s_t CanDb_BitExtractSigned(const u8 *data, u16 start_bit, u8 length, u8 
  * @brief   Encode an unsigned raw value into a CAN payload
  * @brief   将无符号原始值写入 CAN 报文 payload
  *
- * @details Bits outside the field are preserved (the function
- *          performs read-modify-write). `length` must be 1..32.
+ * @details 字段之外的位保持不变（采用 read-modify-write）。
+ *          `length` 必须为 1..32。
  *
  * @param[out] data        Payload buffer (8 bytes)
  * @param[in]  start_bit   DBC start_bit
@@ -218,16 +217,16 @@ s32 CanDb_DecodeSignal(const u8 *data, const can_sig_desc_t *sig);
  * @brief   Extract a signal as a RAW (un-decoded) value from a payload.
  * @brief   从 payload 中按信号描述符抽取信号的 RAW(未解码)值
  *
- * @details Honors `sig->is_signed`. Unsigned signals return
- *          a zero-extended raw value (CanDb_BitExtract). Signed
- *          (DBC `-`) signals return a sign-extended raw value
- *          (CanDb_BitExtractSigned). The bit pattern is preserved
- *          so that downstream Signal_Set(u32) round-trips loss-
- *          less and CanDb_DecodeSignal can re-derive physical.
+ * @details 遵循 `sig->is_signed`。无符号信号返回
+ *          零扩展后的原始位（CanDb_BitExtract）；
+ *          有符号信号（DBC `-`）返回符号扩展后的原始位
+ *          （CanDb_BitExtractSigned）。位模式保持不变，
+ *          以便下游 Signal_Set(u32) 无损往返，
+ *          并使 CanDb_DecodeSignal 能重新派生物理量。
  *
- *          This is the call site for raw-on-the-bus policy: the
- *          signal-bus value is the raw bit pattern; physical is
- *          computed by modules via CanDb_DecodeSignal(raw, sig).
+ *          这是 raw-on-the-bus 策略的调用点：
+ *          信号总线值为原始位模式，物理量由
+ *          各模块通过 CanDb_DecodeSignal(raw, sig) 自行计算。
  *
  * @param[in]  data  8-byte payload (Intel or Motorola)
  * @param[in]  sig   Signal descriptor (start/length/order/signed)

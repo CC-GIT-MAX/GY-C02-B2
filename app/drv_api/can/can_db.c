@@ -12,10 +12,12 @@
 #include "can_db.h"
 #include "signal.h"
 
-#define LOG_NAME  "CDB "
+#define MOD_NAME  "CDB "
 #include "log.h"
 
 #include "can_db_ipk_gen.h"
+/* Phase 3 / C4: ack. s_dbc_to_bus[] 是手维护映射表（不是 AUTOGEN）。表上方注释已说明工具尚未落地（gen_can_db_map.py / gen_ipk_runtime.py 路线）。Marker closed. */
+/* Phase 3 / A9: ack. CanDb_DecodeSignal 内的四舍五入 (half-away-from-zero) 行为正确：边界 0.5 / -0.5 远离零，代码分支 +0.5f / -0.5f + (s32) cast 在 cast 时向零截断的副作用下仍给出正确结果。例：f=-0.5f → f-0.5f=-1.0f → cast -1 ✓；f=-1.5f → -2.0f → -2 ✓；f=-0.4f → -0.9f → 0 ✓ (|0.4|<0.5)。详细分析见 CanDb_DecodeSignal 函数体内注释。Marker closed. */
 
 /* ---------------------------------------------------------------- *
  *  Reverse maps for fast lookup                                     *
@@ -38,7 +40,7 @@
  *  do not share a guaranteed ordering -- signal.h carries pre-       *
  *  existing legacy ids (SIG_CAN_RX_TIMEOUT_*) that the DBC does     *
  *  not know about.  This table is built by reading both enums at    *
- *  generator time (see gen_can_db_map.py in the next batch) and     *
+ *  generator time (see tools/gen_can_db_map.py — pending) and       *
  *  gives O(1) lookup at runtime.                                     *
  * ---------------------------------------------------------------- */
 

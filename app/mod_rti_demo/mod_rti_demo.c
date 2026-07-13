@@ -2,32 +2,29 @@
  * @file    mod_rti_demo.c
  * @brief   Demo module proving RTI caller-private slots do not collide
  *
- * Registers two private slots, both bound to RTI_10MS, and
- * increments two separate counters. The tick prints both counters
- * every 1 s. Each slot fires ~100x per second (1000/10) but
- * counter A and counter B run on independent timelines.
+ * 注册两个私有 slot，都绑定到 RTI_10MS，分别递增两个独立
+ * 计数器。tick 每 1 s 打印两个计数器。每个 slot 每秒
+ * 触发约 100 次（1000/10），但计数器 A 与计数器 B 各自
+ * 沿独立时间线运行。
  *
- * If RTI_OpenSlot returned a shared slot, only one of the two
- * RTI_SlotElapsed calls would ever return true per 100 ms window
- * (the later call would re-stamp and short-circuit the earlier).
- * With the new API both fire reliably.
+ * 若 RTI_OpenSlot 返回共享 slot，则每个 100 ms 窗口内只有
+ * 后调用的 RTI_SlotElapsed 会返回 true（后调用会重新打时间戳
+ * 并短路先前的调用）。使用新 API 后两个 slot 都能可靠触发。
  */
 #include "mod_rti_demo.h"
 #include "rti.h"
 
-#define LOG_NAME  "RTID"
+#define MOD_NAME  "RTID"
 #include "log.h"
 
-/* Compile-time switch: MOD_RTI_DEMO_EN
- *   0 (default) - module descriptor registered with NULL hooks, no
- *                 RTI slot allocated, no tick output. The module
- *                 becomes a "presence-only" entry in
- *                 scheduler.c::g_sched_modules[].
- *   1           - full demo: two RTI_10MS slots, counter print
- *                 every 1 s. Use for RTI slot / Scheduler
- *                 bring-up verification.
+/* 编译期开关：MOD_RTI_DEMO_EN
+ *   0（默认） —— 模块描述符以 NULL 钩子注册，不分配 RTI slot，
+ *                无 tick 输出。该模块成为 scheduler.c::g_sched_modules[]
+ *                中的"仅占位"条目。
+ *   1          —— 完整 demo：两个 RTI_10MS slot，每 1 s 打印计数器。
+ *                用于 RTI slot / Scheduler 启动验证。
  *
- * Override on the compiler command line:
+ * 编译器命令行覆盖：
  *   iarbuild ... --define MOD_RTI_DEMO_EN=1
  *   gcc -DMOD_RTI_DEMO_EN=1 ...
  */
@@ -36,14 +33,13 @@
 #endif
 
 #if MOD_RTI_DEMO_EN
-/* Two private slots, both 10ms. Both fire on the same 10 ms
- * tick so a and b stay in lockstep (a==b every log line), which
- * is the proof that the slots are independent - each slot keeps
- * its own last_ms and is evaluated independently. */
+/* 两个私有 slot，均为 10ms。两者在同一 10 ms tick 上触发，
+ * 因此 a 与 b 保持锁步（每行日志 a==b），这是 slot 相互独立的
+ * 证明 —— 每个 slot 各自维护 last_ms 并独立求值。 */
 static rti_slot_t s_slot_a;
 static rti_slot_t s_slot_b;
 
-/* Independent counters prove independent timelines. */
+/* 独立计数器证明独立时间线。 */
 static struct {
     uint32_t cnt_a;       /**< slot A fire count */
     uint32_t cnt_b;       /**< slot B fire count */
@@ -88,7 +84,7 @@ static void prv_on_ign_on(void)
 static void prv_tick(void)
 {
 #if MOD_RTI_DEMO_EN
-    /* Each slot fires independently at 100ms cadence. */
+    /* 每个 slot 以 100ms 周期独立触发。 */
     if (RTI_SlotElapsed(&s_slot_a)) {
         s_demo.cnt_a++;
         s_demo.last_a = RTI_GetTick1ms();
@@ -98,7 +94,7 @@ static void prv_tick(void)
         s_demo.last_b = RTI_GetTick1ms();
     }
 
-    /* Log every 1s so the UART stays readable. */
+    /* 每 1 s 记一次日志，保持 UART 可读。 */
     const uint32_t now = RTI_GetTick1ms();
     if ((now - s_demo.tick_1s_ms) < 1000u) { return; }
     s_demo.tick_1s_ms = now;

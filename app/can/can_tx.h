@@ -48,11 +48,9 @@ c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
  * @brief   Update a single signal inside an existing TX payload.
  * @brief   在已有 TX payload 中更新单个信号
  *
- * @details Other signals in the same message keep their previous
- *          values.  This is the common call from business modules:
- *          "I just computed a new fuel-level value, please update
- *          the IPK_FuelLevelSts bit field for me."
- *
+ * @details 同报文中其他信号保留先前值。这是业务模块最常用的
+ *          调用："我刚算出新的 fuel-level 值，请帮我更新
+ *          IPK_FuelLevelSts 的位域。" *
  * @param[in]  can_id  IPK TX message can_id
  * @param[in]  sig_id  CAN_DB_SIG_* signal id belonging to that message
  * @param[in]  value   Physical value (will be quantised per factor/offset)
@@ -65,15 +63,12 @@ c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
 c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw);
 
 /**
- * @brief   Rebuild a TX payload from every signal of that message,
- *          reading current signal-bus values via Signal_Get().
+ * @brief   Rebuild a TX payload from every signal via Signal_Get()
  * @brief   从 signal bus 重新读所有信号, 全量重建一条 TX 报文的 payload
  *
- * @details Convenient for cyclic frames whose payload is fully
- *          derived from bus state (e.g. IPK_STS).  Triggered
- *          explicitly by the business module or by the rebuild
- *          policy in mod_can_tx::prv_tick.
- *
+ * @details 对 payload 完全由 bus 状态派生的循环帧很方便
+ *          （如 IPK_STS）。由业务模块显式触发，或由
+ *          mod_can_tx::prv_tick 中的 rebuild 策略触发。 *
  * @param[in]  can_id  IPK TX message can_id
  *
  * @return  c02b2_result_t
