@@ -25,7 +25,7 @@
 #include "can_db_ipk_gen.h"   /* CAN_DB_IPK_MSG_COUNT / _RX_COUNT etc.       */
 
 #include "osif.h"           /* OSIF_GetMilliseconds for busy-warn dedup */
-/* Phase 3 / C2: ack. 实测无反向依赖：drv_api/can/*.c 不 include 任何 app/can/can_*.h；app/can/can_{rx,tx}.c 反向 include drv_api/can/can_{if,db}.h 是合法分层（业务层 -> 驱动层）。文件头注释提到"被 app/can 引用"指的是 linker 符号解析，不是 include 反向。Marker closed. */
+/* Phase 3 / C2: ack. 实测无反向依赖：drv_api/can/任意c文件 不 include 任何 app/can/can_*.h；app/can/can_{rx,tx}.c 反向 include drv_api/can/can_{if,db}.h 是合法分层（业务层 -> 驱动层）。文件头注释提到"被 app/can 引用"指的是 linker 符号解析，不是 include 反向。Marker closed. */
 /* Phase 2 / A1: ack. SPSC ring 内存序已通过成对 __DMB() 屏障硬化 (prv_ring_push 发布 + prv_ring_pop 获取)。中性 spsc 头文件抽取需要抽象 can_msg_t -> 通用 item, 收益边际, 决议保留现状. Marker closed. */
 /* Phase 2 / C6: ack. Pa082 兜底已通过 "每个 volatile 字段恰好访问一次" 规避 (prv_ring_pop 内 head/tail 快照到本地后再 DMB)。Marker closed. */
 /* Phase 1 / A5: ack. CanIf_Send 内已实现日志去重 + 冷却窗口 (s_tx_busy_warn_ms[] + CAN_TX_BUSY_WARN_COOLDOWN_MS). Marker closed. */
