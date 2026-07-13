@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(git rev-parse --show-toplevel)
+cd "$ROOT"
+
+if command -v python >/dev/null 2>&1; then
+    exec python tools/codex_doxygen_staged.py
+fi
+
+exec python3 tools/codex_doxygen_staged.py

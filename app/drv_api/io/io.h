@@ -16,34 +16,20 @@
 
 #include "types.h"
 
-/**
- * @brief   Write a single GPIO pin high or low
- * @brief   设置单个 GPIO 引脚电平
- *
- * @param[in]  base   GPIO_Type base (e.g. PTA, PTB, ...)
- * @param[in]  pin    pin mask (single bit, e.g. (1u << 5))
- * @param[in]  level  0 = low, non-zero = high
- */
-void Io_WritePin(void *base, u32 pin, u32 level);
+void Io_WritePins(void *base, u32 pin);
 
-/**
- * @brief   Read a single GPIO pin level
- * @brief   读取单个 GPIO 引脚电平
- *
- * @param[in]  base  GPIO_Type base
- * @param[in]  pin   pin mask (single bit)
- *
- * @return  u32  0 = low, non-zero = high
- */
-u32 Io_ReadPin(void *base, u32 pin);
+void Io_WritePin(void *base, u32 pin, pins_level_type_t level);
 
-/**
- * @brief   Toggle a single GPIO pin
- * @brief   翻转单个 GPIO 引脚电平
- *
- * @param[in]  base  GPIO_Type base
- * @param[in]  pin   pin mask (single bit)
- */
+u32 Io_ReadPins(void *base, u32 pin);
+
+bool Io_ReadPin(void *base, u32 pin);
+
 void Io_TogglePin(void *base, u32 pin);
 
-#endif /* C02B2_DRV_API_IO_H */
+void Io_SetMuxModeSel(void *base, u32 pin, u32 mode);
+
+void Io_SetPinDirection(void *base, u32 pin, pin_direction_t direction);
+
+u32 Io_GetPinsDirection(void *base, u32 pin);
+
+u32 Io_GetPortIntFlags(void *base);
