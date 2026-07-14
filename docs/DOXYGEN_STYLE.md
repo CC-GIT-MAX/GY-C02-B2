@@ -15,6 +15,10 @@
 
 ## 2. 标准模板（**严格遵守**）
 
+> **🔴 强约束：.h 文件中**禁止**使用 @details（公开 API 的契约应通过 @param / @return / @retval 表达，不在头文件中暴露实现细节）。
+> **🟡 软约束：.c 文件中**按需**使用 @details——仅在函数实现较复杂（多步骤 / 有副作用 / 有状态依赖 / 实现 > 5 行）时推荐补充；简单函数（单一 SDK 调用、无分支、< 5 行）省略。
+
+
 > **必须有中文 `@brief`（一句），可附 1 行英文 `@brief`（一句）。**
 > **多个参数按函数形参顺序逐行写 `@param[in]` / `@param[out]` / `@param[in,out]`；无参不写。**
 > **非 void 返回必须写 `@return`；多返回值用 `@retval` 列表。**
@@ -69,7 +73,7 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 - `@param` 顺序与函数形参顺序一致
 - `@return` 与函数返回类型对齐；void 函数**必须省略** `@return`
 - 多返回值时**两者并用**：`@return` 描述总类型 + `@retval` 列具体值
-- `@details`（中文）：`.c` 函数**推荐**补充，`.h` 函数**取消**（不写）
+- `@details`（中文）：`.c` 函数**按需**补充（见 §2 顶部强约束）；`.h` 函数**禁止**（不写）
 - `@note` / `@warning` / `@see` 可选
 - 注释主体仍以**中文为主**（说明、@details、@note 等尽量用中文）
 
@@ -193,7 +197,7 @@ CI 失败示例：
 - [ ] 每个 `.h` 中的函数都有完整注释
 - [ ] 每个 `.c` 中的非 static 函数都有完整注释
 - [ ] 每个函数都**有中文 `@brief`**（推荐再附 1 行英文 `@brief`）
-- [ ] `.c` 文件函数**推荐**含中文 `@details`
+- [ ] `.c` 文件函数**按需**含中文 `@details`（简单函数可省），`.h` 函数**禁止** `@details`
 - [ ] `@param` 只在有参数时写，并标注 `[in] / [out] / [in,out]`
 - [ ] 非 void 函数都有 `@return`（多返回值加 `@retval`）
 - [ ] `bash tools/check_doxygen.sh` 输出 `PASSED`

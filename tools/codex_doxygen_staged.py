@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Add DOXYGEN_STYLE comments to staged C/H changes through Codex CLI."""
+"""Add DOXYGEN_STYLE comments to staged C/H changes through Codex CLI.
+
+Trigger modes (resolved in this order):
+  1. Environment variable CODEX_DOXYGEN_SKIP=1           -> skip entirely
+  2. Environment variable CODEX_DOXYGEN_FORCE=1         -> retrans (re-translate all)
+  3. Environment variable CODEX_DOXYGEN_DRY_RUN=1       -> show prompt, do not call Codex
+  4. Commit message contains [retrans]                  -> retrans
+  5. Commit message contains [translate]                -> translate (fill missing only)
+  6. Otherwise (plain "git commit ...")                -> skip entirely (do not invoke Codex)
+
+The commit message is read from .git/COMMIT_EDITMSG, which git populates
+during pre-commit (for -m, --message, and the editor flow).
+"""
 
 from __future__ import annotations
 
@@ -63,15 +75,39 @@ def find_unstaged_targets(targets: Sequence[str], unstaged_paths: Sequence[str])
     return [path for path in targets if normalize_path(path).casefold() in unstaged]
 
 
-def build_prompt(targets: Sequence[str]) -> str:
+def build_prompt(targets: Sequence[str], mode: str = "") -> str:
     file_list = "\n".join(f"- {path}" for path in targets)
     style_hint = (
         "Strictly follow docs/DOXYGEN_STYLE.md. Comments MUST be Chinese-first "
-        "(@brief zh required, @brief en optional; @details optional and recommended "
-        "only in .c files; @param/@return follow the style guide)."
+        "(@brief zh required, @brief en optional). Two non-negotiable rules: "
+        "(1) .h files are FORBIDDEN from containing @details - NEVER add "
+        "@details to any function declared in a .h file. Public API contracts "
+        "belong in @param / @return / @retval only. (2) .c files may include "
+        "@details ONLY when the function is non-trivial (multiple steps, side "
+        "effects, state dependencies, or > 5 lines of code). Simple functions "
+        "MUST omit @details."
     )
+
+    if not mode:
+        mode = MODE_TRANSLATE
+    if mode == MODE_RETRANS:
+        rewrite_rule = (
+            "8. REWRITE every Doxygen block in the listed files according to "
+            "docs/DOXYGEN_STYLE.md, even blocks that already have a Chinese "
+            "@brief. Remove any comment that violates the style guide and "
+            "replace it with a compliant one. Do not skip, summarize, or "
+            "leave any function undocumented."
+        )
+    else:
+        rewrite_rule = (
+            "8. Do NOT rewrite Doxygen blocks that already have a Chinese @brief "
+            "and the required @param/@return tags - leave them untouched. Only "
+            "fill in missing or non-compliant blocks."
+        )
+
     return (
         f"Update Doxygen comments for the staged C/H changes in this repository.\n\n"
+        f"Mode: {mode}\n\n"
         f"{style_hint}\n"
         f"Rules:\n"
         f"1. Read and strictly follow docs/DOXYGEN_STYLE.md.\n"
@@ -84,8 +120,7 @@ def build_prompt(targets: Sequence[str]) -> str:
         f"that changes the Git index.\n"
         f"7. Inspect the staged diff with git diff --cached -- for context, but edit "
         f"the working-tree files.\n"
-        f"8. Do NOT rewrite Doxygen blocks that already have a Chinese @brief and "
-        f"the required @param/@return tags - leave them untouched.\n"
+        f"{rewrite_rule}\n"
         f"9. Finish after comments are compliant; do not modify unrelated code.\n\n"
         f"Allowed files:\n{file_list}\n"
     )
@@ -93,6 +128,63 @@ def build_prompt(targets: Sequence[str]) -> str:
 
 def is_enabled(environ: Mapping[str, str], name: str) -> bool:
     return environ.get(name, "").strip().lower() in TRUE_VALUES
+
+
+def _read_commit_message(root: str) -> str:
+    """Read the pending commit message from .git/COMMIT_EDITMSG.
+
+    Returns an empty string if the file does not exist or cannot be read.
+    """
+    try:
+        editmsg = Path(root) / ".git" / "COMMIT_EDITMSG"
+        if not editmsg.is_file():
+            return ""
+        return editmsg.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+# Directive tokens accepted anywhere in the commit message subject or body.
+# Use a regex so we tolerate whitespace / case differences.
+_DIRECTIVE_RE = re.compile(r"\[\s*(translate|retrans)\s*\]", re.IGNORECASE)
+
+
+def _detect_directive(commit_message: str) -> str:
+    """Return one of: 'retrans', 'translate', or '' (no directive)."""
+    if not commit_message:
+        return ""
+    m = _DIRECTIVE_RE.search(commit_message)
+    if not m:
+        return ""
+    token = m.group(1).lower()
+    return "retrans" if token == "retrans" else "translate"
+
+
+# Mode names used internally.
+MODE_SKIP = "skip"
+MODE_TRANSLATE = "translate"
+MODE_RETRANS = "retrans"
+MODE_DRY_RUN = "dry_run"
+
+
+def resolve_mode(environ: Mapping[str, str], commit_message: str) -> str:
+    """Decide what the hook should do for this commit.
+
+    Precedence: SKIP > FORCE(retrans) > DRY_RUN > commit-msg directive > SKIP.
+    A plain 'git commit' with no directive and no env override is a no-op.
+    """
+    if is_enabled(environ, "CODEX_DOXYGEN_SKIP"):
+        return MODE_SKIP
+    if is_enabled(environ, "CODEX_DOXYGEN_FORCE"):
+        return MODE_RETRANS
+    if is_enabled(environ, "CODEX_DOXYGEN_DRY_RUN"):
+        return MODE_DRY_RUN
+    directive = _detect_directive(commit_message)
+    if directive == "retrans":
+        return MODE_RETRANS
+    if directive == "translate":
+        return MODE_TRANSLATE
+    return MODE_SKIP
 
 
 def run_command(runner: Runner, command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
@@ -250,15 +342,22 @@ def run_automation(
     environ: Mapping[str, str] | None = None,
 ) -> int:
     environment = os.environ if environ is None else environ
-    if is_enabled(environment, "CODEX_DOXYGEN_SKIP"):
-        print("[codex-doxygen] Skipped by CODEX_DOXYGEN_SKIP.", file=sys.stderr)
-        return 0
 
+    # Mode resolution happens BEFORE we do any expensive I/O, so a plain
+    # 'git commit -m "..."' (no [translate] / [retrans] / env override) is a
+    # true no-op for the hook.
     root_result = run_command(runner, ["git", "rev-parse", "--show-toplevel"])
     if root_result.returncode != 0:
         print_failure("Repository discovery", root_result)
         return 2
     root = root_result.stdout.strip()
+
+    commit_message = _read_commit_message(root)
+    mode = resolve_mode(environment, commit_message)
+    if mode == MODE_SKIP:
+        print("[codex-doxygen] Plain 'git commit'; no [translate]/[retrans] directive. Skipping.", file=sys.stderr)
+        return 0
+    print(f"[codex-doxygen] Mode: {mode}", file=sys.stderr)
 
     staged_result = run_command(
         runner,
@@ -294,21 +393,27 @@ def run_automation(
     for path in targets:
         print(f"  - {path}", file=sys.stderr)
 
-    force = is_enabled(environment, "CODEX_DOXYGEN_FORCE")
-    if not force:
+    # retrans  -> re-translate EVERYTHING (ignore already-compliant filter)
+    # translate -> fill missing only (filter out files that are already compliant)
+    if mode == MODE_TRANSLATE:
         targets = _filter_compliant_targets(targets, root)
         if not targets:
             print(
-                "[codex-doxygen] All targets are already compliant; nothing to do.",
+                "[codex-doxygen] All targets are already compliant; nothing to fill.",
                 file=sys.stderr,
             )
             return 0
+    elif mode == MODE_RETRANS:
+        print(
+            "[codex-doxygen] [retrans] mode: re-translating ALL staged files (compliance filter skipped).",
+            file=sys.stderr,
+        )
 
-    if is_enabled(environment, "CODEX_DOXYGEN_DRY_RUN"):
+    if mode == MODE_DRY_RUN:
         print("[codex-doxygen] Dry run; Codex was not invoked.", file=sys.stderr)
         return 0
 
-    prompt = build_prompt(targets)
+    prompt = build_prompt(targets, mode)
     codex_result = run_command(
         runner,
         [*resolve_codex_command(), "exec", "--ephemeral", "-s", "workspace-write", "-C", root, prompt],

@@ -7,7 +7,8 @@
   R3. 每个函数的 Doxygen 块**必须有中文 @brief**；英文 @brief 可选（推荐保留 1 行）
   R4. .c 中 static 函数至少 1 行 /** @brief ... */
   R5. .h 中函数：有参数必须 @param；有返回值必须 @return
-  R6. @details（中文）：可选；.c 中推荐补充实现细节，.h 中一般不写
+  R6. .c 中函数 @details 可选；.c 中实现细节较复杂时推荐补充
+  R7. .h 中函数禁止使用 @details（公开 API 契约应通过 @param / @return / @retval 表达）
 
 退出码：非零 = 至少一项违规
 """
@@ -239,7 +240,19 @@ def main(argv=None):
                 print(f"[FAIL] {f}:{lineno}: function {name} missing Chinese @brief (got {en} English only)")
                 errors += 1
                 continue
-            # R6 (advisory): @details is optional in both .c and .h; .c files are encouraged to add it.
+            # R7 (advisory): .h files MUST NOT contain @details.
+            # We only print a WARN (no errors += 1) so existing repos with legacy
+            # .h @details do not break the build. New code should follow the rule.
+            if f.suffix == '.h' and '@details' in block:
+                print(f'[WARN] {f}:{lineno}: {name} has @details in .h file (forbidden by DOXYGEN_STYLE.md)')
+
+            # R7 (advisory): .h files MUST NOT contain @details.
+            # We only print a WARN (no errors += 1) so existing repos with legacy
+            # .h @details do not break the build. New code should follow the rule.
+            if f.suffix == '.h' and '@details' in block:
+                print(f'[WARN] {f}:{lineno}: {name} has @details in .h file (forbidden by DOXYGEN_STYLE.md)')
+
+            # R6 (advisory): @details in .c is optional.
         # R5
         errors = check_param_return(f, lines, errors)
 
