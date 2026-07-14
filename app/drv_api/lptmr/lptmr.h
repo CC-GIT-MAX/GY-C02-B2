@@ -11,6 +11,7 @@
 #define C02B2_DRV_API_LPTMR_H
 
 #include "result.h"
+#include "types.h"
 
 /**
  * @brief   Initialize the LPTMR peripheral
