@@ -1,66 +1,93 @@
-# C02-B2 仪表 MCU 项目
+# MCU
 
-## 简介
 
-基于 YTM32B1MD1 的汽车仪表 MCU 软件。裸机 + RTI 时间片调度，IAR 9.x 编译。
 
-## 目录结构
+## Getting started
+
+To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+
+Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+
+## Add your files
+
+- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
+- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
 
 ```
-app/        业务模块入口（main.c / scheduler / signal / log / 各业务模块）
-board/      板级配置（时钟 / 引脚 / 各外设 config）
-middleware/ 通用中间件（printf / osif）
-platform/   厂商 SDK（devices / drivers）
-rtos/       OSIF 适配
-EWARM/      IAR 工程文件
-docs/       架构与设计文档
+cd existing_repo
+git remote add origin http://192.168.80.233:9090/geely/c02_b2/ac-yuntu/C02-B2.git
+git branch -M main
+git push -uf origin main
 ```
 
-## 构建
+## Integrate with your tools
 
-使用 IAR Embedded Workbench 打开 `EWARM/C02_B2.eww`，选择 FLASH 配置，Rebuild All。
+- [ ] [Set up project integrations](http://192.168.80.233:9090/geely/c02_b2/ac-yuntu/C02-B2/-/settings/integrations)
 
-## 优化项实施记录
+## Collaborate with your team
 
-参见 `docs/OPTIMIZATION_PLAN.md` 与各 commit 历史。
+- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
+- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
+- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
+- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
+- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
 
-## 自动化：Doxygen 注释在提交前自动补齐
+## Test and Deploy
 
-`git commit` 时，仓库内的 `.githooks/pre-commit` 会调用 Codex CLI，为暂存区中
-受维护的 `.c`/`.h` 文件补齐符合 [`docs/DOXYGEN_STYLE.md`](docs/DOXYGEN_STYLE.md)
-的注释，并把结果重新加入暂存区。
+Use the built-in continuous integration in GitLab.
 
-启用方式（一次性，本地仓库配置）：
+- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
+- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
+- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
+- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
+- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
-```bash
-python tools/install_git_hooks.py
-```
+***
 
-该命令等价于 `git config --local core.hooksPath .githooks`。此后所有
-`git commit` 都会自动执行。脚本位于：
+# Editing this README
 
-- `.githooks/pre-commit`：POSIX 兼容的 Git 钩子入口。
-- `tools/codex_doxygen_staged.py`：筛选、安全检查、Codex 调用、校验、重暂存。
-- `tools/install_git_hooks.py`：跨平台安装脚本。
+When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
 
-行为说明：
+## Suggestions for a good README
 
-- 只处理 `app/`、`tests/` 等受维护目录下的 `.c`/`.h` 文件；
-  `CMSIS/`、`middleware/`、`platform/`、`rtos/`、`EWARM/`、`board/` 中的厂商代码
-  与生成产物会被自动跳过。
-- 若目标文件存在未暂存修改，钩子会中止提交，避免把工作区代码意外带入；
-  提示先 `git add` 或 `git stash` 后重试。
-- Codex 调用使用 `codex exec --ephemeral -s workspace-write` 沙箱，不绕过
-  审批或沙箱，只在临时会话里运行，不会保存历史。
+Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-环境变量：
+## Name
+Choose a self-explaining name for your project.
 
-- `CODEX_DOXYGEN_SKIP=1`：跳过本次自动化（紧急提交用）。
-- `CODEX_DOXYGEN_DRY_RUN=1`：仅打印会被处理的目标文件，不调用 Codex、不校验。
-- `CODEX_DOXYGEN_FORCE=1`：忽略“已合规则跳过”逻辑，强制把每个目标文件都丢给 Codex 重新翻译（仅在你需要批量翻新注释时使用，日常提交不要开启）。
-  钩子默认行为：调用 Codex 之前会逐文件检查 `file_is_already_compliant()`，已具备中文 `@brief` + 必需 `@param`/`@return` 的文件会被跳过，避免重复翻译。
+## Description
+Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
-失败处理：
+## Badges
+On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
-- Codex 退出非零、`tools/check_doxygen.py` 报错或 `git add` 失败都会阻止提交，
-  并在终端打印 stdout/stderr。请按提示修复后重新 `git commit`。
+## Visuals
+Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+
+## Installation
+Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+## Usage
+Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+
+## Support
+Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+
+## Roadmap
+If you have ideas for releases in the future, it is a good idea to list them in the README.
+
+## Contributing
+State if you are open to contributions and what your requirements are for accepting them.
+
+For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+
+You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+
+## Authors and acknowledgment
+Show your appreciation to those who have contributed to the project.
+
+## License
+For open source projects, say how it is licensed.
+
+## Project status
+If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
