@@ -44,14 +44,14 @@ void Io_SetPinDirection(void *base, u32 pin, pin_direction_t direction)
     PINS_DRV_SetPinDirection((GPIO_Type *)base, pin, direction);
 }
 
-u32 Io_GetPinsDirection(void *base, u32 pin)   
+u32 Io_GetPinsDirection(void *base)   
 {
-    return PINS_DRV_GetPinsDirection((GPIO_Type *)base, pin);
+    return PINS_DRV_GetPinsDirection((GPIO_Type *)base);
 }
 
 u32 Io_GetPortIntFlags(void *base)
 {
-    return PINS_DRV_GetPortIntFlags((GPIO_Type *)base);
+    return PINS_DRV_GetPortIntFlag((GPIO_Type *)base);
 }
 
 

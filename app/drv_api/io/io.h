@@ -15,8 +15,7 @@
 #define C02B2_DRV_API_IO_H
 
 #include "types.h"
-
-
+#include "pins_driver.h"
 /**
  * @brief   Write a masked set of pins on a GPIO port
  * @brief   按位掩码写入 GPIO 端口引脚
@@ -92,11 +91,10 @@ void Io_SetPinDirection(void *base, u32 pin, pin_direction_t direction);
  * @brief   读取端口中单个引脚的方向
  *
  * @param[in]  base  GPIO_Type 端口基址
- * @param[in]  pin   单个引脚的位掩码
  *
  * @return  u32  1 = 输入；0 = 输出
  */
-u32 Io_GetPinsDirection(void *base, u32 pin);
+u32 Io_GetPinsDirection(void *base);
 
 /**
  * @brief   Read the entire GPIO port interrupt status flag register
