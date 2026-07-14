@@ -1,11 +1,155 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env python3
+"""Direct Git hook entry point. Avoids spawning MSYS sh for speed.
 
-ROOT=$(git rev-parse --show-toplevel)
-cd "$ROOT"
+Safely cleans orphan `codex.exe` (Codex CLI worker) processes whose
+ancestor chain does NOT include any `Codex.exe` (the Codex Desktop
+application). We never kill:
+* any process with a visible top-level window,
+* any `Codex.exe` itself (Desktop main process and its children),
+* any process whose parent chain ultimately contains a `Codex.exe`.
 
-if command -v python >/dev/null 2>&1; then
-    exec python tools/codex_doxygen_staged.py
-fi
+Stdout/stderr are inherited from Git so diagnostics reach the terminal
+without buffering.
+"""
+import ctypes
+import os
+import subprocess
+import sys
+from ctypes import wintypes
 
-exec python3 tools/codex_doxygen_staged.py
+ORPHAN_NAMES: tuple[str, ...] = ("codex.exe",)
+
+
+def snapshot_process_table():
+    TH32CS_SNAPPROCESS = 0x00000002
+    kernel32 = ctypes.windll.kernel32
+
+    class PROCESSENTRY32W(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.POINTER(wintypes.DWORD)),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", wintypes.LONG),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", ctypes.c_wchar * wintypes.MAX_PATH),
+        ]
+
+    snap = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    if snap == ctypes.c_void_p(-1).value:
+        return {}, {}
+    ppid = {}
+    exe = {}
+    try:
+        entry = PROCESSENTRY32W()
+        entry.dwSize = ctypes.sizeof(PROCESSENTRY32W)
+        ok = kernel32.Process32FirstW(snap, ctypes.byref(entry))
+        while ok:
+            pid = entry.th32ProcessID
+            if pid:
+                ppid[pid] = entry.th32ParentProcessID
+                exe[pid] = entry.szExeFile or ""
+            ok = kernel32.Process32NextW(snap, ctypes.byref(entry))
+    finally:
+        kernel32.CloseHandle(snap)
+    return ppid, exe
+
+
+def collect_pids_with_top_level_windows():
+    EnumWindowsProc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    pids = set()
+
+    @EnumWindowsProc
+    def callback(hwnd, _lparam):
+        GW_OWNER = 4
+        if not ctypes.windll.user32.IsWindowVisible(hwnd):
+            return True
+        if ctypes.windll.user32.GetWindow(hwnd, GW_OWNER):
+            return True
+        pid = wintypes.DWORD()
+        ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        if pid.value:
+            pids.add(pid.value)
+        return True
+
+    ctypes.windll.user32.EnumWindows(callback, 0)
+    return pids
+
+
+def has_desktop_ancestor(pid, ppid, exe, depth=20):
+    seen = set()
+    cur = pid
+    while cur and cur not in seen and depth > 0:
+        seen.add(cur)
+        name = (exe.get(cur, "") or "").split("\\")[-1].lower()
+        if name == "codex.exe":
+            return True
+        cur = ppid.get(cur, 0)
+        depth -= 1
+    return False
+
+
+def kill_orphan_codex_workers():
+    PROCESS_TERMINATE = 0x0001
+    kernel32 = ctypes.windll.kernel32
+    ppid, exe = snapshot_process_table()
+    visible = collect_pids_with_top_level_windows()
+    killed = 0
+    for pid, name in exe.items():
+        short = (name or "").split("\\")[-1].lower()
+        if short != "codex.exe":
+            continue
+        if pid in visible:
+            continue
+        if has_desktop_ancestor(pid, ppid, exe):
+            continue
+        handle = kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)
+        if handle:
+            try:
+                if kernel32.TerminateProcess(handle, 0):
+                    killed += 1
+            finally:
+                kernel32.CloseHandle(handle)
+    return killed
+
+
+def main() -> int:
+    try:
+        ROOT = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True,
+        ).stdout.strip()
+        if not ROOT:
+            print("[codex-doxygen] Failed to find repository root.", file=sys.stderr)
+            return 2
+
+        killed = kill_orphan_codex_workers()
+        if killed > 0:
+            print(f"[codex-doxygen] Cleaned {killed} orphan Codex CLI worker(s); Codex Desktop preserved.", file=sys.stderr)
+
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
+        script = os.path.join(ROOT, "tools", "codex_doxygen_staged.py")
+        if not os.path.isfile(script):
+            print(f"[codex-doxygen] Missing script: {script}", file=sys.stderr)
+            return 2
+
+        result = subprocess.run(
+            [sys.executable, "-u", script],
+            cwd=ROOT,
+            env=env,
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
+        return result.returncode
+    except Exception as exc:
+        print(f"[codex-doxygen] Hook crashed: {exc!r}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -4,9 +4,10 @@
 规则：
   R1. .h 中所有函数声明必须有 /** @brief 紧邻上方
   R2. .c 中所有非 static 函数必须有 /** @brief 紧邻上方
-  R3. 每个函数的 Doxygen 块必须包含 **两个 @brief**（一个英文 + 一个中文）
+  R3. 每个函数的 Doxygen 块**必须有中文 @brief**；英文 @brief 可选（推荐保留 1 行）
   R4. .c 中 static 函数至少 1 行 /** @brief ... */
   R5. .h 中函数：有参数必须 @param；有返回值必须 @return
+  R6. @details（中文）：可选；.c 中推荐补充实现细节，.h 中一般不写
 
 退出码：非零 = 至少一项违规
 """
@@ -99,6 +100,54 @@ def count_briefs(block: str) -> tuple[int, int]:
     return en, zh
 
 
+def has_chinese_brief(block: str) -> bool:
+    """Return True when the Doxygen block contains at least one Chinese @brief line."""
+    if not block:
+        return False
+    _, zh = count_briefs(block)
+    return zh >= 1
+
+
+def has_chinese_details(block: str) -> bool:
+    """Return True when the Doxygen block has at least one @details line containing CJK."""
+    if not block:
+        return False
+    in_details = False
+    for line in block.splitlines():
+        m = re.match(r"\s*\*\s*@details\b\s*(.*)", line)
+        if m:
+            in_details = True
+            content = m.group(1).strip()
+            if CJK_RE.search(content):
+                return True
+            continue
+        if in_details:
+            stripped = line.strip()
+            if stripped.startswith("*") and not stripped.startswith("*/"):
+                # continuation line (starts with whitespace + "*" but no new tag)
+                tail = stripped.lstrip("*").strip()
+                if tail and CJK_RE.search(tail):
+                    return True
+                if tail and not tail.startswith("@"):
+                    continue
+            in_details = False
+    return False
+
+
+def resolve_target_files(targets):
+    if not targets:
+        return collect_files()
+    resolved = []
+    for entry in targets:
+        rel = entry.replace(chr(92), chr(47)).lstrip(chr(46) + chr(47))
+        if not rel:
+            continue
+        abs_path = (ROOT / rel).resolve()
+        if not abs_path.is_file():
+            continue
+        resolved.append(abs_path)
+    return resolved
+
 def collect_files() -> list[Path]:
     files: list[Path] = []
     for pattern in ("*.h", "*.c"):
@@ -144,13 +193,18 @@ def check_param_return(f: Path, lines: list[str], errors: int) -> int:
     return errors
 
 
-def main() -> int:
+def main(argv=None):
     if not APP_DIR.is_dir():
         print(f"app dir not found: {APP_DIR}")
         return 1
 
-    files = collect_files()
-    print(f"Scanning {len(files)} files in app/...")
+    if argv is None:
+        argv = sys.argv[1:]
+    files = resolve_target_files(argv)
+    if argv:
+        print(f"Scanning {len(files)} staged target file(s)...")
+    else:
+        print(f"Scanning {len(files)} files in app/...")
 
     errors = 0
     for f in files:
@@ -181,10 +235,11 @@ def main() -> int:
                 errors += 1
                 continue
             en, zh = count_briefs(block)
-            if en < 1 or zh < 1:
-                tag = "Chinese" if zh < 1 else "English"
-                print(f"[FAIL] {f}:{lineno}: function {name} missing {tag} @brief")
+            if zh < 1:
+                print(f"[FAIL] {f}:{lineno}: function {name} missing Chinese @brief (got {en} English only)")
                 errors += 1
+                continue
+            # R6 (advisory): @details is optional in both .c and .h; .c files are encouraged to add it.
         # R5
         errors = check_param_return(f, lines, errors)
 
@@ -192,7 +247,7 @@ def main() -> int:
     if errors > 0:
         print(f"FAILED: {errors} functions missing Doxygen @brief/@param/@return")
         return 1
-    print("PASSED: all public/internal functions have Doxygen @brief (en + zh) + @param + @return")
+    print("PASSED: all public/internal functions have Doxygen Chinese @brief + @param + @return")
     return 0
 
 

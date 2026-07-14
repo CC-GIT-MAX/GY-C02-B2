@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import os
+import re
+import shutil
 import subprocess
 import sys
 from collections.abc import Mapping, Sequence
@@ -20,6 +22,19 @@ EXCLUDED_PREFIXES = (
 )
 TRUE_VALUES = {"1", "true", "yes", "on"}
 Runner = Callable[..., subprocess.CompletedProcess[str]]
+
+# CJK Unified Ideographs + full-width punctuation; matches tools/check_doxygen.py
+CJK_RE = re.compile(r"[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]")
+_PARAM_DIR_RE = re.compile(r"@param\s*(\[[^\]]+\])?")
+_ZH_BRIEF_RE = re.compile(r"@brief\s+([^\n]+)")
+_STORAGE_CLASS_RE = re.compile(r"\bstatic\b")
+_FUNC_DEF_RE = re.compile(
+    r"^[A-Za-z_][A-Za-z0-9_ *]*\s+[A-Za-z_][A-Za-z0-9_]*\s*\([^;{}]*\)\s*([;{]|$)"
+)
+_NAME_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\s*\(")
+_DECL_RE = re.compile(
+    r"^([A-Za-z_][A-Za-z0-9_ *]+)\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^;{}]*)\)\s*;"
+)
 
 
 def python_executable() -> str:
@@ -50,21 +65,30 @@ def find_unstaged_targets(targets: Sequence[str], unstaged_paths: Sequence[str])
 
 def build_prompt(targets: Sequence[str]) -> str:
     file_list = "\n".join(f"- {path}" for path in targets)
-    return f"""Update Doxygen comments for the staged C/H changes in this repository.
-
-Mandatory rules:
-1. Read and strictly follow docs/DOXYGEN_STYLE.md.
-2. Only modify the listed files.
-3. Only add or correct Doxygen comments required by that style.
-4. Do not change program behavior, declarations, function signatures, formatting outside comments, or generated artifacts.
-5. Preserve all existing staged code changes.
-6. Do not run git add, git commit, git reset, git checkout, or any command that changes the Git index.
-7. Inspect the staged diff with git diff --cached -- for context, but edit the working-tree files.
-8. Finish after comments are compliant; do not modify unrelated code.
-
-Allowed files:
-{file_list}
-"""
+    style_hint = (
+        "Strictly follow docs/DOXYGEN_STYLE.md. Comments MUST be Chinese-first "
+        "(@brief zh required, @brief en optional; @details optional and recommended "
+        "only in .c files; @param/@return follow the style guide)."
+    )
+    return (
+        f"Update Doxygen comments for the staged C/H changes in this repository.\n\n"
+        f"{style_hint}\n"
+        f"Rules:\n"
+        f"1. Read and strictly follow docs/DOXYGEN_STYLE.md.\n"
+        f"2. Only modify the listed files.\n"
+        f"3. Only add or correct Doxygen comments required by that style.\n"
+        f"4. Do not change program behavior, declarations, function signatures, "
+        f"formatting outside comments, or generated artifacts.\n"
+        f"5. Preserve all existing staged code changes.\n"
+        f"6. Do not run git add, git commit, git reset, git checkout, or any command "
+        f"that changes the Git index.\n"
+        f"7. Inspect the staged diff with git diff --cached -- for context, but edit "
+        f"the working-tree files.\n"
+        f"8. Do NOT rewrite Doxygen blocks that already have a Chinese @brief and "
+        f"the required @param/@return tags - leave them untouched.\n"
+        f"9. Finish after comments are compliant; do not modify unrelated code.\n\n"
+        f"Allowed files:\n{file_list}\n"
+    )
 
 
 def is_enabled(environ: Mapping[str, str], name: str) -> bool:
@@ -87,13 +111,135 @@ def print_failure(label: str, completed: subprocess.CompletedProcess[str]) -> No
         print(completed.stderr.rstrip(), file=sys.stderr)
 
 
+def resolve_codex_command() -> list[str]:
+    """Build an argv list that Windows CreateProcess can launch.
+
+    `codex` resolves to a `.CMD` shim under npm on Windows; Python subprocess
+    cannot `CreateProcess` such a shim with a list argv (WinError 2/5). We
+    therefore launch it through `cmd.exe /c`, which IS a real PE binary.
+    On non-Windows the binary is invoked directly. An explicit CODEX_BIN
+    environment variable lets the user point at a specific `codex` binary.
+    """
+    override = os.environ.get("CODEX_BIN", "").strip()
+    if override:
+        return [override]
+    if sys.platform == "win32":
+        return ["cmd.exe", "/c", "codex"]
+    found = shutil.which("codex")
+    return [found or "codex"]
+
+
+def _block_above(lines: list[str], func_line_1based: int) -> str | None:
+    """Return the Doxygen block immediately above func_line_1based, or None."""
+    cur = func_line_1based - 1
+    while cur >= 1 and not lines[cur - 1].strip():
+        cur -= 1
+    if cur < 1:
+        return None
+    end = cur
+    s = cur
+    while s >= 1:
+        c = lines[s - 1]
+        stripped = c.lstrip()
+        if stripped.startswith("/**"):
+            return "\n".join(lines[s - 1 : end])
+        if not (
+            stripped.startswith("/*")
+            or stripped.startswith("*")
+            or stripped.endswith("*/")
+            or stripped == ""
+        ):
+            return None
+        s -= 1
+    return None
+
+
+def file_is_already_compliant(path: Path, suffix: str = ".c") -> bool:
+    """Return True iff every non-static function in `path` has a Doxygen block
+    with a Chinese @brief, the right @param(s) when there are parameters, and
+    a @return for non-void return types.
+
+    Used to skip files that are already compliant (so we don't re-translate
+    them on every commit). When in doubt, return False so Codex still gets
+    a chance to fix it.
+    """
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    lines = text.splitlines()
+    if not lines:
+        return False
+
+    is_c_source = suffix.lower() == ".c"
+    saw_non_static = False
+    for lineno, line in enumerate(lines, 1):
+        if not _FUNC_DEF_RE.match(line):
+            continue
+        m = _NAME_RE.search(line)
+        if not m:
+            continue
+        name = re.sub(r"\s*\($", "", m.group(0))
+        if name == "main" or "typedef" in line:
+            continue
+        is_static = bool(_STORAGE_CLASS_RE.search(line))
+        if is_c_source and is_static:
+            continue
+        saw_non_static = True
+        block = _block_above(lines, lineno)
+        if block is None or "@brief" not in block:
+            return False
+        if not any(CJK_RE.search(m.group(1)) for m in _ZH_BRIEF_RE.finditer(block)):
+            return False
+        # @param for each parameter?
+        decl = _DECL_RE.match(line)
+        if decl:
+            params = decl.group(3).strip()
+            if params and params != "void":
+                if not _PARAM_DIR_RE.search(block):
+                    return False
+        else:
+            if "(" in line:
+                args = line.split("(", 1)[1].split(")", 1)[0]
+                if args.strip() and args.strip() != "void":
+                    if not _PARAM_DIR_RE.search(block):
+                        return False
+        # @return for non-void?
+        if "(" in line:
+            tokens = line.split("(", 1)[0].strip().split()
+            ret_token = tokens[-2] if len(tokens) >= 2 else ""
+        else:
+            ret_token = ""
+        if ret_token and ret_token != "void" and "@return" not in block:
+            return False
+    if not saw_non_static:
+        return False
+    return True
+
+
+def _filter_compliant_targets(targets: Sequence[str], root: str) -> list[str]:
+    """Drop targets whose working-tree files are already compliant."""
+    remaining: list[str] = []
+    for rel in targets:
+        abs_path = Path(root) / rel.replace("/", os.sep)
+        suffix = Path(rel).suffix.lower()
+        if file_is_already_compliant(abs_path, suffix=suffix):
+            print(
+                f"[codex-doxygen] Skipping (already compliant): {rel}",
+                file=sys.stderr,
+            )
+            continue
+        remaining.append(rel)
+    return remaining
+
+
 def run_automation(
     runner: Runner = subprocess.run,
     environ: Mapping[str, str] | None = None,
 ) -> int:
     environment = os.environ if environ is None else environ
     if is_enabled(environment, "CODEX_DOXYGEN_SKIP"):
-        print("[codex-doxygen] Skipped by CODEX_DOXYGEN_SKIP.")
+        print("[codex-doxygen] Skipped by CODEX_DOXYGEN_SKIP.", file=sys.stderr)
         return 0
 
     root_result = run_command(runner, ["git", "rev-parse", "--show-toplevel"])
@@ -113,7 +259,7 @@ def run_automation(
 
     targets = select_targets(output_lines(staged_result))
     if not targets:
-        print("[codex-doxygen] No staged maintained C/H files; nothing to do.")
+        print("[codex-doxygen] No staged maintained C/H files; nothing to do.", file=sys.stderr)
         return 0
 
     unstaged_result = run_command(
@@ -132,18 +278,28 @@ def run_automation(
         print("Stage or stash those changes, then retry the commit.", file=sys.stderr)
         return 2
 
-    print("[codex-doxygen] Targets:")
+    print("[codex-doxygen] Targets:", file=sys.stderr)
     for path in targets:
-        print(f"  - {path}")
+        print(f"  - {path}", file=sys.stderr)
+
+    force = is_enabled(environment, "CODEX_DOXYGEN_FORCE")
+    if not force:
+        targets = _filter_compliant_targets(targets, root)
+        if not targets:
+            print(
+                "[codex-doxygen] All targets are already compliant; nothing to do.",
+                file=sys.stderr,
+            )
+            return 0
+
     if is_enabled(environment, "CODEX_DOXYGEN_DRY_RUN"):
-        print("[codex-doxygen] Dry run; Codex was not invoked.")
+        print("[codex-doxygen] Dry run; Codex was not invoked.", file=sys.stderr)
         return 0
 
     prompt = build_prompt(targets)
     codex_result = run_command(
         runner,
-        ["codex", "exec", "--ephemeral", "-s", "workspace-write", "-C", root, "-"],
-        input=prompt,
+        [*resolve_codex_command(), "exec", "--ephemeral", "-s", "workspace-write", "-C", root, prompt],
         cwd=root,
     )
     if codex_result.returncode != 0:
@@ -164,7 +320,7 @@ def run_automation(
         print_failure("Restaging", add_result)
         return 2
 
-    print("[codex-doxygen] Comments validated and staged.")
+    print("[codex-doxygen] Comments validated and staged.", file=sys.stderr)
     return 0
 
 

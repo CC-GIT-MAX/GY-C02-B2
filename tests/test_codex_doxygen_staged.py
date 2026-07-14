@@ -93,13 +93,21 @@ class MainFlowTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         commands = [call.args[0] for call in runner.call_args_list]
-        self.assertEqual(
-            commands[3],
-            ["codex", "exec", "--ephemeral", "-s", "workspace-write", "-C", root, "-"],
-        )
+        codex_cmd = commands[3]
+        # Windows launches via cmd.exe /c codex; POSIX uses the bare binary.
+        # Either way the tail should be the standard codex exec invocation
+        # with the prompt as a positional argument (no stdin).
+        self.assertIn("exec", codex_cmd)
+        self.assertIn("--ephemeral", codex_cmd)
+        self.assertIn("-s", codex_cmd)
+        self.assertIn("workspace-write", codex_cmd)
+        self.assertIn("-C", codex_cmd)
+        self.assertIn(root, codex_cmd)
+        self.assertNotIn("input", runner.call_args_list[3].kwargs)
+        prompt = codex_cmd[-1]
+        self.assertIn("docs/DOXYGEN_STYLE.md", prompt)
         self.assertEqual(commands[4], [automation.python_executable(), "tools/check_doxygen.py", "app/foo.c"])
         self.assertEqual(commands[5], ["git", "add", "--", "app/foo.c"])
-        self.assertIn("docs/DOXYGEN_STYLE.md", runner.call_args_list[3].kwargs["input"])
 
 
 class InstallerTests(unittest.TestCase):

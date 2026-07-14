@@ -57,6 +57,8 @@ python tools/install_git_hooks.py
 
 - `CODEX_DOXYGEN_SKIP=1`：跳过本次自动化（紧急提交用）。
 - `CODEX_DOXYGEN_DRY_RUN=1`：仅打印会被处理的目标文件，不调用 Codex、不校验。
+- `CODEX_DOXYGEN_FORCE=1`：忽略“已合规则跳过”逻辑，强制把每个目标文件都丢给 Codex 重新翻译（仅在你需要批量翻新注释时使用，日常提交不要开启）。
+  钩子默认行为：调用 Codex 之前会逐文件检查 `file_is_already_compliant()`，已具备中文 `@brief` + 必需 `@param`/`@return` 的文件会被跳过，避免重复翻译。
 
 失败处理：
 

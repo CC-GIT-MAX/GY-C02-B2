@@ -15,68 +15,114 @@
 
 ## 2. 标准模板（**严格遵守**）
 
-> **中英文 `@brief` 必须各写一行，不可省略任何一行。**
-> **每个参数都需 `@param[in] / @param[out] / @param[in,out]`。**
-> **非 void 返回值必须有 `@return`；多返回值场景用 `@retval` 列表。**
+> **必须有中文 `@brief`（一句），可附 1 行英文 `@brief`（一句）。**
+> **多个参数按函数形参顺序逐行写 `@param[in]` / `@param[out]` / `@param[in,out]`；无参不写。**
+> **非 void 返回必须写 `@return`；多返回值用 `@retval` 列表。**
+> **`@details`（中文）：`.c` 文件推荐补充实现细节；`.h` 文件一般不写。**
 
-### 2.1 完整模板
+### 2.1 `.c` 文件模板
 
 ```c
 /**
- * @brief   Open the JTAG/SWD debug interface by clearing the DBG disable bits
- *          in the CUS NVR configuration area. A system software reset is
- *          triggered after the NVR is successfully reprogrammed.
- * @brief   通过清除 CUS NVR 配置区中的 DBG 禁用位来开启 JTAG/SWD 调试接口.
- *          NVR 成功烧录后会自动触发软件复位.
+ * @brief   Fetch the most recent raw frame for an IPK CAN id
+ * @brief   获取某 IPK CAN id 最近一次的原始帧
  *
- * @param[in]      arg1     说明（含单位/范围/默认值）
- * @param[out]     arg2     说明
- * @param[in,out]  arg3     说明
+ * @details RX tick 在每个 IPK can_id 上缓存最近收到的原始 8 字节
+ *          payload，diag / demo 模块可读整帧而无需重新解码每个信号。
+ *          返回自启动以来收到的最后一帧（冷复位时清空）。 *
+ * @param[in]   can_id  Standard 11-bit IPK can_id
+ * @param[out]  out     Populated with the cached frame on success
  *
- * @return  status_t  STATUS_SUCCESS on success, otherwise STATUS_ERROR.
- * @retval  0        成功
- * @retval  -1       参数无效
- *
- * @note    （可选）使用注意事项、副作用、并发要求
- * @warning （可选）危险调用、误用后果
- * @see     （可选）相关函数引用
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Frame returned (may be stale)
+ * @retval  C02B2_ERR_PARAM     out is NULL or can_id not in IPK table
+ * @retval  C02B2_ERR_NOT_FOUND No frame received yet for this can_id
  */
+c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 ```
 
-### 2.2 强制约束
+### 2.2 `.h` 文件模板
+
+```c
+/**
+ * @brief   Copy the most recent raw 8-byte payload of a CAN frame
+ * @brief   复制指定 CAN id 最近收到的 8 字节原始 payload
+
+ * @param[in]   can_id  IPK RX can_id (11-bit standard)
+ * @param[out]  out     Filled on success
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Cache populated
+ * @retval  C02B2_ERR_PARAM     can_id not an IPK RX message, or out NULL
+ * @retval  C02B2_ERR_NOT_FOUND No frame has been received for this id
+ */
+c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
+```
+
+### 2.3 强制约束
 
 - `/**` 开头，`*/` 结尾（**不能用** `/* ... */` 单星号）
-- 第一个 `@brief` 用**英文**，第二个 `@brief` 用**中文**
+- **第一个 `@brief` 用英文**（短句，可选但推荐），**第二个 `@brief` 用中文**（必填，祈使句）
 - 中文 `@brief` 用全角标点（`，。：；`），句末加句号
 - 英文 `@brief` 用半角标点（`, . : ;`），句末加句号
-- `@param` **三个标签缺一不可**：`[in]` / `[out]` / `[in,out]`
+- `@param` 标签**只写适用的方向**：`[in]` / `[out]` / `[in,out]`；无参时**整个 `@param` 段都不写**
 - `@param` 顺序与函数形参顺序一致
 - `@return` 与函数返回类型对齐；void 函数**必须省略** `@return`
 - 多返回值时**两者并用**：`@return` 描述总类型 + `@retval` 列具体值
+- `@details`（中文）：`.c` 函数**推荐**补充，`.h` 函数**取消**（不写）
 - `@note` / `@warning` / `@see` 可选
+- 注释主体仍以**中文为主**（说明、@details、@note 等尽量用中文）
 
-### 2.3 行宽
+### 2.4 行宽
 
 - 每行 < 100 字符（保持 diff 可读）
-- 中英文 `@brief` 可分多行（每行续行以空格开头，缩进 4 空格对齐）
+- 中英文 `@brief` / `@details` 可分多行（每行续行以空格开头，缩进 4 空格对齐）
 
 ## 3. 实例
 
-### 3.1 公开 API（有入参、有返回值）
+> 与 §2 模板完全相同，作为日常复制起点。`.c` 与 `.h` 复述同套注释（CI 扫描 `.c` 文件）。
+
+### 3.1 公开 API 实现（`.c`）
 
 ```c
 /**
- * @brief   Read KL30 voltage from ADC channel and convert to mV
- * @brief   从 ADC 通道读取 KL30 电压并转换为 mV
+ * @brief   Fetch the most recent raw frame for an IPK CAN id
+ * @brief   获取某 IPK CAN id 最近一次的原始帧
  *
- * @param[in]  channel  ADC channel index (0..BOARD_ADC_CH_MAX-1)
+ * @details RX tick 在每个 IPK can_id 上缓存最近收到的原始 8 字节
+ *          payload，diag / demo 模块可读整帧而无需重新解码每个信号。
+ *          返回自启动以来收到的最后一帧（冷复位时清空）。
  *
- * @return  u16  Voltage in mV (0 if ADC not ready)
+ * @param[in]   can_id  Standard 11-bit IPK can_id
+ * @param[out]  out     Populated with the cached frame on success
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Frame returned (may be stale)
+ * @retval  C02B2_ERR_PARAM     out is NULL or can_id not in IPK table
+ * @retval  C02B2_ERR_NOT_FOUND No frame received yet for this can_id
  */
-u16 Board_ADC_ReadRaw_mV(u8 channel);
+c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 ```
 
-### 3.2 无返回值（void）
+### 3.2 公开 API 声明（`.h`）
+
+```c
+/**
+ * @brief   Copy the most recent raw 8-byte payload of a CAN frame
+ * @brief   复制指定 CAN id 最近收到的 8 字节原始 payload
+ *
+ * @param[in]   can_id  IPK RX can_id (11-bit standard)
+ * @param[out]  out     Filled on success
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK            Cache populated
+ * @retval  C02B2_ERR_PARAM     can_id not an IPK RX message, or out NULL
+ * @retval  C02B2_ERR_NOT_FOUND No frame has been received for this id
+ */
+c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
+```
+
+### 3.3 无返回值（void）
 
 ```c
 /**
@@ -90,13 +136,22 @@ u16 Board_ADC_ReadRaw_mV(u8 channel);
 void Power_Init(u8 cold_boot);
 ```
 
-### 3.3 内部 static 函数（**最少** 1 行 `@brief`）
+### 3.4 无参数函数
+
+```c
+/**
+ * @brief   Reset cached raw frames
+ * @brief   清空已缓存的原始帧
+ */
+void CanRx_Reset(void);
+```
+
+### 3.5 内部 static 函数（**最少** 1 行 `@brief`）
 
 ```c
 /** @brief  Compute low-pass filtered battery voltage (1st-order IIR, alpha=1/8) */
 static u16 prv_filter_bat_mv(u16 raw_mv);
 ```
-
 ## 4. 头文件 vs .c 文件
 
 | 位置 | 注释放在哪 |
@@ -110,9 +165,10 @@ static u16 prv_filter_bat_mv(u16 raw_mv);
 ## 5. CI / 自动化检查
 
 `tools/check_doxygen.sh` 扫描：
-- 头文件中所有函数声明必须带 `/** @brief`
-- `.c` 文件中的非 `static` 函数必须带 `/** @brief`
-- 每个文件至少出现 1 次英文 `@brief` + 1 次中文 `@brief`（双 @brief 检查）
+- 头文件中所有函数声明必须带 `/**` 中文 `@brief`
+- `.c` 文件中的非 `static` 函数必须带 `/**` 中文 `@brief`
+- 每个函数必须有中文 `@brief`；英文 `@brief` 可选
+- `.c` 文件函数**推荐**含中文 `@details`（非强制）
 - 内部 `static` 函数**至少** 1 行 `/** @brief ... */`
 
 CI 失败示例：
@@ -136,7 +192,8 @@ CI 失败示例：
 
 - [ ] 每个 `.h` 中的函数都有完整注释
 - [ ] 每个 `.c` 中的非 static 函数都有完整注释
-- [ ] 每个函数都**有 2 行 @brief**（英文 + 中文）
-- [ ] 每个参数都标注了 `[in] / [out] / [in,out]`
-- [ ] 非 void 函数都有 `@return`
+- [ ] 每个函数都**有中文 `@brief`**（推荐再附 1 行英文 `@brief`）
+- [ ] `.c` 文件函数**推荐**含中文 `@details`
+- [ ] `@param` 只在有参数时写，并标注 `[in] / [out] / [in,out]`
+- [ ] 非 void 函数都有 `@return`（多返回值加 `@retval`）
 - [ ] `bash tools/check_doxygen.sh` 输出 `PASSED`
