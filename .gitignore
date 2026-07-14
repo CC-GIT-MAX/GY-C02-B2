@@ -1,0 +1,104 @@
+# 通用：编译输出与 IDE 临时文件
+*.o
+*.obj
+*.d
+*.dep
+*.pbi
+*.pbd
+*.pbd.browse
+*.pbw
+*.xcl
+*.log
+*.ninja_log
+*.ninja_deps
+build.ninja
+*.lnp
+*.map
+*.lst
+*.crf
+*.htm
+*.tmp
+*.sct
+*.bak
+*.tmp_proj
+*.ddk
+*.bdr
+*.bpf
+*.cos
+*.bin
+*.hex
+*.out
+*.elf
+*.s19
+*.mot
+*.axf
+*.axf.bin
+*.sym
+*.ex_
+*.ienv
+*.ienv_bak
+*.cpu
+*.dbgdt
+*.dnx
+*.crun
+*.pbi.lst
+*.pbi.xcl
+
+# IAR EWARM：保留工程定义，忽略构建缓存与本地设置
+EWARM/*.ewd
+EWARM/settings/
+EWARM/FLASH/
+EWARM/Backup*/
+EWARM/*.log
+EWARM/*~
+EWARM/*_Data/
+EWARM/Flash1/
+EWARM/Flash2/
+EWARM/Release/
+EWARM/Debug/
+
+# VSCode：保留配置
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# 静态扫描产物
+cstat.db
+*.cstat
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# 用户/编辑器
+*~
+*.swp
+*.swo
+*.orig
+*.rej
+*.saving
+
+# Python (tools/ 下可能有脚本)
+__pycache__/
+*.pyc
+*.pyo
+*.crdownload
+
+# 本地草稿
+tmp_*
+scratch/
+_*_scratch/
+_*_test/
+*.local
+.env
+.env.*
+
+# tools/dbc_parse.py 一次性中间产物(由 regen_can_artifacts.py 生成)
+tools/_dbc_scratch/
+
+# Codex agent local state (worktrees, scratch files)
+.ua/
+

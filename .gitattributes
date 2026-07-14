@@ -1,0 +1,23 @@
+# 强制 LF，避免 Windows 下 CRLF/LF 混合
+* text=auto eol=lf
+
+# 二进制显式标记
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.bin binary
+*.hex binary
+*.out binary
+*.elf binary
+
+# IAR 工程文件按文本处理
+*.ewp text eol=lf
+*.eww text eol=lf
+*.ewd text eol=lf
+*.ewt text eol=lf
+*.icf text eol=lf
+*.xcl text eol=lf
