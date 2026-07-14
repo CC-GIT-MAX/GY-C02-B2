@@ -16,12 +16,34 @@
  * @brief   Initialize the LPTMR peripheral
  * @brief   初始化 LPTMR 外设
  *
- * @details 从 board/lptmr_config.c 取出 LPTMR 配置，
- *          并通过厂商 SDK 驱动应用之。
- *
  * @return  c02b2_result_t
  * @retval  C02B2_OK  Initialization succeeded
  */
 c02b2_result_t Lptmr_Init(void);
+
+/**
+ * @brief   Deinitialize the LPTMR peripheral
+ * @brief   反初始化 LPTMR 外设
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK  Deinitialization succeeded
+ */
+c02b2_result_t Lptmr_Deinit(void);
+
+/**
+ * @brief   Start the LPTMR counter on the given instance
+ * @brief   启动指定实例的 LPTMR 计数器
+ *
+ * @param[in]  instance  LPTMR instance index (currently always 0)
+ */
+void Lptmr_Start_Counter(u32 instance);
+
+/**
+ * @brief   Stop the LPTMR counter on the given instance
+ * @brief   停止指定实例的 LPTMR 计数器
+ *
+ * @param[in]  instance  LPTMR instance index (currently always 0)
+ */
+void Lptmr_Stop_Counter(u32 instance);
 
 #endif /* C02B2_DRV_API_LPTMR_H */
