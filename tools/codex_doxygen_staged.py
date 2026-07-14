@@ -130,27 +130,39 @@ def resolve_codex_command() -> list[str]:
 
 
 def _block_above(lines: list[str], func_line_1based: int) -> str | None:
-    """Return the Doxygen block immediately above func_line_1based, or None."""
-    cur = func_line_1based - 1
-    while cur >= 1 and not lines[cur - 1].strip():
-        cur -= 1
-    if cur < 1:
+    """Return the Doxygen block immediately above func_line_1based, or None.
+
+    Walks up from the function line, skipping blank lines, until it finds a
+    line starting with `/**`. Every intervening line must be a comment or
+    blank; the first non-comment, non-blank line we hit (e.g. `#include`,
+    a code statement, a stray `/* ... */` block) means there is no
+    doxygen block immediately above.
+    """
+    s = func_line_1based - 1
+    # Skip blank lines directly above the function.
+    while s >= 1 and not lines[s - 1].strip():
+        s -= 1
+    if s < 1:
         return None
-    end = cur
-    s = cur
+    # The line above the function (after blanks) must end the doxygen block.
+    if not lines[s - 1].strip().endswith("*/"):
+        return None
+    # Walk backwards through the doxygen block; record its start.
+    end = s  # end is exclusive (one past the last line of the block)
+    s -= 1
     while s >= 1:
         c = lines[s - 1]
         stripped = c.lstrip()
         if stripped.startswith("/**"):
             return "\n".join(lines[s - 1 : end])
-        if not (
-            stripped.startswith("/*")
-            or stripped.startswith("*")
-            or stripped.endswith("*/")
-            or stripped == ""
-        ):
+        if stripped.startswith("*") or stripped.endswith("*/") or stripped == "":
+            s -= 1
+            continue
+        if stripped.startswith("/*"):
+            # Plain /* ... */ (not /**): treat as no doxygen block.
             return None
-        s -= 1
+        # Anything else (code, #include, etc.) means no block immediately above.
+        return None
     return None
 
 

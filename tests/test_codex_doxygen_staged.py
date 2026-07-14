@@ -138,3 +138,147 @@ class InstallerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BlockAboveTests(unittest.TestCase):
+    """Regression tests for the doxygen-block lookup used by
+    file_is_already_compliant(). The old version walked past intervening
+    code (e.g. `#include`), returning None for files with a file-level
+    header block before any function."""
+
+    def test_finds_block_directly_above_function(self):
+        text = (
+            "/**\n"
+            " * @brief hi\n"
+            " */\n"
+            "void Foo(void);\n"
+        )
+        block = automation._block_above(text.splitlines(), 4)
+        self.assertIsNotNone(block)
+        self.assertIn("@brief hi", block)
+
+    def test_block_above_with_blank_lines(self):
+        text = (
+            "/**\n"
+            " * @brief hi\n"
+            " */\n"
+            "\n"
+            "\n"
+            "void Foo(void);\n"
+        )
+        block = automation._block_above(text.splitlines(), 6)
+        self.assertIsNotNone(block)
+        self.assertIn("@brief hi", block)
+
+    def test_returns_none_when_include_intervenes(self):
+        # File header doxygen at top, then includes, then function with its
+        # OWN doxygen block. The block directly above the function must be
+        # found even if the header block exists.
+        text = (
+            "/**\n"
+            " * @file foo.h\n"
+            " */\n"
+            "#include \"types.h\"\n"
+            "\n"
+            "/**\n"
+            " * @brief hi\n"
+            " */\n"
+            "void Foo(void);\n"
+        )
+        block = automation._block_above(text.splitlines(), 9)
+        self.assertIsNotNone(block)
+        self.assertIn("@brief hi", block)
+        self.assertNotIn("@file", block)
+
+    def test_returns_none_when_no_block(self):
+        text = (
+            "void Foo(void);\n"
+        )
+        self.assertIsNone(automation._block_above(text.splitlines(), 1))
+
+    def test_returns_none_for_plain_comment_block(self):
+        # Plain /* ... */ (not /** ... */) is not a Doxygen block.
+        text = (
+            "/* not doxygen */\n"
+            "void Foo(void);\n"
+        )
+        self.assertIsNone(automation._block_above(text.splitlines(), 2))
+
+
+class ComplianceSkipTests(unittest.TestCase):
+    """End-to-end checks that the hook bypasses Codex for already-compliant
+    staged files (so a second commit does not waste minutes re-translating)."""
+
+    def _make_runner(self, staged, unstaged=(), codex_rc=0, doxygen_rc=0):
+        runner = Mock()
+        results = [
+            subprocess.CompletedProcess([], 0, stdout=str(Path.cwd()) + "\n", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="\n".join(staged), stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="\n".join(unstaged), stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="PASSED" if doxygen_rc == 0 else "FAILED", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="", stderr=""),
+        ]
+        runner.side_effect = results
+        return runner
+
+    def test_compliant_file_is_skipped(self):
+        # We only patch the compliance check, so the file does not need
+        # to actually exist; runner is fully mocked.
+        runner = self._make_runner(["app/foo.c"])
+        with patch(
+            "tools.codex_doxygen_staged.file_is_already_compliant",
+            return_value=True,
+        ):
+            result = automation.run_automation(runner=runner, environ={})
+        self.assertEqual(result, 0)
+        # 3 calls: toplevel, staged, unstaged. No codex, no check, no add.
+        self.assertEqual(runner.call_count, 3)
+
+    def test_force_flag_bypasses_compliance_skip(self):
+        runner = Mock()
+        runner.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=str(Path.cwd()) + "\n", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="app/foo.c\n", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="PASSED", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout="", stderr=""),
+        ]
+        with patch(
+            "tools.codex_doxygen_staged.file_is_already_compliant",
+            return_value=True,
+        ):
+            result = automation.run_automation(
+                runner=runner,
+                environ={"CODEX_DOXYGEN_FORCE": "1"},
+            )
+        self.assertEqual(result, 0)
+        # 6 calls (no skip).
+        self.assertEqual(runner.call_count, 6)
+
+
+class CodexCommandTests(unittest.TestCase):
+    """The Windows-safe codex invocation shape."""
+
+    def test_windows_uses_cmd_exe(self):
+        with patch("tools.codex_doxygen_staged.sys.platform", "win32"), patch(
+            "tools.codex_doxygen_staged.shutil.which", return_value=None
+        ):
+            cmd = automation.resolve_codex_command()
+        self.assertEqual(cmd[:3], ["cmd.exe", "/c", "codex"])
+
+    def test_posix_uses_resolved_binary(self):
+        with patch("tools.codex_doxygen_staged.sys.platform", "linux"), patch(
+            "tools.codex_doxygen_staged.shutil.which", return_value="/usr/local/bin/codex"
+        ):
+            cmd = automation.resolve_codex_command()
+        self.assertEqual(cmd, ["/usr/local/bin/codex"])
+
+    def test_codex_bin_env_override(self):
+        with patch.dict(
+            "os.environ",
+            {"CODEX_BIN": "/custom/path/to/codex"},
+        ):
+            cmd = automation.resolve_codex_command()
+        self.assertEqual(cmd, ["/custom/path/to/codex"])
