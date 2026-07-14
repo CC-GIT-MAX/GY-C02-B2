@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Direct Git hook entry point. Avoids spawning MSYS sh for speed.
 
 Safely cleans orphan `codex.exe` (Codex CLI worker) processes whose
@@ -33,7 +33,7 @@ def snapshot_process_table():
             ("th32ModuleID", wintypes.DWORD),
             ("cntThreads", wintypes.DWORD),
             ("th32ParentProcessID", wintypes.DWORD),
-            ("pcPriClassBase", wintypes.LONG),
+            ("pcPriClassBase", ctypes.c_long),
             ("dwFlags", wintypes.DWORD),
             ("szExeFile", ctypes.c_wchar * wintypes.MAX_PATH),
         ]
@@ -116,7 +116,7 @@ def kill_orphan_codex_workers():
     return killed
 
 
-def main() -> int:
+def main():
     try:
         ROOT = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
@@ -128,7 +128,10 @@ def main() -> int:
 
         killed = kill_orphan_codex_workers()
         if killed > 0:
-            print(f"[codex-doxygen] Cleaned {killed} orphan Codex CLI worker(s); Codex Desktop preserved.", file=sys.stderr)
+            print(
+                f"[codex-doxygen] Cleaned {killed} orphan Codex CLI worker(s); Codex Desktop preserved.",
+                file=sys.stderr,
+            )
 
         env = os.environ.copy()
         env["PYTHONUNBUFFERED"] = "1"
