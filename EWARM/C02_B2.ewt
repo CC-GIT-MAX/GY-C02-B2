@@ -1460,6 +1460,15 @@
                     <name>$PROJ_DIR$\..\app\Cluster\Algorithm\MATHS.h</name>
                 </file>
             </group>
+            <group>
+                <name>Powermode</name>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\Powermode\POWER_MODE.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\Powermode\POWER_MODE.h</name>
+                </file>
+            </group>
         </group>
         <group>
             <name>drv_api</name>

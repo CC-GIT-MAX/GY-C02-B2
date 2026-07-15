@@ -393,6 +393,7 @@
                     <state>$PROJ_DIR$/../app/drv_api/wdg</state>
                     <state>$PROJ_DIR$/../app/drv_api</state>
                     <state>$PROJ_DIR$\..\..\C02-B2\Project\C02_B2_NEW\app\Cluster\Algorithm</state>
+                    <state>$PROJ_DIR$\..\..\C02-B2\Project\C02_B2_NEW\app\Cluster\Powermode</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1187,6 +1188,15 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\app\Cluster\Algorithm\MATHS.h</name>
+                </file>
+            </group>
+            <group>
+                <name>Powermode</name>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\Powermode\POWER_MODE.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\Powermode\POWER_MODE.h</name>
                 </file>
             </group>
         </group>
