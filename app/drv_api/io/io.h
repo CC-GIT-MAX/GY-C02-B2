@@ -16,6 +16,11 @@
 
 #include "types.h"
 #include "pins_driver.h"
+//IO define   ..............................
+#define PORT_GC_PW_EN_O               Io_SetPinDirection(GPIOE, (1u << 9), GPIO_OUTPUT_DIRECTION)
+#define PORT_GC_PW_EN_H               Io_WritePin(GPIOE, (1u << 9), 1u)
+#define PORT_GC_PW_EN_L               Io_WritePin(GPIOE, (1u << 9), 0u)
+//IO define   ..............................
 /**
  * @brief   Write a masked set of pins on a GPIO port
  * @brief   按位掩码写入 GPIO 端口引脚

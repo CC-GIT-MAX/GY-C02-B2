@@ -25,6 +25,7 @@ extern const mod_desc_t mod_can_rx;
 extern const mod_desc_t mod_can_tx;
 extern const mod_desc_t mod_can_demo;
 extern const mod_desc_t mod_rti_demo;
+extern const mod_desc_t mod_power_mode;
 
 #define MOD_NAME  "SCH"
 #include "log.h"
@@ -80,6 +81,7 @@ static const mod_desc_t * const g_sched_modules[] = {
     &mod_can_tx,
     &mod_can_demo,
     &mod_rti_demo,
+    &mod_power_mode,
 };
 
 /* Phase 2 / B2：在文件作用域缓存模块数量。g_sched_modules[] 是
