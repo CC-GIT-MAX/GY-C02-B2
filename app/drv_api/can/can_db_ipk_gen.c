@@ -3,6 +3,95 @@
 
 /* === Per-signal descriptors === */
 const can_sig_desc_t can_sig_descs_ipk[] = {
+    /* --- RX: IPK_RECV_E2_523 (0x0523, dlc=8) --- */
+    { /* IPK_RECV_E2_B7 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 63,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_RECV_E2_B6 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 55,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_RECV_E2_B5 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 47,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_RECV_E2_B4 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 39,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_RECV_E2_B3 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 31,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_RECV_E2_B2 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 23,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_RECV_E2_B1 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 15,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_RECV_E2_B0 in IPK_RECV_E2_523 (RX) */
+        .start_bit    = 7,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
     /* --- RX: MMI_DateTime_Msg (0x02AF, dlc=8) --- */
     { /* MMI_Second in MMI_DateTime_Msg (RX) */
         .start_bit    = 5,
@@ -12,6 +101,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Minute in MMI_DateTime_Msg (RX) */
@@ -22,6 +112,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Hour in MMI_DateTime_Msg (RX) */
@@ -32,6 +123,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Day in MMI_DateTime_Msg (RX) */
@@ -42,6 +134,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Month in MMI_DateTime_Msg (RX) */
@@ -52,6 +145,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Year in MMI_DateTime_Msg (RX) */
@@ -62,6 +156,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: MMI_GPS_Info5 (0x03E0, dlc=8) --- */
@@ -73,6 +168,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -10000.0f,
         .raw_type     = CAN_RAW_U32,
+        .init_value   = 0x186A0u,
     },
 
     { /* MMI_GPS_Info5_AliveCounter in MMI_GPS_Info5 (RX) */
@@ -83,6 +179,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_GPS_Info5_CheckSum in MMI_GPS_Info5 (RX) */
@@ -93,6 +190,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: MMI_Status_Info (0x02A4, dlc=8) --- */
@@ -104,6 +202,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_LeftSwStatus in MMI_Status_Info (RX) */
@@ -114,6 +213,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_UpSwStatus in MMI_Status_Info (RX) */
@@ -124,6 +224,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_DownSwStatus in MMI_Status_Info (RX) */
@@ -134,6 +235,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_ConfirmSwStatus in MMI_Status_Info (RX) */
@@ -144,6 +246,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_ReturnSwStatus in MMI_Status_Info (RX) */
@@ -154,6 +257,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_WorkMode in MMI_Status_Info (RX) */
@@ -164,6 +268,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SkinMode in MMI_Status_Info (RX) */
@@ -174,6 +279,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 3u,
     },
 
     { /* MMI_HUDAciveRequest in MMI_Status_Info (RX) */
@@ -184,6 +290,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_AVH_Request in MMI_Status_Info (RX) */
@@ -194,6 +301,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_OdometerClearReq in MMI_Status_Info (RX) */
@@ -204,6 +312,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SkinModeCorrelativeSts in MMI_Status_Info (RX) */
@@ -214,6 +323,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SVA_AudibleWarningOption in MMI_Status_Info (RX) */
@@ -224,6 +334,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_LCA_AudioWarning in MMI_Status_Info (RX) */
@@ -234,6 +345,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_ePTRegencyLevRequest in MMI_Status_Info (RX) */
@@ -244,6 +356,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_DM_SwitchModeSts in MMI_Status_Info (RX) */
@@ -254,6 +367,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_RoadCameraWarning in MMI_Status_Info (RX) */
@@ -264,6 +378,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_BCM_DchaChargehint in MMI_Status_Info (RX) */
@@ -274,6 +389,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_RDiffLockReq in MMI_Status_Info (RX) */
@@ -284,6 +400,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_NationalDrivingRank in MMI_Status_Info (RX) */
@@ -294,6 +411,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_EnergySavingModeReq in MMI_Status_Info (RX) */
@@ -304,6 +422,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_CampModeReq in MMI_Status_Info (RX) */
@@ -314,6 +433,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_EpedalSettingInfo in MMI_Status_Info (RX) */
@@ -324,6 +444,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_ESCoffInfo in MMI_Status_Info (RX) */
@@ -334,6 +455,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_HDC_Request in MMI_Status_Info (RX) */
@@ -344,6 +466,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_IntellTurnAidReq in MMI_Status_Info (RX) */
@@ -354,6 +477,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_IntellTurnAidTerrSeln in MMI_Status_Info (RX) */
@@ -364,6 +488,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_OnboardScaleReq in MMI_Status_Info (RX) */
@@ -374,6 +499,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_iTPMS_reset_Request in MMI_Status_Info (RX) */
@@ -384,6 +510,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: MMI_Safety_Info (0x02A8, dlc=8) --- */
@@ -395,6 +522,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Nav_RampSts in MMI_Safety_Info (RX) */
@@ -405,6 +533,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Nav_CurrRoadType in MMI_Safety_Info (RX) */
@@ -415,6 +544,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Nav_status in MMI_Safety_Info (RX) */
@@ -425,6 +555,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* MMI_Nav_CountryID in MMI_Safety_Info (RX) */
@@ -435,6 +566,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_TollGateIndication in MMI_Safety_Info (RX) */
@@ -445,6 +577,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SVC_status in MMI_Safety_Info (RX) */
@@ -455,6 +588,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_APA_Function_Select in MMI_Safety_Info (RX) */
@@ -465,6 +599,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SVA_Request in MMI_Safety_Info (RX) */
@@ -475,6 +610,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_APA_ConfirmButton in MMI_Safety_Info (RX) */
@@ -485,6 +621,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_PSC_Function_Select in MMI_Safety_Info (RX) */
@@ -495,6 +632,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_NavTunnelIndication in MMI_Safety_Info (RX) */
@@ -505,6 +643,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_NavDestinationIndication in MMI_Safety_Info (RX) */
@@ -515,6 +654,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_DayNightMode in MMI_Safety_Info (RX) */
@@ -525,6 +665,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_IBBrakeModeSet in MMI_Safety_Info (RX) */
@@ -535,6 +676,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SailingSwitch in MMI_Safety_Info (RX) */
@@ -545,6 +687,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Start_Stop_switch in MMI_Safety_Info (RX) */
@@ -555,6 +698,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_NavSyncDisplay in MMI_Safety_Info (RX) */
@@ -565,6 +709,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Safety_Info_AliveCounter in MMI_Safety_Info (RX) */
@@ -575,6 +720,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_Safety_Info_CheckSum in MMI_Safety_Info (RX) */
@@ -585,6 +731,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: MMI_SOCSet (0x02A6, dlc=8) --- */
@@ -596,6 +743,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* MMI_SocWarValue in MMI_SOCSet (RX) */
@@ -606,6 +754,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_EVDTEodometer_ModeSet in MMI_SOCSet (RX) */
@@ -616,6 +765,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_FridgeCoolReq in MMI_SOCSet (RX) */
@@ -626,6 +776,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SaveModeReq in MMI_SOCSet (RX) */
@@ -636,6 +787,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_ACDisChrgCmd in MMI_SOCSet (RX) */
@@ -646,6 +798,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* MMI_RearPanelDisChrgCmd in MMI_SOCSet (RX) */
@@ -656,6 +809,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* MMI_DCDisChrgCmd in MMI_SOCSet (RX) */
@@ -666,6 +820,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* MMI_FrontPanelDisChrgCmd in MMI_SOCSet (RX) */
@@ -676,6 +831,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* MMI_OTA_Status in MMI_SOCSet (RX) */
@@ -686,6 +842,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_MidPanelDisChrgCmd in MMI_SOCSet (RX) */
@@ -696,6 +853,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* MMI_RefuUnlckReq in MMI_SOCSet (RX) */
@@ -706,6 +864,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* MMI_SOCPointSet in MMI_SOCSet (RX) */
@@ -716,6 +875,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x1Eu,
     },
 
     /* --- RX: EMS_EngRelateTrqSts (0x0084, dlc=8) --- */
@@ -727,6 +887,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_CruiseSwitchSts in EMS_EngRelateTrqSts (RX) */
@@ -737,6 +898,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_CruiseControlSts in EMS_EngRelateTrqSts (RX) */
@@ -747,6 +909,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_Real_PedalPositionInvalid in EMS_EngRelateTrqSts (RX) */
@@ -757,6 +920,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_Real_PedalPosition in EMS_EngRelateTrqSts (RX) */
@@ -767,6 +931,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.4f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: EMS_EngineRPM (0x0085, dlc=8) --- */
@@ -778,6 +943,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.0788519f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_EngineSpeedRPM in EMS_EngineRPM (RX) */
@@ -788,6 +954,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.25f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* EMS_EngineSpeedRPMInvalid in EMS_EngineRPM (RX) */
@@ -798,6 +965,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_EngStatus in EMS_EngineRPM (RX) */
@@ -808,6 +976,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_AccelPedalPosition in EMS_EngineRPM (RX) */
@@ -818,6 +987,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.4f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_AccelPedalPositionInvalid in EMS_EngineRPM (RX) */
@@ -828,6 +998,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     /* --- RX: EMS_EngineDriverInfo (0x0288, dlc=8) --- */
@@ -839,6 +1010,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.75f,
         .offset       = -36.8f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x5Bu,
     },
 
     { /* EMS_EngineCoolantTemperatureInva in EMS_EngineDriverInfo (RX) */
@@ -849,6 +1021,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_EngineSVSTelltale in EMS_EngineDriverInfo (RX) */
@@ -859,6 +1032,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_EngineMILTelltale in EMS_EngineDriverInfo (RX) */
@@ -869,6 +1043,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_OilPressureWarning in EMS_EngineDriverInfo (RX) */
@@ -879,6 +1054,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_Odometerbackup in EMS_EngineDriverInfo (RX) */
@@ -889,6 +1065,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 100.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     /* --- RX: EMS_EnginePatsBatteryStat (0x028A, dlc=8) --- */
@@ -900,6 +1077,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_EAV_ModSetStatus in EMS_EnginePatsBatteryStat (RX) */
@@ -910,6 +1088,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_LIMControlSts in EMS_EnginePatsBatteryStat (RX) */
@@ -920,6 +1099,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_LIMmemorySts_Reserved in EMS_EnginePatsBatteryStat (RX) */
@@ -930,6 +1110,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_LIMSwitchSts in EMS_EnginePatsBatteryStat (RX) */
@@ -940,6 +1121,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_LIMOverSpdWarningSts in EMS_EnginePatsBatteryStat (RX) */
@@ -950,6 +1132,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: EMS_OBD_Info (0x028C, dlc=8) --- */
@@ -961,6 +1144,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_BrakeOverrideSts in EMS_OBD_Info (RX) */
@@ -971,6 +1155,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_TankLeakDiagSts in EMS_OBD_Info (RX) */
@@ -981,6 +1166,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_AdaptiveTargetMode in EMS_OBD_Info (RX) */
@@ -991,6 +1177,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EMS_DM_ModeProgBar in EMS_OBD_Info (RX) */
@@ -1001,6 +1188,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x7Fu,
     },
 
     /* --- RX: EGSM_Status (0x0145, dlc=8) --- */
@@ -1012,6 +1200,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EGSM_DriveMod in EGSM_Status (RX) */
@@ -1022,6 +1211,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EGSM_LeverPosition in EGSM_Status (RX) */
@@ -1032,6 +1222,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EGSM_Paddleinputs in EGSM_Status (RX) */
@@ -1042,6 +1233,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EGSM_ReleaseReq in EGSM_Status (RX) */
@@ -1052,6 +1244,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EGSM_Status_AliveCounter in EGSM_Status (RX) */
@@ -1062,6 +1255,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EGSM_Status_Checksum in EGSM_Status (RX) */
@@ -1072,6 +1266,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: OBC_Sts (0x0220, dlc=8) --- */
@@ -1083,6 +1278,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* OBC_OnBdFailSt in OBC_Sts (RX) */
@@ -1093,6 +1289,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* OBC_OnBdDisChrgrCCline_PHEV in OBC_Sts (RX) */
@@ -1103,6 +1300,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ODP_OBC_OnBdCCline in OBC_Sts (RX) */
@@ -1113,6 +1311,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ODP_OBC_OnBdCPline in OBC_Sts (RX) */
@@ -1123,6 +1322,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: OBC_Curr (0x0221, dlc=8) --- */
@@ -1134,6 +1334,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ODP_OBC_iInAct in OBC_Curr (RX) */
@@ -1144,6 +1345,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* OBC_uInAct in OBC_Curr (RX) */
@@ -1154,6 +1356,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* ODP_OBC_POuptAct in OBC_Curr (RX) */
@@ -1164,6 +1367,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: OBC_Failmode (0x0222, dlc=8) --- */
@@ -1175,6 +1379,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ODP_OBC_Failmode_Hndl_Error in OBC_Failmode (RX) */
@@ -1185,6 +1390,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ODP_OBC_Failmode_ACVI_Invalid in OBC_Failmode (RX) */
@@ -1195,6 +1401,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     /* --- RX: BMSH_sts (0x0354, dlc=8) --- */
@@ -1206,6 +1413,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x3E8u,
     },
 
     { /* BMSH_ChgTimeRemain in BMSH_sts (RX) */
@@ -1216,6 +1424,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x709u,
     },
 
     { /* BMSH_BattRemainEnergy in BMSH_sts (RX) */
@@ -1226,6 +1435,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* BMSH_Discharge_Over_Current in BMSH_sts (RX) */
@@ -1236,6 +1446,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BMSH_Battery_chgstate (0x017B, dlc=8) --- */
@@ -1247,6 +1458,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BMSH_CellTempLimitValue (0x0210, dlc=8) --- */
@@ -1258,6 +1470,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.5f,
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x82u,
     },
 
     { /* BMSH_TempSensor_MinTemp in BMSH_CellTempLimitValue (RX) */
@@ -1268,6 +1481,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.5f,
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x82u,
     },
 
     /* --- RX: VCU_Ctrl (0x0162, dlc=8) --- */
@@ -1279,6 +1493,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ePTModeActual in VCU_Ctrl (RX) */
@@ -1289,6 +1504,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_Warning_IMMO_Fail in VCU_Ctrl (RX) */
@@ -1299,6 +1515,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ChargerFault in VCU_Ctrl (RX) */
@@ -1309,6 +1526,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ePTReady in VCU_Ctrl (RX) */
@@ -1319,6 +1537,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ePTDivPowerPcent in VCU_Ctrl (RX) */
@@ -1329,6 +1548,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -100.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x64u,
     },
 
     { /* VCU_ePTReleaseSig in VCU_Ctrl (RX) */
@@ -1339,6 +1559,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ePTRegencyLevInd in VCU_Ctrl (RX) */
@@ -1349,6 +1570,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ePTModReqRejt in VCU_Ctrl (RX) */
@@ -1359,6 +1581,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_LimpHomeSts_HB in VCU_Ctrl (RX) */
@@ -1369,6 +1592,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_TurtleLampOn in VCU_Ctrl (RX) */
@@ -1379,6 +1603,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ePTFault in VCU_Ctrl (RX) */
@@ -1389,6 +1614,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: VCU_InforCAN (0x0214, dlc=8) --- */
@@ -1400,6 +1626,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFu,
     },
 
     { /* HmiEngHybSts in VCU_InforCAN (RX) */
@@ -1410,6 +1637,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_PtModAct in VCU_InforCAN (RX) */
@@ -1420,6 +1648,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_PtModBlkd in VCU_InforCAN (RX) */
@@ -1430,6 +1659,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_PwrLoIndcn in VCU_InforCAN (RX) */
@@ -1440,6 +1670,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_EngFltIndcn in VCU_InforCAN (RX) */
@@ -1450,6 +1681,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_VehPullOverWarn in VCU_InforCAN (RX) */
@@ -1460,6 +1692,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_EpedalActive in VCU_InforCAN (RX) */
@@ -1470,6 +1703,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_MainDrivingDoorOpenHV in VCU_InforCAN (RX) */
@@ -1480,6 +1714,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: VCU_DCDC_Ctrl (0x0161, dlc=8) --- */
@@ -1491,6 +1726,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_DriverRemind in VCU_DCDC_Ctrl (RX) */
@@ -1501,6 +1737,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_DiscrgPanellSw in VCU_DCDC_Ctrl (RX) */
@@ -1511,6 +1748,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_DischgFailSt in VCU_DCDC_Ctrl (RX) */
@@ -1521,6 +1759,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_MileageReward in VCU_DCDC_Ctrl (RX) */
@@ -1531,6 +1770,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* DispOfPrpsnMod in VCU_DCDC_Ctrl (RX) */
@@ -1541,6 +1781,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: VCU_CSControl1 (0x01A5, dlc=8) --- */
@@ -1552,6 +1793,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_CruiseControlSts in VCU_CSControl1 (RX) */
@@ -1562,6 +1804,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_CruiseSwitchSts in VCU_CSControl1 (RX) */
@@ -1572,6 +1815,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ControlSetSpeed in VCU_CSControl1 (RX) */
@@ -1582,6 +1826,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_DM_FailureReasonAndSysFaultF in VCU_CSControl1 (RX) */
@@ -1592,6 +1837,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: VCU_ModeControl (0x0165, dlc=8) --- */
@@ -1603,6 +1849,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.4f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ModeGearDisplaySts in VCU_ModeControl (RX) */
@@ -1613,6 +1860,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x1Fu,
     },
 
     { /* VCU_LIMOverSpdWarningSts in VCU_ModeControl (RX) */
@@ -1623,6 +1871,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_EVSpeedlimitedInf in VCU_ModeControl (RX) */
@@ -1633,6 +1882,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_ChargeHV_Status in VCU_ModeControl (RX) */
@@ -1643,6 +1893,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_WhlDrvSt_CS in VCU_ModeControl (RX) */
@@ -1653,6 +1904,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_LIMSetSpeed in VCU_ModeControl (RX) */
@@ -1663,6 +1915,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_LIMSwitchSts in VCU_ModeControl (RX) */
@@ -1673,6 +1926,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_LIMControlSts in VCU_ModeControl (RX) */
@@ -1683,6 +1937,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: IPU_TrqSpd (0x00A8, dlc=8) --- */
@@ -1694,6 +1949,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -1200.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x2EE0u,
     },
 
     { /* IPU_IsgSpdActSgn in IPU_TrqSpd (RX) */
@@ -1704,6 +1960,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -20000.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x4E20u,
     },
 
     { /* IPU_TrqSpd_AliveCounter in IPU_TrqSpd (RX) */
@@ -1714,6 +1971,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPU_TrqSpd_Checksum in IPU_TrqSpd (RX) */
@@ -1724,6 +1982,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: IPU_Sts (0x0171, dlc=8) --- */
@@ -1735,6 +1994,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -1024.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x400u,
     },
 
     { /* IPU_TqAvlIsgMin in IPU_Sts (RX) */
@@ -1745,6 +2005,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -1024.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x400u,
     },
 
     { /* IPU_Sts_AliveCounter in IPU_Sts (RX) */
@@ -1755,6 +2016,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPU_Sts_Checksum in IPU_Sts (RX) */
@@ -1765,6 +2027,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: AVAS_DisabledSts (0x02B2, dlc=8) --- */
@@ -1776,6 +2039,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* AVAS_AVASBackwardDisabledSts in AVAS_DisabledSts (RX) */
@@ -1786,6 +2050,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* AVAS_AVASforwardDisabledSts in AVAS_DisabledSts (RX) */
@@ -1796,6 +2061,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* AVAS_AVASForwardWarningSts in AVAS_DisabledSts (RX) */
@@ -1806,6 +2072,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AVAS_AVASVolumeSts in AVAS_DisabledSts (RX) */
@@ -1816,6 +2083,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AVAS_AVASBackwardWarningSts in AVAS_DisabledSts (RX) */
@@ -1826,6 +2094,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: ACU_ChimeTelltaleReq (0x0380, dlc=8) --- */
@@ -1837,6 +2106,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_PassSeatbeWarning in ACU_ChimeTelltaleReq (RX) */
@@ -1847,6 +2117,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_PassSeatOccupantSensorStat in ACU_ChimeTelltaleReq (RX) */
@@ -1857,6 +2128,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_2nd_RSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
@@ -1867,6 +2139,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_PassengerAirbagStatus in ACU_ChimeTelltaleReq (RX) */
@@ -1877,6 +2150,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ACU_AirbagWarningStatus in ACU_ChimeTelltaleReq (RX) */
@@ -1887,6 +2161,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ACU_DrvSeatbeltBuckleInvalid in ACU_ChimeTelltaleReq (RX) */
@@ -1897,6 +2172,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ACU_PassSeatbeltBuckleInvalid in ACU_ChimeTelltaleReq (RX) */
@@ -1907,6 +2183,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ACU_2nd_LSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
@@ -1917,6 +2194,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_2nd_MSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
@@ -1927,6 +2205,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_3rd_LSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
@@ -1937,6 +2216,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_3rd_RSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
@@ -1947,6 +2227,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ACU_3rd_MSeatbeltBucklestatus in ACU_ChimeTelltaleReq (RX) */
@@ -1957,6 +2238,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: EPS_InformSts (0x0150, dlc=8) --- */
@@ -1968,6 +2250,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EPS_ModSetInhibit in EPS_InformSts (RX) */
@@ -1978,6 +2261,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EPS_ModSts in EPS_InformSts (RX) */
@@ -1988,6 +2272,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     /* --- RX: ESC_Status (0x0125, dlc=8) --- */
@@ -1999,6 +2284,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_EBDFailed in ESC_Status (RX) */
@@ -2009,6 +2295,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ESC_ABSFailed in ESC_Status (RX) */
@@ -2019,6 +2306,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ESC_TCSFailed in ESC_Status (RX) */
@@ -2029,6 +2317,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ESC_ESPFailed in ESC_Status (RX) */
@@ -2039,6 +2328,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ESC_VehicleSpeed in ESC_Status (RX) */
@@ -2049,6 +2339,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.05625f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* ESC_PATAResponse in ESC_Status (RX) */
@@ -2059,6 +2350,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ESC_LampInfo in ESC_Status (RX) */
@@ -2069,6 +2361,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_VehicleSpeedInvalid in ESC_Status (RX) */
@@ -2079,6 +2372,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_AVHStatus in ESC_Status (RX) */
@@ -2089,6 +2383,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_EPBStatus in ESC_Status (RX) */
@@ -2099,6 +2394,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 3u,
     },
 
     { /* ESC_EPBErrorStatus in ESC_Status (RX) */
@@ -2109,6 +2405,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_BrakePedalSwitchInvalid in ESC_Status (RX) */
@@ -2119,6 +2416,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ESC_HHC_ErrorStatus in ESC_Status (RX) */
@@ -2129,6 +2427,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* ESC_HDC_ErrorStatus in ESC_Status (RX) */
@@ -2139,6 +2438,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_HDC_Active in ESC_Status (RX) */
@@ -2149,6 +2449,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: ESC_DriverRemind (0x012F, dlc=8) --- */
@@ -2160,6 +2461,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_ParkingBrakeFail in ESC_DriverRemind (RX) */
@@ -2170,6 +2472,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_EPB_Disp_WithoutSeatbelt in ESC_DriverRemind (RX) */
@@ -2180,6 +2483,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_EPB_Disp_WithoutBrake in ESC_DriverRemind (RX) */
@@ -2190,6 +2494,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_EPB_SlopeOverThresholdRemind in ESC_DriverRemind (RX) */
@@ -2200,6 +2505,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_EPB_ReleaseInNonP in ESC_DriverRemind (RX) */
@@ -2210,6 +2516,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_HDC_Disp_DiscTempHigh in ESC_DriverRemind (RX) */
@@ -2220,6 +2527,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_HDC_TargetSpeed in ESC_DriverRemind (RX) */
@@ -2230,6 +2538,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_SystemWarning in ESC_DriverRemind (RX) */
@@ -2240,6 +2549,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMS_FLTyreWarn in ESC_DriverRemind (RX) */
@@ -2250,6 +2560,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMS_FRTyreWarn in ESC_DriverRemind (RX) */
@@ -2260,6 +2571,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMS_RLTyreWarn in ESC_DriverRemind (RX) */
@@ -2270,6 +2582,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMS_RRTyreWarn in ESC_DriverRemind (RX) */
@@ -2280,6 +2593,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMS_comTyreWarn in ESC_DriverRemind (RX) */
@@ -2290,6 +2604,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMS_SystemSt in ESC_DriverRemind (RX) */
@@ -2300,6 +2615,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMSCalPsbl in ESC_DriverRemind (RX) */
@@ -2310,6 +2626,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_iTPMSCalsts in ESC_DriverRemind (RX) */
@@ -2320,6 +2637,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: ESC_Regen (0x0128, dlc=8) --- */
@@ -2331,6 +2649,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* ESC_MbRegenTargetWheelSts in ESC_Regen (RX) */
@@ -2341,6 +2660,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: RSRSR_InformStatus (0x02E4, dlc=8) --- */
@@ -2352,6 +2672,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_LCA_Status in RSRSR_InformStatus (RX) */
@@ -2362,6 +2683,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_RCTA_Status in RSRSR_InformStatus (RX) */
@@ -2372,6 +2694,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_RCW_Status in RSRSR_InformStatus (RX) */
@@ -2382,6 +2705,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_LCA_WarningLeft in RSRSR_InformStatus (RX) */
@@ -2392,6 +2716,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_LCA_WarningRight in RSRSR_InformStatus (RX) */
@@ -2402,6 +2727,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_RCTA_WarningLeft in RSRSR_InformStatus (RX) */
@@ -2412,6 +2738,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_RCW_Warning in RSRSR_InformStatus (RX) */
@@ -2422,6 +2749,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_DOW_Status in RSRSR_InformStatus (RX) */
@@ -2432,6 +2760,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_DOW_WarningLeft in RSRSR_InformStatus (RX) */
@@ -2442,6 +2771,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_DOW_WarningRight in RSRSR_InformStatus (RX) */
@@ -2452,6 +2782,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_LCA_AudioSwitch in RSRSR_InformStatus (RX) */
@@ -2462,6 +2793,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_RCTA_WarningRight in RSRSR_InformStatus (RX) */
@@ -2472,6 +2804,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_RCTA_Brake in RSRSR_InformStatus (RX) */
@@ -2482,6 +2815,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RSRSR_RCW_Brake in RSRSR_InformStatus (RX) */
@@ -2492,6 +2826,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_ALAD_Status (0x01B0, dlc=8) --- */
@@ -2503,6 +2838,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ALAD_Type in FCS_ALAD_Status (RX) */
@@ -2513,6 +2849,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_ALAD_WarningType in FCS_ALAD_Status (RX) */
@@ -2523,6 +2860,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_ALAD_Status in FCS_ALAD_Status (RX) */
@@ -2533,6 +2871,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_FCS_Status in FCS_ALAD_Status (RX) */
@@ -2543,6 +2882,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ALAD_Warning in FCS_ALAD_Status (RX) */
@@ -2553,6 +2893,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_SLIF_IHBC_Status (0x02E0, dlc=8) --- */
@@ -2564,6 +2905,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_IHBC_LightDistribReq in FCS_SLIF_IHBC_Status (RX) */
@@ -2574,6 +2916,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_IHBC_Switch in FCS_SLIF_IHBC_Status (RX) */
@@ -2584,6 +2927,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_SLIF_Switch in FCS_SLIF_IHBC_Status (RX) */
@@ -2594,6 +2938,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_Sign_Speedlimit in FCS_SLIF_IHBC_Status (RX) */
@@ -2604,6 +2949,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_Sign_SpeedLimitCancelled in FCS_SLIF_IHBC_Status (RX) */
@@ -2614,6 +2960,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_DrvOff_Switch in FCS_SLIF_IHBC_Status (RX) */
@@ -2624,6 +2971,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_SLIF_Status in FCS_SLIF_IHBC_Status (RX) */
@@ -2634,6 +2982,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_SLIF_Warning in FCS_SLIF_IHBC_Status (RX) */
@@ -2644,6 +2993,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_SLIF_WarningSwitch in FCS_SLIF_IHBC_Status (RX) */
@@ -2654,6 +3004,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_Sign_Misc in FCS_SLIF_IHBC_Status (RX) */
@@ -2664,6 +3015,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_SLIF_IHBC_Status_AliveCounte in FCS_SLIF_IHBC_Status (RX) */
@@ -2674,6 +3026,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_SLIF_MiscSts in FCS_SLIF_IHBC_Status (RX) */
@@ -2684,6 +3037,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_SLIF_IHBC_Status_CheckSum in FCS_SLIF_IHBC_Status (RX) */
@@ -2694,6 +3048,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_Road_Status (0x01B2, dlc=8) --- */
@@ -2705,6 +3060,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LineLeft_Type in FCS_Road_Status (RX) */
@@ -2715,6 +3071,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LineLeft_Warning in FCS_Road_Status (RX) */
@@ -2725,6 +3082,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LineLeft_Color in FCS_Road_Status (RX) */
@@ -2735,6 +3093,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LineRight_Color in FCS_Road_Status (RX) */
@@ -2745,6 +3104,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LineRight_Warning in FCS_Road_Status (RX) */
@@ -2755,6 +3115,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LineRight_D in FCS_Road_Status (RX) */
@@ -2765,6 +3126,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -6.2f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x3Eu,
     },
 
     { /* FCS_LineRight_Type in FCS_Road_Status (RX) */
@@ -2775,6 +3137,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_Lane_Radius in FCS_Road_Status (RX) */
@@ -2785,6 +3148,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 50.0f,
         .offset       = -3150.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x3Fu,
     },
 
     { /* FCS_DriveOnLine in FCS_Road_Status (RX) */
@@ -2795,6 +3159,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LaneChange_Det in FCS_Road_Status (RX) */
@@ -2805,6 +3170,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_LaneCenter_Color in FCS_Road_Status (RX) */
@@ -2815,6 +3181,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_ELK_Status (0x0114, dlc=8) --- */
@@ -2826,6 +3193,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_ELK_Status in FCS_ELK_Status (RX) */
@@ -2836,6 +3204,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ELK_LeftMode in FCS_ELK_Status (RX) */
@@ -2846,6 +3215,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ELK_RightMode in FCS_ELK_Status (RX) */
@@ -2856,6 +3226,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_AEB (0x01A2, dlc=8) --- */
@@ -2867,6 +3238,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_AEB_WarningType in FCS_AEB (RX) */
@@ -2877,6 +3249,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* FCS_AEB_Switch in FCS_AEB (RX) */
@@ -2887,6 +3260,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* FCS_AEB_Status in FCS_AEB (RX) */
@@ -2897,6 +3271,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_AEB_Warning in FCS_AEB (RX) */
@@ -2907,6 +3282,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_AEB_FCWSenlevel in FCS_AEB (RX) */
@@ -2917,6 +3293,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_Display (0x01A3, dlc=8) --- */
@@ -2928,6 +3305,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* FCS_ALOD_TimeGap in FCS_Display (RX) */
@@ -2938,6 +3316,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ALOD_TimeGapDisp in FCS_Display (RX) */
@@ -2948,6 +3327,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ALOD_Status in FCS_Display (RX) */
@@ -2958,6 +3338,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ALOD_ControlType in FCS_Display (RX) */
@@ -2968,6 +3349,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ALOD_Warning in FCS_Display (RX) */
@@ -2978,6 +3360,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_FRS_Status in FCS_Display (RX) */
@@ -2988,6 +3371,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ALOD_Info in FCS_Display (RX) */
@@ -2998,6 +3382,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_Display_AliveCounter in FCS_Display (RX) */
@@ -3008,6 +3393,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_Display_CheckSum in FCS_Display (RX) */
@@ -3018,6 +3404,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_FrontObject (0x01A6, dlc=8) --- */
@@ -3029,6 +3416,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront1_Dy in FCS_FrontObject (RX) */
@@ -3039,6 +3427,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x7Fu,
     },
 
     { /* FCS_ObjFront1_Type in FCS_FrontObject (RX) */
@@ -3049,6 +3438,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront1_Color in FCS_FrontObject (RX) */
@@ -3059,6 +3449,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront1_Warning in FCS_FrontObject (RX) */
@@ -3069,6 +3460,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront2_Dx in FCS_FrontObject (RX) */
@@ -3079,6 +3471,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront2_Dy in FCS_FrontObject (RX) */
@@ -3089,6 +3482,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x7Fu,
     },
 
     { /* FCS_ObjFront2_Type in FCS_FrontObject (RX) */
@@ -3099,6 +3493,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront2_Color in FCS_FrontObject (RX) */
@@ -3109,6 +3504,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront1_Heading in FCS_FrontObject (RX) */
@@ -3119,6 +3515,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFront2_Heading in FCS_FrontObject (RX) */
@@ -3129,6 +3526,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: FCS_FrontSideObject (0x01A7, dlc=8) --- */
@@ -3140,6 +3538,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFrontLeft_Dy in FCS_FrontSideObject (RX) */
@@ -3150,6 +3549,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x7Fu,
     },
 
     { /* FCS_ObjFrontLeft_Type in FCS_FrontSideObject (RX) */
@@ -3160,6 +3560,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFrontLeft_Color in FCS_FrontSideObject (RX) */
@@ -3170,6 +3571,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFrontRight_Dx in FCS_FrontSideObject (RX) */
@@ -3180,6 +3582,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFrontRight_Dy in FCS_FrontSideObject (RX) */
@@ -3190,6 +3593,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -12.7f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x7Fu,
     },
 
     { /* FCS_ObjFrontRight_Type in FCS_FrontSideObject (RX) */
@@ -3200,6 +3604,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFrontRight_Color in FCS_FrontSideObject (RX) */
@@ -3210,6 +3615,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFrontLeft_Heading in FCS_FrontSideObject (RX) */
@@ -3220,6 +3626,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* FCS_ObjFrontRight_Heading in FCS_FrontSideObject (RX) */
@@ -3230,6 +3637,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: AC_ReqSts (0x02F1, dlc=8) --- */
@@ -3241,6 +3649,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AC_AmbientTemperatureInvalid in AC_ReqSts (RX) */
@@ -3251,6 +3660,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AC_InsideTemperatureInvalid in AC_ReqSts (RX) */
@@ -3261,6 +3671,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AC_AmbientTemperature in AC_ReqSts (RX) */
@@ -3271,6 +3682,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.5f,
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x78u,
     },
 
     { /* AC_PM25InDen in AC_ReqSts (RX) */
@@ -3281,6 +3693,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFu,
     },
 
     { /* AC_PM25OutDen in AC_ReqSts (RX) */
@@ -3291,6 +3704,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFu,
     },
 
     { /* AC_AirInQLevel in AC_ReqSts (RX) */
@@ -3301,6 +3715,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 7u,
     },
 
     { /* AC_AirOutQLevel in AC_ReqSts (RX) */
@@ -3311,6 +3726,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 7u,
     },
 
     { /* AC_PM25Sts in AC_ReqSts (RX) */
@@ -3321,6 +3737,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AC_InsideTemperature in AC_ReqSts (RX) */
@@ -3331,6 +3748,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.5f,
         .offset       = -40.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x78u,
     },
 
     { /* AC_ParkingClimateStatus in AC_ReqSts (RX) */
@@ -3341,6 +3759,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AC_ParkingClimateFailStatus in AC_ReqSts (RX) */
@@ -3351,6 +3770,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* AC_PM25PopupReq in AC_ReqSts (RX) */
@@ -3361,6 +3781,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: TPMS_TyreDataInfo (0x01F2, dlc=8) --- */
@@ -3372,6 +3793,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 3.137f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* TPMS_FRTyrePr in TPMS_TyreDataInfo (RX) */
@@ -3382,6 +3804,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 3.137f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* TPMS_RLTyrePr in TPMS_TyreDataInfo (RX) */
@@ -3392,6 +3815,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 3.137f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* TPMS_RRTyrePr in TPMS_TyreDataInfo (RX) */
@@ -3402,6 +3826,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 3.137f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* TPMS_FLTyreTemp in TPMS_TyreDataInfo (RX) */
@@ -3412,6 +3837,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* TPMS_FRTyreTemp in TPMS_TyreDataInfo (RX) */
@@ -3422,6 +3848,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* TPMS_RLTyreTemp in TPMS_TyreDataInfo (RX) */
@@ -3432,6 +3859,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     { /* TPMS_RRTyreTemp in TPMS_TyreDataInfo (RX) */
@@ -3442,6 +3870,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -50.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0xFFu,
     },
 
     /* --- RX: TPMS_TempStatusInfo (0x0370, dlc=8) --- */
@@ -3453,6 +3882,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FR_Learning_Sts in TPMS_TempStatusInfo (RX) */
@@ -3463,6 +3893,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RL_Learning_Sts in TPMS_TempStatusInfo (RX) */
@@ -3473,6 +3904,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RR_Learning_Sts in TPMS_TempStatusInfo (RX) */
@@ -3483,6 +3915,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_Mode in TPMS_TempStatusInfo (RX) */
@@ -3493,6 +3926,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_W_SensorVoltageFL in TPMS_TempStatusInfo (RX) */
@@ -3503,6 +3937,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_W_SensorVoltageFR in TPMS_TempStatusInfo (RX) */
@@ -3513,6 +3948,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_W_SensorVoltageRL in TPMS_TempStatusInfo (RX) */
@@ -3523,6 +3959,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_W_SensorVoltageRR in TPMS_TempStatusInfo (RX) */
@@ -3533,6 +3970,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BCM_LightChimeReq (0x01F0, dlc=8) --- */
@@ -3544,6 +3982,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_AntiPinchWarnSetResp in BCM_LightChimeReq (RX) */
@@ -3554,6 +3993,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_TurnIndicatorRight in BCM_LightChimeReq (RX) */
@@ -3564,6 +4004,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_TurnLeverSts in BCM_LightChimeReq (RX) */
@@ -3574,6 +4015,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_LowBeamSts in BCM_LightChimeReq (RX) */
@@ -3584,6 +4026,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_HighBeamSts in BCM_LightChimeReq (RX) */
@@ -3594,6 +4037,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_PositionLightSts in BCM_LightChimeReq (RX) */
@@ -3604,6 +4048,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DayRunningLightSts in BCM_LightChimeReq (RX) */
@@ -3614,6 +4059,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_FollowMeHomeActive in BCM_LightChimeReq (RX) */
@@ -3624,6 +4070,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_FrontFogLightSts in BCM_LightChimeReq (RX) */
@@ -3634,6 +4081,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RearFogLightSts in BCM_LightChimeReq (RX) */
@@ -3644,6 +4092,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_LightLeftOn in BCM_LightChimeReq (RX) */
@@ -3654,6 +4103,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Warning_RKE_LOW_BATT in BCM_LightChimeReq (RX) */
@@ -3664,6 +4114,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_BrakeLampsFailure in BCM_LightChimeReq (RX) */
@@ -3674,6 +4125,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_PositionLampsFailure in BCM_LightChimeReq (RX) */
@@ -3684,6 +4136,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_ReverseLampsFailure in BCM_LightChimeReq (RX) */
@@ -3694,6 +4147,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RrFogLampsFailure in BCM_LightChimeReq (RX) */
@@ -3704,6 +4158,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DI_LampsFailure in BCM_LightChimeReq (RX) */
@@ -3714,6 +4169,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_LowBeamLampsFailure in BCM_LightChimeReq (RX) */
@@ -3724,6 +4180,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BCM_LDoorWindowState (0x0285, dlc=8) --- */
@@ -3735,6 +4192,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Drv_Val_Wdw_Opened in BCM_LDoorWindowState (RX) */
@@ -3745,6 +4203,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Drv_Wdw_OD_Sts in BCM_LDoorWindowState (RX) */
@@ -3755,6 +4214,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Drv_Wdw_Obs_InhibitSts in BCM_LDoorWindowState (RX) */
@@ -3765,6 +4225,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Drv_Wdw_Running_Sts in BCM_LDoorWindowState (RX) */
@@ -3775,6 +4236,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Drv_Wdw_PositionSts in BCM_LDoorWindowState (RX) */
@@ -3785,6 +4247,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Drv_Wdw_Error in BCM_LDoorWindowState (RX) */
@@ -3795,6 +4258,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLD_Wdw_valid in BCM_LDoorWindowState (RX) */
@@ -3805,6 +4269,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLD_Val_Wdw_Opened in BCM_LDoorWindowState (RX) */
@@ -3815,6 +4280,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLD_Wdw_OD_Sts in BCM_LDoorWindowState (RX) */
@@ -3825,6 +4291,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLD_Wdw_Obs_InhibitSts in BCM_LDoorWindowState (RX) */
@@ -3835,6 +4302,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLD_Wdw_Running_Sts in BCM_LDoorWindowState (RX) */
@@ -3845,6 +4313,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLD_Wdw_PositionSts in BCM_LDoorWindowState (RX) */
@@ -3855,6 +4324,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLD_Wdw_Error in BCM_LDoorWindowState (RX) */
@@ -3865,6 +4335,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_FrontLeftDoorAjarStatus in BCM_LDoorWindowState (RX) */
@@ -3875,6 +4346,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RearLeftDoorAjarStatus in BCM_LDoorWindowState (RX) */
@@ -3885,6 +4357,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_MechaKey_LockAction in BCM_LDoorWindowState (RX) */
@@ -3895,6 +4368,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_WdwNotCloseWarning in BCM_LDoorWindowState (RX) */
@@ -3905,6 +4379,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_AutoLockFailWarning in BCM_LDoorWindowState (RX) */
@@ -3915,6 +4390,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DoorChildLockst in BCM_LDoorWindowState (RX) */
@@ -3925,6 +4401,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RearMirrorFoldSetResp in BCM_LDoorWindowState (RX) */
@@ -3935,6 +4412,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DoorLockStatusRL in BCM_LDoorWindowState (RX) */
@@ -3945,6 +4423,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* BCM_DoorLockStatusDrv in BCM_LDoorWindowState (RX) */
@@ -3955,6 +4434,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     /* --- RX: BCM_RDoorWindowState (0x0286, dlc=8) --- */
@@ -3966,6 +4446,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Pas_Val_Wdw_Opened in BCM_RDoorWindowState (RX) */
@@ -3976,6 +4457,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Pas_Wdw_OD_Sts in BCM_RDoorWindowState (RX) */
@@ -3986,6 +4468,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Pas_Wdw_Obs_InhibitSts in BCM_RDoorWindowState (RX) */
@@ -3996,6 +4479,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Pas_Wdw_Running_Sts in BCM_RDoorWindowState (RX) */
@@ -4006,6 +4490,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Pas_Wdw_PositionSts in BCM_RDoorWindowState (RX) */
@@ -4016,6 +4501,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Pas_Wdw_Error in BCM_RDoorWindowState (RX) */
@@ -4026,6 +4512,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RRD_Wdw_valid in BCM_RDoorWindowState (RX) */
@@ -4036,6 +4523,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RRD_Val_Wdw_Opened in BCM_RDoorWindowState (RX) */
@@ -4046,6 +4534,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RRD_Wdw_OD_Sts in BCM_RDoorWindowState (RX) */
@@ -4056,6 +4545,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RRD_Wdw_Obs_InhibitSts in BCM_RDoorWindowState (RX) */
@@ -4066,6 +4556,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RRD_Wdw_Running_Sts in BCM_RDoorWindowState (RX) */
@@ -4076,6 +4567,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RRD_Wdw_PositionSts in BCM_RDoorWindowState (RX) */
@@ -4086,6 +4578,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RRD_Wdw_Error in BCM_RDoorWindowState (RX) */
@@ -4096,6 +4589,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_FrontRightDoorAjarStatus in BCM_RDoorWindowState (RX) */
@@ -4106,6 +4600,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RearRightDoorAjarStatus in BCM_RDoorWindowState (RX) */
@@ -4116,6 +4611,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_CargoBoxLightSts in BCM_RDoorWindowState (RX) */
@@ -4126,6 +4622,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_FueltankCapSts in BCM_RDoorWindowState (RX) */
@@ -4136,6 +4633,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DoorLockStatusRR in BCM_RDoorWindowState (RX) */
@@ -4146,6 +4644,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     { /* BCM_DoorLockStatusPass in BCM_RDoorWindowState (RX) */
@@ -4156,6 +4655,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 2u,
     },
 
     /* --- RX: BCM_StateUpdate (0x0284, dlc=8) --- */
@@ -4167,6 +4667,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Central_Lock_CMD in BCM_StateUpdate (RX) */
@@ -4177,6 +4678,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Central_unLock_CMD in BCM_StateUpdate (RX) */
@@ -4187,6 +4689,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_HoodAjarStatus in BCM_StateUpdate (RX) */
@@ -4197,6 +4700,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_TrunkAjarStatus in BCM_StateUpdate (RX) */
@@ -4207,6 +4711,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RainshedStatus in BCM_StateUpdate (RX) */
@@ -4217,6 +4722,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_FollowMeHomeTimeSelectResp in BCM_StateUpdate (RX) */
@@ -4227,6 +4733,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* BCM_RearLightHardSwtSts in BCM_StateUpdate (RX) */
@@ -4237,6 +4744,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_AutoCloseWindowSetResp in BCM_StateUpdate (RX) */
@@ -4247,6 +4755,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RKEUnlockSetResp in BCM_StateUpdate (RX) */
@@ -4257,6 +4766,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_KeyInwithDrvDoorAjar in BCM_StateUpdate (RX) */
@@ -4267,6 +4777,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_ATWS_St in BCM_StateUpdate (RX) */
@@ -4277,6 +4788,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLSModeSts in BCM_StateUpdate (RX) */
@@ -4287,6 +4799,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_IndicationPressClutch in BCM_StateUpdate (RX) */
@@ -4297,6 +4810,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DM_ReqType in BCM_StateUpdate (RX) */
@@ -4307,6 +4821,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_ATWarnTypeSetResp in BCM_StateUpdate (RX) */
@@ -4317,6 +4832,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DayRunLightSetResp in BCM_StateUpdate (RX) */
@@ -4327,6 +4843,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RearWiperAutoActiveAtReverse in BCM_StateUpdate (RX) */
@@ -4337,6 +4854,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* BCM_ReverseGearInfo in BCM_StateUpdate (RX) */
@@ -4347,6 +4865,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_PowerMode in BCM_StateUpdate (RX) */
@@ -4357,6 +4876,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_PowertrainChainStatus in BCM_StateUpdate (RX) */
@@ -4367,6 +4887,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_Warning_IMMO_Fail in BCM_StateUpdate (RX) */
@@ -4377,6 +4898,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RLS_WinCloseReminder in BCM_StateUpdate (RX) */
@@ -4387,6 +4909,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_360LtgExecuteStsFB in BCM_StateUpdate (RX) */
@@ -4397,6 +4920,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_360LtgExecuteZoneFB in BCM_StateUpdate (RX) */
@@ -4407,6 +4931,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_RKE_RemoteACCtrl in BCM_StateUpdate (RX) */
@@ -4417,6 +4942,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BCM_SunroofState (0x0287, dlc=8) --- */
@@ -4428,6 +4954,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 100.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* BCM_BottomClutchSwitchInvalid in BCM_SunroofState (RX) */
@@ -4438,6 +4965,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* L_Sunroof_Operation_State in BCM_SunroofState (RX) */
@@ -4448,6 +4976,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_sunroof_valid in BCM_SunroofState (RX) */
@@ -4458,6 +4987,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* L_sunroof_Val_Opened in BCM_SunroofState (RX) */
@@ -4468,6 +4998,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x7Fu,
     },
 
     { /* L_sunroof_ap_event in BCM_SunroofState (RX) */
@@ -4478,6 +5009,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_sunroof_Error in BCM_SunroofState (RX) */
@@ -4488,6 +5020,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* L_Sunroof_Position in BCM_SunroofState (RX) */
@@ -4498,6 +5031,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: PEPS_KeyReminder (0x027F, dlc=8) --- */
@@ -4509,6 +5043,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_Stop_Emergency in PEPS_KeyReminder (RX) */
@@ -4519,6 +5054,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_Stop_Moving in PEPS_KeyReminder (RX) */
@@ -4529,6 +5065,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: GW_PEPS_Information (0x02FC, dlc=8) --- */
@@ -4540,6 +5077,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_PowerMode in GW_PEPS_Information (RX) */
@@ -4550,6 +5088,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_EngineforbidSt in GW_PEPS_Information (RX) */
@@ -4560,6 +5099,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_EngForbidWarn in GW_PEPS_Information (RX) */
@@ -4570,6 +5110,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_RemoteControlSt in GW_PEPS_Information (RX) */
@@ -4580,6 +5121,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_FailReason2TBOX in GW_PEPS_Information (RX) */
@@ -4590,6 +5132,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_StatusResponse2TBOX in GW_PEPS_Information (RX) */
@@ -4600,6 +5143,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_No_key_found in GW_PEPS_Information (RX) */
@@ -4610,6 +5154,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Indication_press_brake_clut in GW_PEPS_Information (RX) */
@@ -4620,6 +5165,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Indication_shift_to_PN in GW_PEPS_Information (RX) */
@@ -4630,6 +5176,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_TrunkUnlock_Enable in GW_PEPS_Information (RX) */
@@ -4640,6 +5187,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Indication_shift_to_Park in GW_PEPS_Information (RX) */
@@ -4650,6 +5198,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_keyInReminder in GW_PEPS_Information (RX) */
@@ -4660,6 +5209,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_IGN1FailureWarning in GW_PEPS_Information (RX) */
@@ -4670,6 +5220,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_Auth_ESCL_Fail in GW_PEPS_Information (RX) */
@@ -4680,6 +5231,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_UID_LOW_BATT in GW_PEPS_Information (RX) */
@@ -4690,6 +5242,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_ChargerConnectStarter_Warnn in GW_PEPS_Information (RX) */
@@ -4700,6 +5253,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_IMMO_Fail in GW_PEPS_Information (RX) */
@@ -4710,6 +5264,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_TELAuthenStatus in GW_PEPS_Information (RX) */
@@ -4720,6 +5275,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Indication_UID_Closer in GW_PEPS_Information (RX) */
@@ -4730,6 +5286,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_CrankAllowSts in GW_PEPS_Information (RX) */
@@ -4740,6 +5297,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_Warning_PoweOnCounterRemain in GW_PEPS_Information (RX) */
@@ -4750,6 +5308,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_0x1E2_TimeoutFlag in GW_PEPS_Information (RX) */
@@ -4760,6 +5319,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_0x270_TimeoutFlag in GW_PEPS_Information (RX) */
@@ -4770,6 +5330,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_0x272_TimeoutFlag in GW_PEPS_Information (RX) */
@@ -4780,6 +5341,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_SSB_Failure_warning in GW_PEPS_Information (RX) */
@@ -4790,6 +5352,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_WelcomeLightSetResp in GW_PEPS_Information (RX) */
@@ -4800,6 +5363,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_APUCfgResult in GW_PEPS_Information (RX) */
@@ -4810,6 +5374,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PEPS_WALCfgResult in GW_PEPS_Information (RX) */
@@ -4820,6 +5385,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: GW_BCM_Information (0x02FD, dlc=8) --- */
@@ -4831,6 +5397,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FLTyre_Temperature in GW_BCM_Information (RX) */
@@ -4841,6 +5408,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FLTyre_Fast_Leak in GW_BCM_Information (RX) */
@@ -4851,6 +5419,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FLTyre_Sensor_Failure in GW_BCM_Information (RX) */
@@ -4861,6 +5430,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_0x1F1_TimeoutFlag in GW_BCM_Information (RX) */
@@ -4871,6 +5441,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FRTyreWarn in GW_BCM_Information (RX) */
@@ -4881,6 +5452,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FRTyre_Temperature in GW_BCM_Information (RX) */
@@ -4891,6 +5463,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FRTyre_Fast_Leak in GW_BCM_Information (RX) */
@@ -4901,6 +5474,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_FRTyre_Sensor_Failure in GW_BCM_Information (RX) */
@@ -4911,6 +5485,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DMSDriveModeReqRej in GW_BCM_Information (RX) */
@@ -4921,6 +5496,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RLTyreWarn in GW_BCM_Information (RX) */
@@ -4931,6 +5507,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RLTyre_Temperature in GW_BCM_Information (RX) */
@@ -4941,6 +5518,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RLTyre_Fast_Leak in GW_BCM_Information (RX) */
@@ -4951,6 +5529,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RLTyre_Sensor_Failure in GW_BCM_Information (RX) */
@@ -4961,6 +5540,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RRTyreWarn in GW_BCM_Information (RX) */
@@ -4971,6 +5551,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RRTyre_Temperature in GW_BCM_Information (RX) */
@@ -4981,6 +5562,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RRTyre_Fast_Leak in GW_BCM_Information (RX) */
@@ -4991,6 +5573,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_RRTyre_Sensor_Failure in GW_BCM_Information (RX) */
@@ -5001,6 +5584,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TPMS_SystemSt in GW_BCM_Information (RX) */
@@ -5011,6 +5595,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DM_TargetModeReq in GW_BCM_Information (RX) */
@@ -5021,6 +5606,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DM_SwitchModeSts in GW_BCM_Information (RX) */
@@ -5031,6 +5617,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DMSVehicleMode in GW_BCM_Information (RX) */
@@ -5041,6 +5628,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DM_ChangeModeFailureControll in GW_BCM_Information (RX) */
@@ -5051,6 +5639,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DM_ChangeModeFailureReason in GW_BCM_Information (RX) */
@@ -5061,6 +5650,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_0x283_TimeoutFlag in GW_BCM_Information (RX) */
@@ -5071,6 +5661,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BCM_DM_SwitchModeStsDisp in GW_BCM_Information (RX) */
@@ -5081,6 +5672,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: VCU_DriverTqInfo (0x01BB, dlc=8) --- */
@@ -5092,6 +5684,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0x28u,
     },
 
     { /* VCU_IntellTurnAidResp in VCU_DriverTqInfo (RX) */
@@ -5102,6 +5695,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_IntellTurnAidOprNtc in VCU_DriverTqInfo (RX) */
@@ -5112,6 +5706,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_IntellTurnAidOprGuide in VCU_DriverTqInfo (RX) */
@@ -5122,6 +5717,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_IntellTurnAidSts in VCU_DriverTqInfo (RX) */
@@ -5132,6 +5728,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_DriverTqInfo_AliveCounter in VCU_DriverTqInfo (RX) */
@@ -5142,6 +5739,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* VCU_DriverTqInfo_Checksum in VCU_DriverTqInfo (RX) */
@@ -5152,6 +5750,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BMSH_General (0x00B0, dlc=8) --- */
@@ -5163,6 +5762,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BMSH_VehicleHVILSts in BMSH_General (RX) */
@@ -5173,6 +5773,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BMSH_InterHVILSts in BMSH_General (RX) */
@@ -5183,6 +5784,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BMSH_InsulationSts in BMSH_General (RX) */
@@ -5193,6 +5795,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BMSH_MainPrechgSt in BMSH_General (RX) */
@@ -5203,6 +5806,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BMSH_VoltCurr (0x0178, dlc=8) --- */
@@ -5214,6 +5818,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -500.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x1388u,
     },
 
     { /* BMSH_HVBusVolt in BMSH_VoltCurr (RX) */
@@ -5224,6 +5829,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* BMSH_BattVolt in BMSH_VoltCurr (RX) */
@@ -5234,6 +5840,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xC12u,
     },
 
     { /* BMSH_BattFaultLampState in BMSH_VoltCurr (RX) */
@@ -5244,6 +5851,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BMSH_OBC_Control (0x0211, dlc=8) --- */
@@ -5255,6 +5863,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BMSH_FastChgCC2ConntState in BMSH_OBC_Control (RX) */
@@ -5265,6 +5874,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: BMSH_Info (0x02F4, dlc=8) --- */
@@ -5276,6 +5886,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* BMSH_BattSOCDisp in BMSH_Info (RX) */
@@ -5286,6 +5897,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x1F4u,
     },
 
     /* --- RX: EcmChas2Fr92 (0x029A, dlc=8) --- */
@@ -5297,6 +5909,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* PwrCnsAvgIndcdPwrCns1 in EcmChas2Fr92 (RX) */
@@ -5307,6 +5920,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -102.3f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x3FFu,
     },
 
     { /* PwrCnsAvgIndcdPwrCns2 in EcmChas2Fr92 (RX) */
@@ -5317,6 +5931,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -102.3f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x3FFu,
     },
 
     { /* FuCnsAvgIndcdFuCnsIndcdVal2 in EcmChas2Fr92 (RX) */
@@ -5327,6 +5942,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* FuCnsAvgIndcdFuCnsIndcdVal3 in EcmChas2Fr92 (RX) */
@@ -5337,6 +5953,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* PwrCnsAvgIndcdPwrCns3 in EcmChas2Fr92 (RX) */
@@ -5347,6 +5964,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = -102.3f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x3FFu,
     },
 
     { /* EgyAvgCnsDstSg in EcmChas2Fr92 (RX) */
@@ -5357,6 +5975,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: EcmChas2Fr93 (0x029B, dlc=8) --- */
@@ -5368,6 +5987,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* AcEgyDistbn in EcmChas2Fr93 (RX) */
@@ -5378,6 +5998,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 20.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* DstToEmptyIndcdDstToEmpty2 in EcmChas2Fr93 (RX) */
@@ -5388,6 +6009,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* TotDrvPwrAct in EcmChas2Fr93 (RX) */
@@ -5398,6 +6020,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = -1000.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x3E8u,
     },
 
     { /* ThmEgyDistbn in EcmChas2Fr93 (RX) */
@@ -5408,6 +6031,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 20.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* HvConvPwrAct in EcmChas2Fr93 (RX) */
@@ -5418,6 +6042,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 20.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     /* --- RX: EcmChas2Fr33 (0x0255, dlc=8) --- */
@@ -5429,6 +6054,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* EVBlkd in EcmChas2Fr33 (RX) */
@@ -5439,6 +6065,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* REVBlkd in EcmChas2Fr33 (RX) */
@@ -5449,6 +6076,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* DispIdlChrgPwr in EcmChas2Fr33 (RX) */
@@ -5459,6 +6087,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.5f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* DstEstimdToEmptyForDrvgElec in EcmChas2Fr33 (RX) */
@@ -5469,6 +6098,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* DstEstimdToEmptyForDrvgElecPredT in EcmChas2Fr33 (RX) */
@@ -5479,6 +6109,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     /* --- RX: PCM_Temperature (0x0364, dlc=8) --- */
@@ -5490,6 +6121,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: PCM_Warning (0x0365, dlc=8) --- */
@@ -5501,6 +6133,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PCM_MotTAlm in PCM_Warning (RX) */
@@ -5511,6 +6144,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* PCM_IsgTAlm in PCM_Warning (RX) */
@@ -5521,6 +6155,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: PcmChas1Fr19 (0x0041, dlc=8) --- */
@@ -5532,6 +6167,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: IPU_Temperature (0x0360, dlc=8) --- */
@@ -5543,6 +6179,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: IPU_Warning (0x0361, dlc=8) --- */
@@ -5554,6 +6191,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPU_IPUTAlm in IPU_Warning (RX) */
@@ -5564,6 +6202,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPU_IsgFAlm in IPU_Warning (RX) */
@@ -5574,6 +6213,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- RX: TRM_StatusInfo (0x02EA, dlc=8) --- */
@@ -5585,6 +6225,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TRM_TurnRightLampsFailure in TRM_StatusInfo (RX) */
@@ -5595,6 +6236,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TRM_EleIF_Connect_Status in TRM_StatusInfo (RX) */
@@ -5605,6 +6247,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TRM_EleIF_Connect_Failure in TRM_StatusInfo (RX) */
@@ -5615,6 +6258,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TRM_Message_AliveCounter in TRM_StatusInfo (RX) */
@@ -5625,6 +6269,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* TRM_Message_CheckSum in TRM_StatusInfo (RX) */
@@ -5635,6 +6280,96 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    /* --- TX: IPK_SEND_E2_524 (0x0524, dlc=8) --- */
+    { /* IPK_SEND_E2_B7 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 63,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_SEND_E2_B6 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 55,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_SEND_E2_B5 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 47,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_SEND_E2_B4 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 39,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_SEND_E2_B3 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 31,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_SEND_E2_B2 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 23,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_SEND_E2_B1 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 15,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
+    },
+
+    { /* IPK_SEND_E2_B0 in IPK_SEND_E2_524 (TX) */
+        .start_bit    = 7,
+        .length       = 8,
+        .byte_order   = 0,
+        .is_signed    = 0,
+        .factor       = 1.0f,
+        .offset       = 0.0f,
+        .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- TX: IPK_EngineService (0x03E9, dlc=8) --- */
@@ -5646,6 +6381,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U32,
+        .init_value   = 0u,
     },
 
     { /* IPK_DayToEngSrv in IPK_EngineService (TX) */
@@ -5656,6 +6392,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* IPK_ServiceEngineMaintainInterva in IPK_EngineService (TX) */
@@ -5666,6 +6403,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFFu,
     },
 
     /* --- TX: IPK_STS (0x026D, dlc=8) --- */
@@ -5677,6 +6415,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_SVA_AudibleWarningCfgResult in IPK_STS (TX) */
@@ -5687,6 +6426,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_FuelLowLevelWarning in IPK_STS (TX) */
@@ -5697,6 +6437,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_ESCoffInfo in IPK_STS (TX) */
@@ -5707,6 +6448,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Fail in IPK_STS (TX) */
@@ -5717,6 +6459,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_QDashALODFail in IPK_STS (TX) */
@@ -5727,6 +6470,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_FuelLevelSts in IPK_STS (TX) */
@@ -5737,6 +6481,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.5f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_AverageVehicleSpeed in IPK_STS (TX) */
@@ -5747,6 +6492,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_HandBrakeSts in IPK_STS (TX) */
@@ -5757,6 +6503,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_MaintanceWarningSts in IPK_STS (TX) */
@@ -5767,6 +6514,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_LanguageMode in IPK_STS (TX) */
@@ -5777,6 +6525,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_EPS_ModSetSelection in IPK_STS (TX) */
@@ -5787,6 +6536,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_EPS_DMCorrelativeMode in IPK_STS (TX) */
@@ -5797,6 +6547,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Backlightadjust in IPK_STS (TX) */
@@ -5807,6 +6558,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_vDisplay in IPK_STS (TX) */
@@ -5817,6 +6569,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.05625f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* IPK_OilLowPressure in IPK_STS (TX) */
@@ -5827,6 +6580,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_LIMmemoryEnabe_Reserved in IPK_STS (TX) */
@@ -5837,6 +6591,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_BattLowVoltageWarning in IPK_STS (TX) */
@@ -5847,6 +6602,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_driving_mode_light_sts in IPK_STS (TX) */
@@ -5857,6 +6613,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- TX: IPK_SettingRequest (0x0260, dlc=8) --- */
@@ -5868,6 +6625,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_AEB_AEBStateReq in IPK_SettingRequest (TX) */
@@ -5878,6 +6636,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_ALOD_ControlTypeReq in IPK_SettingRequest (TX) */
@@ -5888,6 +6647,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_LCA_EnableStatus in IPK_SettingRequest (TX) */
@@ -5898,6 +6658,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_RCTA_EnableStatus in IPK_SettingRequest (TX) */
@@ -5908,6 +6669,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_RCW_EnableStatus in IPK_SettingRequest (TX) */
@@ -5918,6 +6680,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_AEB_FCWSenlevel in IPK_SettingRequest (TX) */
@@ -5928,6 +6691,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_LKS_LaneAssistTypeReq in IPK_SettingRequest (TX) */
@@ -5938,6 +6702,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_LDW_WarningTypeSetting in IPK_SettingRequest (TX) */
@@ -5948,6 +6713,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_IHBC_MenuReq in IPK_SettingRequest (TX) */
@@ -5958,6 +6724,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_SLIF_MenuReq in IPK_SettingRequest (TX) */
@@ -5968,6 +6735,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- TX: IPK_Fuel_Sts (0x02D8, dlc=8) --- */
@@ -5979,6 +6747,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RstTrip1 in IPK_Fuel_Sts (TX) */
@@ -5989,6 +6758,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* RstTrip2 in IPK_Fuel_Sts (TX) */
@@ -5999,6 +6769,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- TX: IPK_TotalOdometer (0x03F1, dlc=8) --- */
@@ -6010,6 +6781,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U32,
+        .init_value   = 0u,
     },
 
     { /* IPK_DTEodometer in IPK_TotalOdometer (TX) */
@@ -6020,6 +6792,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFu,
     },
 
     { /* IPK_OdometerbackupEnable in IPK_TotalOdometer (TX) */
@@ -6030,6 +6803,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_ServiceMaintainInterval in IPK_TotalOdometer (TX) */
@@ -6040,6 +6814,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFFu,
     },
 
     /* --- TX: IPK_DateTime_Info (0x03F0, dlc=8) --- */
@@ -6051,6 +6826,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Minute in IPK_DateTime_Info (TX) */
@@ -6061,6 +6837,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Hour in IPK_DateTime_Info (TX) */
@@ -6071,6 +6848,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_TimeDisplayMode in IPK_DateTime_Info (TX) */
@@ -6081,6 +6859,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Day in IPK_DateTime_Info (TX) */
@@ -6091,6 +6870,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* IPK_Month in IPK_DateTime_Info (TX) */
@@ -6101,6 +6881,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 1u,
     },
 
     { /* IPK_Year in IPK_DateTime_Info (TX) */
@@ -6111,6 +6892,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_VehicleStopTime in IPK_DateTime_Info (TX) */
@@ -6121,6 +6903,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     /* --- TX: IPK_Fuel_Info (0x03F6, dlc=8) --- */
@@ -6132,6 +6915,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.000156f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* IPK_AverageFuelConsumptionOneCyc in IPK_Fuel_Info (TX) */
@@ -6142,6 +6926,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* IPK_FuelSensorShortOrOpenBatt in IPK_Fuel_Info (TX) */
@@ -6152,6 +6937,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_FuelSensorShortGND in IPK_Fuel_Info (TX) */
@@ -6162,6 +6948,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_FuelSensorUpperLimit in IPK_Fuel_Info (TX) */
@@ -6172,6 +6959,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_DayToSrv in IPK_Fuel_Info (TX) */
@@ -6182,6 +6970,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* IPK_InstanteFuelConsumption in IPK_Fuel_Info (TX) */
@@ -6192,6 +6981,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.1f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0u,
     },
 
     { /* IPK_Fuel_Info_AliveCounter in IPK_Fuel_Info (TX) */
@@ -6202,6 +6992,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Fuel_Info_Checksum in IPK_Fuel_Info (TX) */
@@ -6212,6 +7003,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     /* --- TX: IPK_ODO_Consump (0x03F7, dlc=8) --- */
@@ -6223,6 +7015,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFu,
     },
 
     { /* IPK_AveragePowerConsumption in IPK_ODO_Consump (TX) */
@@ -6233,6 +7026,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.01f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x3FFFu,
     },
 
     { /* IPK_InstantPowerConsumption in IPK_ODO_Consump (TX) */
@@ -6243,6 +7037,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.01f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0x3FFFu,
     },
 
     { /* IPK_AverageFuelConsumptionUnit in IPK_ODO_Consump (TX) */
@@ -6253,6 +7048,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_AverageFuelConsumption in IPK_ODO_Consump (TX) */
@@ -6263,6 +7059,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 0.01f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U16,
+        .init_value   = 0xFFFFu,
     },
 
     /* --- TX: NWM_IPK (0x0402, dlc=8) --- */
@@ -6274,6 +7071,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_RMR in NWM_IPK (TX) */
@@ -6284,6 +7082,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_AWB in NWM_IPK (TX) */
@@ -6294,6 +7093,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Wakeup_reasons in NWM_IPK (TX) */
@@ -6304,6 +7104,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_NMSts in NWM_IPK (TX) */
@@ -6314,6 +7115,7 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U8,
+        .init_value   = 0u,
     },
 
     { /* IPK_Stayawake_reasons in NWM_IPK (TX) */
@@ -6324,17 +7126,28 @@ const can_sig_desc_t can_sig_descs_ipk[] = {
         .factor       = 1.0f,
         .offset       = 0.0f,
         .raw_type     = CAN_RAW_U32,
+        .init_value   = 0u,
     },
 
 };
 
 /* === Per-message descriptors === */
 const can_msg_desc_t can_msg_descs_ipk[] = {
+    { /* IPK_RECV_E2_523 (RX) */
+        .can_id     = 0x0523u,
+        .dlc        = 8u,
+        .name       = "IPK_RECV_E2_523",
+        .sig_index  = 0u,
+        .sig_count  = 8u,
+        .tx_node    = "MMI",
+        .is_tx      = 0,
+    },
+
     { /* MMI_DateTime_Msg (RX) */
         .can_id     = 0x02AFu,
         .dlc        = 8u,
         .name       = "MMI_DateTime_Msg",
-        .sig_index  = 0u,
+        .sig_index  = 8u,
         .sig_count  = 6u,
         .tx_node    = "MMI",
         .is_tx      = 0,
@@ -6344,7 +7157,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x03E0u,
         .dlc        = 8u,
         .name       = "MMI_GPS_Info5",
-        .sig_index  = 6u,
+        .sig_index  = 14u,
         .sig_count  = 3u,
         .tx_node    = "MMI",
         .is_tx      = 0,
@@ -6354,7 +7167,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02A4u,
         .dlc        = 8u,
         .name       = "MMI_Status_Info",
-        .sig_index  = 9u,
+        .sig_index  = 17u,
         .sig_count  = 29u,
         .tx_node    = "MMI",
         .is_tx      = 0,
@@ -6364,7 +7177,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02A8u,
         .dlc        = 8u,
         .name       = "MMI_Safety_Info",
-        .sig_index  = 38u,
+        .sig_index  = 46u,
         .sig_count  = 20u,
         .tx_node    = "MMI",
         .is_tx      = 0,
@@ -6374,7 +7187,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02A6u,
         .dlc        = 8u,
         .name       = "MMI_SOCSet",
-        .sig_index  = 58u,
+        .sig_index  = 66u,
         .sig_count  = 13u,
         .tx_node    = "MMI",
         .is_tx      = 0,
@@ -6384,7 +7197,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0084u,
         .dlc        = 8u,
         .name       = "EMS_EngRelateTrqSts",
-        .sig_index  = 71u,
+        .sig_index  = 79u,
         .sig_count  = 5u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6394,7 +7207,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0085u,
         .dlc        = 8u,
         .name       = "EMS_EngineRPM",
-        .sig_index  = 76u,
+        .sig_index  = 84u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6404,7 +7217,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0288u,
         .dlc        = 8u,
         .name       = "EMS_EngineDriverInfo",
-        .sig_index  = 82u,
+        .sig_index  = 90u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6414,7 +7227,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x028Au,
         .dlc        = 8u,
         .name       = "EMS_EnginePatsBatteryStat",
-        .sig_index  = 88u,
+        .sig_index  = 96u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6424,7 +7237,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x028Cu,
         .dlc        = 8u,
         .name       = "EMS_OBD_Info",
-        .sig_index  = 94u,
+        .sig_index  = 102u,
         .sig_count  = 5u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6434,7 +7247,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0145u,
         .dlc        = 8u,
         .name       = "EGSM_Status",
-        .sig_index  = 99u,
+        .sig_index  = 107u,
         .sig_count  = 7u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6444,7 +7257,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0220u,
         .dlc        = 8u,
         .name       = "OBC_Sts",
-        .sig_index  = 106u,
+        .sig_index  = 114u,
         .sig_count  = 5u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6454,7 +7267,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0221u,
         .dlc        = 8u,
         .name       = "OBC_Curr",
-        .sig_index  = 111u,
+        .sig_index  = 119u,
         .sig_count  = 4u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6464,7 +7277,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0222u,
         .dlc        = 8u,
         .name       = "OBC_Failmode",
-        .sig_index  = 115u,
+        .sig_index  = 123u,
         .sig_count  = 3u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6474,7 +7287,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0354u,
         .dlc        = 8u,
         .name       = "BMSH_sts",
-        .sig_index  = 118u,
+        .sig_index  = 126u,
         .sig_count  = 4u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6484,7 +7297,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x017Bu,
         .dlc        = 8u,
         .name       = "BMSH_Battery_chgstate",
-        .sig_index  = 122u,
+        .sig_index  = 130u,
         .sig_count  = 1u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6494,7 +7307,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0210u,
         .dlc        = 8u,
         .name       = "BMSH_CellTempLimitValue",
-        .sig_index  = 123u,
+        .sig_index  = 131u,
         .sig_count  = 2u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6504,7 +7317,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0162u,
         .dlc        = 8u,
         .name       = "VCU_Ctrl",
-        .sig_index  = 125u,
+        .sig_index  = 133u,
         .sig_count  = 12u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6514,7 +7327,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0214u,
         .dlc        = 8u,
         .name       = "VCU_InforCAN",
-        .sig_index  = 137u,
+        .sig_index  = 145u,
         .sig_count  = 9u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6524,7 +7337,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0161u,
         .dlc        = 8u,
         .name       = "VCU_DCDC_Ctrl",
-        .sig_index  = 146u,
+        .sig_index  = 154u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6534,7 +7347,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01A5u,
         .dlc        = 8u,
         .name       = "VCU_CSControl1",
-        .sig_index  = 152u,
+        .sig_index  = 160u,
         .sig_count  = 5u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6544,7 +7357,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0165u,
         .dlc        = 8u,
         .name       = "VCU_ModeControl",
-        .sig_index  = 157u,
+        .sig_index  = 165u,
         .sig_count  = 9u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6554,7 +7367,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x00A8u,
         .dlc        = 8u,
         .name       = "IPU_TrqSpd",
-        .sig_index  = 166u,
+        .sig_index  = 174u,
         .sig_count  = 4u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6564,7 +7377,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0171u,
         .dlc        = 8u,
         .name       = "IPU_Sts",
-        .sig_index  = 170u,
+        .sig_index  = 178u,
         .sig_count  = 4u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6574,7 +7387,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02B2u,
         .dlc        = 8u,
         .name       = "AVAS_DisabledSts",
-        .sig_index  = 174u,
+        .sig_index  = 182u,
         .sig_count  = 6u,
         .tx_node    = "MMI",
         .is_tx      = 0,
@@ -6584,7 +7397,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0380u,
         .dlc        = 8u,
         .name       = "ACU_ChimeTelltaleReq",
-        .sig_index  = 180u,
+        .sig_index  = 188u,
         .sig_count  = 13u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6594,7 +7407,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0150u,
         .dlc        = 8u,
         .name       = "EPS_InformSts",
-        .sig_index  = 193u,
+        .sig_index  = 201u,
         .sig_count  = 3u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6604,7 +7417,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0125u,
         .dlc        = 8u,
         .name       = "ESC_Status",
-        .sig_index  = 196u,
+        .sig_index  = 204u,
         .sig_count  = 16u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6614,7 +7427,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x012Fu,
         .dlc        = 8u,
         .name       = "ESC_DriverRemind",
-        .sig_index  = 212u,
+        .sig_index  = 220u,
         .sig_count  = 17u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6624,7 +7437,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0128u,
         .dlc        = 8u,
         .name       = "ESC_Regen",
-        .sig_index  = 229u,
+        .sig_index  = 237u,
         .sig_count  = 2u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6634,7 +7447,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02E4u,
         .dlc        = 8u,
         .name       = "RSRSR_InformStatus",
-        .sig_index  = 231u,
+        .sig_index  = 239u,
         .sig_count  = 15u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6644,7 +7457,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01B0u,
         .dlc        = 8u,
         .name       = "FCS_ALAD_Status",
-        .sig_index  = 246u,
+        .sig_index  = 254u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6654,7 +7467,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02E0u,
         .dlc        = 8u,
         .name       = "FCS_SLIF_IHBC_Status",
-        .sig_index  = 252u,
+        .sig_index  = 260u,
         .sig_count  = 14u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6664,7 +7477,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01B2u,
         .dlc        = 8u,
         .name       = "FCS_Road_Status",
-        .sig_index  = 266u,
+        .sig_index  = 274u,
         .sig_count  = 12u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6674,7 +7487,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0114u,
         .dlc        = 8u,
         .name       = "FCS_ELK_Status",
-        .sig_index  = 278u,
+        .sig_index  = 286u,
         .sig_count  = 4u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6684,7 +7497,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01A2u,
         .dlc        = 8u,
         .name       = "FCS_AEB",
-        .sig_index  = 282u,
+        .sig_index  = 290u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6694,7 +7507,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01A3u,
         .dlc        = 8u,
         .name       = "FCS_Display",
-        .sig_index  = 288u,
+        .sig_index  = 296u,
         .sig_count  = 10u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6704,7 +7517,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01A6u,
         .dlc        = 8u,
         .name       = "FCS_FrontObject",
-        .sig_index  = 298u,
+        .sig_index  = 306u,
         .sig_count  = 11u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6714,7 +7527,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01A7u,
         .dlc        = 8u,
         .name       = "FCS_FrontSideObject",
-        .sig_index  = 309u,
+        .sig_index  = 317u,
         .sig_count  = 10u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6724,7 +7537,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02F1u,
         .dlc        = 8u,
         .name       = "AC_ReqSts",
-        .sig_index  = 319u,
+        .sig_index  = 327u,
         .sig_count  = 13u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6734,7 +7547,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01F2u,
         .dlc        = 8u,
         .name       = "TPMS_TyreDataInfo",
-        .sig_index  = 332u,
+        .sig_index  = 340u,
         .sig_count  = 8u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6744,7 +7557,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0370u,
         .dlc        = 8u,
         .name       = "TPMS_TempStatusInfo",
-        .sig_index  = 340u,
+        .sig_index  = 348u,
         .sig_count  = 9u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6754,7 +7567,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01F0u,
         .dlc        = 8u,
         .name       = "BCM_LightChimeReq",
-        .sig_index  = 349u,
+        .sig_index  = 357u,
         .sig_count  = 19u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6764,7 +7577,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0285u,
         .dlc        = 8u,
         .name       = "BCM_LDoorWindowState",
-        .sig_index  = 368u,
+        .sig_index  = 376u,
         .sig_count  = 23u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6774,7 +7587,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0286u,
         .dlc        = 8u,
         .name       = "BCM_RDoorWindowState",
-        .sig_index  = 391u,
+        .sig_index  = 399u,
         .sig_count  = 20u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6784,7 +7597,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0284u,
         .dlc        = 8u,
         .name       = "BCM_StateUpdate",
-        .sig_index  = 411u,
+        .sig_index  = 419u,
         .sig_count  = 26u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6794,7 +7607,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0287u,
         .dlc        = 8u,
         .name       = "BCM_SunroofState",
-        .sig_index  = 437u,
+        .sig_index  = 445u,
         .sig_count  = 8u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6804,7 +7617,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x027Fu,
         .dlc        = 8u,
         .name       = "PEPS_KeyReminder",
-        .sig_index  = 445u,
+        .sig_index  = 453u,
         .sig_count  = 3u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6814,7 +7627,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02FCu,
         .dlc        = 8u,
         .name       = "GW_PEPS_Information",
-        .sig_index  = 448u,
+        .sig_index  = 456u,
         .sig_count  = 29u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6824,7 +7637,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02FDu,
         .dlc        = 8u,
         .name       = "GW_BCM_Information",
-        .sig_index  = 477u,
+        .sig_index  = 485u,
         .sig_count  = 26u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6834,7 +7647,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x01BBu,
         .dlc        = 8u,
         .name       = "VCU_DriverTqInfo",
-        .sig_index  = 503u,
+        .sig_index  = 511u,
         .sig_count  = 7u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6844,7 +7657,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x00B0u,
         .dlc        = 8u,
         .name       = "BMSH_General",
-        .sig_index  = 510u,
+        .sig_index  = 518u,
         .sig_count  = 5u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6854,7 +7667,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0178u,
         .dlc        = 8u,
         .name       = "BMSH_VoltCurr",
-        .sig_index  = 515u,
+        .sig_index  = 523u,
         .sig_count  = 4u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6864,7 +7677,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0211u,
         .dlc        = 8u,
         .name       = "BMSH_OBC_Control",
-        .sig_index  = 519u,
+        .sig_index  = 527u,
         .sig_count  = 2u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6874,7 +7687,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02F4u,
         .dlc        = 8u,
         .name       = "BMSH_Info",
-        .sig_index  = 521u,
+        .sig_index  = 529u,
         .sig_count  = 2u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6884,7 +7697,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x029Au,
         .dlc        = 8u,
         .name       = "EcmChas2Fr92",
-        .sig_index  = 523u,
+        .sig_index  = 531u,
         .sig_count  = 7u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6894,7 +7707,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x029Bu,
         .dlc        = 8u,
         .name       = "EcmChas2Fr93",
-        .sig_index  = 530u,
+        .sig_index  = 538u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6904,7 +7717,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0255u,
         .dlc        = 8u,
         .name       = "EcmChas2Fr33",
-        .sig_index  = 536u,
+        .sig_index  = 544u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6914,7 +7727,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0364u,
         .dlc        = 8u,
         .name       = "PCM_Temperature",
-        .sig_index  = 542u,
+        .sig_index  = 550u,
         .sig_count  = 1u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6924,7 +7737,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0365u,
         .dlc        = 8u,
         .name       = "PCM_Warning",
-        .sig_index  = 543u,
+        .sig_index  = 551u,
         .sig_count  = 3u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6934,7 +7747,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0041u,
         .dlc        = 8u,
         .name       = "PcmChas1Fr19",
-        .sig_index  = 546u,
+        .sig_index  = 554u,
         .sig_count  = 1u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6944,7 +7757,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0360u,
         .dlc        = 8u,
         .name       = "IPU_Temperature",
-        .sig_index  = 547u,
+        .sig_index  = 555u,
         .sig_count  = 1u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6954,7 +7767,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0361u,
         .dlc        = 8u,
         .name       = "IPU_Warning",
-        .sig_index  = 548u,
+        .sig_index  = 556u,
         .sig_count  = 3u,
         .tx_node    = "GW",
         .is_tx      = 0,
@@ -6964,17 +7777,27 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02EAu,
         .dlc        = 8u,
         .name       = "TRM_StatusInfo",
-        .sig_index  = 551u,
+        .sig_index  = 559u,
         .sig_count  = 6u,
         .tx_node    = "GW",
         .is_tx      = 0,
+    },
+
+    { /* IPK_SEND_E2_524 (TX) */
+        .can_id     = 0x0524u,
+        .dlc        = 8u,
+        .name       = "IPK_SEND_E2_524",
+        .sig_index  = 565u,
+        .sig_count  = 8u,
+        .tx_node    = "IPK",
+        .is_tx      = 1,
     },
 
     { /* IPK_EngineService (TX) */
         .can_id     = 0x03E9u,
         .dlc        = 8u,
         .name       = "IPK_EngineService",
-        .sig_index  = 557u,
+        .sig_index  = 573u,
         .sig_count  = 3u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -6984,7 +7807,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x026Du,
         .dlc        = 8u,
         .name       = "IPK_STS",
-        .sig_index  = 560u,
+        .sig_index  = 576u,
         .sig_count  = 19u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -6994,7 +7817,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0260u,
         .dlc        = 8u,
         .name       = "IPK_SettingRequest",
-        .sig_index  = 579u,
+        .sig_index  = 595u,
         .sig_count  = 11u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -7004,7 +7827,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x02D8u,
         .dlc        = 8u,
         .name       = "IPK_Fuel_Sts",
-        .sig_index  = 590u,
+        .sig_index  = 606u,
         .sig_count  = 3u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -7014,7 +7837,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x03F1u,
         .dlc        = 8u,
         .name       = "IPK_TotalOdometer",
-        .sig_index  = 593u,
+        .sig_index  = 609u,
         .sig_count  = 4u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -7024,7 +7847,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x03F0u,
         .dlc        = 8u,
         .name       = "IPK_DateTime_Info",
-        .sig_index  = 597u,
+        .sig_index  = 613u,
         .sig_count  = 8u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -7034,7 +7857,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x03F6u,
         .dlc        = 8u,
         .name       = "IPK_Fuel_Info",
-        .sig_index  = 605u,
+        .sig_index  = 621u,
         .sig_count  = 9u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -7044,7 +7867,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x03F7u,
         .dlc        = 8u,
         .name       = "IPK_ODO_Consump",
-        .sig_index  = 614u,
+        .sig_index  = 630u,
         .sig_count  = 5u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -7054,7 +7877,7 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
         .can_id     = 0x0402u,
         .dlc        = 8u,
         .name       = "NWM_IPK",
-        .sig_index  = 619u,
+        .sig_index  = 635u,
         .sig_count  = 6u,
         .tx_node    = "IPK",
         .is_tx      = 1,
@@ -7064,10 +7887,10 @@ const can_msg_desc_t can_msg_descs_ipk[] = {
 
 /* === Index tables (RX / TX) === */
 const uint16_t can_db_ipk_rx_idx[] = {
-    0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u, 12u, 13u, 14u, 15u, 16u, 17u, 18u, 19u, 20u, 21u, 22u, 23u, 24u, 25u, 26u, 27u, 28u, 29u, 30u, 31u, 32u, 33u, 34u, 35u, 36u, 37u, 38u, 39u, 40u, 41u, 42u, 43u, 44u, 45u, 46u, 47u, 48u, 49u, 50u, 51u, 52u, 53u, 54u, 55u, 56u, 57u, 58u, 59u, 60u, 61u, 62u, 63u,
+    0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u, 12u, 13u, 14u, 15u, 16u, 17u, 18u, 19u, 20u, 21u, 22u, 23u, 24u, 25u, 26u, 27u, 28u, 29u, 30u, 31u, 32u, 33u, 34u, 35u, 36u, 37u, 38u, 39u, 40u, 41u, 42u, 43u, 44u, 45u, 46u, 47u, 48u, 49u, 50u, 51u, 52u, 53u, 54u, 55u, 56u, 57u, 58u, 59u, 60u, 61u, 62u, 63u, 64u,
 };
 const uint16_t can_db_ipk_tx_idx[] = {
-    64u, 65u, 66u, 67u, 68u, 69u, 70u, 71u, 72u,
+    65u, 66u, 67u, 68u, 69u, 70u, 71u, 72u, 73u, 74u,
 };
 
 /* === Per-bit CAN ID lookup (Sentinel) === */
@@ -7076,7 +7899,7 @@ const uint16_t can_db_ipk_tx_idx[] = {
 const u32 s_bit_to_can_id[CAN_BITMAP_MAX] = {
     /* bit  0..31 */  0x02AFu, 0x03E0u, 0x02A4u, 0x02A8u, 0x02A6u, 0x0084u, 0x0085u, 0x0288u, 0x028Au, 0x028Cu, 0x0145u, 0x0220u, 0x0221u, 0x0222u, 0x0354u, 0x017Bu, 0x0210u, 0x0162u, 0x0214u, 0x0161u, 0x01A5u, 0x0165u, 0x00A8u, 0x0171u, 0x02B2u, 0x0380u, 0x0150u, 0x0125u, 0x012Fu, 0x0128u, 0x02E4u, 0x01B0u,
     /* bit 32..63 */  0x02E0u, 0x01B2u, 0x0114u, 0x01A2u, 0x01A3u, 0x01A6u, 0x01A7u, 0x02F1u, 0x01F2u, 0x0370u, 0x01F0u, 0x0285u, 0x0286u, 0x0284u, 0x0287u, 0x027Fu, 0x02FCu, 0x02FDu, 0x01BBu, 0x00B0u, 0x0178u, 0x0211u, 0x02F4u, 0x029Au, 0x029Bu, 0x0255u, 0x0364u, 0x0365u, 0x0041u, 0x0360u, 0x0361u, 0x02EAu,
-    /* bit 64..95 */  0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+    /* bit 64..95 */  0x0523u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
 };
 
 /* CAN_DB_IPK_RX_COUNT / _TX_COUNT live in can_db_ipk_gen.h */

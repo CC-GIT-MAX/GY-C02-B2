@@ -82,6 +82,15 @@ typedef enum {
      *  stable: never reorder existing entries, only append.            *
      * ---------------------------------------------------------------- */
 
+/* 0x523 IPK_RECV_E2_523 (RX)  dlc=8 */
+    SIG_CAN_IPK_RECV_E2_B7,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_RECV_E2_B6,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_RECV_E2_B5,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_RECV_E2_B4,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_RECV_E2_B3,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_RECV_E2_B2,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_RECV_E2_B1,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_RECV_E2_B0,/* 8bit unsigned raw*1 [0..255] */
 /* 0x2AF MMI_DateTime_Msg (RX)  dlc=8 */
     SIG_CAN_MMI_Second,/* 6bit unsigned raw*1 [0..63] */
     SIG_CAN_MMI_Minute,/* 6bit unsigned raw*1 [0..63] */
@@ -703,6 +712,15 @@ typedef enum {
     SIG_CAN_TRM_EleIF_Connect_Failure,/* 2bit unsigned raw*1 [0..3] */
     SIG_CAN_TRM_Message_AliveCounter,/* 4bit unsigned raw*1 [0..15] */
     SIG_CAN_TRM_Message_CheckSum,/* 8bit unsigned raw*1 [0..255] */
+/* 0x524 IPK_SEND_E2_524 (TX)  dlc=8 */
+    SIG_CAN_IPK_SEND_E2_B7,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_SEND_E2_B6,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_SEND_E2_B5,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_SEND_E2_B4,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_SEND_E2_B3,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_SEND_E2_B2,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_SEND_E2_B1,/* 8bit unsigned raw*1 [0..255] */
+    SIG_CAN_IPK_SEND_E2_B0,/* 8bit unsigned raw*1 [0..255] */
 /* 0x3E9 IPK_EngineService (TX)  dlc=8 */
     SIG_CAN_IPK_IPKEngineTotalOdometer,/* 20bit unsigned raw*1 [0..1048575] */
     SIG_CAN_IPK_DayToEngSrv,/* 9bit unsigned raw*1 [0..511] */
@@ -780,8 +798,6 @@ typedef enum {
     SIG_CAN_IPK_Wakeup_reasons,/* 8bit unsigned raw*1 [0..255] */
     SIG_CAN_IPK_NMSts,/* 1bit unsigned raw*1 [0..1] */
     SIG_CAN_IPK_Stayawake_reasons,/* 32bit unsigned raw*1 [0..4294967295] */
-    
-
     SIG_MAX
 } signal_id_t;
 

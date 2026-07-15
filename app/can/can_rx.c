@@ -125,70 +125,71 @@ static struct {
  * ---------------------------------------------------------------- */
 /* MANUAL: hand-curated from DBC. Phase 3 / tools/gen_ipk_runtime.py will replace this with code-generated table. */
 static const u16 g_can_rx_timeout_table[CAN_DB_IPK_RX_COUNT] = {
-    /*   0 MMI_DateTime_Msg                 (RX) */ 5000u,  /* event-driven, fallback 5s */
-    /*   1 MMI_GPS_Info5                    (RX) */ 1000u,  /* cycle=200ms*5 */
-    /*   2 MMI_Status_Info                  (RX) */ 500u,  /* cycle=100ms*5 */
-    /*   3 MMI_Safety_Info                  (RX) */ 500u,  /* cycle=100ms*5 */
-    /*   4 MMI_SOCSet                       (RX) */ 500u,  /* cycle=100ms*5 */
-    /*   5 EMS_EngRelateTrqSts              (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
-    /*   6 EMS_EngineRPM                    (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
-    /*   7 EMS_EngineDriverInfo             (RX) */ 500u,  /* cycle=100ms*5 */
-    /*   8 EMS_EnginePatsBatteryStat        (RX) */ 500u,  /* cycle=100ms*5 */
-    /*   9 EMS_OBD_Info                     (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  10 EGSM_Status                      (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  11 OBC_Sts                          (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  12 OBC_Curr                         (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  13 OBC_Failmode                     (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  14 BMSH_sts                         (RX) */ 2500u,  /* cycle=500ms*5 */
-    /*  15 BMSH_Battery_chgstate            (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  16 BMSH_CellTempLimitValue          (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  17 VCU_Ctrl                         (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  18 VCU_InforCAN                     (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  19 VCU_DCDC_Ctrl                    (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  20 VCU_CSControl1                   (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  21 VCU_ModeControl                  (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  22 IPU_TrqSpd                       (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
-    /*  23 IPU_Sts                          (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  24 AVAS_DisabledSts                 (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  25 ACU_ChimeTelltaleReq             (RX) */ 1000u,  /* cycle=200ms*5 */
-    /*  26 EPS_InformSts                    (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  27 ESC_Status                       (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  28 ESC_DriverRemind                 (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  29 ESC_Regen                        (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  30 RSRSR_InformStatus               (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  31 FCS_ALAD_Status                  (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  32 FCS_SLIF_IHBC_Status             (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  33 FCS_Road_Status                  (RX) */ 250u,  /* cycle=50ms*5 */
-    /*  34 FCS_ELK_Status                   (RX) */ 250u,  /* cycle=50ms*5 */
-    /*  35 FCS_AEB                          (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  36 FCS_Display                      (RX) */ 250u,  /* cycle=50ms*5 */
-    /*  37 FCS_FrontObject                  (RX) */ 250u,  /* cycle=50ms*5 */
-    /*  38 FCS_FrontSideObject              (RX) */ 250u,  /* cycle=50ms*5 */
-    /*  39 AC_ReqSts                        (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  40 TPMS_TyreDataInfo                (RX) */ 250u,  /* cycle=50ms*5 */
-    /*  41 TPMS_TempStatusInfo              (RX) */ 2500u,  /* cycle=500ms*5 */
-    /*  42 BCM_LightChimeReq                (RX) */ 250u,  /* cycle=50ms*5 */
-    /*  43 BCM_LDoorWindowState             (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  44 BCM_RDoorWindowState             (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  45 BCM_StateUpdate                  (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  46 BCM_SunroofState                 (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  47 PEPS_KeyReminder                 (RX) */ 5000u,  /* event-driven, fallback 5s */
-    /*  48 GW_PEPS_Information              (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  49 GW_BCM_Information               (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  50 VCU_DriverTqInfo                 (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  51 BMSH_General                     (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
-    /*  52 BMSH_VoltCurr                    (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
-    /*  53 BMSH_OBC_Control                 (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  54 BMSH_Info                        (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  55 EcmChas2Fr92                     (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  56 EcmChas2Fr93                     (RX) */ 500u,  /* cycle=100ms*5 */
-    /*  57 EcmChas2Fr33                     (RX) */ 750u,  /* cycle=150ms*5 */
-    /*  58 PCM_Temperature                  (RX) */ 2500u,  /* cycle=500ms*5 */
-    /*  59 PCM_Warning                      (RX) */ 2500u,  /* cycle=500ms*5 */
-    /*  60 PcmChas1Fr19                     (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
-    /*  61 IPU_Temperature                  (RX) */ 2500u,  /* cycle=500ms*5 */
-    /*  62 IPU_Warning                      (RX) */ 2500u,  /* cycle=500ms*5 */
-    /*  63 TRM_StatusInfo                   (RX) */ 500u,  /* cycle=100ms*5 */
+    /*   0 IPK_RECV_E2_523                  (RX) */ 500u,  /* cycle=100ms*5 */
+    /*   1 MMI_DateTime_Msg                 (RX) */ 5000u,  /* event-driven, fallback 5s */
+    /*   2 MMI_GPS_Info5                    (RX) */ 1000u,  /* cycle=200ms*5 */
+    /*   3 MMI_Status_Info                  (RX) */ 500u,  /* cycle=100ms*5 */
+    /*   4 MMI_Safety_Info                  (RX) */ 500u,  /* cycle=100ms*5 */
+    /*   5 MMI_SOCSet                       (RX) */ 500u,  /* cycle=100ms*5 */
+    /*   6 EMS_EngRelateTrqSts              (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
+    /*   7 EMS_EngineRPM                    (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
+    /*   8 EMS_EngineDriverInfo             (RX) */ 500u,  /* cycle=100ms*5 */
+    /*   9 EMS_EnginePatsBatteryStat        (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  10 EMS_OBD_Info                     (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  11 EGSM_Status                      (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  12 OBC_Sts                          (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  13 OBC_Curr                         (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  14 OBC_Failmode                     (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  15 BMSH_sts                         (RX) */ 2500u,  /* cycle=500ms*5 */
+    /*  16 BMSH_Battery_chgstate            (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  17 BMSH_CellTempLimitValue          (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  18 VCU_Ctrl                         (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  19 VCU_InforCAN                     (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  20 VCU_DCDC_Ctrl                    (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  21 VCU_CSControl1                   (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  22 VCU_ModeControl                  (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  23 IPU_TrqSpd                       (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
+    /*  24 IPU_Sts                          (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  25 AVAS_DisabledSts                 (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  26 ACU_ChimeTelltaleReq             (RX) */ 1000u,  /* cycle=200ms*5 */
+    /*  27 EPS_InformSts                    (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  28 ESC_Status                       (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  29 ESC_DriverRemind                 (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  30 ESC_Regen                        (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  31 RSRSR_InformStatus               (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  32 FCS_ALAD_Status                  (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  33 FCS_SLIF_IHBC_Status             (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  34 FCS_Road_Status                  (RX) */ 250u,  /* cycle=50ms*5 */
+    /*  35 FCS_ELK_Status                   (RX) */ 250u,  /* cycle=50ms*5 */
+    /*  36 FCS_AEB                          (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  37 FCS_Display                      (RX) */ 250u,  /* cycle=50ms*5 */
+    /*  38 FCS_FrontObject                  (RX) */ 250u,  /* cycle=50ms*5 */
+    /*  39 FCS_FrontSideObject              (RX) */ 250u,  /* cycle=50ms*5 */
+    /*  40 AC_ReqSts                        (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  41 TPMS_TyreDataInfo                (RX) */ 250u,  /* cycle=50ms*5 */
+    /*  42 TPMS_TempStatusInfo              (RX) */ 2500u,  /* cycle=500ms*5 */
+    /*  43 BCM_LightChimeReq                (RX) */ 250u,  /* cycle=50ms*5 */
+    /*  44 BCM_LDoorWindowState             (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  45 BCM_RDoorWindowState             (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  46 BCM_StateUpdate                  (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  47 BCM_SunroofState                 (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  48 PEPS_KeyReminder                 (RX) */ 5000u,  /* event-driven, fallback 5s */
+    /*  49 GW_PEPS_Information              (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  50 GW_BCM_Information               (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  51 VCU_DriverTqInfo                 (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  52 BMSH_General                     (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
+    /*  53 BMSH_VoltCurr                    (RX) */ 250u,  /* cycle=20ms<50, fixed 250ms */
+    /*  54 BMSH_OBC_Control                 (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  55 BMSH_Info                        (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  56 EcmChas2Fr92                     (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  57 EcmChas2Fr93                     (RX) */ 500u,  /* cycle=100ms*5 */
+    /*  58 EcmChas2Fr33                     (RX) */ 750u,  /* cycle=150ms*5 */
+    /*  59 PCM_Temperature                  (RX) */ 2500u,  /* cycle=500ms*5 */
+    /*  60 PCM_Warning                      (RX) */ 2500u,  /* cycle=500ms*5 */
+    /*  61 PcmChas1Fr19                     (RX) */ 250u,  /* cycle=10ms<50, fixed 250ms */
+    /*  62 IPU_Temperature                  (RX) */ 2500u,  /* cycle=500ms*5 */
+    /*  63 IPU_Warning                      (RX) */ 2500u,  /* cycle=500ms*5 */
+    /*  64 TRM_StatusInfo                   (RX) */ 500u,  /* cycle=100ms*5 */
 };
 
 /* ---------------------------------------------------------------- *
@@ -270,10 +271,16 @@ __root static void prv_mcu_init(u8 cold_boot)
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0xFFFFFFFFu);
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0xFFFFFFFFu);
     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0xFFFFFFFFu);
+    /* v0.4.2: 上电时用 DBC init_value 预填 s_signals, 而不是 Signal_Reset 清 0。
+     * 依据 DBC_CHANGE_GUIDE 业务反馈: 上电默认值应与 GenSigStartValue 对应
+     * (例如 TPMS_FLTyrePr = 0xFF 表示 INVALID 标识),而不是 0。
+     * 注意: 这里只预填 value + valid + ever_set, 不触发 timeout bitmap;
+     * timeout bitmap 由 prv_check_timeouts 在 50ms tick 检测 from-never-received 时
+     * 不触发,业务层在收到第一帧 CAN 帧前看到的是 DBC 默认值,而不是 0。*/
     for (u32 i = 0u; i < (u32)CAN_DB_IPK_SIG_COUNT; i++) {
         const signal_id_t bus_id = CanDb_DbcSigToBus((u16)(i + 1u));
         if (bus_id != SIG_INVALID) {
-            Signal_Reset(bus_id);
+            (void)Signal_Set(bus_id, can_sig_descs_ipk[i].init_value);
         }
     }
     s_rx.seen_unknown_count = 0u;

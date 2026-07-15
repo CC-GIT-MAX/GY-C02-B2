@@ -71,6 +71,10 @@ class Signal:
     maximum: float
     unit: str
     receivers: List[str] = field(default_factory=list)
+    # v0.4: DBC BA_ "GenSigStartValue" parsed as physical quantity; emit 阶段
+    # convert to RAW bit-pattern via (phys - offset) / factor (round to nearest
+    # integer, clamped to signed-range). factor=0 时退回 0u (与 DBC 无 attribute 同语义)。
+    init_value_raw: int = 0  # v0.4.1: parsed from DBC BA_ GenSigStartValue as RAW (was phys in v0.4)
 
 
 @dataclass
@@ -144,6 +148,9 @@ def parse_dbc(path: str) -> List[Message]:
     #   BA_ "GenMsgSendType"  BO_ <can_id> <v>;   0=cycle 1=event 2=mixed
     _re_ba_bo_cycle = re.compile(r'^\s*BA_\s+"GenMsgCycleTime"\s+BO_\s+(\d+)\s+(\d+);')
     _re_ba_bo_send  = re.compile(r'^\s*BA_\s+"GenMsgSendType"\s+BO_\s+(\d+)\s+(\d+);')
+    # v0.4.1: BA_ "GenSigStartValue" SG_ <can_id> <sig_name> <raw>;  (CANdb++ stores RAW, NOT phys)
+    #   写到对应 Signal.init_value_raw (v0.4.1 起 DBC 的 GenSigStartValue 已是 RAW),直接 emit。
+    _re_ba_sg_init  = re.compile(r'^\s*BA_\s+"GenSigStartValue"\s+SG_\s+(\d+)\s+(\S+)\s+([-+0-9.eE]+);')
     by_id = {m.can_id: m for m in msgs}
     with open(path, "r", encoding="utf-8", errors="replace") as f:
         for line in f:
@@ -158,6 +165,21 @@ def parse_dbc(path: str) -> List[Message]:
                 m = by_id.get(int(ms.group(1)))
                 if m is not None:
                     m.send_type = int(ms.group(2))
+                continue
+            mi = _re_ba_sg_init.match(line)
+            if mi:
+                can_id = int(mi.group(1))
+                sig_name = mi.group(2)
+                phys_str = mi.group(3)
+                m = by_id.get(can_id)
+                if m is not None:
+                    for s in m.signals:
+                        if s.name == sig_name:
+                            try:
+                                s.init_value_raw = int(phys_str)
+                            except ValueError:
+                                pass
+                            break
     return msgs
 
 
@@ -269,6 +291,7 @@ def emit_source(node, msgs, enum_names):
                 f"        .factor       = {_format_float_c(s.factor)}f,\n"
                 f"        .offset       = {_format_float_c(s.offset)}f,\n"
                 f"        .raw_type     = {raw_t},\n"
+                f"        .init_value   = {_signal_init_value_raw(s)},\n"
                 f"    }},\n"
             )
     L.append("};")
@@ -351,8 +374,8 @@ def assign_bitmap(selected, node, prev_state):
     # Sentinel rule: a bit once assigned keeps its slot forever.
     # If its CAN ID is removed from the DBC, the bit stays at
     # sentinel_unused; it is NOT re-allocated.
-    locked = {b: c for b, c in prev_state.items() if c in rx_set and b < 64}
-    retired_bits = {b for b, c in prev_state.items() if c not in rx_set and b < 64}
+    locked = {b: c for b, c in prev_state.items() if c in rx_set and b < 96}
+    retired_bits = {b for b, c in prev_state.items() if c not in rx_set and b < 96}
     locked_ids = set(locked.values())
     used_bits = set(locked.keys()) | retired_bits
     new_assignments = {}
@@ -360,11 +383,11 @@ def assign_bitmap(selected, node, prev_state):
     for cid in rx_ids:
         if cid in locked_ids:
             continue
-        while next_bit in used_bits or next_bit >= 64:
+        while next_bit in used_bits or next_bit >= 96:
             next_bit += 1
-            if next_bit >= 64:
+            if next_bit >= 96:
                 break
-        if next_bit >= 64:
+        if next_bit >= 96:
             break
         new_assignments[next_bit] = cid
         used_bits.add(next_bit)
@@ -401,6 +424,34 @@ def _format_float(v):
     return s if s else "0"
 
 def _format_float_c(v):
+    """Format a float as a C99 float literal, always with a decimal
+    point and at most 9 significant digits. Output without a trailing
+    f; caller appends that suffix."""
+    iv = int(v)
+    if v == iv:
+        return f"{iv}.0"
+    s = f"{v:.9g}"
+    return s if s else "0.0"
+
+
+def _signal_init_value_raw(s):
+    """v0.4.1: DBC BA_ GenSigStartValue 已经是 RAW,直接 mask by length,
+    sign-extend if signed. 返回 C 字面量。
+    注: v0.4 把 GenSigStartValue 当 phys 解析是错的 (CANdb++ 实际存的是 RAW);
+    v0.4.1 修正 — TPMS_FLTyrePr/TyreTemp 之前被算成 0x51/0x31, 修正后为 0xFF。"""
+    raw_int = s.init_value_raw
+    if s.length >= 32:
+        mask = 0xFFFFFFFF
+    else:
+        mask = (1 << s.length) - 1
+    raw_int = raw_int & mask
+    if s.is_signed and s.length < 32:
+        sign_bit = 1 << (s.length - 1)
+        if raw_int & sign_bit:
+            raw_int = raw_int | (~mask & 0xFFFFFFFF)
+    if raw_int > 9:
+        return f'0x{raw_int:X}u'
+    return f'{raw_int}u'
     """Format a float as a C99 float literal, always with a decimal
     point and at most 9 significant digits. Output without a trailing
     f; caller appends that suffix."""
