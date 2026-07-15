@@ -45,6 +45,12 @@ typedef enum {
      *  (CanRx_IsMsgTimedOut / CanRx_GetMsgFreshness) for per-id reads  *
      *  rather than poking these bits directly.                         *
      *                                                                    *
+     *  v0.3 边沿处理 + 职责分离: prv_check_timeouts 仅置 1 (读-改-写        *
+     *  OR=1);清 0 由 prv_drain 在收到对应 can_id 时负责 (Signal_Get 然后   *
+     *  AND= ~bit + Signal_Set)。OK -> TIMED_OUT 跳变瞬间通过                 *
+     *  CanDb_InvalidateSignalsOnMsgTimeout 把该 message 携带的所有           *
+     *  SIG_CAN_* 标记 invalid;反向跳变不动 bitmap,由下次 drain 清。         *
+     *                                                                    *
      *    bit  0..31  -> SIG_CAN_RX_TIMEOUT_MAP_LO  >> bit              *
      *    bit 32..63  -> SIG_CAN_RX_TIMEOUT_MAP_HI  >> (bit - 32)       *
      *    bit 64..95  -> SIG_CAN_RX_TIMEOUT_MAP_HI2 >> (bit - 64)       *

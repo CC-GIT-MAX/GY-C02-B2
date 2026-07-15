@@ -327,10 +327,12 @@ __root static void prv_on_ign_on(void)
  * @details 对每个出队帧：
  *          1. 按 can_id 查 IPK 描述符。
  *          2. 若命中，把描述符 + payload 交给 `CanDb_DispatchByDb`，
- *             后者解码每个信号。
+ *             后者解码每个 signal，并经 Signal_Set 恢复对应槽位的 valid。
  *          3. 盖 `last_rx_tick_ms` 时间戳，超时监视器便视为新鲜。
+ *          4. 清 SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2} 中本 can_id 对应的 bit，
+ *             即"置 0 在接收到对应 id 时" — 与 prv_check_timeouts 置 1 路径分立。
  *          不在 IPK 表中的 id 帧以 DEBUG 级别记录（可能是未来的
- *          帧或厂商私有报文）。 */
+ *          帧或厂商私有报文），不动 bitmap。 */
 static void prv_drain(void)
 {
     can_msg_t m;
@@ -358,9 +360,26 @@ static void prv_drain(void)
             CanDb_DispatchByDb(&can_msg_descs_ipk[idx], m.data);
             /* Stamp the per-bit-N last-rx tick (Sentinel: bit-N is
              * stable across DBC reorders; the table is the SoT). */
+            /* Sentinel strategy: bit-N is stable across DBC reorders;
+             * s_bit_to_can_id[] is the single source of truth.        */
             const u8 bit = prv_bit_for_can_id(m.id);
             if (bit < (u8)CAN_BITMAP_MAX) {
                 s_rx.track[bit].last_rx_tick_ms = RTI_GetTick1ms();
+                /* v0.3: 收到对应 id 时清掉 SIG_CAN_RX_TIMEOUT_MAP_* 中
+                 * 的对应 bit — timeout 位置 0 的唯一入口。prv_check_timeouts
+                 * 只置 1,本处只置 0,职责分离;若报文之前处于 TIMED_OUT 状态,
+                 * 此刻 msg_state 仍为 TIMED_OUT,需等到下一次 prv_check_timeouts
+                 * tick 比较时 (now - last <= tmo) 才能边沿反向回到 OK. */
+                if (bit < 32u) {
+                    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,
+                                      Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO) & ~((u32)1u << bit));
+                } else if (bit < 64u) {
+                    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,
+                                      Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI) & ~((u32)1u << (bit - 32u)));
+                } else {
+                    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2,
+                                      Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2) & ~((u32)1u << (bit - 64u)));
+                }
             }
         } else {
             /* Unknown id: not necessarily an error (could be a
@@ -401,27 +420,44 @@ static void prv_drain(void)
  *          slots of SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}.
  * @brief   遍历 IPK RX 表, 更新 SIG_CAN_RX_TIMEOUT_MAP_LO/HI/HI2
  *
- * @details 对 IPK 描述符表中每个 RX slot，从
- *          g_can_rx_timeout_table[slot] 读 timeout，再通过
- *          s_rx.rx_ipk_idx[slot] -> can_msg_descs_ipk[] 查 can_id。
- *          若 (now - last_rx_tick_ms[bit]) > timeout_ms[slot]，则
- *          在 LO/HI/HI2 中置位 bit `bit`：
+ * @details v0.3: 边沿检测版超时处理。每 50 ms tick 遍历 IPK 描述符表 RX slots，
+ *          对每个 slot 从 g_can_rx_timeout_table[slot] 取 timeout；通过
+ *          s_rx.rx_ipk_idx[slot] -> can_msg_descs_ipk[] 查 can_id 并解出 Sentinel
+ *          bit 位（prv_bit_for_can_id），再读 s_rx.track[bit].last_rx_tick_ms 比较。
+
+ *          比较结果 now_timed_out = (last != 0) && ((now - last) > tmo_ms)
+ *          （注：从未收过帧的位 last==0 视作不超时,只在报文确实来过之后才允许 timeout）。
+
+ *          50 ms tick 内一次完成三件事（v0.3 全部走边沿，不再每 tick 重复 Invalidate）：
+ *          (1) 读取当前 SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}（读-改-写，避免覆盖其他位置的位），
+ *              对当前超时的 bit OR=1,其它位保留；
+ *              Bitmap 写策略: 本函数只置 1,清 0 由 prv_drain 收到对应 id 时负责
+ *              (见 prv_drain 注释);本函数不反向置 0,以保持职责分离。
+ *          (2) 仅在 OK → TIMED_OUT 跳变瞬间调一次
+ *              CanDb_InvalidateSignalsOnMsgTimeout(ipk_idx) 把该消息所有 signal 标记 invalid；
+ *          (3) TIMED_OUT → OK 反向跳变只清本函数维护的 s_rx.msg_state[bit]，
+ *              业务 signal valid 由下一次正常 Signal_Set 恢复，本函数不反向 Signal_Set。
+ *              Bitmap 对应 bit 的清零由下一次 prv_drain 收到同 id 帧时完成。
+
+ *          bit 布局:
  *            bit  0..31 -> MAP_LO  (bit (bit))
  *            bit 32..63 -> MAP_HI  (bit (bit - 32))
  *            bit 64..95 -> MAP_HI2 (bit (bit - 64))
- *          timeout=0（无周期、非事件驱动）的 slot 被跳过。
- *          映射到 Sentinel 位图 (s_bit_to_can_id[]) 中不存在的
- *          can_id 的位也跳过。 */
+ *
+ *          跳过规则: timeout=0（无周期、非事件驱动）的 slot 跳过；映射到 Sentinel 位图
+ *          (s_bit_to_can_id[]) 中不存在的 can_id 的位也跳过。 */
 static void prv_check_timeouts(void)
 {
     /* v0.3: 边沿检测版 — 每个 bit-N 上的 OK → TIMED_OUT 跳变瞬间,
-     *      把该消息携带的所有 signal 一次性 Invalidate；写 bitmap 的同时
-     *      也走 CanDb_InvalidateSignalsOnMsgTimeout()。回到 OK 的边沿不做事：
-     *      下一次正常 Signal_Set 自动恢复。*/
+     *      把该消息携带的所有 signal 一次性 Invalidate;写 bitmap (置 1) 的同时
+     *      也走 CanDb_InvalidateSignalsOnMsgTimeout()。回到 OK 的边沿只清
+     *      s_rx.msg_state[bit],不动 bitmap — bitmap 对应 bit 由下一次
+     *      prv_drain 收到同 id 帧时清 0,职责分离。业务 signal valid 由下一次
+     *      正常 Signal_Set 自动恢复。*/
     const u32 now = RTI_GetTick1ms();
-    u32 map_lo  = 0u;
-    u32 map_hi  = 0u;
-    u32 map_hi2 = 0u;
+    u32 map_lo  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO);
+    u32 map_hi  = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI);
+    u32 map_hi2 = Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2);
     for (u16 slot = 0u; slot < (u16)CAN_DB_IPK_RX_COUNT; slot++) {
         const u16 tmo = g_can_rx_timeout_table[slot];
         if (tmo == 0u) continue;
