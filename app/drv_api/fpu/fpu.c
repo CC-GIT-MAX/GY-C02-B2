@@ -69,16 +69,6 @@ c02b2_result_t Fpu_Init(void)
      *    栅栏）。 */
     NVIC_EnableIRQ(FPU_IRQn);
 
-    /* 4. 启用全部 6 个 FPU 异常源（IOC / DZC / UFC / OFC / IDC / IXC）。
-     *    0x3F = 0b0011_1111 覆盖 bits 0..5，恰好是六个
-     *    CIM_FPUIE_FP*IE_MASK 常量的 OR —— 使用具名常量
-     *    表达意图，并能适应寄存器布局的变更。 */
-    CIM->FPUIE = (u32)CIM_FPUIE_FPIOCIE_MASK
-               | (u32)CIM_FPUIE_FPDZCIE_MASK
-               | (u32)CIM_FPUIE_FPUFCIE_MASK
-               | (u32)CIM_FPUIE_FPOFCIE_MASK
-               | (u32)CIM_FPUIE_FPIDCIE_MASK
-               | (u32)CIM_FPUIE_FPIXCIE_MASK;
 
     LOG_I("FPU enabled (CP10/CP11 full, IPC[123]=CLKEN|SRCSEL(2), FPUIE=IOC|DZC|UFC|OFC|IDC|IXC)");
     return C02B2_OK;

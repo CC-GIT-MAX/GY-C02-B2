@@ -119,18 +119,8 @@ int main(void)
     /* Initialize the scheduler: calls every module's mcu_init()
      * hook (clocks, RAM zero, hardware self-test). */
     Scheduler_Init();
-    /* Wakeup phase: re-arm NVIC / wake sources before KL15 logic
-     * starts. Separated from Scheduler_Init so modules can keep
-     * their reset-state setup in mcu_init and their restore-from-
-     * reset work in wakeup_init. */
-    Scheduler_WakeupInit();
-    /* Cold-boot broadcast: assume IGN ON so every module's
-     * on_ign_on() runs at startup.  Real KL15 detection will be
-     * wired in via mod_can once DBC signals are populated. */
-    Scheduler_OnIgnOn();
     LOG_I("=== C02-B2 boot OK ===");
     LOG_I("tick=1ms source=SysTick via OSIF");
-
 
     /* Super-loop: dispatch every module's tick, then sleep until ISR. */
     /* Canonical ARM Cortex-M wake-from-WFI sequence. OSIF_TimeDelay(0)
