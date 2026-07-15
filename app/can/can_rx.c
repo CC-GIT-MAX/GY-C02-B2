@@ -380,12 +380,18 @@ static void prv_drain(void)
                 if (bit < 32u) {
                     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,
                                       Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_LO) & ~((u32)1u << bit));
+                    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_LO,
+                                      Signal_Get(SIG_CAN_RX_EVER_RECEIVED_LO) | ((u32)1u << bit));
                 } else if (bit < 64u) {
                     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,
                                       Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI) & ~((u32)1u << (bit - 32u)));
+                    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI,
+                                      Signal_Get(SIG_CAN_RX_EVER_RECEIVED_HI) | ((u32)1u << (bit - 32u)));
                 } else {
                     (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2,
                                       Signal_Get(SIG_CAN_RX_TIMEOUT_MAP_HI2) & ~((u32)1u << (bit - 64u)));
+                    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI2,
+                                      Signal_Get(SIG_CAN_RX_EVER_RECEIVED_HI2) | ((u32)1u << (bit - 64u)));
                 }
             }
         } else {
@@ -455,6 +461,9 @@ static void prv_drain(void)
  *          (s_bit_to_can_id[]) 中不存在的 can_id 的位也跳过。 */
 static void prv_check_timeouts(void)
 {
+    /* v0.5: 首次进入 timeout monitor 时标记 boot_done,
+     * 让 Signal_IsValid() 进入基于 timeout bitmap 的判定模式。*/
+    Signal_SetBootDone();
     /* v0.3: 边沿检测版 — 每个 bit-N 上的 OK → TIMED_OUT 跳变瞬间,
      *      把该消息携带的所有 signal 一次性 Invalidate;写 bitmap (置 1) 的同时
      *      也走 CanDb_InvalidateSignalsOnMsgTimeout()。回到 OK 的边沿只清
@@ -531,9 +540,19 @@ __root static void prv_tick(void)
  */
 __root static void prv_standby(void)
 {
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,  0);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,  0);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2, 0);
+    /* v0.5: KL15 off → 重新进入 bootstrap 窗口。
+     *  1) 清 timeout bitmap, 业务读到的就是"启动期一致性"空状态。
+     *  2) 清 ever_received bitmap, 下次 ign_on 后重新计数。
+     *  3) 清 boot_done, 让 Signal_IsValid() 重新进入 bootstrap 守卫。
+     *  prv_on_ign_on() 会在下次唤醒时把 timeout bitmap 置 1 (= 全超时)
+     *  并让 boot_done 在 prv_check_timeouts 第一次进入时再置 1。*/
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,       0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,       0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2,      0);
+    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_LO,     0);
+    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI,     0);
+    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI2,    0);
+    Signal_ResetBootDone();
 }
 
 /* ---------------------------------------------------------------- *

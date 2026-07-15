@@ -526,6 +526,7 @@ def emit_map_body(selected):
     return "\n".join(out) + "\n"
 
 
+
 def _default_cycle_ms(msg):
     """Resolve the cyclic send period for a message (ms).
 

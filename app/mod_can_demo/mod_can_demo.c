@@ -320,14 +320,14 @@ static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
  * 用于 SOC 交叉核对。*/
 static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
 {
-    /* v0.3 三件套展示:
-     *   - raw_live     : Signal_Get        (valid 时拿最新值, 否则 0 fallback)
-     *   - raw_stored   : Signal_GetStored  (强制取最近一次值, 保留超时前帧)
-     *   - valid        : Signal_IsValid    (valid && ever_set)
+    /* v0.5 三件套展示:
+     *   - raw_live     : Signal_Get        (INIT_DBC -> init_value, KEEP_LAST -> 最后一帧)
+     *   - raw_ever     : Signal_HasEverReceived (是否曾收到过有效帧)
+     *   - valid        : Signal_IsValid    (boot_done && !timeout_bit)
      * 这里 demo 用于 CANalyzer 调试时人工核对 timeout / fresh 行为。*/
-    const u32 raw_live     = Signal_Get(bus_id);
-    const u32 raw_stored   = Signal_GetStored(bus_id);
-    const bool valid       = Signal_IsValid(bus_id);
+    const u32  raw_live     = Signal_Get(bus_id);
+    const u32  raw_ever     = Signal_HasEverReceived(bus_id) ? 1u : 0u;
+    const bool valid        = Signal_IsValid(bus_id);
     const can_sig_desc_t *sig = CanDb_FindIpkSig(sig_id);
     s32 phys_live = 0;
     if (sig != NULL) {
@@ -339,8 +339,8 @@ static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
     }
     (void)phys_live;
     #if CAN_DEMO_LOG
-    LOG_I("[6/6] RX %-18s raw=0x%04X stored=0x%04X valid=%u phys=%d",
-          name, (unsigned)raw_live, (unsigned)raw_stored,
+    LOG_I("[6/6] RX %-18s raw=0x%04X ever=%u valid=%u phys=%d",
+          name, (unsigned)raw_live, (unsigned)raw_ever,
           (unsigned)valid, (int)phys_live);
     #endif
 }

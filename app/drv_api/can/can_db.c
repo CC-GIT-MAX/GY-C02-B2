@@ -824,6 +824,59 @@ signal_id_t CanDb_DbcSigToBus(u16 db_sig_id)
 }
 
 /* ---------------------------------------------------------------- *
+ *  Reverse lookup: bus_id -> timeout-bitmap bit-N                    *
+ *                                                                    *
+ *  Lazily built on first call. The table itself lives in BSS;       *
+ *  signal.c::Signal_IsValid() is the only consumer and queries      *
+ *  per id, so O(SIG_MAX) init runs exactly once.                     *
+ * ---------------------------------------------------------------- */
+static u8  s_bus_to_timeout_bit[SIG_MAX];
+static u8  s_bus_to_bit_built;
+
+static void prv_build_bus_to_timeout_bit(void)
+{
+    /* Default sentinel_unused for every slot. */
+    for (u16 i = 0u; i < (u16)SIG_MAX; i++) {
+        s_bus_to_timeout_bit[i] = sentinel_unused;
+    }
+    /* For each RX MSG, walk its signals and stamp the same bit-N
+     * (= prv_lookup_bit_for_can_id()) into every signal slot. */
+    for (u16 m = 0u; m < (u16)CAN_DB_IPK_MSG_COUNT; m++) {
+        const can_msg_desc_t *md = &can_msg_descs_ipk[m];
+        if (md->is_tx != 0u) { continue; }   /* TX never in RX timeout map */
+        const u32 can_id = md->can_id;
+        /* Inline s_bit_to_can_id[] lookup (mirrors can_rx.c prv_bit_for_can_id). */
+        u8 bit = sentinel_unused;
+        for (u8 b = 0u; b < (u8)CAN_BITMAP_MAX; b++) {
+            if (s_bit_to_can_id[b] == can_id) {
+                bit = b;
+                break;
+            }
+        }
+        if (bit == sentinel_unused) { continue; }
+        const u16 sig_end = (u16)(md->sig_index + md->sig_count);
+        for (u16 k = md->sig_index; k < sig_end; k++) {
+            const signal_id_t bus_id = s_dbc_to_bus[k];
+            if (bus_id != SIG_INVALID) {
+                s_bus_to_timeout_bit[bus_id - 1u] = bit;
+            }
+        }
+    }
+    s_bus_to_bit_built = 1u;
+}
+
+u8 CanDb_SigToTimeoutBit(signal_id_t bus_id)
+{
+    if ((bus_id <= SIG_INVALID) || (bus_id >= SIG_MAX)) {
+        return sentinel_unused;
+    }
+    if (s_bus_to_bit_built == 0u) {
+        prv_build_bus_to_timeout_bit();
+    }
+    return s_bus_to_timeout_bit[bus_id - 1u];
+}
+
+/* ---------------------------------------------------------------- *
  *  Public API                                                       *
  * ---------------------------------------------------------------- */
 
@@ -896,18 +949,21 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id)
 }
 
 /**
- * @brief   Mark every signal of an IPK message as invalid (timeout-driven)
- * @brief   把某条 IPK 报文的所有 signal 标记为无效（超时驱动）
+ * @brief   Apply per-signal timeout policy on OK->TIMED_OUT edge
+ * @brief   在 OK->TIMED_OUT 边沿上,按 signal 级别 policy 执行超时动作
  *
- * @details v0.3: 给 IPK message index，走 sig_index/sig_count 得到该消息
- *          携带的所有 DBC signal，回查 s_dbc_to_bus[] 得到 signal_id_t，
- *          逐个 Signal_Invalidate()。 调用方 app/can/can_rx.c::prv_check_timeouts
- *          在 OK→TIMED_OUT 边沿触发；运行时业务方不应主动调用。
+ * @details v0.5: policy 由 SigTimeoutPolicy_Get(bus_id) 决定
+ *   - INIT_DBC (默认): 写 DBC init_value 进槽位 (= Signal_Set(id, init)).
+ *     上层在 Signal_IsValid()=false 时,Signal_Get() 直接返回 DBC 默认值。
+ *   - KEEP_LAST: 保留 slot 原值,不动 (timeout bitmap 已是 SoT)。
+ *     上层在 Signal_IsValid()=false 时仍能读到 "超时前最后一帧" (Signal_Get)。
+ *     Call from app/can/can_rx.c::prv_check_timeouts() at edge; do NOT
+ *     invoke at runtime.
  *
  * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
  *
  * @return  c02b2_result_t
- * @retval  C02B2_OK            All signals of the message marked invalid
+ * @retval  C02B2_OK            Policy applied
  * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
  */
 c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
@@ -925,18 +981,21 @@ c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
         if (bus_id == SIG_INVALID) {
             continue;
         }
-        /* v0.4: 走 policy 决策。默认 INIT_DBC -> Signal_Set(id, sig->init_value);
-         * KEEP_LAST -> Signal_Invalidate (v0.3 行为,保留 value 仅清 valid)。*/
+        /* v0.5: INIT_DBC = 写 init_value; KEEP_LAST = 不动 slot
+         * (保留 "timeout 前最后一帧",valid 由 timeout bitmap 表达)。*/
         if (SigTimeoutPolicy_Get(bus_id) == false) {
-            /* INIT_DBC: 写 init_value。Get / IsValid / GetStored 都返回 init。*/
+            /* INIT_DBC: 写 DBC init_value 进 slot.
+             * 上层 Signal_IsValid()=false 时,Signal_Get() 返回此默认值。*/
             (void)Signal_Set(bus_id, can_sig_descs_ipk[db_sig_index].init_value);
         } else {
-            /* KEEP_LAST: 保留 value (供仪表降级),仅置 valid=0。*/
-            Signal_Invalidate(bus_id);
+            /* KEEP_LAST: 不写 slot,保留 "timeout 前最后一帧" raw.
+             * 业务方 Signal_Get() 仍能拿到,Signal_IsValid()=false 表明
+             * 当前是超时状态。timeout bitmap 是 SoT。*/
         }
     }
     return C02B2_OK;
 }
+
 
 /**
  * @brief   Override the per-signal timeout policy for one bus id.

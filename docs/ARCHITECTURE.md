@@ -84,7 +84,7 @@ typedef struct mod_desc_s {
 
 | 通道 | API | 适用 |
 |---|---|---|
-| **CAN 信号** | Signal_Set / Signal_Get / Signal_GetStored / Signal_IsValid / Signal_Invalidate / Signal_Reset | 207 个 SIG_CAN_* + 3 个 timeout bitmap + 4 个 bus health |
+| **CAN 信号** | Signal_Set / Signal_Get / Signal_IsValid / Signal_Reset / Signal_HasEverReceived / Signal_SetBootDone | 207 个 SIG_CAN_* + 3 个 timeout bitmap + 4 个 bus health |
 | **业务数据** | extern 全局变量 | 跨模块业务数据可直接读写 |
 | **模块 getter/setter** | Module_GetFoo(...) | 需要做参数校验、原子拷贝、跨上下文稳定读取时 |
 | **只读查找表 / 校准** | static const in .h | 编译期常量 |
@@ -100,20 +100,21 @@ typedef struct mod_desc_s {
 
 Signal 总线**只**承担 CAN 相关数据:
 
-1. 207 个 SIG_CAN_* (DBC 自动生成);
+1. SIG_CAN_* (DBC 自动生成; 当前 IPK 共 208);
 2. 3 个 SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2} (接收超时 bitmap, **启动期全 1 = 全部超时**);
-3. 4 个 SIG_CAN_BUS_OFF / _COUNT / TX_ERR_CNT / RX_ERR_CNT (总线健康, 由 can_if ISR 写入)。
+3. 3 个 SIG_CAN_RX_EVER_RECEIVED_{LO,HI,HI2} (曾接收 bitmap, 收到帧置 1, KL15 off 清 0);
+4. 4 个 SIG_CAN_BUS_OFF / _COUNT / TX_ERR_CNT / RX_ERR_CNT (总线健康, 由 can_if ISR 写入)。
 
-三件套接口定义:
+v0.5 接口 (validity 由 timeout bitmap 推导,不再保留 per-slot valid):
 
 | API | 语义 | 适用 |
 |---|---|---|
-| Signal_Set(id, raw) | 写入并置 valid=true / ever_set=true | RX 序列内部使用; 业务方不应调用 |
-| Signal_Get(id) | valid 时返回 raw; **超时 / 未收 / 越界 → 0 fallback** | 常规使用 |
-| Signal_GetStored(id) | **强制**返回最近一次 Set 写入值, 不看 valid | 仪表降级显示、首屏兜底、TX loopback |
-| Signal_IsValid(id) | valid && ever_set → true | 门控逻辑 (仅在业务需要「该信号现在可信任」时用) |
-| Signal_Invalidate(id) / Signal_InvalidateAll() | 清 valid (保留 value + ever_set) | can_rx 50ms tick 边沿使用 |
-| Signal_Reset(id) | 三位全清: value=0 / valid=false / ever_set=false | **仅**给各模块 prv_mcu_init 使用 |
+| Signal_Set(id, raw) | 写 RAW u32 进 slot | RX 序列内部使用; 业务方不应调用 |
+| Signal_Get(id) | 永远返回最近一次 Set 写入值 (BSS 默认 0);超时 / 未收 / 越界 → 0 fallback | 常规使用 (TX loopback 也走这个) |
+| Signal_IsValid(id) | `boot_done && !timeout_bit`; bootstrap 窗口 / 无 timeout map 的 id 返回 false (BUS health 走 value != 0 兜底) | 门控逻辑 (业务方需要「该信号现在可信任」时用) |
+| Signal_Reset(id) | 写 `can_sig_descs_ipk[id-1].init_value` 进 slot | **仅**给各模块 prv_mcu_init 使用 |
+| Signal_HasEverReceived(id) | 查 SIG_CAN_RX_EVER_RECEIVED_* map; 该 MSG 是否曾收到过有效帧 | 仪表降级 / "曾有效" 状态显示 |
+| Signal_SetBootDone / Signal_ResetBootDone / Signal_IsBootDone | bootstrap 窗口 flag | can_rx prv_check_timeouts 首次置 1; prv_standby 清 0 |
 
 超时状态查询走 pp/can/can_rx.h::CanRx_IsMsgedOut(can_id) / CanRx_GetMsgFreshness(can_id, &out), 不需要直接读 bitmap。
 

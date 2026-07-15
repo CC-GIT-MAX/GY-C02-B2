@@ -24,18 +24,20 @@
 
 
 /**
- * @brief   Mark every signal of an IPK message as invalid (timeout-driven)
- * @brief   把某条 IPK 报文的所有 signal 标记为无效（超时驱动）
+ * @brief   Apply per-signal timeout policy on OK->TIMED_OUT edge
+ * @brief   在 OK->TIMED_OUT 边沿上,按 signal 级别 policy 执行超时动作
  *
- * @details v0.3: 给 IPK message index，回溯它的 sig_index/sig_count
- *          把 s_dbc_to_bus[] 翻译为对应 signal_id_t 并逐个 Signal_Invalidate。
- *          由 app/can/can_rx.c 50ms tick 在 OK→TIMED_OUT 边沿调用，
- *          业务方不应主动调用（除非手工触发降级）。
+ * @details v0.5: 给 IPK message index,回溯它的 sig_index/sig_count,
+ *          走 SigTimeoutPolicy_Get() 判定 INIT_DBC / KEEP_LAST:
+ *          - INIT_DBC 默认: 写 DBC init_value 进 slot。
+ *          - KEEP_LAST: 不动 slot (保留 timeout 前最后一帧)。
+ *          由 app/can/can_rx.c 50ms tick 在 OK->TIMED_OUT 边沿调用,
+ *          业务方不应主动调用。
  *
  * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
  *
  * @return  c02b2_result_t
- * @retval  C02B2_OK            All signals of the message marked invalid
+ * @retval  C02B2_OK            Policy applied
  * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
  */
 c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index);
@@ -146,6 +148,24 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id);
  * @return  signal_id_t  Matching SIG_CAN_* id, or SIG_INVALID if out of range
  */
 signal_id_t CanDb_DbcSigToBus(u16 db_sig_id);
+
+/**
+ * @brief   Resolve a signal-bus id to its timeout-bitmap bit (per-MSG).
+ * @brief   把 signal-bus id 解析为它在 RX 超时位图里的 bit-N。
+ *
+ * @details v0.5: 给 signal 总线上的 id，返回它所属 MSG 在
+ *          s_bit_to_can_id[] 中的 bit-N (0..95)。validity 检查用此
+ *          位查 SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2} 即可。
+ *
+ *          返 0xFF (= sentinel_unused) 表示：
+ *          - 该 bus_id 不映射到任何 IPK RX MSG (TX signals、CAN health 等)
+ *          - 越界 id
+ *
+ * @param[in]  bus_id  SIG_CAN_* id (1..SIG_MAX-1) 或 SIG_INVALID
+ *
+ * @return  u8  bit-N in [0, 95], or sentinel_unused (0xFF) if unmapped
+ */
+u8 CanDb_SigToTimeoutBit(signal_id_t bus_id);
 
 #ifdef __cplusplus
 }

@@ -3,18 +3,24 @@
  * @brief   CAN signal bus: storage and accessors for CAN-derived values
  * @brief   CAN 信号总线：CAN 报文解码值的存储与访问
  *
- * @details v0.3 refactor: signal 总线**只**承担 CAN 相关数据的传递，三件套接口
- *          (Signal_Get / Signal_GetStored / Signal_IsValid) 区分两种语义：
- *   1. Signal_Set / Signal_Get
- *        写入并按 valid 标志返回；超时 / 未收 / 越界一律回 0；
- *   2. Signal_GetStored
- *        强制返回最后一次 Signal_Set 写入的存储值（不看 valid），
- *        用于仪表降级显示或首屏兜底；
- *   3. Signal_IsValid
- *        true 当且仅当 槽位 valid 置位 且曾经被 Signal_Set 过一次；
- *   4. Signal_Invalidate / Signal_InvalidateAll
- *        超时驱动路径：app/can/can_rx.c 50ms tick 在 OK→TIMED_OUT 边沿逐个
- *        把该消息携带的 signal 设为无效。
+ * @details v0.5 rewrite: 删 per-slot valid / ever_set, signal 总线只承担
+ *          RAW u32 数据传递；validity 由 timeout bitmap (per-MSG) 推导。
+ *
+ *   1. Signal_Set(id, value) / Signal_Get(id)
+ *        直接写/读 RAW u32；无 valid 守卫。
+ *   2. Signal_IsValid(id)
+ *        推导：boot_done && (id 所属 MSG 的 timeout bit == 0)
+ *        — 由 app/can/can_rx.c 在首次 timeout tick 后置 boot_done=1，
+ *          在 KL15 off (prv_standby) 时清 0。
+ *   3. Signal_HasEverReceived(id)
+ *        id 所属 MSG 是否曾收到过有效帧（ever_received map 查询）。
+ *   4. Signal_Reset(id)
+ *        冷启动 helper：写 can_sig_descs_ipk[id-1].init_value 进槽位。
+ *
+ * 删除的旧 API（v0.4 之前）：
+ *   - Signal_GetStored: 改为 Signal_Get 直接返回 value（valid 守卫删除）。
+ *   - Signal_Invalidate / Signal_InvalidateAll: 不再需要——超时由 timeout
+ *     bitmap 表达，prv_drain 收到帧时清 timeout bit。
  *
  * bus 仅承载 CAN 派生数据；任何业务数据（结构体 / 数组 / 标量）请直接使用
  * 模块自有或共享的 extern 全局变量，不再有必须走 signal 的硬性要求。
@@ -58,6 +64,24 @@ typedef enum {
     SIG_CAN_RX_TIMEOUT_MAP_LO,  /* u32 raw, bits  0..31 = rx_msg_idx  0..31 timeout flags */
     SIG_CAN_RX_TIMEOUT_MAP_HI,  /* u32 raw, bits  0..31 = rx_msg_idx 32..63 timeout flags */
     SIG_CAN_RX_TIMEOUT_MAP_HI2, /* u32 raw, bits  0..31 = rx_msg_idx 64..95 timeout flags */
+
+    /* ---------------------------------------------------------------- *
+     *  CAN RX ever-received bitmap (per message index, 96 slots / 3 words)
+     *
+     *  Published by app/can/can_rx.c::prv_drain() whenever a frame is
+     *  dispatched.  bit-N is set on every frame receive and NEVER cleared
+     *  (until standby resets it via Signal_ResetBootDone() + prv_standby).
+     *  Used by Signal_HasEverReceived() to answer "has this MSG ever
+     *  delivered a real frame since boot?", distinct from the timeout
+     *  bitmap which toggles on every OK->TIMED_OUT edge.
+     *
+     *    bit  0..31  -> SIG_CAN_RX_EVER_RECEIVED_LO  >> bit
+     *    bit 32..63  -> SIG_CAN_RX_EVER_RECEIVED_HI  >> (bit - 32)
+     *    bit 64..95  -> SIG_CAN_RX_EVER_RECEIVED_HI2 >> (bit - 64)
+     * ---------------------------------------------------------------- */
+    SIG_CAN_RX_EVER_RECEIVED_LO,  /* u32 raw, bits  0..31 = rx_msg_idx  0..31 ever-received flags */
+    SIG_CAN_RX_EVER_RECEIVED_HI,  /* u32 raw, bits  0..31 = rx_msg_idx 32..63 ever-received flags */
+    SIG_CAN_RX_EVER_RECEIVED_HI2, /* u32 raw, bits  0..31 = rx_msg_idx 64..95 ever-received flags */
 
     /* ---------------------------------------------------------------- *
      *  CAN bus health (error interrupt driven)                         *
@@ -819,35 +843,82 @@ typedef enum {
 c02b2_result_t Signal_Set(signal_id_t id, u32 value);
 
 /**
- * @brief   Read a signal value with valid-fallback semantics
- * @brief   读取一个信号的值（具备 valid-fallback 语义）
+ * @brief   Read the current RAW u32 value of a signal
+ * @brief   读取信号当前的 RAW u32 值
  *
- * @details v0.3: 仅当槽位 valid 时返回最近一次 Signal_Set 写入的
- *          RAW u32 值；超时 / 未收 / 被 Invalidate / 越界 一律回 0。
- *          需要保留超时前最后一次有效帧请改用 Signal_GetStored()。
+ * @details v0.5: 不再使用 per-slot valid 守卫；永远返回最近一次
+ *          Signal_Set 写入的 value（BSS 默认 0）。validity 改由
+ *          Signal_IsValid() 查询 timeout bitmap 判断。
  *
  * @param[in]  id  Signal id (see signal_id_t)
  *
- * @return  u32  Last stored value (only when slot is valid), or 0
- *               if slot is invalid / id out of range.
+ * @return  u32  Last stored RAW value (or 0 if id is out of range)
  */
+u32          Signal_Get(signal_id_t id);
 
 /**
- * @brief   Force-read the most recent stored value (ignores valid flag)
- * @brief   强制读取最近一次写入的存储值（忽略 valid 标志）
+ * @brief   Reset a single signal slot to its DBC init_value
+ * @brief   把单个信号槽位重置为 DBC 默认 init_value
  *
- * @details v0.3: 强制返回最后一次 Signal_Set 的 RAW u32 值，不看 valid 标志。
- *          适用于仪表降级显示、超时前最后一次有效帧、首屏兜底等场景。
- *          越界 id 同样返回 0（与 Signal_Get 一致）。
+ * @details v0.5: 冷启动 helper。直接写 can_sig_descs_ipk[id-1].init_value
+ *          进槽位（例如 TPMS_FLTyrePr 写 0xFF = Invalid 标识）。
+ *          can_rx.c::prv_mcu_init() 在首次 timeout tick 之前对每个
+ *          SIG_CAN_* 调一次，让上层在未收到 CAN 帧时也能读到 DBC 默认值。
+ *          越界 id 被静默忽略。
  *
- * @param[in]   id  Signal id (see signal_id_t)
- *
- * @return  u32  Last value written via Signal_Set (even if slot is currently
- *               invalid), or 0 if id is out of range.
+ * @param[in]  id  Signal id (see signal_id_t)
  */
-u32          Signal_GetStored(signal_id_t id);
+void         Signal_Reset(signal_id_t id);
 
-u32          Signal_Get(signal_id_t id);
+/**
+ * @brief   Check whether a signal slot currently holds a trustworthy value
+ * @brief   检查信号槽位当前是否持有可信任的值
+ *
+ * @details v0.5: 由 timeout bitmap (per-MSG) 推导。
+ *   - bootstrap 窗口（boot_done=0）: 一律 false
+ *   - 启动后：true 当且仅当 id 所属 MSG 的 timeout bit == 0
+ *   - 不在 timeout map 覆盖范围（CAN bus health signals）: value != 0 即 true
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ *
+ * @return  bool
+ * @retval  true   Signal is currently valid (MSG not timed out)
+ * @retval  false  In bootstrap window / MSG timed out / id out of range
+ */
+bool         Signal_IsValid(signal_id_t id);
+
+/**
+ * @brief   Has the signal's MSG ever delivered a real frame since boot?
+ * @brief   该 signal 所属 MSG 自启动以来是否曾收到过有效帧？
+ *
+ * @details v0.5: 查询 SIG_CAN_RX_EVER_RECEIVED_{LO,HI,HI2}。
+ *   与 Signal_IsValid 区别：timeout bit 会因超时来回切换；
+ *   ever_received bit 仅置不重置（直到 prv_standby()）。
+ *   适用：仪表降级显示、超时前最后一帧兜底。
+ *
+ * @param[in]  id  Signal id (see signal_id_t)
+ *
+ * @return  bool
+ * @retval  true   At least one frame received for this MSG since boot
+ * @retval  false  Never received / not in timeout map / id out of range
+ */
+bool         Signal_HasEverReceived(signal_id_t id);
+
+/**
+ * @brief   Mark the bootstrap window as done (timeout monitor has run)
+ * @brief   把 bootstrap 窗口标记为已结束（timeout monitor 至少跑过一次）
+ *
+ * @details v0.5: can_rx.c::prv_check_timeouts() 第一次进入时调一次。
+ *   之后 Signal_IsValid() 才能基于 timeout bitmap 做判断。
+ *   prv_standby() (KL15 off) 调 Signal_ResetBootDone() 把它清回 0。
+ */
+void         Signal_SetBootDone(void);
+
+/**
+ * @brief   Reset the bootstrap flag (KL15 off / standby).
+ * @brief   重置 bootstrap 标志（KL15 off / standby）。
+ */
+void         Signal_ResetBootDone(void);
 
 /**
  * @brief   Get the human-readable name for a signal id
@@ -862,61 +933,6 @@ u32          Signal_Get(signal_id_t id);
  * @return  const char*  Always a valid C string; never NULL
  */
 const char * Signal_GetName(signal_id_t id);
-
-/**
- * @brief   Check whether a signal slot currently holds a trustworthy value
- * @brief   检查信号槽位当前是否持有可信任的值
- *
- * @details v0.3: 返回 true 当且仅当 槽位 valid 标志置位 且 曾经被
- *          Signal_Set 写过至少一次。 超时 / 未写过 / 越界 一律回 false。
- *          与 Signal_Get 行为对齐 (IsValid=true ⇒ Get 返回真值)。
- *
- * @param[in]  id  Signal id (see signal_id_t)
- *
- * @return  bool
- * @retval  true   Slot is currently valid (ever-set and not invalidated)
- * @retval  false  Slot is invalid / never-set / id out of range
- */
-bool         Signal_IsValid(signal_id_t id);
-
-/**
- * @brief   Mark a single signal as invalid (next Get returns 0)
- * @brief   将单个信号标记为无效（下次 Get 返回 0）
- *
- * @param[in]  id  Signal id
- */
-/**
- * @brief   Mark a single signal slot as invalid
- * @brief   将单个信号槽位标记为无效
- *
- * @details 此后 Signal_IsValid(id) 返回 false，
- *          Signal_Get(id) 返回 0，直到下一次 Signal_Set()。
- *          越界 id 被静默忽略。 *
- * @param[in]  id  Signal id (see signal_id_t)
- */
-void         Signal_Invalidate(signal_id_t id);
-
-/**
- * @brief   Mark every signal slot as invalid
- * @brief   将全部信号槽位标记为无效
- *
- * @details 在启动时用于清理任何残留状态，或在重大模式
- *          切换（如 KL15 关闭）时丢弃上一电源周期的所有数据。
- *          遍历整个 SIG_MAX 区间 (v0.3 含 207 个 SIG_CAN_*, 大小为 enum 上限)；在任何上下文调用都安全。 */
-void         Signal_InvalidateAll(void);
-
-/**
- * @brief   Reset a single signal slot to its cold-boot default (zero + invalid)
- * @brief   把单个信号槽位重置为冷启动默认状态 (value=0, valid=false, ever_set=false)
- *
- * @details v0.3 F-step: 与 Signal_Invalidate 的区别在于同时清 value 与 ever_set，
- *          让 Signal_IsValid/Get/GetStored 全部回到冷启动语义。
- *          仅给各模块 prv_mcu_init 使用，运行时业务方不应主动调用。
- *          越界 id 被静默忽略。
- *
- * @param[in]  id  Signal id (see signal_id_t)
- */
-void         Signal_Reset(signal_id_t id);
 
 
 

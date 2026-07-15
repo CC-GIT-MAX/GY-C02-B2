@@ -58,17 +58,19 @@ static c02b2_result_t prv_do_10ms_job(void)
  */
 static c02b2_result_t prv_do_100ms_job(void)
 {
-    /* v0.3 example: 三件套用法。
-     *   - 业务路径           → Signal_Get   (valid 时拿最新值, 否则 0 fallback)
-     *   - 仪表降级 / TX loopback → Signal_GetStored (强制取最近一次值, 保留超时前帧)
-     *   - 门控逻辑           → Signal_IsValid (valid && ever_set)
+    /* v0.5 example: 二件套用法.
+     *   - 业务路径           -> Signal_Get
+     *     (INIT_DBC 时, 超时后 Signal_Get() 返 DBC init_value;
+     *      KEEP_LAST 时, Signal_Get() 保留 "timeout 前最后一帧" raw)
+     *   - 门控逻辑           -> Signal_IsValid (boot_done && !timeout_bit)
+     *     + Signal_HasEverReceived (查 SIG_CAN_RX_EVER_RECEIVED_*)
      * 实际开发中按需要组合使用即可。*/
-    const u32 rpm        = Signal_Get(SIG_CAN_EMS_EngineSpeedRPM);
-    const u32 rpm_stored = Signal_GetStored(SIG_CAN_EMS_EngineSpeedRPM);
-    const bool rpm_ok    = Signal_IsValid(SIG_CAN_EMS_EngineSpeedRPM);
-    LOG_D("rpm=%u stored=%u valid=%u diag=%u",
-          (unsigned)rpm, (unsigned)rpm_stored,
-          (unsigned)rpm_ok, (unsigned)s_ctx.diag_value);
+
+    const u32 rpm     = Signal_Get(SIG_CAN_EMS_EngineSpeedRPM);
+    const bool rpm_ok = Signal_IsValid(SIG_CAN_EMS_EngineSpeedRPM)
+                       && Signal_HasEverReceived(SIG_CAN_EMS_EngineSpeedRPM);
+    LOG_D("rpm=%u valid=%u diag=%u",
+          (unsigned)rpm, (unsigned)rpm_ok, (unsigned)s_ctx.diag_value);
     return C02B2_OK;
 }
 
