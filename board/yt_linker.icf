@@ -378,5 +378,4 @@ do not initialize {
     section .data*,
     section .bss,
     section .bss*,
-    section SR_NOINIT_DATA,
 };
