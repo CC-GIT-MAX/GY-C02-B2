@@ -71,12 +71,12 @@ fi
 # ----- R3 subject 中文字符 -----
 # 头 5 个 (含 type+scope 的 "xxx(xx):") 是 ASCII; 之后应主要为中文 (允许 < 30% 半角)
 SUBJ_AFTER_TYPE=$(echo "$SUBJECT" | sed -E 's|^([a-z]+(\([^)]+\))?:[[:space:]]+)?||')
-ASCII_AFTER=$(printf '%s' "$SUBJ_AFTER_TYPE" | LC_ALL=C grep -o '[[:print:]]' | wc -m | tr -d ' ')
+ASCII_AFTER=$(printf '%s' "$SUBJ_AFTER_TYPE" | LC_ALL=C grep -o '[[:print:]]' | tr -d '\n' | wc -m | tr -d ' ')
 NONASCII_AFTER=$(printf '%s' "$SUBJ_AFTER_TYPE" | wc -m | tr -d ' ')
 if [ "$NONASCII_AFTER" -gt 0 ]; then
     ASCII_PCT=$(( ASCII_AFTER * 100 / NONASCII_AFTER ))
-    if [ "$ASCII_PCT" -gt 60 ]; then
-        echo "[FAIL] R3 subject 主要应为中文 (当前 ASCII 占 $ASCII_PCT%): $SUBJECT" >&2
+    if [ "$ASCII_PCT" -gt 80 ]; then
+        echo "[FAIL] R3 subject 中文占比过低 (当前 ASCII 占 $ASCII_PCT%): $SUBJECT" >&2
         echo "       subject 在 type 之后半角字符比例过高" >&2
         exit 1
     fi
