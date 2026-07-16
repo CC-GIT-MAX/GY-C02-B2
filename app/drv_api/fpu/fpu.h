@@ -48,8 +48,7 @@
  *
  *          在任何模块执行 FP 运算之前，由 DRV_Init() 调用一次。
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Always (FPU is hardware-managed, no failure mode)
+ * @return  c02b2_result_t    C02B2_OK: Always (FPU is hardware-managed, no failure mode)
  */
 c02b2_result_t Fpu_Init(void);
 

@@ -21,9 +21,7 @@
  *          - WDG_DRV_Init
  *          - INT_SYS_ConfigInit
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Initialization succeeded
- * @retval  C02B2_ERR Vendor driver returned an error (propagated)
+ * @return  c02b2_result_t    C02B2_OK: Initialization succeeded  C02B2_ERR: Vendor driver returned an error (propagated)
  */
 c02b2_result_t BSP_Init(void);
 

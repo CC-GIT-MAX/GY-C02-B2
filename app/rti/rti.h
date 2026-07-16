@@ -115,9 +115,8 @@ rti_slot_t RTI_OpenSlot(rti_period_t period);
  * @param[in,out]  slot  Handle obtained from RTI_OpenSlot.
  *                        NULL or invalid handles return false.
  *
- * @return  bool
- * @retval  true   Period elapsed (caller should run its sub-task)
- * @retval  false  Not yet elapsed, or handle invalid
+ * @return  bool    true: Period elapsed (caller should run its sub-task)
+            false: Not yet elapsed, or handle invalid
  */
 bool RTI_SlotElapsed(rti_slot_t *slot);
 
@@ -128,9 +127,7 @@ bool RTI_SlotElapsed(rti_slot_t *slot);
  * @details 在 tick 体内用 `last_ms == 0` 同时承担"上电/复位后的
  *
  *          首次调用"标记，可省去额外的 `init_done` 标志位。
- * @return  bool
- * @retval  true   First call (run the init branch)
- * @retval  false  Subsequent calls
+ * @return  bool    true: First call (run the init branch)  false: Subsequent calls
  */
 bool RTI_IsFirstCall(void);
 

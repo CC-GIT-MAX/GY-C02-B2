@@ -36,9 +36,8 @@
  *
  * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Policy applied
- * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
+ * @return  c02b2_result_t    C02B2_OK: Policy applied
+            C02B2_ERR_PARAM: ipk_msg_index out of range
  */
 c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index);
 
@@ -69,9 +68,8 @@ typedef enum {
  * @param[in]  bus_id   Target signal bus id
  * @param[in]  policy   SIG_TIMEOUT_INIT_DBC 或 SIG_TIMEOUT_KEEP_LAST
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK             Policy set
- * @retval  C02B2_ERR_PARAM      bus_id 越界 (SIG_INVALID / out of range)
+ * @return  c02b2_result_t    C02B2_OK: Policy set
+            C02B2_ERR_PARAM: bus_id 越界 (SIG_INVALID / out of range)
  */
 c02b2_result_t CanDb_SetSignalTimeoutPolicy(signal_id_t bus_id,
                                             sig_timeout_policy_t policy);
@@ -154,9 +152,7 @@ signal_id_t CanDb_DbcSigToBus(u16 db_sig_id);
  *
  * @param[in]  bus_id  SIG_CAN_* id（1..SIG_MAX-1）或 SIG_INVALID
  *
- * @retval  [0, 95]        所属 MSG 在 s_bit_to_can_id[] 中的 bit-N
- * @retval  sentinel_unused 该 bus_id 不映射到任何 IPK RX MSG
- *                          （TX signal / CAN health / 越界）
+ * @return  u8    [0, 95]: 所属 MSG 在 s_bit_to_can_id[] 中的 bit-N  sentinel_unused: 该 bus_id 不映射到任何 IPK RX MSG（TX signal / CAN health / 越界）
  */
 u8 CanDb_SigToTimeoutBit(signal_id_t bus_id);
 

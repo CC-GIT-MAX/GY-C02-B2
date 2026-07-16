@@ -19,8 +19,7 @@
  * @details 从 board/i2c_config.c 取出 I2C 配置，
  *          并通过厂商 SDK 驱动应用之。
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Initialization succeeded
+ * @return  c02b2_result_t    C02B2_OK: Initialization succeeded
  */
 c02b2_result_t I2c_Init(void);
 

@@ -95,9 +95,7 @@ static bool s_if_inited = false;
  *
  * @param[in]  m  Frame to push
  *
- * @return  bool
- * @retval  true   Frame accepted
- * @retval  false  Ring full (frame dropped)
+ * @return  bool    true: Frame accepted  false: Ring full (frame dropped)
  */
 static bool prv_ring_push(const can_msg_t *m)
 {
@@ -130,9 +128,7 @@ static bool prv_ring_push(const can_msg_t *m)
  *
  * @param[out]  m  Populated on success
  *
- * @return  bool
- * @retval  true   Frame popped into `m`
- * @retval  false  Ring empty
+ * @return  bool    true: Frame popped into `m`  false: Ring empty
  */
 static bool prv_ring_pop(can_msg_t *m)
 {
@@ -544,9 +540,7 @@ static u8 prv_pick_tx_mb(u8 inst, can_channel_t ch)
  *          任何一步失败时立即返回 C02B2_ERR，
  *          部分初始化的通道将处于未定义状态。
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Both channels up
- * @retval  C02B2_ERR At least one FLEXCAN_DRV_Init failed
+ * @return  c02b2_result_t    C02B2_ERR: At least one FLEXCAN_DRV_Init failed
  */
 void CanIf_InstallFlexcanCallbacks(void)
 {
@@ -642,8 +636,7 @@ static void prv_do_recovery(can_channel_t ch)
  *          在 ISR 上下文外执行实际的
  *          FLEXCAN_DRV_Deinit + Init + RX-FIFO 重新预启动流程。
  *
- * @return  c02b2_result_t  Always C02B2_OK (per-channel failures
- *                          are logged but not propagated)
+ * @return  c02b2_result_t    are logged but not propagated)
  */
 c02b2_result_t CanIf_RecoverPump(void)
 {
@@ -665,8 +658,7 @@ c02b2_result_t CanIf_RecoverPump(void)
  *          索引，保证调度器 tick 启动时队列已知为空。
  *          可重复调用。
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Always (ring reset is idempotent)
+ * @return  c02b2_result_t    C02B2_OK: Always (ring reset is idempotent)
  *
  * @note    Phase 1 / A8: boot-time order matters. The vendor SDK
  *          patches CanIf_Init() AFTER BSP_Init() (clocks + pins + DMA) and
@@ -731,9 +723,8 @@ c02b2_result_t CanIf_RegisterRx(can_channel_t ch, u32 can_id, u8 ide, can_rx_cb_
  * @param[in]  ch   Logical channel
  * @param[in]  msg  Frame to transmit (id/ide/rtr/dlc/data)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK        Accepted by the driver
- * @retval  C02B2_ERR_BUSY  Mailbox busy (frame dropped)
+ * @return  c02b2_result_t    C02B2_OK: Accepted by the driver
+            C02B2_ERR_BUSY: Mailbox busy (frame dropped)
  */
 c02b2_result_t CanIf_Send(can_channel_t ch, const can_msg_t *msg)
 {
@@ -849,9 +840,8 @@ c02b2_result_t CanIf_WakeUp(can_channel_t ch)
  *
  * @param[in]  ch  Channel
  *
- * @return  bool
- * @retval  true   Bus-off recorded (stub: always false)
- * @retval  false  Not in bus-off
+ * @return  bool    true: Bus-off recorded (stub: always false)
+            false: Not in bus-off
  */
 bool CanIf_IsBusOff(can_channel_t ch)
 {
@@ -880,9 +870,7 @@ u32 CanIf_GetBusOffCount(can_channel_t ch)
  *
  * @param[out] out  Populated on success
  *
- * @return  bool
- * @retval  true   Frame popped
- * @retval  false  Ring empty
+ * @return  bool    true: Frame popped  false: Ring empty
  */
 bool CanIf_PopRx(can_msg_t *out)
 {
@@ -956,9 +944,8 @@ can_mb_layout_t CanIf_GetMbLayout(can_channel_t ch)
  * @param[in]  can_id  11-bit standard id to match
  * @param[in]  ide     0 = STD, 1 = EXT
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Mailbox configured and armed for RX
- * @retval  C02B2_ERR_PARAM  mb_idx outside the allowed RX window or
+ * @return  c02b2_result_t    C02B2_OK: Mailbox configured and armed for RX
+            C02B2_ERR_PARAM: mb_idx outside the allowed RX window or
  *                           the SDK rejected the configuration
  */
 c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
@@ -1035,8 +1022,12 @@ c02b2_result_t CanIf_ConfigRxMb(can_channel_t ch, u8 mb_idx,
 c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
 c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw);
 c02b2_result_t CanTx_Trigger(u32 can_id);
+c02b2_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms);
+c02b2_result_t CanTx_RebuildFromSignals(u32 can_id);
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 u32 CanRx_GetRawFrameCount(void);
+bool CanRx_IsMsgTimedOut(u32 can_id);
+c02b2_result_t CanRx_GetMsgFreshness(u32 can_id, can_rx_freshness_t *out);
 
 /**
  * @brief   Zero-fill an 8-byte TX payload buffer for an IPK can_id
@@ -1050,9 +1041,8 @@ u32 CanRx_GetRawFrameCount(void);
  * @param[in]      dlc   Data length code (0..8); 0 = 8 bytes
  * @param[in]      can_id  IPK standard can_id (must be in the TX table)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Buffer zero-filled
- * @retval  C02B2_ERR_PARAM     data is NULL or can_id not in TX table
+ * @return  c02b2_result_t    C02B2_OK: Buffer zero-filled
+            C02B2_ERR_PARAM: data is NULL or can_id not in TX table
  */
 c02b2_result_t CanIf_TxPreparePayload(u32 can_id, const u8 *data, u8 dlc)
 {
@@ -1071,9 +1061,8 @@ c02b2_result_t CanIf_TxPreparePayload(u32 can_id, const u8 *data, u8 dlc)
  * @param[in]  sig_id   CAN_DB_SIG_* enum of the signal to write
  * @param[in]  raw      Raw bit pattern (will be masked to width)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Signal written into payload
- * @retval  C02B2_ERR_PARAM     can_id or sig_id out of range
+ * @return  c02b2_result_t    C02B2_OK: Signal written into payload
+            C02B2_ERR_PARAM: can_id or sig_id out of range
  */
 c02b2_result_t CanIf_TxEncodeSignal(u32 can_id, u16 sig_id, u32 raw)
 {
@@ -1092,10 +1081,9 @@ c02b2_result_t CanIf_TxEncodeSignal(u32 can_id, u16 sig_id, u32 raw)
  *
  * @param[in]  can_id  IPK can_id (must be in the TX table)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Frame accepted by driver
- * @retval  C02B2_ERR_BUSY      Reserved mailbox busy (frame dropped)
- * @retval  C02B2_ERR_PARAM     can_id not in TX table
+ * @return  c02b2_result_t    C02B2_OK: Frame accepted by driver
+            C02B2_ERR_BUSY: Reserved mailbox busy (frame dropped)
+            C02B2_ERR_PARAM: can_id not in TX table
  */
 c02b2_result_t CanIf_TxTrigger(u32 can_id)
 {
@@ -1130,6 +1118,219 @@ c02b2_result_t CanIf_RxGetLastRawFrame(u32 can_id, can_msg_t *out)
 u32 CanIf_RxGetRawFrameCount(void)
 {
     return CanRx_GetRawFrameCount();
+}
+
+/* === Section 5: TX (DBC-aware) =========================================== */
+
+/**
+ * @brief   Override the cyclic period for a TX message
+ * @brief   覆盖某条 TX 报文的发送周期
+ *
+ * @details 转发至 CanTx_SetCycle()。0 = event-driven only。
+ *
+ * @param[in]  can_id     IPK TX message can_id
+ * @param[in]  cycle_ms   Period in ms (0 = event-driven only)
+ *
+ * @return  c02b2_result_t    C02B2_OK: Period set  C02B2_ERR_PARAM: can_id not an IPK TX message
+ */
+c02b2_result_t CanIf_TxSetCycle(u32 can_id, u16 cycle_ms)
+{
+    return CanTx_SetCycle(can_id, cycle_ms);
+}
+
+/**
+ * @brief   Rebuild a TX payload from every signal via Signal_Get()
+ * @brief   从 signal bus 重新读所有信号, 全量重建一条 TX 报文的 payload
+ *
+ * @details 转发至 CanTx_RebuildFromSignals()。详细副作用
+ *          见 app/can/can_tx.h::CanTx_RebuildFromSignals 的 @warning。
+ *
+ * @param[in]  can_id  IPK TX message can_id
+ *
+ * @return  c02b2_result_t    C02B2_OK: Payload rebuilt  C02B2_ERR_PARAM: can_id not a TX message
+ */
+c02b2_result_t CanIf_TxRebuildFromSignals(u32 can_id)
+{
+    return CanTx_RebuildFromSignals(can_id);
+}
+
+/* === Section 6: RX (DBC-aware) =========================================== */
+
+/**
+ * @brief   Check whether a given IPK CAN id is currently in timeout
+ * @brief   查询某 IPK CAN id 当前是否超时
+ *
+ * @details 转发至 CanRx_IsMsgTimedOut()。
+ *
+ * @param[in]  can_id  IPK standard 11-bit can_id
+ *
+ * @return  bool    true: Currently in timeout  false: Not timed out / never received / not in IPK table
+ */
+bool CanIf_RxIsMsgTimedOut(u32 can_id)
+{
+    return CanRx_IsMsgTimedOut(can_id);
+}
+
+/**
+ * @brief   Resolve the freshness of a given IPK CAN id
+ * @brief   查询某 IPK CAN id 的接收状态枚举
+ *
+ * @details 转发至 CanRx_GetMsgFreshness()。
+ *
+ * @param[in]   can_id  IPK standard 11-bit can_id
+ * @param[out]  out     Populated with the freshness enum value
+ *
+ * @return  c02b2_result_t    C02B2_OK: *out filled  C02B2_ERR_PARAM: out NULL or can_id not in IPK table
+ */
+c02b2_result_t CanIf_RxGetMsgFreshness(u32 can_id, can_rx_freshness_t *out)
+{
+    return CanRx_GetMsgFreshness(can_id, out);
+}
+
+/* === Section 7: DBC metadata query ======================================= */
+
+/**
+ * @brief   Find an IPK message descriptor by can_id
+ * @brief   按 can_id 查找 IPK 报文描述符
+ *
+ * @details 转发至 CanDb_FindIpkById()。
+ *
+ * @param[in]  can_id  Standard 11-bit can_id
+ *
+ * @return  const can_msg_desc_t*  Pointer into can_msg_descs_ipk[], or NULL
+ */
+const can_msg_desc_t *CanIf_FindMsgById(u32 can_id)
+{
+    return CanDb_FindIpkById(can_id);
+}
+
+/**
+ * @brief   Find an IPK signal descriptor by enum id
+ * @brief   按枚举 id 查找 IPK 信号描述符
+ *
+ * @details 转发至 CanDb_FindIpkSig()。
+ *
+ * @param[in]  sig_id  CAN_DB_SIG_* enum value
+ *
+ * @return  const can_sig_desc_t*  Pointer into can_sig_descs_ipk[], or NULL
+ */
+const can_sig_desc_t *CanIf_FindSig(u16 sig_id)
+{
+    return CanDb_FindIpkSig(sig_id);
+}
+
+/**
+ * @brief   Translate a DBC signal enum id to the corresponding signal-bus id
+ * @brief   把 DBC 信号枚举 id 转换为 signal bus 上的对应 id
+ *
+ * @details 转发至 CanDb_DbcSigToBus()。
+ *
+ * @param[in]  db_sig_id  CAN_DB_SIG_* enum value (>0)
+ *
+ * @return  signal_id_t  Matching SIG_CAN_* id, or SIG_INVALID if out of range
+ */
+signal_id_t CanIf_DbcSigToBus(u16 db_sig_id)
+{
+    return CanDb_DbcSigToBus(db_sig_id);
+}
+
+/**
+ * @brief   Override the per-signal timeout policy for one bus id
+ * @brief   设置单个 bus 上信号的超时策略
+ *
+ * @details 转发至 CanDb_SetSignalTimeoutPolicy()。
+ *
+ * @param[in]  bus_id   Target signal bus id
+ * @param[in]  policy   SIG_TIMEOUT_INIT_DBC 或 SIG_TIMEOUT_KEEP_LAST
+ *
+ * @return  c02b2_result_t    C02B2_OK: Policy set  C02B2_ERR_PARAM: bus_id 越界 (SIG_INVALID / out of range)
+ */
+c02b2_result_t CanIf_SetSignalTimeoutPolicy(signal_id_t bus_id, sig_timeout_policy_t policy)
+{
+    return CanDb_SetSignalTimeoutPolicy(bus_id, policy);
+}
+
+/* === Section 8: Bit-level codec primitives ============================== */
+
+/**
+ * @brief   Pack a signal's raw value into a CAN payload buffer
+ * @brief   将信号的原始值按 sig 定义的位位置写入 CAN payload
+ *
+ * @details 转发至 CanDb_PackSignal()。位宽超出 sig->length 时截断。
+ *
+ * @param[out] data  8-byte payload buffer
+ * @param[in]  sig   Signal descriptor (start/length/order)
+ * @param[in]  raw   Raw value (truncated to `sig->length` bits)
+ */
+void CanIf_PackSignal(u8 *data, const can_sig_desc_t *sig, can_raw_t raw)
+{
+    CanDb_PackSignal(data, sig, raw);
+}
+
+/**
+ * @brief   Extract a signal as a RAW (un-decoded) value from a payload
+ * @brief   从 payload 中按信号描述符抽取信号的 RAW(未解码)值
+ *
+ * @details 转发至 CanDb_GetRaw()。raw-on-the-bus 策略:
+ *          不应用 factor/offset, 不走量化。
+ *
+ * @param[in]  data  8-byte payload (Intel or Motorola)
+ * @param[in]  sig   Signal descriptor (start/length/order/signed)
+ *
+ * @return  u32    raw bit pattern
+ */
+u32 CanIf_GetRaw(const u8 *data, const can_sig_desc_t *sig)
+{
+    return CanDb_GetRaw(data, sig);
+}
+
+/**
+ * @brief   Decode a signal descriptor's field from a payload into the quantised physical value
+ * @brief   从 payload 中按信号描述符解析字段, 转换成 int32 信号总线表示
+ *
+ * @details 转发至 CanDb_DecodeSignal()。physical = raw * factor + offset,
+ *          四舍五入到 int32。
+ *
+ * @param[in]  data  8-byte payload (Intel or Motorola)
+ * @param[in]  sig   Signal descriptor (start/length/order/signed/factor/offset)
+ *
+ * @return  s32  Quantised physical value (raw * factor + offset)
+ */
+s32 CanIf_DecodeSignal(const u8 *data, const can_sig_desc_t *sig)
+{
+    return CanDb_DecodeSignal(data, sig);
+}
+
+/**
+ * @brief   Decode a physical s32 into a u32 raw for the payload
+ * @brief   把 int32 信号总线值转换为 CAN payload 应承载的原始值
+ *
+ * @details 转发至 CanDb_EncodeSignalValue()。raw = round((value - offset) / factor),
+ *          饱和到 sig->length 位。
+ *
+ * @param[in]  value  Physical value from Signal_Get
+ * @param[in]  sig    Signal descriptor (factor/offset/length/signed)
+ *
+ * @return  can_raw_t  Raw value (will fit in `sig->length` bits)
+ */
+can_raw_t CanIf_EncodeSignalValue(s32 value, const can_sig_desc_t *sig)
+{
+    return CanDb_EncodeSignalValue(value, sig);
+}
+
+/**
+ * @brief   Convenience: encode a physical s32 AND pack it into the payload
+ * @brief   便捷函数: 一步完成 s32 物理量 + payload 写入
+ *
+ * @details 转发至 CanDb_EncodeAndPack()。
+ *
+ * @param[out] data   8-byte payload buffer
+ * @param[in]  sig    Signal descriptor
+ * @param[in]  value  Physical value (bus-level, s32)
+ */
+void CanIf_EncodeAndPack(u8 *data, const can_sig_desc_t *sig, s32 value)
+{
+    CanDb_EncodeAndPack(data, sig, value);
 }
 
 /* ---------------------------------------------------------------- *

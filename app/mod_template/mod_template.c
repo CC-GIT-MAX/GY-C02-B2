@@ -50,7 +50,7 @@ static c02b2_result_t prv_do_10ms_job(void)
 /**
  * @brief   100ms 子任务：示例三种 Signal 总线 API 用法。
  *
- * @retval  C02B2_OK  恒返
+ * @return  c02b2_result_t    C02B2_OK: 恒返
  */
 static c02b2_result_t prv_do_100ms_job(void)
 {
@@ -160,9 +160,7 @@ const mod_desc_t mod_template = {
  *
  * @param[in]  v  Value to store
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Stored
- * @retval  C02B2_ERR_NOT_READY Module not yet initialized
+ * @return  c02b2_result_t    C02B2_ERR_NOT_READY: Module not yet initialized
  */
 c02b2_result_t Template_SetDiagValue(uint32_t v)
 {

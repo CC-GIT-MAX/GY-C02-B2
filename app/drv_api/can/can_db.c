@@ -964,8 +964,7 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id)
  *
  * @param[in]  ipk_msg_index  IPK 报文索引 (0..CAN_DB_IPK_MSG_COUNT-1)
  *
- * @retval  C02B2_OK        policy 已应用
- * @retval  C02B2_ERR_PARAM ipk_msg_index 越界
+ * @return  c02b2_result_t    C02B2_OK: policy 已应用  C02B2_ERR_PARAM: ipk_msg_index 越界
  */
 c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
 {

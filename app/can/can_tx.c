@@ -355,9 +355,8 @@ const mod_desc_t mod_can_tx = {
  * @param[in]  data    Source buffer (at least `dlc` bytes)
  * @param[in]  dlc     Data length (0..8)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Payload queued
- * @retval  C02B2_ERR_PARAM  can_id not an IPK TX message, or data NULL
+ * @return  c02b2_result_t    C02B2_OK: Payload queued
+            C02B2_ERR_PARAM: can_id not an IPK TX message, or data NULL
  */
 c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc)
 {
@@ -382,9 +381,7 @@ c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc)
  * @param[in]  can_id     IPK TX message can_id
  * @param[in]  cycle_ms   Period in ms (0 = event-driven only)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK        Period set
- * @retval  C02B2_ERR_PARAM can_id not an IPK TX message
+ * @return  c02b2_result_t    C02B2_ERR_PARAM: can_id not an IPK TX message
  */
 c02b2_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms)
 {
@@ -405,9 +402,8 @@ c02b2_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms)
  *          周期直接发。用于响应 diag 请求、按键事件等的 one-shot 帧。 *
  * @param[in]  can_id  11-bit CAN identifier (must match a TX db entry)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Marked as pending
- * @retval  C02B2_ERR_PARAM  No matching TX entry
+ * @return  c02b2_result_t    C02B2_OK: Marked as pending
+            C02B2_ERR_PARAM: No matching TX entry
  */
 c02b2_result_t CanTx_Trigger(u32 can_id)
 {
@@ -454,9 +450,8 @@ static const can_sig_desc_t *prv_find_sig_in_msg(const can_msg_desc_t *msg, u16 
  * @param[in]  sig_id  CAN_DB_SIG_* signal id belonging to that message
  * @param[in]  raw     RAW value (bus-level u32; no factor/offset applied)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Signal packed into the slot's payload
- * @retval  C02B2_ERR_PARAM  can_id not a TX message, sig_id not in it
+ * @return  c02b2_result_t    C02B2_OK: Signal packed into the slot's payload
+            C02B2_ERR_PARAM: can_id not a TX message, sig_id not in it
  */
 c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw)
 {
@@ -476,18 +471,30 @@ c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw)
  *          reading current signal-bus values via Signal_Get().
  * @brief   从 signal bus 重新读所有信号, 全量重建一条 TX 报文的 payload
  *
- * @details 先把 payload 清零，再对报文中每个信号用 Signal_Get 读
- *          SIG_CAN_<Name> 并通过 CanDb_PackSignal() 打包。适用于整 payload
- *          由 bus 状态派生的循环帧。
+ * @details 实现序:
+ *          1. 把 slot 的 8 字节 payload 全部清零;
+ *          2. 对报文里每个信号 逐个调:
+ *             (a) CanDb_DbcSigToBus(sig_id) 拿到对应的 signal bus id;
+ *             (b) Signal_Get(bus_id) 读出当前 raw 位模式;
+ *             (c) CanDb_PackSignal() 把 raw 写到 payload 的位位置。
+ *          适用于 payload 完全由 bus 状态派生的循环帧。
  *
- *          副作用：slot 的 payload 被同步更新，下一次 10 ms tick 会把刚刚
-          重建好的内容发出去。 *          here.
+ * @warning  副作用:
+ *          - slot 的 payload 被全量重置: 调用前其他路径
+ *            (CanTx_PreparePayload / CanTx_EncodeSignal) 已经写入的内容会被丢弃,
+ *            只保留这次重建的结果。
+ *          - 对每个信号读 Signal_Get(): 如果对应 SIG_CAN_<Name> 从未被写过
+ *            (Signal_HasEverReceived == false), 将拿到总线的默认值(通常为 0),
+ *            会被直接打包进 payload。
+ *          - 同步副作用: 下一次 10 ms tick 会把刚重建好的 payload 立刻发出,
+ *            不等任何显式的 CanTx_Trigger()。
+ *          - 复杂度 O(msg->sig_count), IPK DBC 当前最大 30 信号; 不要在 5 ms / 10 ms
+ *            热路径里调用, 建议放在低优先级 tick 或 mcu_init
+ *            完成之后的一次性初始化里。
  *
  * @param[in]  can_id  IPK TX message can_id
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Payload fully rebuilt
- * @retval  C02B2_ERR_PARAM  can_id not a TX message
+ * @return  c02b2_result_t    C02B2_OK: Payload fully rebuilt  C02B2_ERR_PARAM: can_id not a TX message
  */
 c02b2_result_t CanTx_RebuildFromSignals(u32 can_id)
 {

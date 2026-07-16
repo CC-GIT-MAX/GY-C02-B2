@@ -564,10 +564,9 @@ __root static void prv_standby(void)
  * @param[in]   can_id  Standard 11-bit IPK can_id
  * @param[out]  out     Populated with the cached frame on success
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Frame returned (may be stale)
- * @retval  C02B2_ERR_PARAM     out is NULL or can_id not in IPK table
- * @retval  C02B2_ERR_NOT_FOUND No frame received yet for this can_id
+ * @return  c02b2_result_t    C02B2_OK: Frame returned (may be stale)
+            C02B2_ERR_PARAM: out is NULL or can_id not in IPK table
+ * @return  c02b2_result_t    C02B2_ERR_NOT_FOUND: No frame received yet for this can_id
  */
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 {
@@ -628,9 +627,8 @@ u32 CanRx_GetRawFrameCount(void)
  *
  * @param[in]  can_id  IPK standard 11-bit can_id
  *
- * @return  bool
- * @retval  true   bit-N is set in the timeout bitmap (currently in timeout)
- * @retval  false  not in timeout, or can_id not in IPK table
+ * @return  bool    true: bit-N is set in the timeout bitmap (currently in timeout)
+            false: not in timeout, or can_id not in IPK table
  */
 bool CanRx_IsMsgTimedOut(u32 can_id)
 {
@@ -654,9 +652,8 @@ bool CanRx_IsMsgTimedOut(u32 can_id)
  * @param[in]   can_id  IPK standard 11-bit can_id
  * @param[out]  out     filled with the freshness enum
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            success
- * @retval  C02B2_ERR_PARAM     out NULL or can_id not in IPK table
+ * @return  c02b2_result_t    C02B2_OK: success
+            C02B2_ERR_PARAM: out NULL or can_id not in IPK table
  */
 c02b2_result_t CanRx_GetMsgFreshness(u32 can_id, can_rx_freshness_t *out)
 {

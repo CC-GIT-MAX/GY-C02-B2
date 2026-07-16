@@ -11,8 +11,8 @@
  *   3. 原始帧缓存      -> 在选定的 IPK id 上调用 CanIf_RxGetLastRawFrame
  *   4. 整帧 TX         -> CanIf_TxPreparePayload + CanIf_TxTrigger
  *   5. 单信号 TX      -> CanIf_TxEncodeSignal + CanIf_TxTrigger
- *   6. raw 与物理量互转 -> CanDb_PackSignal / CanDb_GetRaw /
- *                          CanDb_DecodeSignal / CanDb_EncodeSignalValue
+ *   6. raw 与物理量互转 -> CanIf_PackSignal / CanIf_GetRaw /
+ *                          CanIf_DecodeSignal / CanIf_EncodeSignalValue
  *                          作用于 EMS_EngineSpeedRPM (0x85) 和
  *                          ESC_VehicleSpeed (0x125)；每次 tick
  *                          同时打印 Signal_Get + 物理量
@@ -23,9 +23,10 @@
 #include "types.h"
 #include "rti.h"
 #include "signal.h"
-#include "can_db.h"            /* can_msg_descs_ipk[] / CanDb_*              */
-#include "can_db_ipk_gen.h"    /* CAN_DB_IPK_*_COUNT, signal enum            */
-#include "drv_api/can/can_if.h"/* can_msg_t                                  */
+#include "drv_api/can/can_if.h"/* 唯一 CAN 入口; 通过包含链透出:
+                                      *   can_msg_t / can_sig_desc_t / can_raw_t
+                                      *   can_rx_freshness_t / sig_timeout_policy_t
+                                      *   CAN_DB_IPK_* / CAN_DB_SIG_* / s_bit_to_can_id */
 
 #define MOD_NAME  "CDEM"
 #include "log.h"
@@ -90,7 +91,7 @@ static struct {
 static void prv_emit_sig(u16 db_id, signal_id_t bus_id, const char *name)
 {
     /* 信号总线上的 RAW u32（已经是字段的原始比特位型）。
-     * 需要物理值的消费模块在其之上调用 CanDb_DecodeSignal()。*/
+     * 需要物理值的消费模块在其之上调用 CanIf_DecodeSignal()。*/
     const u32 raw = Signal_Get(bus_id);
     (void)db_id;
     #if CAN_DEMO_LOG
@@ -144,10 +145,10 @@ static void prv_demo_timeouts(void)
         const u32 shift = (bit < 32u) ? bit : (bit < 64u) ? (bit - 32u) : (bit - 64u);
         if (((word >> shift) & 1) == 0) { continue; }
         /* s_bit_to_can_id 由 tools/dbc_parse.py 生成到 can_db_ipk_gen.c。
-         * 需要名字时用运行时辅助 CanDb_FindIpkById。*/
+         * 需要名字时用运行时辅助 CanIf_FindMsgById。*/
         const u32 can_id = prv_bit_to_can_id(bit);
         const char *name = (can_id != 0u)
-            ? CanDb_FindIpkById(can_id)->name : "unused";
+            ? CanIf_FindMsgById(can_id)->name : "unused";
         #if CAN_DEMO_LOG
         LOG_I("  bit=%u -> id=0x%X (%s) TIMEOUT",
               (unsigned)bit, (unsigned)can_id, name);
@@ -175,7 +176,7 @@ static void prv_demo_raw_frame(void)
               (unsigned)DEMO_RX_ID_RAW, (int)r);
         return;
     }
-    const char *name = CanDb_FindIpkById(frame.id)->name;
+    const char *name = CanIf_FindMsgById(frame.id)->name;
     #if CAN_DEMO_LOG
     LOG_I("[3/6] raw cache: id=0x%X (%s) dlc=%u bytes = %02X %02X %02X %02X %02X %02X %02X %02X",
           (unsigned)frame.id, name, (unsigned)frame.dlc,
@@ -254,7 +255,7 @@ static void prv_demo_tx_signal(u32 sweep)
  *  [A] raw   -> pack    -> GetRaw                  (必须等于 raw)
  *  [B] raw   -> decode  -> phys (s32 整数)         (raw * factor + offset，四舍五入)
  *  [C] phys  -> encode  -> pack -> decode -> phys  (必须等于 phys)
- *  [D] RX 端（实时）: Signal_Get + CanDb_DecodeSignal 作用于
+ *  [D] RX 端（实时）: Signal_Get + CanIf_DecodeSignal 作用于
  *      CANalyzer 最近发出的一帧。
  *
  *  对非 2 的幂因子（如 0.05625），[B] 的 phys 是量化后的 s32 ——
@@ -274,26 +275,26 @@ static u32 prv_demo_raw_step(u32 sweep, u32 mask)
  * 设计上每行都便于在 CANalyzer 录总线时手工解析。*/
 static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
 {
-    const can_sig_desc_t *sig = CanDb_FindIpkSig(sig_id);
+    const can_sig_desc_t *sig = CanIf_FindSig(sig_id);
     if (sig == NULL) {
-        LOG_W("[6/6] %s: CanDb_FindIpkSig sig=%u -> NULL",
+        LOG_W("[6/6] %s: CanIf_FindSig sig=%u -> NULL",
               name, (unsigned)sig_id);
         return;
     }
 
     /* [A] raw -> pack -> GetRaw */
     u8 payload[8] = {0};
-    CanDb_PackSignal(payload, sig, raw_in);
-    const u32 raw_a = CanDb_GetRaw(payload, sig);
+    CanIf_PackSignal(payload, sig, raw_in);
+    const u32 raw_a = CanIf_GetRaw(payload, sig);
 
     /* [B] raw -> decode -> phys (s32 整数) */
-    const s32 phys_b = CanDb_DecodeSignal(payload, sig);
+    const s32 phys_b = CanIf_DecodeSignal(payload, sig);
 
     /* [C] phys -> encode -> pack -> decode -> phys */
-    const can_raw_t raw_c = CanDb_EncodeSignalValue(phys_b, sig);
+    const can_raw_t raw_c = CanIf_EncodeSignalValue(phys_b, sig);
     u8 payload_c[8] = {0};
-    CanDb_PackSignal(payload_c, sig, raw_c);
-    const s32 phys_c = CanDb_DecodeSignal(payload_c, sig);
+    CanIf_PackSignal(payload_c, sig, raw_c);
+    const s32 phys_c = CanIf_DecodeSignal(payload_c, sig);
 
     const bool ok_a = (raw_a == raw_in);
     const bool ok_c = (phys_c == phys_b);
@@ -324,11 +325,11 @@ static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
     const u32  raw_live     = Signal_Get(bus_id);
     const u32  raw_ever     = Signal_HasEverReceived(bus_id) ? 1u : 0u;
     const bool valid        = Signal_IsValid(bus_id);
-    const can_sig_desc_t *sig = CanDb_FindIpkSig(sig_id);
+    const can_sig_desc_t *sig = CanIf_FindSig(sig_id);
     s32 phys_live = 0;
     if (sig != NULL) {
         /* 复用最近一帧缓存驱动一次合成解码，模拟消费模块的
-         * 行为。不能直接对 Signal_Get() 调 CanDb_DecodeSignal() ——
+         * 行为。不能直接对 Signal_Get() 调 CanIf_DecodeSignal() ——
          * 总线上是 raw，解码需要原始 8 字节负载。这里改为
          * 直接 inline 计算 phys = raw * factor + offset。*/
         phys_live = (s32)(((float)raw_live * sig->factor) + sig->offset + 0.5f);

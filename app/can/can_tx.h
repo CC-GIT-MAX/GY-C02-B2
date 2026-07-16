@@ -38,9 +38,8 @@ extern const mod_desc_t mod_can_tx;
  * @param[in]  data    Source buffer (at least `dlc` bytes)
  * @param[in]  dlc     Data length (0..8)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Payload queued
- * @retval  C02B2_ERR_PARAM  can_id not an IPK TX message, or data NULL
+ * @return  c02b2_result_t    C02B2_OK: Payload queued
+            C02B2_ERR_PARAM: can_id not an IPK TX message, or data NULL
  */
 c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
 
@@ -55,9 +54,8 @@ c02b2_result_t CanTx_PreparePayload(u32 can_id, const u8 *data, u8 dlc);
  * @param[in]  sig_id  CAN_DB_SIG_* signal id belonging to that message
  * @param[in]  value   Physical value (will be quantised per factor/offset)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Signal packed into the slot's payload
- * @retval  C02B2_ERR_PARAM  can_id not a TX message, sig_id not in it,
+ * @return  c02b2_result_t    C02B2_OK: Signal packed into the slot's payload
+            C02B2_ERR_PARAM: can_id not a TX message, sig_id not in it,
  *                         or value out of representable range
  */
 c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw);
@@ -71,9 +69,8 @@ c02b2_result_t CanTx_EncodeSignal(u32 can_id, u16 sig_id, u32 raw);
  *          mod_can_tx::prv_tick 中的 rebuild 策略触发。 *
  * @param[in]  can_id  IPK TX message can_id
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Payload fully rebuilt
- * @retval  C02B2_ERR_PARAM  can_id not a TX message
+ * @return  c02b2_result_t    C02B2_OK: Payload fully rebuilt
+            C02B2_ERR_PARAM: can_id not a TX message
  */
 c02b2_result_t CanTx_RebuildFromSignals(u32 can_id);
 
@@ -84,9 +81,7 @@ c02b2_result_t CanTx_RebuildFromSignals(u32 can_id);
  * @param[in]  can_id     IPK TX message can_id
  * @param[in]  cycle_ms   Period in ms (0 = event-driven only)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK        Period set
- * @retval  C02B2_ERR_PARAM can_id not an IPK TX message
+ * @return  c02b2_result_t    C02B2_ERR_PARAM: can_id not an IPK TX message
  */
 c02b2_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms);
 
@@ -96,9 +91,8 @@ c02b2_result_t CanTx_SetCycle(u32 can_id, u16 cycle_ms);
  *
  * @param[in]  can_id  11-bit CAN identifier (must match a TX db entry)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK         Marked as pending
- * @retval  C02B2_ERR_PARAM  No matching TX entry
+ * @return  c02b2_result_t    C02B2_OK: Marked as pending
+            C02B2_ERR_PARAM: No matching TX entry
  */
 c02b2_result_t CanTx_Trigger(u32 can_id);
 

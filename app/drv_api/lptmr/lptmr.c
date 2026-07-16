@@ -16,8 +16,7 @@
  * @brief   Initialize the LPTMR peripheral
  * @brief   初始化 LPTMR 外设
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Initialization succeeded
+ * @return  c02b2_result_t    C02B2_OK: Initialization succeeded
  */
 c02b2_result_t Lptmr_Init(void)
 {
@@ -29,8 +28,7 @@ c02b2_result_t Lptmr_Init(void)
  * @brief   Deinitialize the LPTMR peripheral
  * @brief   反初始化 LPTMR 外设
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Deinitialization succeeded
+ * @return  c02b2_result_t    C02B2_OK: Deinitialization succeeded
  */
 c02b2_result_t Lptmr_Deinit(void)
 {

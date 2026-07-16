@@ -224,21 +224,19 @@ s32 CanDb_DecodeSignal(const u8 *data, const can_sig_desc_t *sig);
  * @brief   Extract a signal as a RAW (un-decoded) value from a payload.
  * @brief   从 payload 中按信号描述符抽取信号的 RAW(未解码)值
  *
- * @details 遵循 `sig->is_signed`。无符号信号返回
- *          零扩展后的原始位（CanDb_BitExtract）；
- *          有符号信号（DBC `-`）返回符号扩展后的原始位
- *          （CanDb_BitExtractSigned）。位模式保持不变，
- *          以便下游 Signal_Set(u32) 无损往返，
- *          并使 CanDb_DecodeSignal 能重新派生物理量。
- *
- *          这是 raw-on-the-bus 策略的调用点：
- *          信号总线值为原始位模式，物理量由
- *          各模块通过 CanDb_DecodeSignal(raw, sig) 自行计算。
+ * @details 遵循 `sig->is_signed`。无符号信号走 CanDb_BitExtract,
+ *          返回零扩展后的原始位模式;
+ *          有符号信号(DBC `-`)走 CanDb_BitExtractSigned, 位模式保持不变,
+ *          再 cast 回 u32。这是 raw-on-the-bus 策略的唯一抽取入口:
+ *          信号总线值是原始位模式, 不应用 factor/offset, 不走
+ *          量化(十有也不调用 CanDb_DecodeSignal)。下游 Signal_Set(u32)
+ *          可以无损往返, 需要物理量时调用方再走
+ *          CanDb_DecodeSignal(raw, sig)。
  *
  * @param[in]  data  8-byte payload (Intel or Motorola)
  * @param[in]  sig   Signal descriptor (start/length/order/signed)
  *
- * @return  u32  Raw bit pattern cast back to unsigned
+ * @return  u32    raw bit pattern
  */
 u32 CanDb_GetRaw(const u8 *data, const can_sig_desc_t *sig);
 

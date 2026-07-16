@@ -57,13 +57,12 @@ typedef void (*rti_defer_cb_t)(void *ctx);
  * @param[in]  cb        Callback to invoke. Must be non-NULL.
  * @param[in]  ctx       Caller-owned context. Stored verbatim.
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK             Slot allocated, callback armed
- * @retval  C02B2_ERR_PARAM      cb is NULL or delay_ms > 0 but
+ * @return  c02b2_result_t    C02B2_OK: Slot allocated, callback armed
+            C02B2_ERR_PARAM: cb is NULL or delay_ms > 0 but
  *                               (cb, ctx) is the sentinel pair
- * @retval  C02B2_ERR_OVERFLOW       All 8 slots are busy and no slot
- *                               matches (cb, ctx); nothing was armed
- * @retval  C02B2_ERR_NOT_READY  RTI is not initialised
+ * @return  c02b2_result_t    C02B2_ERR_OVERFLOW: All 8 slots are busy and no slot
+            matches (cb, ctx); nothing was armed
+ * @return  c02b2_result_t    C02B2_ERR_NOT_READY: RTI is not initialised
  */
 c02b2_result_t RTI_Defer(uint32_t delay_ms, rti_defer_cb_t cb, void *ctx);
 
@@ -77,10 +76,9 @@ c02b2_result_t RTI_Defer(uint32_t delay_ms, rti_defer_cb_t cb, void *ctx);
  * @param[in]  cb   Callback that was passed to RTI_Defer
  * @param[in]  ctx  Context that was passed to RTI_Defer
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK             A slot was found and freed
- * @retval  C02B2_ERR_NOT_FOUND  No matching slot is pending
- * @retval  C02B2_ERR_PARAM      cb is NULL
+ * @return  c02b2_result_t    C02B2_OK: A slot was found and freed
+            C02B2_ERR_NOT_FOUND: No matching slot is pending
+            C02B2_ERR_PARAM: cb is NULL
  */
 c02b2_result_t RTI_DeferCancel(rti_defer_cb_t cb, void *ctx);
 

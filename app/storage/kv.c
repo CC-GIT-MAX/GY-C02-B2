@@ -89,9 +89,8 @@ c02b2_result_t KV_Commit(void)
  * @brief   Check whether any pending writes are unflushed
  * @brief   检查是否存在未落盘的写操作
  *
- * @return  bool
- * @retval  true   At least one write is pending (skeleton: always false)
- * @retval  false  Cache is clean
+ * @return  bool    true: At least one write is pending (skeleton: always false)
+            false: Cache is clean
  */
 bool KV_IsDirty(void)
 {

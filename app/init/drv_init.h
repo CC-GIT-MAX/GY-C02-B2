@@ -13,8 +13,7 @@
  *
  * @details 必须在 BSP_Init() 之后调用。实际驱动句柄与配置
  *          从 board/<driver>_config.c 中读取。 *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  All drivers initialized
+ * @return  c02b2_result_t    C02B2_OK: All drivers initialized
  */
 c02b2_result_t DRV_Init(void);
 

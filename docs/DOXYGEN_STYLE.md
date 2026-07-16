@@ -15,13 +15,13 @@
 
 ## 2. 标准模板（**严格遵守**）
 
-> **🔴 强约束：.h 文件中**禁止**使用 @details（公开 API 的契约应通过 @param / @return / @retval 表达，不在头文件中暴露实现细节）。
+> **🔴 强约束：.h 文件中**禁止**使用 @details（公开 API 的契约应通过 @param / @return 表达，不在头文件中暴露实现细节）。
 > **🟡 软约束：.c 文件中**按需**使用 @details——仅在函数实现较复杂（多步骤 / 有副作用 / 有状态依赖 / 实现 > 5 行）时推荐补充；简单函数（单一 SDK 调用、无分支、< 5 行）省略。
 
 
 > **必须有中文 `@brief`（一句）。**
 > **多个参数按函数形参顺序逐行写 `@param[in]` / `@param[out]` / `@param[in,out]`；无参不写。**
-> **非 void 返回必须写 `@return`；多返回值用 `@retval` 列表。**
+> **非 void 返回必须写 `@return`；多返回值用半角冒号 + 空格分隔、写在 `@return` 同一行（超 85 字符时换行续写，行前缀 4 空格对齐）。**
 > **`@details`（中文）：`.c` 文件推荐补充实现细节；`.h` 文件一般不写。**
 
 ### 2.1 `.c` 文件模板
@@ -36,10 +36,8 @@
  * @param[in]   can_id  Standard 11-bit IPK can_id
  * @param[out]  out     Populated with the cached frame on success
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Frame returned (may be stale)
- * @retval  C02B2_ERR_PARAM     out is NULL or can_id not in IPK table
- * @retval  C02B2_ERR_NOT_FOUND No frame received yet for this can_id
+ * @return  c02b2_result_t    C02B2_OK: Frame returned (may be stale)  C02B2_ERR_PARAM: out is NULL or can_id not in IPK table
+ *                            C02B2_ERR_NOT_FOUND: No frame received yet for this can_id
  */
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 ```
@@ -53,10 +51,8 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
  * @param[in]   can_id  IPK RX can_id (11-bit standard)
  * @param[out]  out     Filled on success
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Cache populated
- * @retval  C02B2_ERR_PARAM     can_id not an IPK RX message, or out NULL
- * @retval  C02B2_ERR_NOT_FOUND No frame has been received for this id
+ * @return  c02b2_result_t    C02B2_OK: Cache populated  C02B2_ERR_PARAM: can_id not an IPK RX message, or out NULL
+ *                            C02B2_ERR_NOT_FOUND: No frame has been received for this id
  */
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 ```
@@ -69,7 +65,7 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 - `@param` 标签**只写适用的方向**：`[in]` / `[out]` / `[in,out]`；无参时**整个 `@param` 段都不写**
 - `@param` 顺序与函数形参顺序一致
 - `@return` 与函数返回类型对齐；void 函数**必须省略** `@return`
-- 多返回值时**两者并用**：`@return` 描述总类型 + `@retval` 列具体值
+- 多返回值写在 `@return` 同一行,值与说明用 **半角冒号 + 空格** 分隔,多个值之间用 2 个空格分隔;超 85 字符时换行,续行以 4 空格对齐到 `@return` 之后;**禁止再使用 `@retval` 标签**
 - `@details`（中文）：`.c` 函数**按需**补充（见 §2 顶部强约束）；`.h` 函数**禁止**（不写）
 - `@note` / `@warning` / `@see` 可选
 - 注释主体仍以**中文为主**（说明、@details、@note 等尽量用中文）
@@ -77,6 +73,7 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 ### 2.4 行宽
 
 - 每行 < 85 字符（保持 diff 可读）
+- `@return` 单行多返回值规则: 全部内容写在 `@return` 同一起始行;超过 85 字符时**允许**换行,续行以 4 空格对齐到 `@return` 之后（仅 `@return` 行有此豁免）
 - 中文 `@brief` / `@details` 可分多行（每行续行以空格开头，缩进 4 空格对齐）
 
 ## 3. 实例
@@ -96,10 +93,8 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
  * @param[in]   can_id  Standard 11-bit IPK can_id
  * @param[out]  out     Populated with the cached frame on success
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Frame returned (may be stale)
- * @retval  C02B2_ERR_PARAM     out is NULL or can_id not in IPK table
- * @retval  C02B2_ERR_NOT_FOUND No frame received yet for this can_id
+ * @return  c02b2_result_t    C02B2_OK: Frame returned (may be stale)  C02B2_ERR_PARAM: out is NULL or can_id not in IPK table
+ *                            C02B2_ERR_NOT_FOUND: No frame received yet for this can_id
  */
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 ```
@@ -113,10 +108,8 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
  * @param[in]   can_id  IPK RX can_id (11-bit standard)
  * @param[out]  out     Filled on success
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Cache populated
- * @retval  C02B2_ERR_PARAM     can_id not an IPK RX message, or out NULL
- * @retval  C02B2_ERR_NOT_FOUND No frame has been received for this id
+ * @return  c02b2_result_t    C02B2_OK: Cache populated  C02B2_ERR_PARAM: can_id not an IPK RX message, or out NULL
+ *                            C02B2_ERR_NOT_FOUND: No frame has been received for this id
  */
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 ```
@@ -190,5 +183,5 @@ CI 失败示例：
 - [ ] 每个函数都**有中文 `@brief`**
 - [ ] `.c` 文件函数**按需**含中文 `@details`（简单函数可省），`.h` 函数**禁止** `@details`
 - [ ] `@param` 只在有参数时写，并标注 `[in] / [out] / [in,out]`
-- [ ] 非 void 函数都有 `@return`（多返回值加 `@retval`）
+- [ ] 非 void 函数都有 `@return`,多返回值用半角冒号 + 空格分隔写在同一行（超 85 字符换行,4 空格对齐,**禁止使用 `@retval`**）
 - [ ] `bash tools/check_doxygen.sh` 输出 `PASSED`

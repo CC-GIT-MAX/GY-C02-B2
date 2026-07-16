@@ -816,8 +816,7 @@ typedef enum {
  * @param[in]  id     信号 id（SIG_INVALID/SIG_MAX 之外）
  * @param[in]  value  要写入的 RAW u32 值
  *
- * @retval  C02B2_OK        写入成功
- * @retval  C02B2_ERR_PARAM id 越界
+ * @return  c02b2_result_t    C02B2_OK: 写入成功  C02B2_ERR_PARAM: id 越界
  */
 c02b2_result_t Signal_Set(signal_id_t id, u32 value);
 
@@ -842,8 +841,7 @@ void         Signal_Reset(signal_id_t id);
  *
  * @param[in]  id  信号 id
  *
- * @retval  true   当前 valid（启动期后且 MSG 未超时）
- * @retval  false  启动期/MSG 超时/id 越界
+ * @return  bool    true: 当前 valid（启动期后且 MSG 未超时）  false: 启动期/MSG 超时/id 越界
  */
 bool         Signal_IsValid(signal_id_t id);
 
@@ -852,7 +850,7 @@ bool         Signal_IsValid(signal_id_t id);
  *
  * @param[in]  id  信号 id
  *
- * @retval  true   曾收到；false=从未收到/越界
+ * @return  bool    true: 曾收到；false=从未收到/越界
  */
 bool         Signal_HasEverReceived(signal_id_t id);
 
@@ -873,8 +871,7 @@ void         Signal_ResetBootDone(void);
  *
  * @param[in]  id  信号 id
  *
- * @return  永不返 NULL；越界 "<invalid>"，未映射 "<unmapped>",
- *          其余 CAN 派生 id 返 "<can-signal>" 占位
+ * @return  永不返    其余 CAN 派生 id 返 "<can-signal>" 占位
  */
 const char * Signal_GetName(signal_id_t id);
 

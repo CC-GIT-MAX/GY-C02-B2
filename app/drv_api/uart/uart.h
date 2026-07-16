@@ -19,8 +19,7 @@
  * @details 从 board/uart_config.c 取出 UART 配置，
  *          并通过厂商 SDK 驱动应用之。
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Initialization succeeded
+ * @return  c02b2_result_t    C02B2_OK: Initialization succeeded
  */
 c02b2_result_t Uart_Init(void);
 

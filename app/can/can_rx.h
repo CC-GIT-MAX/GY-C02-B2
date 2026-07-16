@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file    can_rx.h
  * @brief   CAN receive dispatcher module
  */
@@ -26,10 +26,7 @@ extern const mod_desc_t mod_can_rx;
  * @param[in]   can_id  IPK RX can_id (11-bit standard)
  * @param[out]  out     Filled on success
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Cache populated
- * @retval  C02B2_ERR_PARAM     can_id not an IPK RX message, or out NULL
- * @retval  C02B2_ERR_NOT_FOUND No frame has been received for this id
+ * @return  c02b2_result_t    C02B2_OK: Cache populated  C02B2_ERR_PARAM: can_id not an IPK RX message, or out NULL  C02B2_ERR_NOT_FOUND: No frame has been received for this id
  */
 c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 
@@ -43,18 +40,8 @@ u32 CanRx_GetRawFrameCount(void);
 
 
 
-/**
- * @brief   Per-CAN-id RX freshness state
- * @brief   按 CAN id 划分的接收状态
- *
- * @details can_rx 在 50 ms 子周期检查超时；
- *          超时后仅修改"是否超时"位，保留超时前的接收值。
- */
-typedef enum {
-    CAN_RX_FRESH_NEVER     = 0,  /**< 启动后未收到过该 can_id */
-    CAN_RX_FRESH_OK        = 1,  /**< 当前在 timeout 窗口内（最近一帧未超时） */
-    CAN_RX_FRESH_TIMED_OUT = 2,  /**< 一旦收到过，但当前已超时（值保留未动） */
-} can_rx_freshness_t;
+/* can_rx_freshness_t is owned by can_if.h (single definition); re-exported via the existing #include "drv_api/can/can_if.h" above. */
+
 
 /**
  * @brief   Check whether a given IPK CAN id is currently in timeout
@@ -65,9 +52,7 @@ typedef enum {
  *
  * @param[in]  can_id  IPK 标准 11-bit can_id
  *
- * @return  bool
- * @retval  true   当前处于超时状态
- * @retval  false  未超时、从未收到、或 can_id 不在 IPK 表中
+ * @return  bool    true: 当前处于超时状态  false: 未超时、从未收到、或 can_id 不在 IPK 表中
  */
 bool CanRx_IsMsgTimedOut(u32 can_id);
 
@@ -78,9 +63,8 @@ bool CanRx_IsMsgTimedOut(u32 can_id);
  * @param[in]   can_id  IPK 标准 11-bit can_id
  * @param[out]  out     填充状态枚举值
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            成功（*out 已填充）
- * @retval  C02B2_ERR_PARAM     out 为 NULL 或 can_id 不在 IPK 表中
+ * @return  c02b2_result_t    C02B2_OK: 成功（*out 已填充）
+            C02B2_ERR_PARAM: out 为 NULL 或 can_id 不在 IPK 表中
  */
 c02b2_result_t CanRx_GetMsgFreshness(u32 can_id, can_rx_freshness_t *out);
 

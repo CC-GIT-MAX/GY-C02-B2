@@ -28,9 +28,7 @@ extern "C" {
  *
  * @param[in]  v  Value to store
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Stored
- * @retval  C02B2_ERR_NOT_READY Module not yet initialized
+ * @return  c02b2_result_t    C02B2_ERR_NOT_READY: Module not yet initialized
  */
 c02b2_result_t Template_SetDiagValue(uint32_t v);
 

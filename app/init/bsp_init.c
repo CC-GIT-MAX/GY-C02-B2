@@ -22,8 +22,7 @@
  *   6. WDG ——最后启用看门狗，避免初始化流程被中断
  *   7. INT_SYS ——硬件就绪后安装中断处理
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Initialization succeeded (always; vendor errors are logged only)
+ * @return  c02b2_result_t    C02B2_OK: Initialization succeeded (always; vendor errors are logged only)
  */
 c02b2_result_t BSP_Init(void)
 {

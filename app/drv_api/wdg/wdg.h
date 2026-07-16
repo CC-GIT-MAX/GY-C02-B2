@@ -20,9 +20,7 @@
  * @details 从 board/wdg_config.c 取出配置，
  *          通过 SDK 驱动应用之。在 DRV_Init() 中调用一次。
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Init succeeded
- * @retval  C02B2_ERR SDK init failed
+ * @return  c02b2_result_t    C02B2_ERR: SDK init failed
  */
 c02b2_result_t Wdg_Init(void);
 

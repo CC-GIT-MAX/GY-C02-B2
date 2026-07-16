@@ -22,8 +22,7 @@
  * @brief   Initialize the KV storage layer
  * @brief   初始化 KV 存储层
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK  Init succeeded (skeleton returns OK)
+ * @return  c02b2_result_t    C02B2_OK: Init succeeded (skeleton returns OK)
  */
 c02b2_result_t KV_Init(void);
 
@@ -35,9 +34,7 @@ c02b2_result_t KV_Init(void);
  * @param[out]     buf      Caller-provided buffer
  * @param[in,out]  inout_len [in] buffer size, [out] actual bytes read
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Read OK
- * @retval  C02B2_ERR_NOT_FOUND Skeleton returns this always
+ * @return  c02b2_result_t    C02B2_ERR_NOT_FOUND: Skeleton returns this always
  */
 c02b2_result_t KV_Get(u16 key, void *buf, u8 *inout_len);
 
@@ -49,9 +46,8 @@ c02b2_result_t KV_Get(u16 key, void *buf, u8 *inout_len);
  * @param[in]  buf   Payload
  * @param[in]  len   Payload length (must be <= KV_MAX_VALUE_LEN)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Value accepted
- * @retval  C02B2_ERR_OVERFLOW  len > KV_MAX_VALUE_LEN
+ * @return  c02b2_result_t    C02B2_OK: Value accepted
+            C02B2_ERR_OVERFLOW: len > KV_MAX_VALUE_LEN
  */
 c02b2_result_t KV_Set(u16 key, const void *buf, u8 len);
 
@@ -77,9 +73,8 @@ c02b2_result_t KV_Commit(void);
  * @brief   Check whether any pending writes are unflushed
  * @brief   检查是否存在未落盘的写操作
  *
- * @return  bool
- * @retval  true   At least one write is pending (skeleton: always false)
- * @retval  false  Cache is clean
+ * @return  bool    true: At least one write is pending (skeleton: always false)
+            false: Cache is clean
  */
 bool        KV_IsDirty(void);
 
