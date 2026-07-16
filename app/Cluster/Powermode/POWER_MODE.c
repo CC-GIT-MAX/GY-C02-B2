@@ -75,7 +75,7 @@ uint16 POWER_BAT_AD;
 uint16 POWER_BAT_AVERAGE_AD;
 uint16 Adc0_Se33_Pmc_Vref_Sample;
 
-uintr8 POWER_COM_COUNTER;					// a counter of calibrate communicate,+1 every 0.5s,
+uint8 POWER_COM_COUNTER;					// a counter of calibrate communicate,+1 every 0.5s,
 // POWER_COM_COUNTER<250 means in calibrate mode
 uint8 POWER_IGN_COUNTER;					// a counter of ign on time,+1 every 0.5s.
 uint8 POWER_SELF_CHECK_COUNTER;  // a counter of self-check time,+1 every 0.5s.

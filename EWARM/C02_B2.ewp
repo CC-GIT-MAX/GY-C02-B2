@@ -392,8 +392,8 @@
                     <state>$PROJ_DIR$/../app/drv_api/io</state>
                     <state>$PROJ_DIR$/../app/drv_api/wdg</state>
                     <state>$PROJ_DIR$/../app/drv_api</state>
-                    <state>$PROJ_DIR$\..\..\C02-B2\Project\C02_B2_NEW\app\Cluster\Algorithm</state>
-                    <state>$PROJ_DIR$\..\..\C02-B2\Project\C02_B2_NEW\app\Cluster\Powermode</state>
+                    <state>$PROJ_DIR$\..\app\Cluster\Algorithm</state>
+                    <state>$PROJ_DIR$\..\app\Cluster\Powermode</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
