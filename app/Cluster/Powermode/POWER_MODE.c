@@ -264,7 +264,7 @@ void POWER_MODE_INIT_RESET(void)
 void POWER_MODE_INIT_IGN(void)
 {
   //YTM_DRIVER_INIT_IGN();
-  //YTM_DELAY_xms(50);
+  //delay_xms(50);
   PORT_GC_PW_EN_O;
   PORT_GC_PW_EN_H;
   
