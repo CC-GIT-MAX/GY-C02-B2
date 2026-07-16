@@ -11,7 +11,7 @@
 #define C02B2_DRV_API_ADC_H
 
 #include "result.h"
-
+#include "types.h"
 /**
  * @brief   Initialize the ADC peripheral
  * @brief   初始化 ADC 外设
@@ -22,5 +22,16 @@
  * @return  c02b2_result_t    C02B2_OK: Initialization succeeded
  */
 c02b2_result_t Adc_Init(void);
+
+/**
+ * @brief   Read the ADC value
+ * @brief   读取 ADC 值
+ *
+ * @param   channel  ADC channel to read from
+ * @return  uint16_t
+ * @retval  0        Conversion failed
+ * @retval  non-zero  Conversion result
+ */
+uint16 YTM_AD_READ(uint8 channel);
 
 #endif /* C02B2_DRV_API_ADC_H */

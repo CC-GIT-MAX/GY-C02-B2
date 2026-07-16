@@ -48,6 +48,13 @@ SUBJ_LEN=$(printf '%s' "$SUBJECT" | wc -m | tr -d ' ')
 BODY=$(echo "$MSG_CLEAN" | awk 'BEGIN{b=0} /^$/{b=1; next} b{print}')
 BODY_FIRST_PARA_LEN=$(echo "$BODY" | awk 'BEGIN{p=""} /^[[:space:]]*-/{exit} {p=p $0; if (length(p)>0 && substr(p,length(p),1)=="\n") exit} END{print length(p)}')
 
+# ----- merge/revert 豁免 -----
+# git merge / git revert 自动生成 subject 以 Merge/Revert 开头, 无 type 前缀, 放行.
+if echo "$SUBJECT" | grep -qE '^(Merge|Revert)[[:space:]]'; then
+    echo "[ok] merge/revert auto commit exempt (subject=$SUBJ_LEN char)" >&2
+    exit 0
+fi
+
 # ----- R1 type -----
 if ! echo "$SUBJECT" | grep -qE '^(feat|fix|refactor|docs|test|build|ci|chore|perf|style)(\([^)]+\))?:[[:space:]]'; then
     echo "[FAIL] R1 type: subject 不在白名单或格式不对" >&2
