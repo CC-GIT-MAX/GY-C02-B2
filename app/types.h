@@ -40,11 +40,7 @@ typedef int32_t  int32;
 typedef uint8_t  byte;
 typedef uint16_t word;
 typedef uint32_t dword;
-typedef unsigned long dlong[2];
 
-typedef  unsigned char  uchar8;
-typedef  unsigned short int uint16;
-typedef  unsigned long int ulong32;
 
 typedef struct
 {
@@ -72,8 +68,8 @@ typedef union
 {
     struct
     {
-        uchar8  lsb;		 /*********************** intel format here */
-        uchar8  msb;
+        uint8  lsb;		 /*********************** intel format here */
+        uint8  msb;
     } by;
     uint16  wo;
 } T_BYTEFLD;
@@ -101,6 +97,6 @@ typedef struct
 typedef union
 {
     T_BITFLD8	bi;
-    uchar8 by;
+    uint8 by;
 } T_FLAG8;
 #endif /* C02B2_TYPES_H */

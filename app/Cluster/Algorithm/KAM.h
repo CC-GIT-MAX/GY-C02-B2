@@ -7,13 +7,13 @@
 // public functions
 //-------------------------------------------------------------------
 
-void KAM_INIT_RESET(uchar8 cold_boot);
+void KAM_INIT_RESET(uint8 cold_boot);
 
 void KAM_INIT_IGN(void);
 
 void KAM_STANDBY(void);
 
-uchar8 KAM_CHECK(void);
+uint8 KAM_CHECK(void);
 
 void KAM_UPDATE_CHECKSUM(void);
 

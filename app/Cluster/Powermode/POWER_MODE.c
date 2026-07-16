@@ -47,8 +47,8 @@
 #include "signal.h"
 #include "can_rx.h"
 uint16  VREFH_AD_QUEUE[16];
-ulong32 AVERAGE_POWER_VREFH_CALU_VALUE;
-ulong32 VREFH_AD_AVERAGE;
+uint32 AVERAGE_POWER_VREFH_CALU_VALUE;
+uint32 VREFH_AD_AVERAGE;
 
 uint16 IGN_AD;
 uint16 IGN_AD_AVERAGE;
@@ -57,38 +57,38 @@ uint16 IGN_AD_QUEUE[IGN_AD_SUM];
 uint16 BATT_AD;
 uint16 BATT_AD_AVERAGE;
 uint16 BATT_AD_QUEUE[IGN_AD_SUM];
-uchar8 POWER_IGN_ON;							// ign state,1 means ign on,0 means ign off
-uchar8 POWER_BAT_ON;
-uchar8 POWER_SLEEP_ENABLE;				// a flag of low power mode in ign off state
+uint8 POWER_IGN_ON;							// ign state,1 means ign on,0 means ign off
+uint8 POWER_BAT_ON;
+uint8 POWER_SLEEP_ENABLE;				// a flag of low power mode in ign off state
 // when 1,means can go "STOP",else go "WAITE" only
-uchar8 POWER_IGN_ON_COUNTER;			// a counter of ign on 		 
+uint8 POWER_IGN_ON_COUNTER;			// a counter of ign on 		 
 uint16 POWER_IGN_OFF_COUNTER;			// a counter of ign off
-uchar8 POWER_GC_ON_COUNTER;			// a counter of ign on 		 
+uint8 POWER_GC_ON_COUNTER;			// a counter of ign on 		 
 uint16 POWER_GC_CLOSE_COUNTER;			// a counter of gc off to talk
-uchar8 POWER_BAT_ON_COUNTER;
+uint8 POWER_BAT_ON_COUNTER;
 uint16 POWER_BAT_OFF_COUNTER;
-uchar8 POWER_GC_COMM_COUNTER;
-uchar8 POWER_GC_OFF_COUNTER;      // a counter of gc off to calu time
+uint8 POWER_GC_COMM_COUNTER;
+uint8 POWER_GC_OFF_COUNTER;      // a counter of gc off to calu time
 
 uint16 POWER_IGN_AD;							// AD value of ign wire
 uint16 POWER_BAT_AD;
 uint16 POWER_BAT_AVERAGE_AD;
 uint16 Adc0_Se33_Pmc_Vref_Sample;
 
-uchar8 POWER_COM_COUNTER;					// a counter of calibrate communicate,+1 every 0.5s,
+uintr8 POWER_COM_COUNTER;					// a counter of calibrate communicate,+1 every 0.5s,
 // POWER_COM_COUNTER<250 means in calibrate mode
-uchar8 POWER_IGN_COUNTER;					// a counter of ign on time,+1 every 0.5s.
-uchar8 POWER_SELF_CHECK_COUNTER;  // a counter of self-check time,+1 every 0.5s.
+uint8 POWER_IGN_COUNTER;					// a counter of ign on time,+1 every 0.5s.
+uint8 POWER_SELF_CHECK_COUNTER;  // a counter of self-check time,+1 every 0.5s.
 uint16 POWER_IGN_IS_OFF_COUNTER;     //a counter of calibrate ign off ,+1 every 0.01s,
 
 uint16 POWER_IGN_Counter;     //上电之后的计时  500ms/cycle
 
 uint16 POWER_IGN_Voltage;
-uchar8 POWER_STATE;
-uchar8 POWER_STATE_BEFORE;
-uchar8 raub_BAT_Voltage;
-uchar8 raub_IGN_Voltage;
-uchar8 POWER_STATE_KL30_FIRST;
+uint8 POWER_STATE;
+uint8 POWER_STATE_BEFORE;
+uint8 raub_BAT_Voltage;
+uint8 raub_IGN_Voltage;
+uint8 POWER_STATE_KL30_FIRST;
 
 unsigned char raub_CAN_CommCounter;
 
@@ -97,58 +97,58 @@ unsigned char Power_Low_Counter;
 unsigned char Power_High_Exceed;
 unsigned char Power_Low_Exceed;
 
-uchar8 POWER_STATE_COUNT[POWER_OV2 + 1];
-uchar8 POWER_STATE_COUNT_PERIORD[POWER_OV2 + 1];
+uint8 POWER_STATE_COUNT[POWER_OV2 + 1];
+uint8 POWER_STATE_COUNT_PERIORD[POWER_OV2 + 1];
 
 //unsigned short int Vbatt;
-uchar8 POWER_FAIL_FLAG;
-uchar8 POWER_FAIL_COUNT;
-uchar8 POWER_BAT_COUNTER;
-uchar8 PowerFault;
-uchar8 LOW_POWER_FLAG,HIGH_POWER_FLAG;//0-Normal,1_h/lVoltage
+uint8 POWER_FAIL_FLAG;
+uint8 POWER_FAIL_COUNT;
+uint8 POWER_BAT_COUNTER;
+uint8 PowerFault;
+uint8 LOW_POWER_FLAG,HIGH_POWER_FLAG;//0-Normal,1_h/lVoltage
 uint16 LOW_POWER_BL20S_COUNTER;
 
 uint16 POWER_VALUE[10];
 uint16 AVERAGE_POWER_VALUE;
-uchar8 GC_POWER_STATUS;
-uchar8 GC_POWER_STATUS_OLD;
-uchar8 LOW_COUNTER;
-uchar8 POWER_STATUS_CHANGE_COUNTER;
+uint8 GC_POWER_STATUS;
+uint8 GC_POWER_STATUS_OLD;
+uint8 LOW_COUNTER;
+uint8 POWER_STATUS_CHANGE_COUNTER;
 
-uchar8 GC_WakeUp_MODE;  //0-休眠唤醒，1-30唤醒，2-低电压恢复正常，3-高电压恢复正常
+uint8 GC_WakeUp_MODE;  //0-休眠唤醒，1-30唤醒，2-低电压恢复正常，3-高电压恢复正常
 
-uchar8 SOC_Reset_Count;
+uint8 SOC_Reset_Count;
 
-uchar8  POWER_FISRT_ON;
+uint8  POWER_FISRT_ON;
 
-uchar8  MCU_30_RESET_E2_FLAG;
-uchar8  MCU_30_RESET_E2_CNT;
+uint8  MCU_30_RESET_E2_FLAG;
+uint8  MCU_30_RESET_E2_CNT;
 
-uchar8  POWER_GC_CLOSE_3s_Flag; //1-3s后关闭GC
+uint8  POWER_GC_CLOSE_3s_Flag; //1-3s后关闭GC
 
-uchar8 C02_B2_PowerMode=C02_B2_D3;
-uchar8 PEPS_PowerMode_Final=0x00;//经过处理的PowerMode值,用于判断KL15, ACC
+uint8 C02_B2_PowerMode=C02_B2_D3;
+uint8 PEPS_PowerMode_Final=0x00;//经过处理的PowerMode值,用于判断KL15, ACC
 
 //define
 uint16 GC_COMM_FIRST_TEXT;
-uchar8  CAN_WAKEUP_GC;
+uint8  CAN_WAKEUP_GC;
 #define LENGTH1  29
-uchar8 MENU_RETURN[LENGTH1]; 
-uchar8 Reset_Gc_Falg;
-uchar8 Reset_Gc_Counter;
-uchar8 COMM_STANDBY_FLAG=0;		// communication module allow enter STOP mode flag 1_sleep,0_wake up
-uchar8 DIC_STANDBY_FLAG=0;	// DIC module allow enter STOP mode flag 
-uchar8  GC_Close_Falg;
+uint8 MENU_RETURN[LENGTH1]; 
+uint8 Reset_Gc_Falg;
+uint8 Reset_Gc_Counter;
+uint8 COMM_STANDBY_FLAG=0;		// communication module allow enter STOP mode flag 1_sleep,0_wake up
+uint8 DIC_STANDBY_FLAG=0;	// DIC module allow enter STOP mode flag 
+uint8  GC_Close_Falg;
 uint16 FUEL_IGN_ON_COUNTER;
-uchar8 METER_STANDBY_FLAG=0;			// meter module allow enter STOP mode flag  IGN ON =0  IGN OFF =1
+uint8 METER_STANDBY_FLAG=0;			// meter module allow enter STOP mode flag  IGN ON =0  IGN OFF =1
 #define AD_CHANNEL_IGN            1 //15电  CH0
 #define AD_CHANNEL_BAT            27 //30电  CH0
-uchar8  Normal_Rx_Status;
-uchar8  Normal_Tx_Status;
-uchar8  Normal_Diag_Status;
+uint8  Normal_Rx_Status;
+uint8  Normal_Tx_Status;
+uint8  Normal_Diag_Status;
 
-uchar8  NM_Rx_Status;
-uchar8  NM_Tx_Status;
+uint8  NM_Rx_Status;
+uint8  NM_Tx_Status;
 T_FLAG8   NM_Tx_State;
 #define NM_Tx_State_Power  NM_Tx_State.bi.bit0  //  Power_High_Exceed  Power_Low_Exceed  is Stop send 
 
@@ -156,18 +156,18 @@ T_FLAG8   NM_Tx_State;
 #define AD_IGN_ON_VALUE           880   
 #define AD_IGN_OFF_TIME           500   
 #define AD_IGN_ON_TIME            4
-uchar8 COMM_CAN_SLEEP_FLAG=0u;			// CAN sleep flag
+uint8 COMM_CAN_SLEEP_FLAG=0u;			// CAN sleep flag
 void YTM_DRIVER_INIT_PLL(void)
 {
 
 } 
 #define DEBUG_WAIT_ONLY 1u			    // if set 1,standby mode will wait only(no stop mode)
-uchar8 dp_appl_CommunicationControl_get(void)
+uint8 dp_appl_CommunicationControl_get(void)
 {
    
    return 0 ; 
 }
-uchar8 Get_CAN_Sleep_Flag(void)
+uint8 Get_CAN_Sleep_Flag(void)
 {
   return 0;
 }
@@ -180,8 +180,8 @@ uchar8 Get_CAN_Sleep_Flag(void)
 //*****************************************************************************
 void POWER_MODE_INIT_RESET(void)
 {
-  uchar8 cold_boot;
-  uchar8 i;
+  uint8 cold_boot;
+  uint8 i;
   // uint16 PowerVal;
    
   cold_boot=!KAM_CHECK();
@@ -346,15 +346,15 @@ void POWER_MODE_STANDBY_15(void) //15 下电
 // inputs : none
 // outputs: none
 //*****************************************************************************
-// extern uchar8 ILLU_LCD_NOW_VALUE;
+// extern uint8 ILLU_LCD_NOW_VALUE;
 
-// extern uchar8 Reset_Gc_Falg;
-// extern uchar8 Reset_Gc_Counter;
+// extern uint8 Reset_Gc_Falg;
+// extern uint8 Reset_Gc_Counter;
 // extern uint16 FUEL_IGN_ON_COUNTER;
 
 void GC_POWER_STATUS_CHECK(void)  
 {
-//  static uchar8 GC_OPEN_UART=0;
+//  static uint8 GC_OPEN_UART=0;
 
   if(1==Reset_Gc_Falg) 
   {
@@ -456,7 +456,7 @@ void POWER_STANDBY_TASK(void)
 void IGN_Voltage_CHECK(void)
 {
     uint16 lub_ad;
-    ulong32 lub_temp;
+    uint32 lub_temp;
 
     IGN_INPUT_FILTER();
     lub_ad = IGN_AD_AVERAGE;
@@ -464,7 +464,7 @@ void IGN_Voltage_CHECK(void)
     lub_temp *= 11;   //Resolution: 0.25V
     lub_temp /= 20;
     if(lub_temp > 255) lub_temp = 255;
-    raub_IGN_Voltage = (uchar8) lub_temp;
+    raub_IGN_Voltage = (uint8) lub_temp;
     
     //raub_IGN_Voltage=120;
 }
@@ -479,7 +479,7 @@ void IGN_Voltage_CHECK(void)
 void Bat_Voltage_CHECK(void)
 {
     uint16 lub_ad;
-    ulong32 lub_temp;
+    uint32 lub_temp;
 
     BATT_INPUT_FILTER();
     lub_ad = BATT_AD_AVERAGE;
@@ -489,7 +489,7 @@ void Bat_Voltage_CHECK(void)
     lub_temp /= 26;
     lub_temp=lub_temp-3;
     if(lub_temp > 255) lub_temp = 255;
-    //raub_BAT_Voltage = (uchar8) lub_temp;
+    //raub_BAT_Voltage = (uint8) lub_temp;
     //vDiag_CAL_DATA_HANDLE(4,raub_BAT_Voltage );
     //raub_BAT_Voltage=120;
 }
@@ -540,8 +540,8 @@ void CANPowerCheck(void)
 {
 
 #if 1
-	static uchar8 Power_recover_Counter=0 ;
-	static uchar8 Power_error_Counter=0 ;
+	static uint8 Power_recover_Counter=0 ;
+	static uint8 Power_error_Counter=0 ;
 
 //< 6.6 || >18.3
          raub_BAT_Voltage=AVERAGE_POWER_VALUE;
@@ -692,8 +692,8 @@ const uint16 POWER_BAT_AD_OUT[30]={45, 55, 60, 65,  70,  80,  90,  95,  100, 105
 
 uint16 FindBatteryLevel(uint16 in_value) 
 {
-	uchar8 i,match;
-	ulong32 temp;
+	uint8 i,match;
+	uint32 temp;
 	uint16 in_1,in_2,out;
 
 	if(in_value>=POWER_BAT_AD_IN[26])	out=210;
@@ -730,13 +730,13 @@ uint16 FindBatteryLevel(uint16 in_value)
 // inputs : none
 // outputs: none
 //*****************************************************************************
-uchar8 POWER_LOW_counter;
-uchar8  POWER_BAT_test;
+uint8 POWER_LOW_counter;
+uint8  POWER_BAT_test;
 uint16  POWER_BAT_testvalue;
 void POWER_MANAGEMENT_CHACK(void)  //优化:+滤波+延时
 {
-  // ulong32 PowerVal=0;
-  uchar8 temp;
+  // uint32 PowerVal=0;
+  uint8 temp;
   
   PMC_VREF_SAMPLE();
   
@@ -864,14 +864,14 @@ void POWER_MANAGEMENT_CHACK(void)  //优化:+滤波+延时
 //*****************************************************************************
 void C02_B2_PowerMode_Update(void)
 {
-  uchar8 mode=0;
-  uchar8 last_mode=0x00;
-  uchar8 is_timeout=0;
-  uchar8 PEPS_PowerModeValidity=0x00;
-  uchar8 PEPS_PowerMode=0x00;
+  uint8 mode=0;
+  uint8 last_mode=0x00;
+  uint8 is_timeout=0;
+  uint8 PEPS_PowerModeValidity=0x00;
+  uint8 PEPS_PowerMode=0x00;
   
-  static uchar8 last_c02_b2_power_mode=C02_B2_D3;
-  static uchar8 d2_to_d1_count=0;
+  static uint8 last_c02_b2_power_mode=C02_B2_D3;
+  static uint8 d2_to_d1_count=0;
 
   is_timeout=CanRx_IsMsgTimedOut(0x2fc);
   PEPS_PowerModeValidity=Signal_Get(SIG_CAN_PEPS_PowerModeValidity);
@@ -984,7 +984,7 @@ void C02_B2_PowerMode_Update(void)
 //*****************************************************************************
 void POWER_MODE_SLEEP(void) 
 {
-  uchar8 dummy=0;
+  uint8 dummy=0;
   
   #if(DEBUG_WAIT_ONLY)
   if(POWER_SLEEP_ENABLE) 

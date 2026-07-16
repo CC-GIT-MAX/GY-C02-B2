@@ -30,7 +30,7 @@ uint16 KAM_AA55=0XAA55;				 	// RAM constant flag2
 // inputs :	cold_boot : 1 cold boot,0 warm boot 
 // outputs: none
 //*****************************************************************************
-void KAM_INIT_RESET(uchar8 cold_boot) 
+void KAM_INIT_RESET(uint8 cold_boot) 
 {
   if(cold_boot) { }
 }
@@ -63,9 +63,9 @@ void KAM_STANDBY(void)
 // inputs : none
 // outputs: 0 means KAM damage,cold boot needed,else run warm boot
 //*****************************************************************************
-uchar8 KAM_CHECK(void) 
+uint8 KAM_CHECK(void) 
 {
-  uchar8 kam;
+  uint8 kam;
   uint16 kam_checksum;
   
   if(KAM_55AA!=0x55AA)          kam=0u;

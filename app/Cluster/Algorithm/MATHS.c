@@ -18,9 +18,9 @@
 // inputs :	queue:array pointer to update, sum:array length
 // outputs: none
 //*****************************************************************************
-void FILTER_2B_REFRESH(uint16 * queue,uint16 new,uchar8 sum)
+void FILTER_2B_REFRESH(uint16 * queue,uint16 new,uint8 sum)
 {																		// 2-byte moving average filter
-	uchar8 i;
+	uint8 i;
 
 	for(i=sum-1;i>0;i--)	queue[i]=queue[i-1];
 
@@ -33,10 +33,10 @@ void FILTER_2B_REFRESH(uint16 * queue,uint16 new,uchar8 sum)
 // inputs :	queue:array pointer to update, sum:array length
 // outputs: average value of array
 //*****************************************************************************
-uint16 FILTER_2B_AVERAGE(uint16 * queue,uchar8 sum)
+uint16 FILTER_2B_AVERAGE(uint16 * queue,uint8 sum)
 {																		// 2-byte moving average filter
-	uchar8 i;
-	ulong32 temp_sum;
+	uint8 i;
+	uint32 temp_sum;
 	uint16 temp_min,temp_max;
 	
 	for(i=1,temp_max=queue[0],temp_min=queue[0];i<sum;i++)
@@ -58,11 +58,11 @@ uint16 FILTER_2B_AVERAGE(uint16 * queue,uchar8 sum)
 // inputs :	queue:array pointer to update, sum:array length
 // outputs: average value of array
 //*****************************************************************************
-uchar8 FILTER_1B_AVERAGE(uchar8 * queue,uchar8 new,uchar8 sum)
+uint8 FILTER_1B_AVERAGE(uint8 * queue,uint8 new,uint8 sum)
 {																		// 1-byte moving average filter
-	uchar8 i;
+	uint8 i;
 	uint16 temp_sum;
-	uchar8 temp_max,temp_min;
+	uint8 temp_max,temp_min;
 
 	for(i=sum-1;i>0;i--)	queue[i]=queue[i-1];
 	queue[0]=new;
@@ -77,7 +77,7 @@ uchar8 FILTER_1B_AVERAGE(uchar8 * queue,uchar8 new,uchar8 sum)
 	
 	temp_sum=temp_sum-temp_max-temp_min;
 		
-	return((uchar8)(temp_sum/(sum-2)));
+	return((uint8)(temp_sum/(sum-2)));
 }
 
 //*****************************************************************************
@@ -87,10 +87,10 @@ uchar8 FILTER_1B_AVERAGE(uchar8 * queue,uchar8 new,uchar8 sum)
 // inputs :	queue:array pointer to update, sum:array length
 // outputs: if ascend return 1,else 0
 //*****************************************************************************
-uchar8 ASCEND_CHECK(uchar8 * p_header,uchar8 sum)					// queue ascend check
+uint8 ASCEND_CHECK(uint8 * p_header,uint8 sum)					// queue ascend check
 {
 	uint16 temp_data1,temp_data2;
-	uchar8 i,equ;
+	uint8 i,equ;
 
 	for(i=0,equ=0;i<=(2*sum-4);i+=2)
 	{
@@ -118,10 +118,10 @@ uchar8 ASCEND_CHECK(uchar8 * p_header,uchar8 sum)					// queue ascend check
 // inputs :	queue:array pointer to update, sum:array length
 // outputs: if descend return 1,else 0
 //*****************************************************************************
-uchar8 DESCEND_CHECK(uchar8 * p_header,uchar8 sum)				// queue descend check
+uint8 DESCEND_CHECK(uint8 * p_header,uint8 sum)				// queue descend check
 {
 	uint16 temp_data1,temp_data2;
-	uchar8 i,equ;
+	uint8 i,equ;
 
 	for(i=0,equ=0;i<=(2*sum-4);i+=2)
 	{
@@ -142,7 +142,7 @@ uchar8 DESCEND_CHECK(uchar8 * p_header,uchar8 sum)				// queue descend check
 	else return 1;
 }
 
-uint16 CRC16_CHECK(uchar8 *data,uint16 start_array_num,uint16 end_array_num)
+uint16 CRC16_CHECK(uint8 *data,uint16 start_array_num,uint16 end_array_num)
 {
   uint16 j,k,variable;
   uint16 CRCin=0x0000;

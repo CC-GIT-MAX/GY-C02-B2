@@ -33,7 +33,7 @@ void POWER_MODE_SLEEP(void);
 
 void vNM_CAN_POWER_INIT_IGN(void);
 
-//uchar8 BAT_Voltage_STATE(void) ;
+//uint8 BAT_Voltage_STATE(void) ;
 
 
 void IGN_Voltage_CHECK(void);
@@ -86,20 +86,20 @@ void POWER_MANAGEMENT_CHACK(void);
 //-------------------------------------------------------------------
 // public vars
 //-------------------------------------------------------------------
-extern uchar8 raub_BAT_Voltage;
-extern uchar8 POWER_IGN_ON;
-extern uchar8 POWER_BAT_ON;
+extern uint8 raub_BAT_Voltage;
+extern uint8 POWER_IGN_ON;
+extern uint8 POWER_BAT_ON;
 
-extern uchar8 POWER_SLEEP_ENABLE;
+extern uint8 POWER_SLEEP_ENABLE;
 
-extern uchar8 POWER_COM_COUNTER;
-extern uchar8 POWER_IGN_COUNTER;
-extern uchar8 POWER_SELF_CHECK_COUNTER;
+extern uint8 POWER_COM_COUNTER;
+extern uint8 POWER_IGN_COUNTER;
+extern uint8 POWER_SELF_CHECK_COUNTER;
 extern uint16 POWER_IGN_Voltage;
 extern uint16 POWER_IGN_OFF_COUNTER;			// a counter of ign off
-extern uchar8 POWER_GC_ON_COUNTER;	
-extern uchar8 POWER_GC_COMM_COUNTER;
-extern uchar8 POWER_GC_OFF_COUNTER;
+extern uint8 POWER_GC_ON_COUNTER;	
+extern uint8 POWER_GC_COMM_COUNTER;
+extern uint8 POWER_GC_OFF_COUNTER;
 
 extern uint16 POWER_IGN_Counter;
 extern uint16 POWER_IGN_IS_OFF_COUNTER;
@@ -116,11 +116,11 @@ extern unsigned char IGNOFF_Door_NW_Off;
 extern unsigned char Power_High_Exceed;
 extern unsigned char Power_Low_Exceed; 
 
-extern uchar8 POWER_FAIL_FLAG;
-extern uchar8 POWER_FAIL_COUNT;
+extern uint8 POWER_FAIL_FLAG;
+extern uint8 POWER_FAIL_COUNT;
 
 
-extern uchar8 POWER_STATE;
+extern uint8 POWER_STATE;
 
 typedef enum
 {
@@ -133,22 +133,22 @@ typedef enum
     POWER_Fail = POWER_UV2
 } enPower_State;
 
-extern uchar8 LOW_POWER_FLAG,HIGH_POWER_FLAG;//0-Normal,1_h/lVoltage
+extern uint8 LOW_POWER_FLAG,HIGH_POWER_FLAG;//0-Normal,1_h/lVoltage
 extern uint16 LOW_POWER_BL20S_COUNTER;
 
-extern uchar8 GC_POWER_STATUS;
+extern uint8 GC_POWER_STATUS;
 
-extern uchar8 PowerFault;
+extern uint8 PowerFault;
 
-extern uchar8 GC_WakeUp_MODE;
+extern uint8 GC_WakeUp_MODE;
 
 extern uint16 Adc0_Se33_Pmc_Vref_Sample;
 
-extern uchar8  POWER_FISRT_ON;
-extern uchar8  MCU_30_RESET_E2_FLAG;
-extern uchar8  MCU_30_RESET_E2_CNT;
+extern uint8  POWER_FISRT_ON;
+extern uint8  MCU_30_RESET_E2_FLAG;
+extern uint8  MCU_30_RESET_E2_CNT;
 
-extern uchar8  POWER_GC_CLOSE_3s_Flag;
+extern uint8  POWER_GC_CLOSE_3s_Flag;
 
 #define IGN_STATE   (0X04==PEPS_PowerMode_Final||0X02==PEPS_PowerMode_Final)
 #define ACC_STATE   (0X01==PEPS_PowerMode_Final)
@@ -159,7 +159,7 @@ typedef enum {
     C02_B2_D2_2 = 0x03,  // OFF/Standby (待机模式)
     C02_B2_D3   = 0x4   // Sleep (休眠模式)
 } PowerMode_t;
-extern uchar8 C02_B2_PowerMode;
+extern uint8 C02_B2_PowerMode;
 //-------------------------------------------------------------------
 //#define  IC_Ready_Sleep_State ((METER_STANDBY_FLAG==1)&&(TEL_STANDBY_FLAG==1)&&(CAL_EOL_WriteEnalbe==1)&&(Get_Diagnose_state()==0u))?1u:0u
 extern const mod_desc_t mod_power_mode;
