@@ -865,7 +865,7 @@ void POWER_MANAGEMENT_CHACK(void)  //优化:+滤波+延时
 void C02_B2_PowerMode_Update(void)
 {
   uint8 mode=0;
-  uint8 last_mode=0x00;
+  static uint8 last_mode=0x00;
   uint8 is_timeout=0;
   uint8 PEPS_PowerModeValidity=0x00;
   uint8 PEPS_PowerMode=0x00;
@@ -879,7 +879,6 @@ void C02_B2_PowerMode_Update(void)
 
    if(1==is_timeout)
    {//超时处理
-    last_mode=Signal_GetStored(SIG_CAN_PEPS_PowerMode);
     if(0x00==last_mode||0x01==last_mode)
     {
       mode=0x00;
@@ -914,6 +913,7 @@ void C02_B2_PowerMode_Update(void)
       mode=PEPS_PowerMode;
    }
    PEPS_PowerMode_Final=mode;//更新经过处理的PowerMode值
+   last_mode=mode;
    if (1==IGN_STATE&&0==Get_CAN_Sleep_Flag())
    {
     if(C02_B2_PowerMode==C02_B2_D1)
