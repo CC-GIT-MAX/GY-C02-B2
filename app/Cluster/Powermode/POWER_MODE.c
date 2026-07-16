@@ -41,11 +41,12 @@
 #include "io.h"
 #include "adc.h"
 #include "YTM32B1MD1.h"
-#include "log.h"
 #include "scheduler.h"
 #include "rti.h"
 #include "signal.h"
 #include "can_rx.h"
+#define MOD_NAME  "PWR"
+#include "log.h"
 uint16  VREFH_AD_QUEUE[16];
 uint32 AVERAGE_POWER_VREFH_CALU_VALUE;
 uint32 VREFH_AD_AVERAGE;
@@ -865,7 +866,7 @@ void POWER_MANAGEMENT_CHACK(void)  //优化:+滤波+延时
 void C02_B2_PowerMode_Update(void)
 {
   uint8 mode=0;
-  uint8 last_mode=0x00;
+  static uint8 last_mode=0x00;
   uint8 is_timeout=0;
   uint8 PEPS_PowerModeValidity=0x00;
   uint8 PEPS_PowerMode=0x00;
@@ -879,7 +880,6 @@ void C02_B2_PowerMode_Update(void)
 
    if(1==is_timeout)
    {//超时处理
-    last_mode=Signal_GetStored(SIG_CAN_PEPS_PowerMode);
     if(0x00==last_mode||0x01==last_mode)
     {
       mode=0x00;
@@ -914,6 +914,7 @@ void C02_B2_PowerMode_Update(void)
       mode=PEPS_PowerMode;
    }
    PEPS_PowerMode_Final=mode;//更新经过处理的PowerMode值
+   last_mode=mode;
    if (1==IGN_STATE&&0==Get_CAN_Sleep_Flag())
    {
     if(C02_B2_PowerMode==C02_B2_D1)
@@ -1044,7 +1045,6 @@ void POWER_MODE_SLEEP(void)
 void WKU_IRQHandler(void)
 {
 }
-static rti_slot_t s_my_100ms;
 /* ========================================================================
  * Scheduler integration (mod_desc_t five-piece set)
  * 电源模块调度器集成：按五件套结构接入 scheduler 框架
@@ -1052,45 +1052,19 @@ static rti_slot_t s_my_100ms;
 
 /* Module-private RTI period slots (opened once in mcu_init).
  * 模块私有 RTI 周期槽位（mcu_init 中一次性打开）。
- * 对应原 RTOS.c 的 10ms / 100ms / 500ms 三层调度粒度。*/
+ * 对应原 RTOS.c 的 10ms 调度粒度，100ms/500ms 任务由软件分频实现。*/
 static rti_slot_t s_slot_10ms;
-static rti_slot_t s_slot_100ms;
-static rti_slot_t s_slot_500ms;
 
-#define MOD_NAME  "PWR"
+
 
 /* Private context ------------------------------------------------------- */
 static struct {
     uint8_t init_done;
+    uint8_t s_100ms_div;
+    uint8_t s_500ms_div;
 } s_ctx;
 
-/* --- 10 ms sub-task (原 RTOS.c YTM_RTI_10MS_FLAG 对应内容) ------------- */
-static void prv_run_10ms_jobs(void)
-{
-    /* 更新电源模式*/
-    C02_B2_PowerMode_Update();
 
-    /* 电源管理核心：电压采样+滤波+分级(POWER_MANAGEMENT_CHACK 原 10ms) */
-    POWER_MANAGEMENT_CHACK();
-
-    /* IGN 状态机 (KL15/KL30 边沿去抖+INIT_IGN_15/STANDBY_15 回调, 原 10ms) */
-    POWER_IGN_MODE_CHECK();
-
-    /* GC 上下电状态机 (POWER_GC_CLOSE_COUNTER>=300 对应 3s, 原 10ms) */
-    GC_POWER_STATUS_CHECK();
-
-    /* 休眠条件聚合 (检查各模块 STANDBY_FLAG → POWER_SLEEP_ENABLE) */
-    POWER_STANDBY_TASK();
-
-    /* 原 RTOS.c L131-L140: IGN OFF 累计计时 (每 10ms +1，上限 30000 = 300s) */
-    if (!POWER_IGN_ON) {
-        if (POWER_IGN_IS_OFF_COUNTER < 30000u) {
-            POWER_IGN_IS_OFF_COUNTER++;
-        }
-    } else {
-        POWER_IGN_IS_OFF_COUNTER = 0u;
-    }
-}
 
 /* --- 100 ms sub-task (原 RTOS.c YTM_RTI_100MS_FLAG 对应内容) ----------- */
 static void prv_run_100ms_jobs(void)
@@ -1131,7 +1105,43 @@ static void prv_run_500ms_jobs(void)
     }
 
 }
+/* --- 10 ms sub-task (原 RTOS.c YTM_RTI_10MS_FLAG 对应内容) ------------- */
+static void prv_run_10ms_jobs(void)
+{
+    /* 更新电源模式*/
+    C02_B2_PowerMode_Update();
 
+    /* 电源管理核心：电压采样+滤波+分级(POWER_MANAGEMENT_CHACK 原 10ms) */
+    POWER_MANAGEMENT_CHACK();
+
+    /* IGN 状态机 (KL15/KL30 边沿去抖+INIT_IGN_15/STANDBY_15 回调, 原 10ms) */
+    POWER_IGN_MODE_CHECK();
+
+    /* GC 上下电状态机 (POWER_GC_CLOSE_COUNTER>=300 对应 3s, 原 10ms) */
+    GC_POWER_STATUS_CHECK();
+
+    /* 休眠条件聚合 (检查各模块 STANDBY_FLAG → POWER_SLEEP_ENABLE) */
+    POWER_STANDBY_TASK();
+
+    /* 原 RTOS.c L131-L140: IGN OFF 累计计时 (每 10ms +1，上限 30000 = 300s) */
+    if (!POWER_IGN_ON) {
+        if (POWER_IGN_IS_OFF_COUNTER < 30000u) {
+            POWER_IGN_IS_OFF_COUNTER++;
+        }
+    } else {
+        POWER_IGN_IS_OFF_COUNTER = 0u;
+    }
+
+    if (++s_ctx.s_100ms_div >= 10u) {
+        s_ctx.s_100ms_div = 0u;
+        prv_run_100ms_jobs();
+    }
+
+    if (++s_ctx.s_500ms_div >= 50u) {
+        s_ctx.s_500ms_div = 0u;
+        prv_run_500ms_jobs();
+    }
+}
 /* mod_desc_t hooks ------------------------------------------------------ */
 
 /**
@@ -1143,9 +1153,7 @@ static void prv_run_500ms_jobs(void)
  */
 static void prv_mcu_init(uint8_t cold_boot)
 {
-    s_slot_10ms  = RTI_OpenSlot(RTI_10MS);
-    s_slot_100ms = RTI_OpenSlot(RTI_100MS);
-    s_slot_500ms = RTI_OpenSlot(RTI_500MS);
+    s_slot_10ms = RTI_OpenSlot(RTI_10MS);
     s_ctx.init_done = 1u;
 
     POWER_MODE_INIT_RESET();
@@ -1183,9 +1191,7 @@ static void prv_tick(void)
     if (!s_ctx.init_done) {
         return;
     }
-    if (RTI_SlotElapsed(&s_slot_10ms))  { prv_run_10ms_jobs(); }
-    if (RTI_SlotElapsed(&s_slot_100ms)) { prv_run_100ms_jobs(); }
-    if (RTI_SlotElapsed(&s_slot_500ms)) { prv_run_500ms_jobs(); }
+    if (RTI_SlotElapsed(&s_slot_10ms)) { prv_run_10ms_jobs(); }
 }
 
 /**

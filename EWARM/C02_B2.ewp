@@ -394,6 +394,7 @@
                     <state>$PROJ_DIR$/../app/drv_api</state>
                     <state>$PROJ_DIR$\..\app\Cluster\Algorithm</state>
                     <state>$PROJ_DIR$\..\app\Cluster\Powermode</state>
+                    <state>$PROJ_DIR$\..\app\Cluster\OdoMeter</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1188,6 +1189,27 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\app\Cluster\Algorithm\MATHS.h</name>
+                </file>
+            </group>
+            <group>
+                <name>OdoMeter</name>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\OdoMeter\ODO_SEASON.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\OdoMeter\ODO_SEASON.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\OdoMeter\ODO_TRIP.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\OdoMeter\ODO_TRIP.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\OdoMeter\ODOMETER.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\Cluster\OdoMeter\ODOMETER.h</name>
                 </file>
             </group>
             <group>
