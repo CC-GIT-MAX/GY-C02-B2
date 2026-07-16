@@ -8,13 +8,13 @@
 //-------------------------------------------------------------------
 // public functions
 //-------------------------------------------------------------------
-void delay_xms(u16 delay_time);
-void delay_1ms(void);
-void delay_10us(u8 delay_time);      // 10us/unit
-void delay_iic(void);
 void delay_1us(void);
+void delay_10us(u8 delay_time);      // 10us/unit
+void delay_1ms(void);
+void delay_iic(void);
+void delay_xms(u16 delay_time);
 
-#define delay_nop() _asm("nop")
+#define delay_nop() __asm("nop")
 
 //-------------------------------------------------------------------
 // public macros
