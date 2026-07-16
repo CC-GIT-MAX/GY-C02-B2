@@ -44,6 +44,8 @@
 #include "log.h"
 #include "scheduler.h"
 #include "rti.h"
+#include "signal.h"
+#include "can_rx.h"
 uint16  VREFH_AD_QUEUE[16];
 ulong32 AVERAGE_POWER_VREFH_CALU_VALUE;
 ulong32 VREFH_AD_AVERAGE;
@@ -124,6 +126,10 @@ uchar8  MCU_30_RESET_E2_CNT;
 
 uchar8  POWER_GC_CLOSE_3s_Flag; //1-3s后关闭GC
 
+uchar8 C02_B2_PowerMode=C02_B2_D3;
+uchar8 PEPS_PowerMode_Final=0x00;//经过处理的PowerMode值,用于判断KL15, ACC
+
+//define
 uint16 GC_COMM_FIRST_TEXT;
 uchar8  CAN_WAKEUP_GC;
 #define LENGTH1  29
@@ -150,7 +156,7 @@ T_FLAG8   NM_Tx_State;
 #define AD_IGN_ON_VALUE           880   
 #define AD_IGN_OFF_TIME           500   
 #define AD_IGN_ON_TIME            4
-uchar8 COMM_CAN_SLEEP_FLAG;			// CAN sleep flag
+uchar8 COMM_CAN_SLEEP_FLAG=0u;			// CAN sleep flag
 void YTM_DRIVER_INIT_PLL(void)
 {
 
@@ -160,6 +166,10 @@ uchar8 dp_appl_CommunicationControl_get(void)
 {
    
    return 0 ; 
+}
+uchar8 Get_CAN_Sleep_Flag(void)
+{
+  return 0;
 }
 //define
 //*****************************************************************************
@@ -635,7 +645,8 @@ void POWER_IGN_MODE_CHECK(void)
   {
     POWER_IGN_ON_COUNTER=0;
       
-    if(POWER_IGN_AD<AD_IGN_OFF_VALUE) 
+    //if(POWER_IGN_AD<AD_IGN_OFF_VALUE) 
+    if(0==IGN_STATE)
     {
       POWER_IGN_OFF_COUNTER++;
       if(POWER_IGN_OFF_COUNTER>=AD_IGN_OFF_TIME)
@@ -650,7 +661,8 @@ void POWER_IGN_MODE_CHECK(void)
   {
     POWER_IGN_OFF_COUNTER=0;
       
-    if(POWER_IGN_AD>=AD_IGN_ON_VALUE) 
+    //if(POWER_IGN_AD>=AD_IGN_ON_VALUE) 
+    if(1==IGN_STATE)
     {
       POWER_IGN_ON_COUNTER++;
       if(POWER_IGN_ON_COUNTER>=AD_IGN_ON_TIME) 
@@ -844,6 +856,122 @@ void POWER_MANAGEMENT_CHACK(void)  //优化:+滤波+延时
   
   if(LOW_POWER_FLAG==1) GC_WakeUp_MODE=2;
   if(HIGH_POWER_FLAG==1)GC_WakeUp_MODE=3;
+}  
+
+//*****************************************************************************
+// FunName: C02_B2_PowerMode_Update
+// Desc: 更新电源模式
+//*****************************************************************************
+void C02_B2_PowerMode_Update(void)
+{
+  uchar8 mode=0;
+  uchar8 last_mode=0x00;
+  uchar8 is_timeout=0;
+  uchar8 PEPS_PowerModeValidity=0x00;
+  uchar8 PEPS_PowerMode=0x00;
+  
+  static uchar8 last_c02_b2_power_mode=C02_B2_D3;
+  static uchar8 d2_to_d1_count=0;
+
+  is_timeout=CanRx_IsMsgTimedOut(0x2fc);
+  PEPS_PowerModeValidity=Signal_Get(SIG_CAN_PEPS_PowerModeValidity);
+  PEPS_PowerMode=Signal_Get(SIG_CAN_PEPS_PowerMode);
+
+   if(1==is_timeout)
+   {//超时处理
+    last_mode=Signal_GetStored(SIG_CAN_PEPS_PowerMode);
+    if(0x00==last_mode||0x01==last_mode)
+    {
+      mode=0x00;
+    }
+    else if(0x02==last_mode)
+    {
+      mode=0x02;
+    }
+    else
+    {
+      mode=last_mode;
+    }
+   }
+   else if(0x02!=PEPS_PowerModeValidity)
+   {//信号无效处理
+    if(0x00==PEPS_PowerMode||0x01==PEPS_PowerMode)
+    {
+      mode=0x00;
+    }
+    else if(0x02==PEPS_PowerMode)
+    {
+      mode=0x02;
+    }
+    else
+    {
+      mode=PEPS_PowerMode;
+    }
+
+   }
+   else
+   {//正常情况
+      mode=PEPS_PowerMode;
+   }
+   PEPS_PowerMode_Final=mode;//更新经过处理的PowerMode值
+   if (1==IGN_STATE&&0==Get_CAN_Sleep_Flag())
+   {
+    if(C02_B2_PowerMode==C02_B2_D1)
+    {//已经是这个状态直接退出
+      return;
+    }
+    if(C02_B2_D2_1==last_c02_b2_power_mode||C02_B2_D2_2==last_c02_b2_power_mode)
+    {
+      d2_to_d1_count++;
+      if(d2_to_d1_count>20)//d2跳d1延时200ms
+      {
+        C02_B2_PowerMode=C02_B2_D1;
+        last_c02_b2_power_mode=C02_B2_D1;
+        d2_to_d1_count=0;
+      }
+    }
+    else
+    {
+      C02_B2_PowerMode=C02_B2_D1;
+      last_c02_b2_power_mode=C02_B2_D1;
+    }
+   }
+   else if(0==IGN_STATE&&1==ACC_STATE&&0==Get_CAN_Sleep_Flag())
+   {
+    if(C02_B2_PowerMode==C02_B2_D2_1)
+    {//已经是这个状态直接退出
+      return;
+    }
+    d2_to_d1_count=0;
+    C02_B2_PowerMode=C02_B2_D2_1;
+    last_c02_b2_power_mode=C02_B2_D2_1;
+   }
+   else if (0==IGN_STATE&&0==ACC_STATE&&0==Get_CAN_Sleep_Flag())
+   {
+    if(C02_B2_PowerMode==C02_B2_D2_2)
+    {//已经是这个状态直接退出
+      return;
+    }
+    d2_to_d1_count=0;
+    C02_B2_PowerMode=C02_B2_D2_2;
+    last_c02_b2_power_mode=C02_B2_D2_2;
+   }
+   else if (0==IGN_STATE&&0==ACC_STATE&&1==Get_CAN_Sleep_Flag())
+   {//已经是这个状态直接退出
+    if(C02_B2_PowerMode==C02_B2_D3)
+    {
+      return;
+    }
+    d2_to_d1_count=0;
+    C02_B2_PowerMode=C02_B2_D3;
+    last_c02_b2_power_mode=C02_B2_D3;
+   }
+   else
+   {//超出判断范围保持之前的状态
+    d2_to_d1_count=0;
+   }   
+   
+   
 }
 
 
@@ -939,6 +1067,9 @@ static struct {
 /* --- 10 ms sub-task (原 RTOS.c YTM_RTI_10MS_FLAG 对应内容) ------------- */
 static void prv_run_10ms_jobs(void)
 {
+    /* 更新电源模式*/
+    C02_B2_PowerMode_Update();
+
     /* 电源管理核心：电压采样+滤波+分级(POWER_MANAGEMENT_CHACK 原 10ms) */
     POWER_MANAGEMENT_CHACK();
 

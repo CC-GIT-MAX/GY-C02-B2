@@ -149,6 +149,17 @@ extern uchar8  MCU_30_RESET_E2_FLAG;
 extern uchar8  MCU_30_RESET_E2_CNT;
 
 extern uchar8  POWER_GC_CLOSE_3s_Flag;
+
+#define IGN_STATE   (0X04==PEPS_PowerMode_Final||0X02==PEPS_PowerMode_Final)
+#define ACC_STATE   (0X01==PEPS_PowerMode_Final)
+// 电源模式枚举
+typedef enum {
+    C02_B2_D1  = 0x01,  // KL15 ON (行驶模式)
+    C02_B2_D2_1 = 0x02,  // ACC ON (附件模式)
+    C02_B2_D2_2 = 0x03,  // OFF/Standby (待机模式)
+    C02_B2_D3   = 0x4   // Sleep (休眠模式)
+} PowerMode_t;
+extern uchar8 C02_B2_PowerMode;
 //-------------------------------------------------------------------
 //#define  IC_Ready_Sleep_State ((METER_STANDBY_FLAG==1)&&(TEL_STANDBY_FLAG==1)&&(CAL_EOL_WriteEnalbe==1)&&(Get_Diagnose_state()==0u))?1u:0u
 extern const mod_desc_t mod_power_mode;
