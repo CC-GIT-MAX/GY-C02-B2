@@ -823,16 +823,12 @@ signal_id_t CanDb_DbcSigToBus(u16 db_sig_id)
     return s_dbc_to_bus[db_sig_id - 1u];
 }
 
-/* ---------------------------------------------------------------- *
- *  Reverse lookup: bus_id -> timeout-bitmap bit-N                    *
- *                                                                    *
- *  Lazily built on first call. The table itself lives in BSS;       *
- *  signal.c::Signal_IsValid() is the only consumer and queries      *
- *  per id, so O(SIG_MAX) init runs exactly once.                     *
- * ---------------------------------------------------------------- */
+/* s_bus_to_timeout_bit[]: bus_id -> RX timeout 位图 bit-N 反查表。 */
+/* 仅 CanDb_SigToTimeoutBit() 使用；首次调用时按需构建，O(SIG_MAX)。 */
 static u8  s_bus_to_timeout_bit[SIG_MAX];
 static u8  s_bus_to_bit_built;
 
+/** @brief  首次按需构建 s_bus_to_timeout_bit[]（一次性 O(SIG_MAX) 初始化）。 */
 static void prv_build_bus_to_timeout_bit(void)
 {
     /* Default sentinel_unused for every slot. */
@@ -865,6 +861,17 @@ static void prv_build_bus_to_timeout_bit(void)
     s_bus_to_bit_built = 1u;
 }
 
+/**
+ * @brief   把 signal-bus id 解析为它在 RX 超时位图里的 bit-N。
+ *
+ * @details 仅在首次调用时构建反查表，后续直读 BSS。bus_id 不映射到
+ *          任何 IPK RX MSG（TX signal / CAN bus health / 越界）时
+ *          返回 sentinel_unused。
+ *
+ * @param[in]  bus_id  SIG_CAN_* id 或 SIG_INVALID
+ *
+ * @return  见 can_db.h::CanDb_SigToTimeoutBit 声明
+ */
 u8 CanDb_SigToTimeoutBit(signal_id_t bus_id)
 {
     if ((bus_id <= SIG_INVALID) || (bus_id >= SIG_MAX)) {
@@ -949,22 +956,16 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id)
 }
 
 /**
- * @brief   Apply per-signal timeout policy on OK->TIMED_OUT edge
- * @brief   在 OK->TIMED_OUT 边沿上,按 signal 级别 policy 执行超时动作
+ * @brief   在 OK->TIMED_OUT 边沿上按 signal 级别 policy 执行超时动作。
  *
- * @details v0.5: policy 由 SigTimeoutPolicy_Get(bus_id) 决定
- *   - INIT_DBC (默认): 写 DBC init_value 进槽位 (= Signal_Set(id, init)).
- *     上层在 Signal_IsValid()=false 时,Signal_Get() 直接返回 DBC 默认值。
- *   - KEEP_LAST: 保留 slot 原值,不动 (timeout bitmap 已是 SoT)。
- *     上层在 Signal_IsValid()=false 时仍能读到 "超时前最后一帧" (Signal_Get)。
- *     Call from app/can/can_rx.c::prv_check_timeouts() at edge; do NOT
- *     invoke at runtime.
+ * @details 由 can_rx.c::prv_check_timeouts() 在边沿调用，业务方不应主动调用。
+ *          INIT_DBC (默认): 写 DBC init_value 进槽位；
+ *          KEEP_LAST (可选): 保留 slot 原值（timeout bitmap 是 SoT）。
  *
- * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
+ * @param[in]  ipk_msg_index  IPK 报文索引 (0..CAN_DB_IPK_MSG_COUNT-1)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            Policy applied
- * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
+ * @retval  C02B2_OK        policy 已应用
+ * @retval  C02B2_ERR_PARAM ipk_msg_index 越界
  */
 c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
 {
@@ -998,12 +999,13 @@ c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
 
 
 /**
- * @brief   Override the per-signal timeout policy for one bus id.
- * @brief   设置单个 signal bus id 的超时策略。
+ * @brief   设置单个 signal bus id 的超时策略（运行时可改）。
  *
- * @details 写入 g_signal_timeout_policy bit-packed 表。运行时调用,
- *          下次 OK→TIMED_OUT 边沿 (prv_check_timeouts) 即生效。
- *          没有锁 — IAR Cortex-M 单核,且 policy 写先于 tick 读。
+ * @details 写入 bit-packed g_signal_timeout_policy 表；
+ *          下次 OK→TIMED_OUT 边沿生效。无锁（单核 + policy 写先于 tick 读）。
+ *
+ * @param[in]  bus_id   信号 id
+ * @param[in]  policy  INIT_DBC 或 KEEP_LAST
  */
 c02b2_result_t CanDb_SetSignalTimeoutPolicy(signal_id_t bus_id,
                                             sig_timeout_policy_t policy)
@@ -1016,8 +1018,7 @@ c02b2_result_t CanDb_SetSignalTimeoutPolicy(signal_id_t bus_id,
 }
 
 /**
- * @brief   Initialize the per-signal timeout policy table to INIT_DBC.
- * @brief   把超时策略表清零 (= 全 INIT_DBC)。
+ * @brief   把超时策略表清零（全 INIT_DBC）。
  *
  * @details 由 CanDb_Init() 调用。CanDb_Init 之后业务模块可按 signal
  *          用 CanDb_SetSignalTimeoutPolicy() 改写。

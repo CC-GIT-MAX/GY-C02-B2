@@ -19,7 +19,7 @@
 > **🟡 软约束：.c 文件中**按需**使用 @details——仅在函数实现较复杂（多步骤 / 有副作用 / 有状态依赖 / 实现 > 5 行）时推荐补充；简单函数（单一 SDK 调用、无分支、< 5 行）省略。
 
 
-> **必须有中文 `@brief`（一句），可附 1 行英文 `@brief`（一句）。**
+> **必须有中文 `@brief`（一句）。**
 > **多个参数按函数形参顺序逐行写 `@param[in]` / `@param[out]` / `@param[in,out]`；无参不写。**
 > **非 void 返回必须写 `@return`；多返回值用 `@retval` 列表。**
 > **`@details`（中文）：`.c` 文件推荐补充实现细节；`.h` 文件一般不写。**
@@ -28,7 +28,6 @@
 
 ```c
 /**
- * @brief   Fetch the most recent raw frame for an IPK CAN id
  * @brief   获取某 IPK CAN id 最近一次的原始帧
  *
  * @details RX tick 在每个 IPK can_id 上缓存最近收到的原始 8 字节
@@ -49,9 +48,8 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 
 ```c
 /**
- * @brief   Copy the most recent raw 8-byte payload of a CAN frame
  * @brief   复制指定 CAN id 最近收到的 8 字节原始 payload
-
+ *
  * @param[in]   can_id  IPK RX can_id (11-bit standard)
  * @param[out]  out     Filled on success
  *
@@ -66,9 +64,8 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 ### 2.3 强制约束
 
 - `/**` 开头，`*/` 结尾（**不能用** `/* ... */` 单星号）
-- **第一个 `@brief` 用英文**（短句，可选但推荐），**第二个 `@brief` 用中文**（必填，祈使句）
+- **`@brief` 用中文**（必填，祈使句，可分多行）
 - 中文 `@brief` 用全角标点（`，。：；`），句末加句号
-- 英文 `@brief` 用半角标点（`, . : ;`），句末加句号
 - `@param` 标签**只写适用的方向**：`[in]` / `[out]` / `[in,out]`；无参时**整个 `@param` 段都不写**
 - `@param` 顺序与函数形参顺序一致
 - `@return` 与函数返回类型对齐；void 函数**必须省略** `@return`
@@ -79,8 +76,8 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 
 ### 2.4 行宽
 
-- 每行 < 100 字符（保持 diff 可读）
-- 中英文 `@brief` / `@details` 可分多行（每行续行以空格开头，缩进 4 空格对齐）
+- 每行 < 85 字符（保持 diff 可读）
+- 中文 `@brief` / `@details` 可分多行（每行续行以空格开头，缩进 4 空格对齐）
 
 ## 3. 实例
 
@@ -90,7 +87,6 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 
 ```c
 /**
- * @brief   Fetch the most recent raw frame for an IPK CAN id
  * @brief   获取某 IPK CAN id 最近一次的原始帧
  *
  * @details RX tick 在每个 IPK can_id 上缓存最近收到的原始 8 字节
@@ -112,7 +108,6 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out)
 
 ```c
 /**
- * @brief   Copy the most recent raw 8-byte payload of a CAN frame
  * @brief   复制指定 CAN id 最近收到的 8 字节原始 payload
  *
  * @param[in]   can_id  IPK RX can_id (11-bit standard)
@@ -130,12 +125,11 @@ c02b2_result_t CanRx_GetLastRawFrame(u32 can_id, can_msg_t *out);
 
 ```c
 /**
- * @brief   Initialize the power management module
  * @brief   初始化电源管理模块
  *
- * @param[in]  cold_boot  1 = cold boot (KAM lost), 0 = warm boot (KAM preserved)
+ * @param[in]  cold_boot  1 = 冷启动（KAM 丢失），0 = 热启动（KAM 保留）
  *
- * @note    Must be called once before Scheduler_Init().
+ * @note    必须在 Scheduler_Init() 之前调用一次。
  */
 void Power_Init(u8 cold_boot);
 ```
@@ -144,7 +138,6 @@ void Power_Init(u8 cold_boot);
 
 ```c
 /**
- * @brief   Reset cached raw frames
  * @brief   清空已缓存的原始帧
  */
 void CanRx_Reset(void);
@@ -153,7 +146,7 @@ void CanRx_Reset(void);
 ### 3.5 内部 static 函数（**最少** 1 行 `@brief`）
 
 ```c
-/** @brief  Compute low-pass filtered battery voltage (1st-order IIR, alpha=1/8) */
+/** @brief  一阶 IIR 低通滤波电池电压（alpha=1/8） */
 static u16 prv_filter_bat_mv(u16 raw_mv);
 ```
 ## 4. 头文件 vs .c 文件
@@ -171,15 +164,13 @@ static u16 prv_filter_bat_mv(u16 raw_mv);
 `tools/check_doxygen.sh` 扫描：
 - 头文件中所有函数声明必须带 `/**` 中文 `@brief`
 - `.c` 文件中的非 `static` 函数必须带 `/**` 中文 `@brief`
-- 每个函数必须有中文 `@brief`；英文 `@brief` 可选
+- 每个函数必须有中文 `@brief`
 - `.c` 文件函数**推荐**含中文 `@details`（非强制）
 - 内部 `static` 函数**至少** 1 行 `/** @brief ... */`
 
 CI 失败示例：
 ```
 [FAIL] app/foo.c:42: function 'bar' missing /** @brief above
-[FAIL] app/foo.h:18: function 'baz' has 2 params but only 1 @param documented
-[FAIL] app/foo.c:55: function 'qux' has only English @brief, missing Chinese @brief
 ```
 
 ## 6. 与 CI 集成
@@ -196,7 +187,7 @@ CI 失败示例：
 
 - [ ] 每个 `.h` 中的函数都有完整注释
 - [ ] 每个 `.c` 中的非 static 函数都有完整注释
-- [ ] 每个函数都**有中文 `@brief`**（推荐再附 1 行英文 `@brief`）
+- [ ] 每个函数都**有中文 `@brief`**
 - [ ] `.c` 文件函数**按需**含中文 `@details`（简单函数可省），`.h` 函数**禁止** `@details`
 - [ ] `@param` 只在有参数时写，并标注 `[in] / [out] / [in,out]`
 - [ ] 非 void 函数都有 `@return`（多返回值加 `@retval`）

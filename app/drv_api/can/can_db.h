@@ -150,20 +150,13 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id);
 signal_id_t CanDb_DbcSigToBus(u16 db_sig_id);
 
 /**
- * @brief   Resolve a signal-bus id to its timeout-bitmap bit (per-MSG).
  * @brief   把 signal-bus id 解析为它在 RX 超时位图里的 bit-N。
  *
- * @details v0.5: 给 signal 总线上的 id，返回它所属 MSG 在
- *          s_bit_to_can_id[] 中的 bit-N (0..95)。validity 检查用此
- *          位查 SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2} 即可。
+ * @param[in]  bus_id  SIG_CAN_* id（1..SIG_MAX-1）或 SIG_INVALID
  *
- *          返 0xFF (= sentinel_unused) 表示：
- *          - 该 bus_id 不映射到任何 IPK RX MSG (TX signals、CAN health 等)
- *          - 越界 id
- *
- * @param[in]  bus_id  SIG_CAN_* id (1..SIG_MAX-1) 或 SIG_INVALID
- *
- * @return  u8  bit-N in [0, 95], or sentinel_unused (0xFF) if unmapped
+ * @retval  [0, 95]        所属 MSG 在 s_bit_to_can_id[] 中的 bit-N
+ * @retval  sentinel_unused 该 bus_id 不映射到任何 IPK RX MSG
+ *                          （TX signal / CAN health / 越界）
  */
 u8 CanDb_SigToTimeoutBit(signal_id_t bus_id);
 

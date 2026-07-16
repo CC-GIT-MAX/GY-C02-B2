@@ -505,12 +505,9 @@ c02b2_result_t CanTx_RebuildFromSignals(u32 can_id)
         const can_sig_desc_t *sig = &can_sig_descs_ipk[i];
         const u16 db_sig_id       = (u16)(i + 1u);
         const signal_id_t bus_id  = CanDb_DbcSigToBus(db_sig_id);
-        /* v0.5: TX loopback 用 Signal_Get 直读。
-         * 不走 Signal_Get 的 valid-fallback 语义。业务侧期望：
-         * loopback 报文携带最近一次成功帧，而非超时后的 0。 */
-        const u32 raw              = Signal_Get(bus_id); /* v0.5: 总线上是 RAW, 见 Signal_Get 直返;
-                                  * 超时后 KEEP_LAST 的 signal 保留 "timeout 前最后一帧" raw,
-                                  * INIT_DBC 的 signal 被改写为 init_value。*/
+        /* v0.5: 总线上是 RAW; INIT_DBC 超时后写 init_value,
+         * KEEP_LAST 超时后保留"timeout 前最后一帧"。*/
+        const u32 raw = Signal_Get(bus_id);
         /* The bus now carries RAW; pack raw directly (no factor math). */
     CanDb_PackSignal(s_tx.payloads[slot].data, sig, raw);
     }

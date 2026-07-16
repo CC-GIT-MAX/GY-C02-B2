@@ -48,23 +48,13 @@ static c02b2_result_t prv_do_10ms_job(void)
 }
 
 /**
- * @brief   100 ms sub-task: read IGN signal, log a snapshot.
- * @brief   100ms 子任务：读取 IGN 信号，记录一次快照
+ * @brief   100ms 子任务：示例三种 Signal 总线 API 用法。
  *
- * @details Demonstrates the Signal_Get() pattern and using multiple
- *          log args. Replace with real work in actual modules.
- *
- * @return  c02b2_result_t  Always C02B2_OK
+ * @retval  C02B2_OK  恒返
  */
 static c02b2_result_t prv_do_100ms_job(void)
 {
-    /* v0.5 example: 二件套用法.
-     *   - 业务路径           -> Signal_Get
-     *     (INIT_DBC 时, 超时后 Signal_Get() 返 DBC init_value;
-     *      KEEP_LAST 时, Signal_Get() 保留 "timeout 前最后一帧" raw)
-     *   - 门控逻辑           -> Signal_IsValid (boot_done && !timeout_bit)
-     *     + Signal_HasEverReceived (查 SIG_CAN_RX_EVER_RECEIVED_*)
-     * 实际开发中按需要组合使用即可。*/
+    /* v0.5 示例：见 SIGNAL_GUIDE.md §8 */
 
     const u32 rpm     = Signal_Get(SIG_CAN_EMS_EngineSpeedRPM);
     const bool rpm_ok = Signal_IsValid(SIG_CAN_EMS_EngineSpeedRPM)

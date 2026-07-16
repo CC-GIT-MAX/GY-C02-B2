@@ -530,28 +530,21 @@ __root static void prv_tick(void)
 }
 
 /**
- * @brief   mod_desc_t standby hook: mark all messages as timed-out.
- * @brief   mod_desc_t standby 钩子: 标记所有报文为超时
+ * @brief   mod_desc_t standby 钩子：KL15 off 时复位总线状态。
  *
- * @details v0.3: 进入低功耗前把所有 timeout bitmap 置全 1 (= 全部超时),
- *          与 prv_mcu_init 一致; wakeup 后 50ms tick 会用实测值覆盖。
- *          其它 signal 槽位 (SIG_CAN_*) 不动 — 仪表下一次启动时 mcu_init
- *          会重新 Signal_Reset 冷启。
+ * @details 与 prv_mcu_init 完全一致：timeout bitmap 置 0xFFFFFFFF
+ *          （全部超时视图，与冷启动视图对齐），ever_received bitmap
+ *          清 0（下轮 ign_on 后由 prv_drain 重新累计），
+ *          boot_done 清 0（让 Signal_IsValid() 重新进 bootstrap 守卫）。
  */
 __root static void prv_standby(void)
 {
-    /* v0.5: KL15 off → 重新进入 bootstrap 窗口。
-     *  1) 清 timeout bitmap, 业务读到的就是"启动期一致性"空状态。
-     *  2) 清 ever_received bitmap, 下次 ign_on 后重新计数。
-     *  3) 清 boot_done, 让 Signal_IsValid() 重新进入 bootstrap 守卫。
-     *  prv_on_ign_on() 会在下次唤醒时把 timeout bitmap 置 1 (= 全超时)
-     *  并让 boot_done 在 prv_check_timeouts 第一次进入时再置 1。*/
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,       0);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,       0);
-    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2,      0);
-    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_LO,     0);
-    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI,     0);
-    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI2,    0);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_LO,    0xFFFFFFFFu);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI,    0xFFFFFFFFu);
+    (void)Signal_Set(SIG_CAN_RX_TIMEOUT_MAP_HI2,   0xFFFFFFFFu);
+    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_LO,  0u);
+    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI,  0u);
+    (void)Signal_Set(SIG_CAN_RX_EVER_RECEIVED_HI2, 0u);
     Signal_ResetBootDone();
 }
 

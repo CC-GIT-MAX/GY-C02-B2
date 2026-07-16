@@ -318,13 +318,9 @@ static void prv_demo_roundtrip(u16 sig_id, const char *name, u32 raw_in)
  * 并在这里看到同样的 raw，说明 Motorola 解码正确。
  * `phys` 显示量化后的 s32 值（raw * factor + offset，四舍五入），
  * 用于 SOC 交叉核对。*/
+/** @brief  演示 Signal_Get / HasEverReceived / IsValid 三件套 */
 static void prv_demo_live_rx(u16 sig_id, signal_id_t bus_id, const char *name)
 {
-    /* v0.5 三件套展示:
-     *   - raw_live     : Signal_Get        (INIT_DBC -> init_value, KEEP_LAST -> 最后一帧)
-     *   - raw_ever     : Signal_HasEverReceived (是否曾收到过有效帧)
-     *   - valid        : Signal_IsValid    (boot_done && !timeout_bit)
-     * 这里 demo 用于 CANalyzer 调试时人工核对 timeout / fresh 行为。*/
     const u32  raw_live     = Signal_Get(bus_id);
     const u32  raw_ever     = Signal_HasEverReceived(bus_id) ? 1u : 0u;
     const bool valid        = Signal_IsValid(bus_id);
