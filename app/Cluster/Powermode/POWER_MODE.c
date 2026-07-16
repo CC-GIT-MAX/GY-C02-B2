@@ -1052,16 +1052,16 @@ void WKU_IRQHandler(void)
 
 /* Module-private RTI period slots (opened once in mcu_init).
  * 模块私有 RTI 周期槽位（mcu_init 中一次性打开）。
- * 对应原 RTOS.c 的 10ms / 100ms / 500ms 三层调度粒度。*/
+ * 对应原 RTOS.c 的 10ms 调度粒度，100ms/500ms 任务由软件分频实现。*/
 static rti_slot_t s_slot_10ms;
-static rti_slot_t s_slot_100ms;
-static rti_slot_t s_slot_500ms;
 
 
 
 /* Private context ------------------------------------------------------- */
 static struct {
     uint8_t init_done;
+    uint8_t s_100ms_div;
+    uint8_t s_500ms_div;
 } s_ctx;
 
 /* --- 10 ms sub-task (原 RTOS.c YTM_RTI_10MS_FLAG 对应内容) ------------- */
@@ -1089,6 +1089,16 @@ static void prv_run_10ms_jobs(void)
         }
     } else {
         POWER_IGN_IS_OFF_COUNTER = 0u;
+    }
+
+    if (++s_ctx.s_100ms_div >= 10u) {
+        s_ctx.s_100ms_div = 0u;
+        prv_run_100ms_jobs();
+    }
+
+    if (++s_ctx.s_500ms_div >= 50u) {
+        s_ctx.s_500ms_div = 0u;
+        prv_run_500ms_jobs();
     }
 }
 
@@ -1143,9 +1153,7 @@ static void prv_run_500ms_jobs(void)
  */
 static void prv_mcu_init(uint8_t cold_boot)
 {
-    s_slot_10ms  = RTI_OpenSlot(RTI_10MS);
-    s_slot_100ms = RTI_OpenSlot(RTI_100MS);
-    s_slot_500ms = RTI_OpenSlot(RTI_500MS);
+    s_slot_10ms = RTI_OpenSlot(RTI_10MS);
     s_ctx.init_done = 1u;
 
     POWER_MODE_INIT_RESET();
@@ -1183,9 +1191,7 @@ static void prv_tick(void)
     if (!s_ctx.init_done) {
         return;
     }
-    if (RTI_SlotElapsed(&s_slot_10ms))  { prv_run_10ms_jobs(); }
-    if (RTI_SlotElapsed(&s_slot_100ms)) { prv_run_100ms_jobs(); }
-    if (RTI_SlotElapsed(&s_slot_500ms)) { prv_run_500ms_jobs(); }
+    if (RTI_SlotElapsed(&s_slot_10ms)) { prv_run_10ms_jobs(); }
 }
 
 /**
