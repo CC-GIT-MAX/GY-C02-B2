@@ -394,6 +394,7 @@
                     <state>$PROJ_DIR$/../app/drv_api</state>
                     <state>$PROJ_DIR$\..\app\Cluster\Algorithm</state>
                     <state>$PROJ_DIR$\..\app\Cluster\Powermode</state>
+                    <state>$PROJ_DIR$\..\app\Cluster\OdoMeter</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1189,6 +1190,9 @@
                 <file>
                     <name>$PROJ_DIR$\..\app\Cluster\Algorithm\MATHS.h</name>
                 </file>
+            </group>
+            <group>
+                <name>OdoMeter</name>
             </group>
             <group>
                 <name>Powermode</name>
