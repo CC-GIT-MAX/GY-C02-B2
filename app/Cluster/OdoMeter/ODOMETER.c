@@ -28,6 +28,11 @@
 // #include "YTM_CONFIGURE.h"
 #include "signal.h"
 #include "can_rx.h"
+#include "scheduler.h"
+#include "rti.h"
+
+#define MOD_NAME  "ODO"
+#include "log.h"
 
 //#include "DIC_BUTTON.h"
 
@@ -88,6 +93,7 @@ uint16 SPD_INPUT_VALUE;   //0.1km/h
 uint8 SPD_INPUT_MODE=SPD_CAN_MODE;
 uint16  Trip_Single_REMA,Trip_Single_100Ms_M;
 uint16  PRINT_UINT_100m_ADD_CNT; 
+uint32 FUEL_INC_ODO;
 //define
 
 //*****************************************************************************
@@ -257,7 +263,7 @@ void ODO_WRITE_TASK(void)
 		if(TEL_SERVICE_DAY_WRITE_REQ)
 		{
 			TEL_SERVICE_DAY_WRITE_REQ=0;
-			TEL_COMM_SERVICE_DAY_SAVE();
+			//TEL_COMM_SERVICE_DAY_SAVE();保养里程移植完成时移除注释
 		}
 //		if(1==FRS_ODO.write_falg) //风险行驶里程  //FS11-A3  DISABLE
 //		{
@@ -309,7 +315,7 @@ void ODO_DIAG_TASK(uint32 season)
 // inputs : none
 // outputs: none
 //*****************************************************************************
-extern uint32 FUEL_INC_ODO;
+//extern uint32 FUEL_INC_ODO;
 
 
  
@@ -438,7 +444,7 @@ void ODO_100MS_UPDATE(void)
 			SEASON_20MS_M-=32000; //续航里程增加
 			//DIC_INFO_DTE_32M_UPDATE();
 			//TEL_COMM_SEATBELT_ODO_INC();
-		DIC_FUEL_RANGE_UPDATE();	
+		// DIC_FUEL_RANGE_UPDATE();	DIC模块移植完成时解除注释
 		}
 	}
 }
@@ -529,4 +535,69 @@ uint32 Get_ODO(void)
 
 
 
+static rti_slot_t s_slot_10ms;
+static rti_slot_t s_slot_100ms;
+
+static struct {
+    uint8_t init_done;
+} s_ctx;
+
+static void prv_run_10ms_jobs(void)
+{
+    ODO_WRITE_TASK();
+}
+
+static void prv_run_100ms_jobs(void)
+{
+    if (POWER_IGN_ON) {
+        ODO_100MS_UPDATE();
+    }
+}
+
+static void prv_mcu_init(uint8_t cold_boot)
+{
+    s_slot_10ms  = RTI_OpenSlot(RTI_10MS);
+    s_slot_100ms = RTI_OpenSlot(RTI_100MS);
+    s_ctx.init_done = 1u;
+
+    ODOMETER_INIT_RESET(cold_boot);
+    LOG_I("init (cold_boot=%u)", (unsigned)cold_boot);
+}
+
+static void prv_wakeup_init(void)
+{
+    LOG_I("wakeup_init");
+}
+
+static void prv_on_ign_on(void)
+{
+    ODOMETER_INIT_IGN();
+    LOG_I("on_ign_on");
+}
+
+static void prv_tick(void)
+{
+    if (!s_ctx.init_done) {
+        return;
+    }
+    if (RTI_SlotElapsed(&s_slot_10ms))  { prv_run_10ms_jobs(); }
+    if (RTI_SlotElapsed(&s_slot_100ms)) { prv_run_100ms_jobs(); }
+}
+
+static void prv_standby(void)
+{
+    ODOMETER_STANDBY();
+    LOG_I("standby");
+}
+
+const mod_desc_t mod_odometer = {
+    .name        = "odometer",
+    .mcu_init    = prv_mcu_init,
+    .wakeup_init = prv_wakeup_init,
+    .on_ign_on   = prv_on_ign_on,
+    .tick        = prv_tick,
+    .standby     = prv_standby,
+};
+
+SCHED_REGISTER(mod_odometer);
 

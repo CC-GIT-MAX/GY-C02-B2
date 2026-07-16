@@ -2,7 +2,7 @@
 
 #ifndef __ODOMETER_H_
 #define __ODOMETER_H_
-
+#include "scheduler.h"
 //-------------------------------------------------------------------
 // public functions
 //-------------------------------------------------------------------
@@ -55,6 +55,8 @@ extern uint8 ODO_WRITE_MODE;
 
 extern uint16  Trip_A_REMA,Trip_A_100Ms_M;
 extern uint16  Trip_B_REMA,Trip_B_100Ms_M;
+
+extern const mod_desc_t mod_odometer;
 
 //define
 #define	ADDRESS_OFFSET_ODO						0x80  //4
