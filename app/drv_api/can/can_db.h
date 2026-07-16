@@ -24,21 +24,57 @@
 
 
 /**
- * @brief   Mark every signal of an IPK message as invalid (timeout-driven)
- * @brief   把某条 IPK 报文的所有 signal 标记为无效（超时驱动）
+ * @brief   Apply per-signal timeout policy on OK->TIMED_OUT edge
+ * @brief   在 OK->TIMED_OUT 边沿上,按 signal 级别 policy 执行超时动作
  *
- * @details v0.3: 给 IPK message index，回溯它的 sig_index/sig_count
- *          把 s_dbc_to_bus[] 翻译为对应 signal_id_t 并逐个 Signal_Invalidate。
- *          由 app/can/can_rx.c 50ms tick 在 OK→TIMED_OUT 边沿调用，
- *          业务方不应主动调用（除非手工触发降级）。
+ * @details v0.5: 给 IPK message index,回溯它的 sig_index/sig_count,
+ *          走 SigTimeoutPolicy_Get() 判定 INIT_DBC / KEEP_LAST:
+ *          - INIT_DBC 默认: 写 DBC init_value 进 slot。
+ *          - KEEP_LAST: 不动 slot (保留 timeout 前最后一帧)。
+ *          由 app/can/can_rx.c 50ms tick 在 OK->TIMED_OUT 边沿调用,
+ *          业务方不应主动调用。
  *
  * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
  *
  * @return  c02b2_result_t
- * @retval  C02B2_OK            All signals of the message marked invalid
+ * @retval  C02B2_OK            Policy applied
  * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
  */
 c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index);
+
+/**
+ * @brief   Per-signal timeout policy: choose between writing the
+ *          DBC-derived init value and keeping the last RX value.
+ * @brief   每信号超时策略: 在写入 DBC init value 与保持上次 RX 值之间二选一。
+ *
+ * @details v0.4: 默认所有 signal 走 INIT_DBC(写 sig->init_value);
+ *          CanDb_Init() 完成之后业务模块可以按需通过本 API 切换某 signal
+ *          到 KEEP_LAST(保留 value)。切换时机与 prv_check_timeouts 边沿检测
+ *          无竞争 (IAR Cortex-M 单核,policy 写后下次 tick 即生效)。
+ *          保留枚举未来可扩展第三档 (SIG_TIMEOUT_ZERO 等)。
+ */
+typedef enum {
+    SIG_TIMEOUT_INIT_DBC = 0u,  /**< 默认: 超时写 desc->init_value (DBC GenSigStartValue)*/
+    SIG_TIMEOUT_KEEP_LAST = 1u, /**< 业务可选: 超时保留旧 value,仅清 valid (v0.3 行为)*/
+} sig_timeout_policy_t;
+
+/**
+ * @brief   Override the per-signal timeout policy for one bus id.
+ * @brief   设置单个 bus 上信号的超时策略。
+ *
+ * @details mcu_init 之后任何时刻都可调用;下次 OK→TIMED_OUT 边沿检测时即生效。
+ *          业务举例: speed 信号需要保留最后有效帧供降级显示,可调
+ *          CanDb_SetSignalTimeoutPolicy(SIG_CAN_<speed>, SIG_TIMEOUT_KEEP_LAST)。
+ *
+ * @param[in]  bus_id   Target signal bus id
+ * @param[in]  policy   SIG_TIMEOUT_INIT_DBC 或 SIG_TIMEOUT_KEEP_LAST
+ *
+ * @return  c02b2_result_t
+ * @retval  C02B2_OK             Policy set
+ * @retval  C02B2_ERR_PARAM      bus_id 越界 (SIG_INVALID / out of range)
+ */
+c02b2_result_t CanDb_SetSignalTimeoutPolicy(signal_id_t bus_id,
+                                            sig_timeout_policy_t policy);
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -112,6 +148,17 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id);
  * @return  signal_id_t  Matching SIG_CAN_* id, or SIG_INVALID if out of range
  */
 signal_id_t CanDb_DbcSigToBus(u16 db_sig_id);
+
+/**
+ * @brief   把 signal-bus id 解析为它在 RX 超时位图里的 bit-N。
+ *
+ * @param[in]  bus_id  SIG_CAN_* id（1..SIG_MAX-1）或 SIG_INVALID
+ *
+ * @retval  [0, 95]        所属 MSG 在 s_bit_to_can_id[] 中的 bit-N
+ * @retval  sentinel_unused 该 bus_id 不映射到任何 IPK RX MSG
+ *                          （TX signal / CAN health / 越界）
+ */
+u8 CanDb_SigToTimeoutBit(signal_id_t bus_id);
 
 #ifdef __cplusplus
 }

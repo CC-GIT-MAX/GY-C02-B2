@@ -1,10 +1,11 @@
 # 信号总线使用指南
 
 > Signal 总线**只**承担 CAN 相关数据
-> 信号语义按三件套 (Signal_Get / Signal_GetStored / Signal_IsValid) 区分：
+> 信号语义按 v0.5 模型区分 (validity 走 timeout bitmap,不再保留 per-slot valid):
 >   - 正常态 → Get 返回最新值、IsValid=true；
->   - 超时 / 未收 → Get 返回 0 (fallback)；GetStored 仍可读最近一次有效值（仪表降级显示）；
->   - 启动期 bitmap 全 1 = 全部超时，第一次成功 RX 后才清零。
+>   - 超时 / 未收 → Get 返回 init_value (INIT_DBC 默认) 或保留"超时前最后一帧"
+>     (KEEP_LAST 可选); IsValid=false; HasEverReceived 独立查 ever_received map;
+>   - 启动期 bitmap 全 1 = 全部超时; boot_done=0 (prv_check_timeouts 首次 tick 置 1)。
 > 任何业务数据（结构体 / 数组 / 标量）请直接使用模块自有或共享的 extern 全局变量；
 > ARCHITECTURE **不**对"业务用 extern 全局"有任何 owner / 写者唯一性限制。
 > 详见 `docs/ARCHITECTURE.md` §4。
@@ -21,14 +22,17 @@
   - 207 个 `SIG_CAN_*`（DBC 自动生成的 CAN 信号）
   - 3 个 `SIG_CAN_RX_TIMEOUT_MAP_{LO,HI,HI2}`（接收超时 bitmap）
   - 4 个 `SIG_CAN_BUS_OFF/_COUNT/TX_ERR_CNT/RX_ERR_CNT`（总线健康）
-- **API（六件套）**：
-  - `Signal_Set(id, raw)` — 写入并置 `valid=true`、置 `ever_set=true`
-  - `Signal_Get(id)` — **valid 时返回 raw**；超时 / 未收 / 越界 → 0 (fallback)
-  - `Signal_GetStored(id)` — **强制**返回最近一次 `Signal_Set` 写入值（不看 valid）；
-    用于仪表降级显示、超时前最后一帧、首屏兜底
-  - `Signal_IsValid(id)` — `valid && ever_set` 才返回 true
-  - `Signal_Invalidate(id)` / `Signal_InvalidateAll()` — 清 valid（保留 value + ever_set）
-  - **`Signal_Reset(id)`**  — 彻底冷启动：清 value / valid / ever_set 三位。
+- **API（v0.5 五件套 + 1 cold-start）**：
+  - `Signal_Set(id, raw)` — 写 RAW u32 进 slot；无 valid 守卫
+  - `Signal_Get(id)` — 直返最近一次 Set 写入值；BSS 默认 0；
+    超时后值由 policy 决定 (INIT_DBC -> init_value, KEEP_LAST -> 保留原值)
+  - `Signal_IsValid(id)` — `boot_done && !timeout_bit`；无 timeout map 的 id 走
+    `value != 0` 兜底 (BUS health)
+  - `Signal_HasEverReceived(id)` — 查 SIG_CAN_RX_EVER_RECEIVED_{LO,HI,HI2};
+    该 MSG 是否曾收到过有效帧 (KL15 off 前不重置)
+  - `Signal_SetBootDone()` / `Signal_ResetBootDone()` / `Signal_IsBootDone()`
+    — bootstrap 窗口 flag, 由 can_rx prv_check_timeouts / prv_standby 控制
+  - **`Signal_Reset(id)`** — 写 `can_sig_descs_ipk[id-1].init_value` 进 slot。
     **仅** 给各模块 `prv_mcu_init` 使用，业务方不应主动调用。
 - **写者唯一**：每个 `SIG_CAN_*` 由 mod_can_rx 在 RX 派发时写一次。
   消费方只 `Signal_Get` / `GetStored` / `IsValid`，无锁。
@@ -46,7 +50,7 @@
 直到第一次 50 ms tick 给出实测值为止。同时 `Signal_Get(SIG_CAN_*)` 因为
 `Signal_Reset` 已经处于 valid=false 状态，仍然返回 0 fallback — 两套机制一致。
 
-## 3. 超时驱动：有效 / 无效标志切换
+## 3. 超时驱动 (v0.5: timeout bitmap 是 SoT)
 
 ```
 +----------------------------------------------------------------+
@@ -57,18 +61,21 @@
 |            │ no                             │ yes (rising edge) |
 |            ▼                                ▼                   |
 |     bit-N 留 0                       bit-N 置 1                |
-|                                       CAN_Db_Invalidate        |
-|                                        SignalsOnMsgTimeout(    |
-|                                          ipk_idx )              |
+|                                       CanDb_InvalidateSignalsOn|
+|                                        MsgTimeout(ipk_idx)    |
 |                                       ↓                          |
-|                          该消息的所有 signal 槽位:              |
-|                            valid = false (ever_set 保留)       |
-|                            value 保留 (供 GetStored 读)        |
+|                              按 signal 级别 policy 决议:        |
+|                              - INIT_DBC (默认) -> 写 init_value  |
+|                              - KEEP_LAST (可选) -> 保留原值     |
+|                                                                 |
+|  prv_check_timeouts 首次进入 → Signal_SetBootDone() 标记        |
+|  bootstrap 窗口结束,IsValid() 进入基于 bitmap 的判定。          |
 +----------------------------------------------------------------+
 ```
 
-> **`GetStored`** 的语义：超时瞬间 value 不被清零，仪表可以继续显示
-> "上一次有效帧"，直到下一次正常 RX 重新覆盖。
+> INIT_DBC 默认让上层 `Signal_Get()` 在超时后直接读到 DBC 默认值
+> (例如 TPMS 0xFF = Invalid); KEEP_LAST 的 signal 通过 `CanDb_SetSignalTimeoutPolicy()`
+> 在 mcu_init 之后切换,运行时业务方拿到的是"timeout 前最后一帧"。
 
 ## 4. CAN 报文超时查询
 
@@ -89,9 +96,10 @@ typedef enum {
 } can_rx_freshness_t;
 ```
 
-**关键点**：`CAN_RX_FRESH_TIMED_OUT` 时 `Signal_Get` 返回的信号值
-**仍是超时前的最后一帧**（保留未动，方便模块"降级显示上一次
-正确值"）。`Signal_GetStored` 在任何超时状态下都返回该最后一次值。
+**关键点**：`CAN_RX_FRESH_TIMED_OUT` 时 `Signal_Get` 返回的信号值：
+- INIT_DBC signal → DBC init_value (e.g. TPMS_FLTyrePr = 0xFF);
+- KEEP_LAST signal → "timeout 前最后一帧" raw (供"降级显示上一次正确值"用).
+切换 KEEP_LAST 见 `CanDb_SetSignalTimeoutPolicy()`。
 
 ## 5. 业务数据通道
 
@@ -120,32 +128,34 @@ extern power_snap_t g_power_snap;
 需要被另一个模块读取？
   ├─ 否 → 模块内部 static 变量
   └─ 是 → 数据来自 CAN 报文？
-              ├─ 是 → Signal_Set/Get/GetStored/IsValid(SIG_CAN_*, ...)
-              │     （超时用 CanRx_IsMsgTimedOut / GetMsgFreshness）
+              ├─ 是 → Signal_Set/Get/IsValid/HasEverReceived(SIG_CAN_*, ...)
+              │     （超时用 CanRx_IsMsgTimedOut / GetMsgFreshness;
+              │      INIT_DBC vs KEEP_LAST 走 CanDb_SetSignalTimeoutPolicy）
               └─ 否 → 直接 extern 全局变量（无限制）
                        或 模块 getter/setter（需要做参数校验或原子拷贝时）
 ```
 
-## 8. 信号 API 速查
+## 8. 信号 API 速查 (v0.5)
 
 ```c
 /* 1. 写 */
 (void)Signal_Set(SIG_CAN_EMS_EngineSpeedRPM, raw_value);
 
-/* 2. 正常使用：fallback-0 */
+/* 2. 读取 (TX loopback 也用这个) */
 u32 rpm = Signal_Get(SIG_CAN_EMS_EngineSpeedRPM);
 
-/* 3. 仪表降级显示：保留最近一次 */
-u32 rpm_last = Signal_GetStored(SIG_CAN_EMS_EngineSpeedRPM);
-
-/* 4. 门控逻辑 */
+/* 3. 门控 (timeout bitmap 推导) */
 if (Signal_IsValid(SIG_CAN_EMS_EngineSpeedRPM)) { ... }
+if (Signal_HasEverReceived(SIG_CAN_EMS_EngineSpeedRPM)) { ... } /* 曾收到过 */
 
-/* 5. 主动失效（极少见，主要给 can_rx 50ms tick 用） */
-Signal_Invalidate(SIG_CAN_EMS_EngineSpeedRPM);
+/* 4. 选择超时策略 (mcu_init 之后, KEEP_LAST = 保留原值) */
+CanDb_SetSignalTimeoutPolicy(SIG_CAN_EMS_EngineSpeedRPM, SIG_TIMEOUT_KEEP_LAST);
 
-/* 6. 模块初始化清零（F1/F2/F3） */
-Signal_Reset(SIG_CAN_EMS_EngineSpeedRPM);   /* 仅 mcu_init 用 */
+/* 5. 模块初始化冷启动默认值 (仅 prv_mcu_init 用) */
+Signal_Reset(SIG_CAN_EMS_EngineSpeedRPM);   /* 写 DBC init_value */
+
+/* 6. bootstrap 标志 (can_rx 内部使用) */
+Signal_IsBootDone();   /* 0 = 启动期窗口, IsValid 一律 false */
 ```
 
 ## 9. 反模式

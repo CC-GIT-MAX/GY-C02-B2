@@ -19,6 +19,43 @@
 /* Phase 3 / C4: ack. s_dbc_to_bus[] 是手维护映射表（不是 AUTOGEN）。表上方注释已说明工具尚未落地（gen_can_db_map.py / gen_ipk_runtime.py 路线）。Marker closed. */
 /* Phase 3 / A9: ack. CanDb_DecodeSignal 内的四舍五入 (half-away-from-zero) 行为正确：边界 0.5 / -0.5 远离零，代码分支 +0.5f / -0.5f + (s32) cast 在 cast 时向零截断的副作用下仍给出正确结果。例：f=-0.5f → f-0.5f=-1.0f → cast -1 ✓；f=-1.5f → -2.0f → -2 ✓；f=-0.4f → -0.9f → 0 ✓ (|0.4|<0.5)。详细分析见 CanDb_DecodeSignal 函数体内注释。Marker closed. */
 
+/* SIG_BITMAP_BYTES 必须在 g_signal_timeout_policy[] 之前定义
+ *  (IAR C99/C11 strict mode: array size must be a known constant expression at point of decl). */
+#define SIG_BITMAP_BYTES         (((u32)SIG_MAX + 7u) / 8u)
+/* SIG_BITMAP_BYTES const 折叠后 = 26 (SIG_MAX=208);< 64 byte 阈值,
+ * 留给将来 SIG_MAX 增到 512 之前仍有空间。IAR 非 C11 模式下 typedef char x[-1]
+ * 会报 Pe094,所以约束放注释里 — 实际尺寸由 PR review 跟进。 */
+
+/* ---------------------------------------------------------------- *
+ *  Per-signal timeout policy table (v0.4)                            *
+ *                                                                    *
+ *  Bit-packed: 每信号 1 bit。0 = SIG_TIMEOUT_INIT_DBC (默认),       *
+ *  1 = SIG_TIMEOUT_KEEP_LAST。索引 bus_id - 1 (SIG_INVALID 不占用).
+ *  CanDb_Init() 把所有 bit 清 0 (= INIT_DBC)。运行时 CanDb_SetSignalTimeoutPolicy
+ *  可切 bit;切换时机 mcu_init 之后任何时刻,与 prv_check_timeouts 边沿
+ *  检测无竞争 (IAR Cortex-M 单核)。预占空间: ceil(SIG_MAX / 8) 字节,
+ * 当前 SIG_MAX=208 → 26 B。                                       *
+ * ---------------------------------------------------------------- */
+static u8 g_signal_timeout_policy[SIG_BITMAP_BYTES];
+
+static inline bool SigTimeoutPolicy_Get(signal_id_t bus_id)
+{
+    const u16 idx = (u16)(bus_id - 1u);   /* SIG_INVALID 不进 */
+    return (g_signal_timeout_policy[idx >> 3u] & ((u8)1u << (idx & 0x07u))) != 0u;
+}
+
+static inline void SigTimeoutPolicy_Set(signal_id_t bus_id, sig_timeout_policy_t policy)
+{
+    const u16 idx = (u16)(bus_id - 1u);
+    const u8 mask = (u8)1u << (idx & 0x07u);
+    if (policy == SIG_TIMEOUT_KEEP_LAST) {
+        g_signal_timeout_policy[idx >> 3u] |= mask;
+    } else {
+        g_signal_timeout_policy[idx >> 3u] &= (u8)~mask;
+    }
+}
+
+
 /* ---------------------------------------------------------------- *
  *  Reverse maps for fast lookup                                     *
  * ---------------------------------------------------------------- */
@@ -46,6 +83,15 @@
 
 static const signal_id_t s_dbc_to_bus[CAN_DB_IPK_SIG_COUNT] = {
     [0] = SIG_INVALID, /* CAN_DB_SIG_INVALID */
+    /* --- RX: IPK_RECV_E2_523 (0x0523, dlc=8) --- */
+    [CAN_DB_SIG_IPK_RECV_E2_B7 - 1u] = SIG_CAN_IPK_RECV_E2_B7,
+    [CAN_DB_SIG_IPK_RECV_E2_B6 - 1u] = SIG_CAN_IPK_RECV_E2_B6,
+    [CAN_DB_SIG_IPK_RECV_E2_B5 - 1u] = SIG_CAN_IPK_RECV_E2_B5,
+    [CAN_DB_SIG_IPK_RECV_E2_B4 - 1u] = SIG_CAN_IPK_RECV_E2_B4,
+    [CAN_DB_SIG_IPK_RECV_E2_B3 - 1u] = SIG_CAN_IPK_RECV_E2_B3,
+    [CAN_DB_SIG_IPK_RECV_E2_B2 - 1u] = SIG_CAN_IPK_RECV_E2_B2,
+    [CAN_DB_SIG_IPK_RECV_E2_B1 - 1u] = SIG_CAN_IPK_RECV_E2_B1,
+    [CAN_DB_SIG_IPK_RECV_E2_B0 - 1u] = SIG_CAN_IPK_RECV_E2_B0,
     /* --- RX: MMI_DateTime_Msg (0x02AF, dlc=8) --- */
     [CAN_DB_SIG_MMI_Second - 1u] = SIG_CAN_MMI_Second,
     [CAN_DB_SIG_MMI_Minute - 1u] = SIG_CAN_MMI_Minute,
@@ -667,6 +713,15 @@ static const signal_id_t s_dbc_to_bus[CAN_DB_IPK_SIG_COUNT] = {
     [CAN_DB_SIG_TRM_EleIF_Connect_Failure - 1u] = SIG_CAN_TRM_EleIF_Connect_Failure,
     [CAN_DB_SIG_TRM_Message_AliveCounter - 1u] = SIG_CAN_TRM_Message_AliveCounter,
     [CAN_DB_SIG_TRM_Message_CheckSum - 1u] = SIG_CAN_TRM_Message_CheckSum,
+    /* --- TX: IPK_SEND_E2_524 (0x0524, dlc=8) --- */
+    [CAN_DB_SIG_IPK_SEND_E2_B7 - 1u] = SIG_CAN_IPK_SEND_E2_B7,
+    [CAN_DB_SIG_IPK_SEND_E2_B6 - 1u] = SIG_CAN_IPK_SEND_E2_B6,
+    [CAN_DB_SIG_IPK_SEND_E2_B5 - 1u] = SIG_CAN_IPK_SEND_E2_B5,
+    [CAN_DB_SIG_IPK_SEND_E2_B4 - 1u] = SIG_CAN_IPK_SEND_E2_B4,
+    [CAN_DB_SIG_IPK_SEND_E2_B3 - 1u] = SIG_CAN_IPK_SEND_E2_B3,
+    [CAN_DB_SIG_IPK_SEND_E2_B2 - 1u] = SIG_CAN_IPK_SEND_E2_B2,
+    [CAN_DB_SIG_IPK_SEND_E2_B1 - 1u] = SIG_CAN_IPK_SEND_E2_B1,
+    [CAN_DB_SIG_IPK_SEND_E2_B0 - 1u] = SIG_CAN_IPK_SEND_E2_B0,
     /* --- TX: IPK_EngineService (0x03E9, dlc=8) --- */
     [CAN_DB_SIG_IPK_IPKEngineTotalOdometer - 1u] = SIG_CAN_IPK_IPKEngineTotalOdometer,
     [CAN_DB_SIG_IPK_DayToEngSrv - 1u] = SIG_CAN_IPK_DayToEngSrv,
@@ -768,6 +823,66 @@ signal_id_t CanDb_DbcSigToBus(u16 db_sig_id)
     return s_dbc_to_bus[db_sig_id - 1u];
 }
 
+/* s_bus_to_timeout_bit[]: bus_id -> RX timeout 位图 bit-N 反查表。 */
+/* 仅 CanDb_SigToTimeoutBit() 使用；首次调用时按需构建，O(SIG_MAX)。 */
+static u8  s_bus_to_timeout_bit[SIG_MAX];
+static u8  s_bus_to_bit_built;
+
+/** @brief  首次按需构建 s_bus_to_timeout_bit[]（一次性 O(SIG_MAX) 初始化）。 */
+static void prv_build_bus_to_timeout_bit(void)
+{
+    /* Default sentinel_unused for every slot. */
+    for (u16 i = 0u; i < (u16)SIG_MAX; i++) {
+        s_bus_to_timeout_bit[i] = sentinel_unused;
+    }
+    /* For each RX MSG, walk its signals and stamp the same bit-N
+     * (= prv_lookup_bit_for_can_id()) into every signal slot. */
+    for (u16 m = 0u; m < (u16)CAN_DB_IPK_MSG_COUNT; m++) {
+        const can_msg_desc_t *md = &can_msg_descs_ipk[m];
+        if (md->is_tx != 0u) { continue; }   /* TX never in RX timeout map */
+        const u32 can_id = md->can_id;
+        /* Inline s_bit_to_can_id[] lookup (mirrors can_rx.c prv_bit_for_can_id). */
+        u8 bit = sentinel_unused;
+        for (u8 b = 0u; b < (u8)CAN_BITMAP_MAX; b++) {
+            if (s_bit_to_can_id[b] == can_id) {
+                bit = b;
+                break;
+            }
+        }
+        if (bit == sentinel_unused) { continue; }
+        const u16 sig_end = (u16)(md->sig_index + md->sig_count);
+        for (u16 k = md->sig_index; k < sig_end; k++) {
+            const signal_id_t bus_id = s_dbc_to_bus[k];
+            if (bus_id != SIG_INVALID) {
+                s_bus_to_timeout_bit[bus_id - 1u] = bit;
+            }
+        }
+    }
+    s_bus_to_bit_built = 1u;
+}
+
+/**
+ * @brief   把 signal-bus id 解析为它在 RX 超时位图里的 bit-N。
+ *
+ * @details 仅在首次调用时构建反查表，后续直读 BSS。bus_id 不映射到
+ *          任何 IPK RX MSG（TX signal / CAN bus health / 越界）时
+ *          返回 sentinel_unused。
+ *
+ * @param[in]  bus_id  SIG_CAN_* id 或 SIG_INVALID
+ *
+ * @return  见 can_db.h::CanDb_SigToTimeoutBit 声明
+ */
+u8 CanDb_SigToTimeoutBit(signal_id_t bus_id)
+{
+    if ((bus_id <= SIG_INVALID) || (bus_id >= SIG_MAX)) {
+        return sentinel_unused;
+    }
+    if (s_bus_to_bit_built == 0u) {
+        prv_build_bus_to_timeout_bit();
+    }
+    return s_bus_to_timeout_bit[bus_id - 1u];
+}
+
 /* ---------------------------------------------------------------- *
  *  Public API                                                       *
  * ---------------------------------------------------------------- */
@@ -841,19 +956,16 @@ const can_sig_desc_t *CanDb_FindIpkSig(u16 sig_id)
 }
 
 /**
- * @brief   Mark every signal of an IPK message as invalid (timeout-driven)
- * @brief   把某条 IPK 报文的所有 signal 标记为无效（超时驱动）
+ * @brief   在 OK->TIMED_OUT 边沿上按 signal 级别 policy 执行超时动作。
  *
- * @details v0.3: 给 IPK message index，走 sig_index/sig_count 得到该消息
- *          携带的所有 DBC signal，回查 s_dbc_to_bus[] 得到 signal_id_t，
- *          逐个 Signal_Invalidate()。 调用方 app/can/can_rx.c::prv_check_timeouts
- *          在 OK→TIMED_OUT 边沿触发；运行时业务方不应主动调用。
+ * @details 由 can_rx.c::prv_check_timeouts() 在边沿调用，业务方不应主动调用。
+ *          INIT_DBC (默认): 写 DBC init_value 进槽位；
+ *          KEEP_LAST (可选): 保留 slot 原值（timeout bitmap 是 SoT）。
  *
- * @param[in]  ipk_msg_index  IPK message index (0..CAN_DB_IPK_MSG_COUNT-1)
+ * @param[in]  ipk_msg_index  IPK 报文索引 (0..CAN_DB_IPK_MSG_COUNT-1)
  *
- * @return  c02b2_result_t
- * @retval  C02B2_OK            All signals of the message marked invalid
- * @retval  C02B2_ERR_PARAM     ipk_msg_index out of range
+ * @retval  C02B2_OK        policy 已应用
+ * @retval  C02B2_ERR_PARAM ipk_msg_index 越界
  */
 c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
 {
@@ -863,13 +975,57 @@ c02b2_result_t CanDb_InvalidateSignalsOnMsgTimeout(u16 ipk_msg_index)
     const can_msg_desc_t *md = &can_msg_descs_ipk[ipk_msg_index];
     for (u16 k = 0u; k < md->sig_count; k++) {
         const u16 db_sig_index = (u16)(md->sig_index + k);
-        const signal_id_t bus_id =
-            (db_sig_index < (u16)CAN_DB_IPK_SIG_COUNT)
-                ? s_dbc_to_bus[db_sig_index]
-                : SIG_INVALID;
-        if (bus_id != SIG_INVALID) {
-            Signal_Invalidate(bus_id);
+        if (db_sig_index >= (u16)CAN_DB_IPK_SIG_COUNT) {
+            continue;
+        }
+        const signal_id_t bus_id = s_dbc_to_bus[db_sig_index];
+        if (bus_id == SIG_INVALID) {
+            continue;
+        }
+        /* v0.5: INIT_DBC = 写 init_value; KEEP_LAST = 不动 slot
+         * (保留 "timeout 前最后一帧",valid 由 timeout bitmap 表达)。*/
+        if (SigTimeoutPolicy_Get(bus_id) == false) {
+            /* INIT_DBC: 写 DBC init_value 进 slot.
+             * 上层 Signal_IsValid()=false 时,Signal_Get() 返回此默认值。*/
+            (void)Signal_Set(bus_id, can_sig_descs_ipk[db_sig_index].init_value);
+        } else {
+            /* KEEP_LAST: 不写 slot,保留 "timeout 前最后一帧" raw.
+             * 业务方 Signal_Get() 仍能拿到,Signal_IsValid()=false 表明
+             * 当前是超时状态。timeout bitmap 是 SoT。*/
         }
     }
     return C02B2_OK;
+}
+
+
+/**
+ * @brief   设置单个 signal bus id 的超时策略（运行时可改）。
+ *
+ * @details 写入 bit-packed g_signal_timeout_policy 表；
+ *          下次 OK→TIMED_OUT 边沿生效。无锁（单核 + policy 写先于 tick 读）。
+ *
+ * @param[in]  bus_id   信号 id
+ * @param[in]  policy  INIT_DBC 或 KEEP_LAST
+ */
+c02b2_result_t CanDb_SetSignalTimeoutPolicy(signal_id_t bus_id,
+                                            sig_timeout_policy_t policy)
+{
+    if (bus_id <= SIG_INVALID || bus_id >= SIG_MAX) {
+        return C02B2_ERR_PARAM;
+    }
+    SigTimeoutPolicy_Set(bus_id, policy);
+    return C02B2_OK;
+}
+
+/**
+ * @brief   把超时策略表清零（全 INIT_DBC）。
+ *
+ * @details 由 CanDb_Init() 调用。CanDb_Init 之后业务模块可按 signal
+ *          用 CanDb_SetSignalTimeoutPolicy() 改写。
+ */
+void CanDb_InitTimeoutPolicy(void)
+{
+    for (u16 i = 0u; i < (u16)SIG_BITMAP_BYTES; i++) {
+        g_signal_timeout_policy[i] = 0u;   /* 0 = INIT_DBC */
+    }
 }

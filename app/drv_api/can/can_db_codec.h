@@ -105,6 +105,9 @@ typedef enum {
  *   - is_signed: 0 = unsigned, 1 = signed (two's complement).
  *   - factor / offset: physical = raw * factor + offset.
  *   - raw_type: storage hint (U8/I8/U16/...) used by the codec.
+ *   - init_value: RAW bit pattern derived from DBC BA_ "GenSigStartValue"
+ *              (reverse factor/offset applied). v0.4+: used by timeout policy
+ *              to fall back to a per-signal default instead of 0/raw last frame.
  */
 typedef struct {
     u16           start_bit;
@@ -115,6 +118,10 @@ typedef struct {
     float         factor;
     float         offset;
     can_raw_type_t raw_type;
+    u32           init_value;   /**< v0.4.1: DBC BA_ "GenSigStartValue" (CANdb++ 直接存 RAW bit pattern,无转换);
+                                  * 无 attribute 时 = 0u。
+                                  * 用途: 超时时由 CanDb_InvalidateSignalsOnMsgTimeout 在 policy=INIT_DBC 时
+                                  * 通过 Signal_Set(bus_id, init_value) 写回 bus。flash 常量(在 can_sig_descs_ipk[])。*/
 } can_sig_desc_t;
 
 /* ---------------------------------------------------------------- *

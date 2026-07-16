@@ -48,27 +48,19 @@ static c02b2_result_t prv_do_10ms_job(void)
 }
 
 /**
- * @brief   100 ms sub-task: read IGN signal, log a snapshot.
- * @brief   100ms 子任务：读取 IGN 信号，记录一次快照
+ * @brief   100ms 子任务：示例三种 Signal 总线 API 用法。
  *
- * @details Demonstrates the Signal_Get() pattern and using multiple
- *          log args. Replace with real work in actual modules.
- *
- * @return  c02b2_result_t  Always C02B2_OK
+ * @retval  C02B2_OK  恒返
  */
 static c02b2_result_t prv_do_100ms_job(void)
 {
-    /* v0.3 example: 三件套用法。
-     *   - 业务路径           → Signal_Get   (valid 时拿最新值, 否则 0 fallback)
-     *   - 仪表降级 / TX loopback → Signal_GetStored (强制取最近一次值, 保留超时前帧)
-     *   - 门控逻辑           → Signal_IsValid (valid && ever_set)
-     * 实际开发中按需要组合使用即可。*/
-    const u32 rpm        = Signal_Get(SIG_CAN_EMS_EngineSpeedRPM);
-    const u32 rpm_stored = Signal_GetStored(SIG_CAN_EMS_EngineSpeedRPM);
-    const bool rpm_ok    = Signal_IsValid(SIG_CAN_EMS_EngineSpeedRPM);
-    LOG_D("rpm=%u stored=%u valid=%u diag=%u",
-          (unsigned)rpm, (unsigned)rpm_stored,
-          (unsigned)rpm_ok, (unsigned)s_ctx.diag_value);
+    /* v0.5 示例：见 SIGNAL_GUIDE.md §8 */
+
+    const u32 rpm     = Signal_Get(SIG_CAN_EMS_EngineSpeedRPM);
+    const bool rpm_ok = Signal_IsValid(SIG_CAN_EMS_EngineSpeedRPM)
+                       && Signal_HasEverReceived(SIG_CAN_EMS_EngineSpeedRPM);
+    LOG_D("rpm=%u valid=%u diag=%u",
+          (unsigned)rpm, (unsigned)rpm_ok, (unsigned)s_ctx.diag_value);
     return C02B2_OK;
 }
 
