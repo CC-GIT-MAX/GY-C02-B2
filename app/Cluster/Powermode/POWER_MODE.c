@@ -39,6 +39,7 @@
 // #include "YTM_DELAY.h"
 // #include "printf.h"
 #include "io.h"
+#include "adc.h"
 #include "YTM32B1MD1.h"
 #include "log.h"
 #include "scheduler.h"
@@ -123,11 +124,6 @@ uchar8  MCU_30_RESET_E2_CNT;
 
 uchar8  POWER_GC_CLOSE_3s_Flag; //1-3sºó¹Ø±ÕGC
 
-//define  
-uint16 YTM_AD_READ(uchar8 channel) 
-{
-  return 0;
-}
 uint16 GC_COMM_FIRST_TEXT;
 uchar8  CAN_WAKEUP_GC;
 #define LENGTH1  29
