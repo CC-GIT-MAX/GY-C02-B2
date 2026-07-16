@@ -56,7 +56,7 @@ if echo "$SUBJECT" | grep -qE '^(Merge|Revert)[[:space:]]'; then
 fi
 
 # ----- R1 type -----
-if ! echo "$SUBJECT" | grep -qE '^(feat|fix|refactor|docs|test|build|ci|chore|perf|style)(\([^)]+\))?:[[:space:]]'; then
+if ! echo "$SUBJECT" | grep -qE '^(.+\s)?(feat|fix|refactor|docs|test|build|ci|chore|perf|style)(\([^)]+\))?:' && ! echo "$SUBJECT" | grep -qE '^(\S+ )?(feat|fix|refactor|docs|test|build|ci|chore|perf|style)(\([^)]+\))?:'; then
     echo "[FAIL] R1 type: subject 不在白名单或格式不对" >&2
     echo "       subject: $SUBJECT" >&2
     exit 1
@@ -70,7 +70,7 @@ fi
 
 # ----- R3 subject 中文字符 -----
 # 头 5 个 (含 type+scope 的 "xxx(xx):") 是 ASCII; 之后应主要为中文 (允许 < 30% 半角)
-SUBJ_AFTER_TYPE=$(echo "$SUBJECT" | sed -E 's|^[a-z]+(\([^)]+\))?:[[:space:]]+||')
+SUBJ_AFTER_TYPE=$(echo "$SUBJECT" | sed -E 's|^([a-z]+(\([^)]+\))?:[[:space:]]+)?||')
 ASCII_AFTER=$(printf '%s' "$SUBJ_AFTER_TYPE" | LC_ALL=C grep -o '[[:print:]]' | wc -m | tr -d ' ')
 NONASCII_AFTER=$(printf '%s' "$SUBJ_AFTER_TYPE" | wc -m | tr -d ' ')
 if [ "$NONASCII_AFTER" -gt 0 ]; then
