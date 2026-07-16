@@ -41,11 +41,12 @@
 #include "io.h"
 #include "adc.h"
 #include "YTM32B1MD1.h"
-#include "log.h"
 #include "scheduler.h"
 #include "rti.h"
 #include "signal.h"
 #include "can_rx.h"
+#define MOD_NAME  "PWR"
+#include "log.h"
 uint16  VREFH_AD_QUEUE[16];
 uint32 AVERAGE_POWER_VREFH_CALU_VALUE;
 uint32 VREFH_AD_AVERAGE;
@@ -1044,7 +1045,6 @@ void POWER_MODE_SLEEP(void)
 void WKU_IRQHandler(void)
 {
 }
-static rti_slot_t s_my_100ms;
 /* ========================================================================
  * Scheduler integration (mod_desc_t five-piece set)
  * 电源模块调度器集成：按五件套结构接入 scheduler 框架
@@ -1057,7 +1057,7 @@ static rti_slot_t s_slot_10ms;
 static rti_slot_t s_slot_100ms;
 static rti_slot_t s_slot_500ms;
 
-#define MOD_NAME  "PWR"
+
 
 /* Private context ------------------------------------------------------- */
 static struct {
