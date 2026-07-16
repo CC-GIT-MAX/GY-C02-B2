@@ -41,4 +41,62 @@ typedef uint8_t  byte;
 typedef uint16_t word;
 typedef uint32_t dword;
 
+
+typedef struct
+{
+    uint16   bit0: 1;
+    uint16   bit1: 1;
+    uint16   bit2: 1;
+    uint16 bit3: 1;
+    uint16 bit4: 1;
+    uint16 bit5: 1;
+    uint16 bit6: 1;
+    uint16 bit7: 1;
+    uint16 bit8: 1;
+    uint16 bit9: 1;
+    uint16 bit10: 1;
+    uint16 bit11: 1;
+    uint16 bit12: 1;
+    uint16 bit13: 1;
+    uint16 bit14: 1;
+    uint16 bit15: 1;
+} T_BITFLD16;
+
+
+/* Word with msb and lsb handling */
+typedef union
+{
+    struct
+    {
+        uint8  lsb;		 /*********************** intel format here */
+        uint8  msb;
+    } by;
+    uint16  wo;
+} T_BYTEFLD;
+
+/* Carrier of 16 bits with word or byte (msb & lsb) carrier handling */
+typedef union
+{
+    T_BITFLD16	  bi;
+    T_BYTEFLD 	  cr;
+} T_FLAG16;
+
+
+typedef struct
+{
+    unsigned int	bit0: 1;
+    unsigned int	bit1: 1;
+    unsigned int	bit2: 1;
+    unsigned int	bit3: 1;
+    unsigned int	bit4: 1;
+    unsigned int	bit5: 1;
+    unsigned int	bit6: 1;
+    unsigned int	bit7: 1;
+} T_BITFLD8;
+/* Carrier of 8 bits with byte */
+typedef union
+{
+    T_BITFLD8	bi;
+    uint8 by;
+} T_FLAG8;
 #endif /* C02B2_TYPES_H */
