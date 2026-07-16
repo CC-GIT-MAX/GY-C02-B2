@@ -1064,43 +1064,7 @@ static struct {
     uint8_t s_500ms_div;
 } s_ctx;
 
-/* --- 10 ms sub-task (原 RTOS.c YTM_RTI_10MS_FLAG 对应内容) ------------- */
-static void prv_run_10ms_jobs(void)
-{
-    /* 更新电源模式*/
-    C02_B2_PowerMode_Update();
 
-    /* 电源管理核心：电压采样+滤波+分级(POWER_MANAGEMENT_CHACK 原 10ms) */
-    POWER_MANAGEMENT_CHACK();
-
-    /* IGN 状态机 (KL15/KL30 边沿去抖+INIT_IGN_15/STANDBY_15 回调, 原 10ms) */
-    POWER_IGN_MODE_CHECK();
-
-    /* GC 上下电状态机 (POWER_GC_CLOSE_COUNTER>=300 对应 3s, 原 10ms) */
-    GC_POWER_STATUS_CHECK();
-
-    /* 休眠条件聚合 (检查各模块 STANDBY_FLAG → POWER_SLEEP_ENABLE) */
-    POWER_STANDBY_TASK();
-
-    /* 原 RTOS.c L131-L140: IGN OFF 累计计时 (每 10ms +1，上限 30000 = 300s) */
-    if (!POWER_IGN_ON) {
-        if (POWER_IGN_IS_OFF_COUNTER < 30000u) {
-            POWER_IGN_IS_OFF_COUNTER++;
-        }
-    } else {
-        POWER_IGN_IS_OFF_COUNTER = 0u;
-    }
-
-    if (++s_ctx.s_100ms_div >= 10u) {
-        s_ctx.s_100ms_div = 0u;
-        prv_run_100ms_jobs();
-    }
-
-    if (++s_ctx.s_500ms_div >= 50u) {
-        s_ctx.s_500ms_div = 0u;
-        prv_run_500ms_jobs();
-    }
-}
 
 /* --- 100 ms sub-task (原 RTOS.c YTM_RTI_100MS_FLAG 对应内容) ----------- */
 static void prv_run_100ms_jobs(void)
@@ -1141,7 +1105,43 @@ static void prv_run_500ms_jobs(void)
     }
 
 }
+/* --- 10 ms sub-task (原 RTOS.c YTM_RTI_10MS_FLAG 对应内容) ------------- */
+static void prv_run_10ms_jobs(void)
+{
+    /* 更新电源模式*/
+    C02_B2_PowerMode_Update();
 
+    /* 电源管理核心：电压采样+滤波+分级(POWER_MANAGEMENT_CHACK 原 10ms) */
+    POWER_MANAGEMENT_CHACK();
+
+    /* IGN 状态机 (KL15/KL30 边沿去抖+INIT_IGN_15/STANDBY_15 回调, 原 10ms) */
+    POWER_IGN_MODE_CHECK();
+
+    /* GC 上下电状态机 (POWER_GC_CLOSE_COUNTER>=300 对应 3s, 原 10ms) */
+    GC_POWER_STATUS_CHECK();
+
+    /* 休眠条件聚合 (检查各模块 STANDBY_FLAG → POWER_SLEEP_ENABLE) */
+    POWER_STANDBY_TASK();
+
+    /* 原 RTOS.c L131-L140: IGN OFF 累计计时 (每 10ms +1，上限 30000 = 300s) */
+    if (!POWER_IGN_ON) {
+        if (POWER_IGN_IS_OFF_COUNTER < 30000u) {
+            POWER_IGN_IS_OFF_COUNTER++;
+        }
+    } else {
+        POWER_IGN_IS_OFF_COUNTER = 0u;
+    }
+
+    if (++s_ctx.s_100ms_div >= 10u) {
+        s_ctx.s_100ms_div = 0u;
+        prv_run_100ms_jobs();
+    }
+
+    if (++s_ctx.s_500ms_div >= 50u) {
+        s_ctx.s_500ms_div = 0u;
+        prv_run_500ms_jobs();
+    }
+}
 /* mod_desc_t hooks ------------------------------------------------------ */
 
 /**
