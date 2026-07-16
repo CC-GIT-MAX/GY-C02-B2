@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Force UTF-8 locale so wc -m counts chars (not bytes) on
+# Git for Windows + PowerShell combo where default LANG='''' leaks.
+export LC_ALL="C.UTF-8"
+export LANG="C.UTF-8"
+
 # =============================================================================
 # @brief   Commit message lint for the C02-B2 project.
 # @brief   按 docs/COMMIT_CONVENTION.md 规则检查 commit message.
