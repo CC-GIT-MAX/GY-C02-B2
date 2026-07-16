@@ -20,9 +20,9 @@
 #define TAC_SEND_VALUE    1//宏定义，后续从TAC_INPUT.h中获取
 #define FUEL_NOW_STEPS    1//宏定义，后续从FUEL_CALCULATE.h中获取
 
-uint16 KAM_55AA __attribute__((section("SR_NOINIT_DATA")));					// RAM constant flag1
-uint16 KAM_CHECKSUM __attribute__((section("SR_NOINIT_DATA")));			// meters now value(XXX_NOW_STEPS) checksum 
-uint16 KAM_AA55 __attribute__((section("SR_NOINIT_DATA")));				 	// RAM constant flag2
+uint16 KAM_55AA=0x55AA;					// RAM constant flag1
+uint16 KAM_CHECKSUM=3;			// meters now value(XXX_NOW_STEPS) checksum 
+uint16 KAM_AA55=0XAA55;				 	// RAM constant flag2
 
 //*****************************************************************************
 // FunName: KAM_INIT_RESET

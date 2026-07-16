@@ -355,15 +355,6 @@ define block DATA_RAM_block with fixed order, alignment = 4
     block DATA_RAM_block
 };
 
-define block SR_NOINIT_DATA_block with fixed order, alignment = 4
-{
-    section SR_NOINIT_DATA
-};
-"RAM_SR_NOINIT_DATA": place in RAM
-{
-    block SR_NOINIT_DATA_block
-};
-
 check that size(block DATA_RAM_block) == size(block DATA_RAM_rom_block);
 
 
