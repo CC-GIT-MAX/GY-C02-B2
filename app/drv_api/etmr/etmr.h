@@ -23,4 +23,6 @@
  */
 c02b2_result_t Etmr_Init(void);
 
+status_t Etmr_PwmSetVALUE(uint32 instance,uint8 channel,uint32 dutyCycle,uint8 enable);
+
 #endif /* C02B2_DRV_API_ETMR_H */

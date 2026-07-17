@@ -1369,6 +1369,12 @@
                 <file>
                     <name>$PROJ_DIR$\..\app\drv_api\uart\uart.h</name>
                 </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\drv_api\uart\uart_parse.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\drv_api\uart\uart_parse.h</name>
+                </file>
             </group>
             <group>
                 <name>wdg</name>
