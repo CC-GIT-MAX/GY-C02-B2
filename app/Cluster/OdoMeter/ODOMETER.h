@@ -32,6 +32,7 @@ void ODOMETER_TRIP_DIVEND_CLEAR(void);
 
 #define TRIP_SAVE_ACTIVE  0u		// set 1 when trip need store into eeprom
 #define TRIPB_ACTIVE			0u		// set 1 when tripb need
+#define SPD_CAN_MODE              1
 
 #define ODO_DIAG_ENABLE		1u
 //-------------------------------------------------------------------
