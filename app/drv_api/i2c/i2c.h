@@ -39,4 +39,7 @@ void I2c_3367_Byte_Write(uint8 data);
 
 void I2c_Data_3367_Read(uint16 eep_address,uint8 rd_number,uint8 * p_header);
 
+
+void DATA_3367_WRITE(uint16 eep_address,uint8 wr_number,uint8 * p_header);
+
 #endif /* C02B2_DRV_API_I2C_H */

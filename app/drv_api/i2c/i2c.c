@@ -255,3 +255,33 @@ void I2c_Data_3367_Read(uint16 eep_address,uint8 rd_number,uint8 * p_header)
 	delay_10us(5);
 	PORT_3367_IIC_SDA_H;
 }
+
+void DATA_3367_WRITE(uint16 eep_address,uint8 wr_number,uint8 * p_header)		//只能单字节写入
+{
+	
+	PORT_3367_IIC_SDA_O;							//set data line output mode
+	PORT_3367_IIC_SCK_O;							//set clock line output mode
+	PORT_3367_IIC_SDA_H;
+	PORT_3367_IIC_SCK_H;
+
+	delay_10us(3);
+	
+	PORT_3367_IIC_SDA_L;							//START
+	delay_10us(3);
+	PORT_3367_IIC_SCK_L;
+	delay_10us(3);
+
+	I2c_3367_Byte_Write(0x70); 
+	I2c_3367_Byte_Write((uint8)eep_address);  
+		
+	for(;wr_number!=0;wr_number--,p_header++)
+	{
+		I2c_3367_Byte_Write(*p_header);
+	}
+	
+	PORT_3367_IIC_SDA_L;
+	delay_10us(3);						//STOP
+	PORT_3367_IIC_SCK_H;	
+	delay_10us(3);
+	PORT_3367_IIC_SDA_H;
+}
