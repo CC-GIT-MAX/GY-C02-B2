@@ -14,7 +14,7 @@
 
 #include "ODO_TRIP.h"
 #include "ODO_SEASON.h"
-// #include "SPD_INPUT.h"
+#include "SPD_INPUT.h"
 #include "POWER_MODE.h"
 #include "i2c.h"
 // #include "DIC_INFO.h"
@@ -77,8 +77,6 @@ uint32 TRIP_Single_VALUE;
 uint32 SPD_RATE;
 uint8 EEPROM_WRITE_BUSY=0;
 uint8 TEL_SERVICE_DAY_WRITE_REQ=1;
-uint16 SPD_INPUT_VALUE;   //0.1km/h
-uint8 SPD_INPUT_MODE=SPD_CAN_MODE;
 uint16  Trip_Single_REMA,Trip_Single_100Ms_M;
 uint16  PRINT_UINT_100m_ADD_CNT; 
 uint32 FUEL_INC_ODO;
