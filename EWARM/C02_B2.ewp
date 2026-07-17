@@ -395,6 +395,7 @@
           <state>$PROJ_DIR$\..\app\Cluster\Algorithm</state>
           <state>$PROJ_DIR$\..\app\Cluster\Powermode</state>
           <state>$PROJ_DIR$\..\app\Cluster\OdoMeter</state>
+          <state>$PROJ_DIR$\..\app\Cluster\Meter</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1210,6 +1211,33 @@
         </file>
         <file>
           <name>$PROJ_DIR$\..\app\Cluster\OdoMeter\ODOMETER.h</name>
+        </file>
+      </group>
+      <group>
+        <name>Meter</name>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\SPD_INPUT.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\SPD_INPUT.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\SPD_CALCULATE.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\SPD_CALCULATE.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\SPD_OUTPUT.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\SPD_OUTPUT.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\mod_speed.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\Cluster\Meter\mod_speed.h</name>
         </file>
       </group>
       <group>
