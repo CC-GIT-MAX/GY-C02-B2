@@ -85,7 +85,7 @@ void ODO_SEASON_PULSE_INC(void)
 #endif
 }
 
-void ODO_SEASON_INC(void)//????odo
+void ODO_SEASON_INC(void)//里程增加
 {
   
   if(SEASON_VALUE<9999999)
@@ -153,21 +153,21 @@ uint32 ODO_SEASON_READ_CHECK(void)
 	for(counter=0;counter<=3;counter++)			//if find any error,read again,total 3 times.
 	{
 		for(i=0;i<4;i++)	temp[i]=0;
-		EEPROM_READ(0x10,4,temp);
+		I2c_Eeprom_Read(0x10,4,temp);
 		SEASON_EEPROM1=temp[3];		SEASON_EEPROM1=SEASON_EEPROM1<<8;
 		SEASON_EEPROM1+=temp[2];	SEASON_EEPROM1=SEASON_EEPROM1<<8;
 		SEASON_EEPROM1+=temp[1];	SEASON_EEPROM1=SEASON_EEPROM1<<8;
 		SEASON_EEPROM1+=temp[0];
 
 		for(i=0;i<4;i++)	temp[i]=0;
-		EEPROM_READ(0x14,4,temp);
+		I2c_Eeprom_Read(0x14,4,temp);
 		SEASON_EEPROM2=temp[3];		SEASON_EEPROM2=SEASON_EEPROM2<<8;
 		SEASON_EEPROM2+=temp[2];	SEASON_EEPROM2=SEASON_EEPROM2<<8;
 		SEASON_EEPROM2+=temp[1];	SEASON_EEPROM2=SEASON_EEPROM2<<8;
 		SEASON_EEPROM2+=temp[0];
 
 		for(i=0;i<4;i++)	temp[i]=0;
-		EEPROM_READ(0x18,4,temp);
+		I2c_Eeprom_Read(0x18,4,temp);
 		SEASON_EEPROM3=temp[3];		SEASON_EEPROM3=SEASON_EEPROM3<<8;
 		SEASON_EEPROM3+=temp[2];	SEASON_EEPROM3=SEASON_EEPROM3<<8;
 		SEASON_EEPROM3+=temp[1];	SEASON_EEPROM3=SEASON_EEPROM3<<8;
@@ -234,7 +234,7 @@ void ODO_SEASON_WRITE(uint8 index)
 			temp[1]=(uint8)((season>>8)&0xFF);
 			temp[0]=(uint8)(season&0xFF);
 				
-			if(index==1)			EEPROM_WRITE_NO_DELAY(0x10,4,temp);    //???????¨????×????ê?¨????
+			if(index==1)			EEPROM_WRITE_NO_DELAY(0x10,4,temp);    //写入备份槽1
 			else if(index==2)	EEPROM_WRITE_NO_DELAY(0x14,4,temp);
 			else if(index==3)	EEPROM_WRITE_NO_DELAY(0x18,4,temp);
 		}
@@ -259,7 +259,7 @@ void ODO_SEASON_DIAG_SETUP(uint32 season)
 
 uint8 Get_IPK_OdometerbackupEnable(void)
 {
-#if OdometerbackupEnable//C02_B2????????
+#if OdometerbackupEnable//C02_B2 里程备份使能
    return  IPK_OdometerbackupEnable;
 #else
 	return 0;
@@ -268,7 +268,7 @@ uint8 Get_IPK_OdometerbackupEnable(void)
 
 void ODO_SEASON_BACKUP_TASK(void)
 {
-#if OdometerbackupEnable//C02_B2????????
+#if OdometerbackupEnable//C02_B2 里程备份使能
 	uint8 backup_req=0;
 	uint8 temp[8];
 	uint32 bcm_odo,ems_odo,backup_value,delta,season;
@@ -347,7 +347,7 @@ void ODO_SAVE_OFFSET(uint32 tar)
 	uint32 offset,delta;
 
 /*
-	EEPROM_READ(ADDRESS_OFFSET_ODO,4,temp);
+	I2c_Eeprom_Read(ADDRESS_OFFSET_ODO,4,temp);
 	offset=temp[3];		offset=offset<<8;
 	offset+=temp[2];	offset=offset<<8;
 	offset+=temp[1];	offset=offset<<8;
@@ -405,7 +405,7 @@ uint32 ODO_GET_TOTAL_offset(void)
 	uint8 temp[4];
 	uint32 offset;
 
-	EEPROM_READ(ADDRESS_OFFSET_ODO,4,temp);
+	I2c_Eeprom_Read(ADDRESS_OFFSET_ODO,4,temp);
 	offset=temp[3]; 	offset=offset<<8;
 	offset+=temp[2];	offset=offset<<8;
 	offset+=temp[1];	offset=offset<<8;
@@ -420,7 +420,7 @@ uint32 ODO_GET_TOTAL(void)
 	uint32 total,offset;
 
 /*
-	EEPROM_READ(ADDRESS_OFFSET_ODO,4,temp);
+	I2c_Eeprom_Read(ADDRESS_OFFSET_ODO,4,temp);
 	offset=temp[3];		offset=offset<<8;
 	offset+=temp[2];	offset=offset<<8;
 	offset+=temp[1];	offset=offset<<8;

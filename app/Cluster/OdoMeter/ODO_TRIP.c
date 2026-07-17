@@ -90,7 +90,7 @@ void ODO_TRIP_CAL_READ(void)
 	uint8 temp[4];
 	uint32 short_temp;
 		
-	EEPROM_READ(ADDRESS_TRIPB,4,temp);
+	I2c_Eeprom_Read(ADDRESS_TRIPB,4,temp);
 	short_temp=temp[3];	  short_temp=short_temp<<8;
 	short_temp+=temp[2];	short_temp=short_temp<<8;
 	short_temp+=temp[1];	short_temp=short_temp<<8;
@@ -190,7 +190,7 @@ void ODO_TRIPA_INC_100M(void)
 	} */
 }
 
-void ODO_TRIPA_CLEAR(void) //?è???±?÷??
+void ODO_TRIPA_CLEAR(void) //清除小计里程A
 {
 	if(TRIPA_VALUE!=0)  TRIPA_1KM_WRITE_REQUEST=1;
 
@@ -218,7 +218,7 @@ void ODO_TRIPA_READ(void)
 /*	uint8 temp[2];
 	uint16 short_temp;
 		
-	EEPROM_READ(ADDRESS_TRIPA,2,temp);
+	I2c_Eeprom_Read(ADDRESS_TRIPA,2,temp);
 	short_temp=temp[1];	short_temp=(short_temp<<8)+temp[0];
 	if(short_temp>9999) short_temp=0;
 	TRIPA_VALUE=short_temp;
@@ -321,7 +321,7 @@ void ODO_TRIPB_READ(void)
 	uint8 temp[4];
 	uint32 short_temp;
 		
-	EEPROM_READ(ADDRESS_TRIPB,4,temp);
+	I2c_Eeprom_Read(ADDRESS_TRIPB,4,temp);
 	short_temp=temp[3];	  short_temp=short_temp<<8;
 	short_temp+=temp[2];	short_temp=short_temp<<8;
 	short_temp+=temp[1];	short_temp=short_temp<<8;
