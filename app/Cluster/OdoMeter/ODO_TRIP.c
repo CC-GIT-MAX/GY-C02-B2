@@ -190,7 +190,7 @@ void ODO_TRIPA_INC_100M(void)
 	} */
 }
 
-void ODO_TRIPA_CLEAR(void) //?¨¨???¡À?¡Â??
+void ODO_TRIPA_CLEAR(void) //?Ã¨???Â±?Ã·??
 {
 	if(TRIPA_VALUE!=0)  TRIPA_1KM_WRITE_REQUEST=1;
 
@@ -359,7 +359,7 @@ void ODO_TRIPB_WRITE(void)
 	temp[0]=(uint8)(trip_b&0xFF);
 	
 	
-//	EEPROM_WRITE(ADDRESS_TRIPB,4,temp);
+//	I2c_Eeprom_Write(ADDRESS_TRIPB,4,temp);
 }
 extern uint8 POWER_GC_COMM_COUNTER;
 void TRIP_Single_VALUE_100M(void) 

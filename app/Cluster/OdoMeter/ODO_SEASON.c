@@ -234,7 +234,7 @@ void ODO_SEASON_WRITE(uint8 index)
 			temp[1]=(uint8)((season>>8)&0xFF);
 			temp[0]=(uint8)(season&0xFF);
 				
-			if(index==1)			EEPROM_WRITE_NO_DELAY(0x10,4,temp);    //???????¡§????¡Á????¨º?¡§????
+			if(index==1)			EEPROM_WRITE_NO_DELAY(0x10,4,temp);    //???????Â¨????Ã—????Ãª?Â¨????
 			else if(index==2)	EEPROM_WRITE_NO_DELAY(0x14,4,temp);
 			else if(index==3)	EEPROM_WRITE_NO_DELAY(0x18,4,temp);
 		}
@@ -334,7 +334,7 @@ void ODO_SEASON_BACKUP_TASK(void)
 				temp[6]=(uint8)((backup_value>>16)&0xFF);
 				temp[7]=(uint8)((backup_value>>24)&0xFF);
 				//REFRESH_WATCHDOG( );						// Refresh watchdog
-				EEPROM_WRITE(ADDRESS_ODO_BACKUP_SNAPSHOT,8,temp);
+				I2c_Eeprom_Write(ADDRESS_ODO_BACKUP_SNAPSHOT,8,temp);
 			}
 		}
 	}
@@ -397,7 +397,7 @@ void ODO_SAVE_OFFSET(uint32 tar)
 	temp[3]=(uint8)((offset>>24)&0xFF);
 
 	//REFRESH_WATCHDOG( );						// Refresh watchdog
-	EEPROM_WRITE(ADDRESS_OFFSET_ODO,4,temp);
+	I2c_Eeprom_Write(ADDRESS_OFFSET_ODO,4,temp);
 }
 
 uint32 ODO_GET_TOTAL_offset(void)
