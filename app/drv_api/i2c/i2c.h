@@ -11,6 +11,7 @@
 #define C02B2_DRV_API_I2C_H
 
 #include "result.h"
+#include "types.h"
 
 /**
  * @brief   Initialize the I2C peripheral
@@ -21,6 +22,21 @@
  *
  * @return  c02b2_result_t    C02B2_OK: Initialization succeeded
  */
-c02b2_result_t I2c_Init(void);
+status_t I2c_Init(void);
+
+
+void I2c_Memory_Reset(void);
+
+
+status_t I2c_Eeprom_Write(uint16 eep_address,uint8 wr_number,uint8* p_header);
+
+
+status_t I2c_Eeprom_Read(uint16 eep_address,uint8 rd_number,uint8 * p_header);
+
+
+void I2c_3367_Byte_Write(uint8 data);
+
+
+void I2c_Data_3367_Read(uint16 eep_address,uint8 rd_number,uint8 * p_header);
 
 #endif /* C02B2_DRV_API_I2C_H */

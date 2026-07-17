@@ -67,9 +67,7 @@ extern const mod_desc_t mod_odometer;
 #define ADDRESS_ODO_CLEAR_SUM				0x1AD    //总计里程清零总和 2
 #define SPD_PULSE_MODE            0
 #define SPD_CAN_MODE              1
- 
-void EEPROM_READ(uint16 eep_address,uint8 rd_number,uint8 * p_header);
-void EEPROM_WRITE_NO_DELAY(uint16 eep_address,uint8 wr_number,uint8* p_header);
+
 extern uint8  TRIP_CLEAR_TXGC_FLAG; 
 extern uint8 IPK_RstTrip2;
 extern uint8 IPK_RstTrip2_Send_Cnt;

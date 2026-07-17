@@ -16,7 +16,7 @@
 #include "ODO_SEASON.h"
 // #include "SPD_INPUT.h"
 #include "POWER_MODE.h"
-//#include "i2c.h"
+#include "i2c.h"
 // #include "DIC_INFO.h"
 // #include "METER.h"
 // #include "TAC_INPUT.h"
@@ -59,10 +59,6 @@ uint16  Trip_A_REMA,Trip_A_100Ms_M;
 uint16  Trip_B_REMA,Trip_B_100Ms_M;
 
 //define
-void EEPROM_WRITE_NO_DELAY(uint16 eep_address,uint8 wr_number,uint8* p_header)
-{
-
-}
 void TEL_COMM_SERVICE_WRITE(uint8 diag)
 {
 
@@ -470,8 +466,8 @@ void ODO_CLEAR_TASK(void)
 //-------------------------------------------------------------------------------------------------
 	if(ODO_CLEAR_REQUEST_BUTTON ||ODO_CLEAR_REQUEST_DIAG||ODO_CLEAR_REQUEST_CAN)
 	{
-		EEPROM_READ(ADDRESS_ODO_CLEAR,1,temp);
-		EEPROM_READ(ADDRESS_ODO_CLEAR_SUM,2,temp1);
+		I2c_Eeprom_Read(ADDRESS_ODO_CLEAR,1,temp);
+		I2c_Eeprom_Read(ADDRESS_ODO_CLEAR_SUM,2,temp1);
 		if((temp1[0]==0xff)&&(temp1[1]==0xff)){ temp1[0] = 0;temp1[1] = 0;}
 		SEASON_VALUE_SUM=temp1[1];  SEASON_VALUE_SUM=(SEASON_VALUE_SUM<<8)+temp1[0];
 		SEASON_VALUE_SUM += SEASON_VALUE;
@@ -494,12 +490,12 @@ void ODO_CLEAR_TASK(void)
 			ODO_SAVE_OFFSET(0);
 			temp[0]=clear_times;
 			ODOClear_times = clear_times;
-			EEPROM_WRITE(ADDRESS_ODO_CLEAR,1,temp);
+			I2c_Eeprom_Write(ADDRESS_ODO_CLEAR,1,temp);
     //   _FEED_COP();						// Refresh watchdog
 
 			temp1[1]=(uint8)((SEASON_VALUE_SUM>>8)&0xFF);
 			temp1[0]=(uint8)(SEASON_VALUE_SUM&0xFF);
-			EEPROM_WRITE(ADDRESS_ODO_CLEAR_SUM,2,temp1);
+			I2c_Eeprom_Write(ADDRESS_ODO_CLEAR_SUM,2,temp1);
 		}
 		if(SEASON_VALUE_SUM>=5000) ODO_CLEAR_ODOOVER500KM=1;
 		else ODO_CLEAR_ODOOVER500KM=0;

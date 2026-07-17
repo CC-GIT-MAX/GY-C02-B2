@@ -20,6 +20,47 @@
 #define PORT_GC_PW_EN_O               Io_SetPinDirection(GPIOE, 9, GPIO_OUTPUT_DIRECTION)
 #define PORT_GC_PW_EN_H               Io_WritePin(GPIOE, 9, 1u)
 #define PORT_GC_PW_EN_L               Io_WritePin(GPIOE, 9, 0u)
+
+//-------------------------------------------------------------------
+// CAN2收发器控制引脚配置 (PTC16)
+//-------------------------------------------------------------------
+#define PORT_CAN2_STB_O              PCTRLC->PCR[8]=0x0100;   GPIOC->POER|=1<<8
+#define PORT_CAN2_STB_H              GPIOC->PSOR=1<<8
+#define PORT_CAN2_STB_L              GPIOC->PCOR=1<<8
+
+#define PORT_CAN1_STB_O              PCTRLC->PCR[9]=0x0100;   GPIOC->POER|=1<<9
+#define PORT_CAN1_STB_H              GPIOC->PSOR=1<<9
+#define PORT_CAN1_STB_L              GPIOC->PCOR=1<<9
+
+//-------------------------------------------------------------------
+// EEPROM IIC引脚配置 (PTA2/PTA3)
+//-------------------------------------------------------------------
+#define PORT_EEP_IIC_SCK_O          Io_SetMuxModeSel(PCTRLA,3,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOA,3,GPIO_OUTPUT_DIRECTION)
+#define PORT_EEP_IIC_SCK_I          Io_SetMuxModeSel(PCTRLA,3,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOA,3,GPIO_INPUT_DIRECTION)
+#define PORT_EEP_IIC_SCK_H          Io_WritePin(GPIOA,3,1)
+#define PORT_EEP_IIC_SCK_L          Io_WritePin(GPIOA,3,0)
+#define PORT_EEP_IIC_SDA_O          Io_SetMuxModeSel(PCTRLA,2,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOA,2,GPIO_OUTPUT_DIRECTION)
+#define PORT_EEP_IIC_SDA_H          Io_WritePin(GPIOA,2,1)
+#define PORT_EEP_IIC_SDA_L          Io_WritePin(GPIOA,2,0)
+#define PORT_EEP_IIC_SDA_I          Io_SetMuxModeSel(PCTRLA,2,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOA,2,GPIO_INPUT_DIRECTION)
+#define PORT_EEP_IIC_SDA_IS_H       (Io_ReadPin(GPIOA,2))
+#define PORT_EEP_IIC_SDA_IS_L       (!Io_ReadPin(GPIOA,2))
+
+//-------------------------------------------------------------------
+// 3367 IIC通信引脚配置 (PTB0/PTB1)
+//-------------------------------------------------------------------
+#define PORT_3367_IIC_SCK_O          Io_SetMuxModeSel(PCTRLB,1,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOB,1,GPIO_OUTPUT_DIRECTION)
+#define PORT_3367_IIC_SCK_I          Io_SetMuxModeSel(PCTRLB,1,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOB,1,GPIO_INPUT_DIRECTION)
+#define PORT_3367_IIC_SCK_H          Io_WritePin(GPIOB,1,1)
+#define PORT_3367_IIC_SCK_L          Io_WritePin(GPIOB,1,0)
+#define PORT_3367_IIC_SDA_O          Io_SetMuxModeSel(PCTRLB,0,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOB,0,GPIO_OUTPUT_DIRECTION)
+#define PORT_3367_IIC_SDA_H          Io_WritePin(GPIOB,0,1)
+#define PORT_3367_IIC_SDA_L          Io_WritePin(GPIOB,0,0)
+#define PORT_3367_IIC_SDA_I          Io_SetMuxModeSel(PCTRLB,0,PCTRL_MUX_AS_GPIO);  Io_SetPinDirection(GPIOB,0,GPIO_INPUT_DIRECTION)
+#define PORT_3367_IIC_SDA_IS_H       (Io_ReadPin(GPIOB,0))
+#define PORT_3367_IIC_SDA_IS_L       (!Io_ReadPin(GPIOB,0))
+
+
 //IO define   ..............................
 /**
  * @brief   Write a masked set of pins on a GPIO port

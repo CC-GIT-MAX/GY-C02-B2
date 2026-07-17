@@ -18,6 +18,7 @@
 #define C02B2_RESULT_H
 
 #include <stdint.h>
+#include <status.h>
 
 typedef int32_t c02b2_result_t;
 

@@ -2,7 +2,7 @@
 
 #include "ODOMETER.h"
 // #include "CALIBRATE.h"
-// #include "YTM_EEPROM.h"
+#include "i2c.h"
 
 // #include "COMM_CAN_APPLY.h"
 // #include "DIC_INFO.h"
@@ -236,7 +236,7 @@ void ODO_TRIPA_WRITE(void)
 	temp[1]=(uint8)((trip_a>>8)&0xFF);
 	temp[0]=(uint8)(trip_a&0xFF);
 	
-	EEPROM_WRITE_NO_DELAY(ADDRESS_TRIPA,2,temp); */
+	I2c_Eeprom_Write(ADDRESS_TRIPA,2,temp); */
 }
 //---------------------------------------------------------------------------------------
 void ODO_TRIPB_PULSE_INC(void)

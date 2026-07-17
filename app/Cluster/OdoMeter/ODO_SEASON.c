@@ -1,7 +1,7 @@
 #include "ODO_SEASON.h"
 
 #include "ODOMETER.h"
-// #include "YTM_EEPROM.h"
+#include "i2c.h"
 // #include "CALIBRATE.h"
 // #include "Zd_app.h"
 // #include "COMM_CAN_APPLY.h"
@@ -45,6 +45,7 @@ void ODO_SEASON_INIT_RESET(uint8 cold_boot)
 		SEASON_1KM_WRITE_COUNTER=0;
 		Odo_Offset=0;
 	}
+    ODO_SEASON_READ();
 }
 
 void ODO_SEASON_INIT_IGN(void)
@@ -234,9 +235,9 @@ void ODO_SEASON_WRITE(uint8 index)
 			temp[1]=(uint8)((season>>8)&0xFF);
 			temp[0]=(uint8)(season&0xFF);
 				
-			if(index==1)			EEPROM_WRITE_NO_DELAY(0x10,4,temp);    //写入备份槽1
-			else if(index==2)	EEPROM_WRITE_NO_DELAY(0x14,4,temp);
-			else if(index==3)	EEPROM_WRITE_NO_DELAY(0x18,4,temp);
+			if(index==1)			I2c_Eeprom_Write(0x10,4,temp);    //写入备份槽1
+			else if(index==2)	I2c_Eeprom_Write(0x14,4,temp);
+			else if(index==3)	I2c_Eeprom_Write(0x18,4,temp);
 		}
 		else	ODO_SEASON_READ();
 	}
