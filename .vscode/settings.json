@@ -1,0 +1,22 @@
+{
+  // 强制工作区内文件按 UTF-8 读写，禁止 VSCode 自动嗅探编码。
+  // 背景：仓库历史上混用 GBK 与 UTF-8，导致 .c/.h 中文注释反复被替换为 `?`。
+  // 一旦开启 autoGuessEncoding，VSCode 会把已经"看起来像 ASCII"但实际是 GBK 的文件
+  // 误判成 UTF-8，从而破坏中文。新成员 clone 后这套配置自动生效，可杜绝此类事故。
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": false,
+
+  // 按语言再次显式锁定，避免某个扩展或工作区设置意外覆盖。
+  "[c]": {
+    "files.encoding": "utf8"
+  },
+  "[h]": {
+    "files.encoding": "utf8"
+  },
+
+  // 默认 EOL 与 .gitattributes 中 `* text=auto eol=lf` 保持一致。
+  "files.eol": "\n",
+
+  // 关闭 git 自动检测到的 CRLF 转换提示，避免 Windows 用户在状态栏看到噪音。
+  "git.enableSmartCommit": true
+}
