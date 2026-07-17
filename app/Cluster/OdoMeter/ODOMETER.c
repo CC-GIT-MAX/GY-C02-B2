@@ -16,7 +16,7 @@
 #include "ODO_SEASON.h"
 #include "SPD_INPUT.h"
 #include "POWER_MODE.h"
-// #include "YTM_EEPROM.h"
+//#include "i2c.h"
 // #include "DIC_INFO.h"
 // #include "METER.h"
 // #include "TAC_INPUT.h"
@@ -59,15 +59,7 @@ uint16  Trip_A_REMA,Trip_A_100Ms_M;
 uint16  Trip_B_REMA,Trip_B_100Ms_M;
 
 //define
-void EEPROM_READ(uint16 eep_address,uint8 rd_number,uint8 * p_header)
-{
-
-}
 void EEPROM_WRITE_NO_DELAY(uint16 eep_address,uint8 wr_number,uint8* p_header)
-{
-
-}
-void EEPROM_WRITE(uint16 eep_address,uint8 wr_number,uint8* p_header)
 {
 
 }
@@ -261,9 +253,9 @@ void ODO_WRITE_TASK(void)
 		if(TEL_SERVICE_DAY_WRITE_REQ)
 		{
 			TEL_SERVICE_DAY_WRITE_REQ=0;
-			//TEL_COMM_SERVICE_DAY_SAVE();���������ֲ���ʱ�Ƴ�ע��
+			//TEL_COMM_SERVICE_DAY_SAVE();保养里程移植完成时移除注释
 		}
-//		if(1==FRS_ODO.write_falg) //������ʻ���  //FS11-A3  DISABLE
+//		if(1==FRS_ODO.write_falg) //风险行驶里程  //FS11-A3  DISABLE
 //		{
 //  		FRS_ODO_SEASON_WRITE(); 
 //  		FRS_ODO.write_falg=0; 
@@ -325,7 +317,7 @@ void ODO_100MS_UPDATE(void)
 	//else if(SPD_INPUT_VALUE<20)	spd_input_value=0;
 	//else 
 	spd_input_value=SPD_INPUT_VALUE;
-	if(spd_input_value>2600)	spd_input_value=2600;//�ܼ���̺�С������ۼƳ��ٳ���260km/hʱ����260km/h����������� 
+	if(spd_input_value>2600)	spd_input_value=2600;//总计里程和小计里程累计车速超过260km/h时，按260km/h计算里程增加 
 //---------------------------------------------------------
 	SEASON_100MS_COUNTER++;
 	if(SEASON_100MS_COUNTER>=20)
@@ -348,7 +340,7 @@ void ODO_100MS_UPDATE(void)
 			Trip_Single_REMA+=temp%18;
 		  	if(Trip_Single_REMA>=18)	{	Trip_Single_REMA-=18;	Trip_Single_100Ms_M++;	}
 
-		  //	Saling_REAM+=temp%18;  //������̱�ȡ��
+		  //	Saling_REAM+=temp%18;  //回收里程被取消
 		  	//FRS_ODO.Odo_Add_Ream+=temp%18;  //FS11-A3  DISABLE
 
 		  	temp/=18;
@@ -421,7 +413,7 @@ void ODO_100MS_UPDATE(void)
 					ODO_TRIPB_INC_100M();
 				#endif
 				 
-				//�����������  
+				//保养里程增加  
 				//DIC_INFO_ODO_UPDATE();
 			}
 		}
@@ -439,10 +431,10 @@ void ODO_100MS_UPDATE(void)
 		if(SEASON_20MS_REMAINDER>=9)	{	SEASON_20MS_REMAINDER-=9;	SEASON_20MS_M++;	}
 		if(SEASON_20MS_M>=32000)
 		{
-			SEASON_20MS_M-=32000; //�����������
+			SEASON_20MS_M-=32000; //续航里程增加
 			//DIC_INFO_DTE_32M_UPDATE();
 			//TEL_COMM_SEATBELT_ODO_INC();
-		// DIC_FUEL_RANGE_UPDATE();	DICģ����ֲ���ʱ���ע��
+		// DIC_FUEL_RANGE_UPDATE();	DIC模块移植完成时解除注释
 		}
 	}
 }
@@ -468,7 +460,7 @@ void ODO_CLEAR_TASK(void)
 	else clear_enable=1;
 	if(!clear_enable)
 	{
-		ODO_CLEAR_REQUEST_BUTTON=0; //��������ֻ�ʺϰ��� 20200513 jinhao
+		ODO_CLEAR_REQUEST_BUTTON=0; //上述条件只适合按键 20200513 jinhao
 	//	DIC_BUTTON_IGN_PRESS=0;
 	}
 

@@ -1503,6 +1503,15 @@
                 </file>
             </group>
             <group>
+                <name>delay</name>
+                <file>
+                    <name>$PROJ_DIR$\..\app\drv_api\delay\delay.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\app\drv_api\delay\delay.h</name>
+                </file>
+            </group>
+            <group>
                 <name>can</name>
                 <file>
                     <name>$PROJ_DIR$\..\app\drv_api\can\can_db.c</name>
