@@ -16,7 +16,7 @@
 #include "ODO_SEASON.h"
 // #include "SPD_INPUT.h"
 #include "POWER_MODE.h"
-// #include "YTM_EEPROM.h"
+//#include "i2c.h"
 // #include "DIC_INFO.h"
 // #include "METER.h"
 // #include "TAC_INPUT.h"
@@ -59,15 +59,7 @@ uint16  Trip_A_REMA,Trip_A_100Ms_M;
 uint16  Trip_B_REMA,Trip_B_100Ms_M;
 
 //define
-void EEPROM_READ(uint16 eep_address,uint8 rd_number,uint8 * p_header)
-{
-
-}
 void EEPROM_WRITE_NO_DELAY(uint16 eep_address,uint8 wr_number,uint8* p_header)
-{
-
-}
-void EEPROM_WRITE(uint16 eep_address,uint8 wr_number,uint8* p_header)
 {
 
 }
