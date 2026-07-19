@@ -26,6 +26,7 @@
  *   都能得到逐字节的事件,无需修改 board 层配置。
  */
 #include "uart.h"
+#include "uart_parse.h"      /* 协议解析层:与硬件层一并初始化 */
 #include "sdk_project_config.h"
 
 #include <stddef.h>
@@ -169,6 +170,9 @@ c02b2_result_t Uart_Init(void)
     s_rx_byte_cb     = NULL;
     s_rx_byte_ctx    = NULL;
     s_in_drain       = 0U;
+
+    /* 协议解析层: 与硬件层一并初始化,统一管理入口 */
+    (void)Uart_Parse_Init();
 
     return C02B2_OK;
 }

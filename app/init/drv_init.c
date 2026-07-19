@@ -29,7 +29,6 @@
 #include "drv_api/etmr/etmr.h"          /* Etmr_Init (counter + PWM channels)  */
 #include "drv_api/i2c/i2c.h"            /* I2c_Init (master mode)              */
 #include "drv_api/uart/uart.h"          /* Uart_Init (LINFlexD UART0)          */
-#include "drv_api/uart/uart_parse.h"    /* Uart_Parse_Init (RX byte handler)   */
 #include "drv_api/can/can_if.h"         /* Can_Init (FlexCAN1 + FlexCAN2)      */
 #include "drv_api/fpu/fpu.h"            /* Fpu_Init (CPACR + IPC + FPUIE)      */
 #include "drv_api/flash/flash.h"        /* Flash_Init (used by app/storage/kv) */
@@ -57,8 +56,6 @@ c02b2_result_t DRV_Init(void)
     Etmr_Init();
     I2c_Init();
     Uart_Init();
-    /* 解析模块必须晚于 Uart_Init —— 它要向 UART 注册逐字节 RX 回调 */
-    (void)Uart_Parse_Init();
     Can_Init();
     Flash_Init();
     LOG_I("DRV init OK");
